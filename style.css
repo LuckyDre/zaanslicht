@@ -42,8 +42,16 @@ header {
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--wit);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 .logo span { color: var(--oranje); }
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
 
 nav a {
   color: var(--tekst-dim);
