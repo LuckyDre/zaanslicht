@@ -203,11 +203,12 @@
       <h2>Contact</h2>
       <div class="accent-line"></div>
     </div>
-    <form class="contact-form" action="https://formspree.io/f/xqenvjyo" method="POST">
+    <form class="contact-form" id="contact-form">
       <input type="text" name="naam" placeholder="Jouw naam" required />
       <input type="email" name="email" placeholder="E-mailadres" required />
       <textarea name="bericht" placeholder="Jouw bericht..." rows="5" required></textarea>
       <button type="submit">Verstuur <span>&#8594;</span></button>
+      <p id="form-feedback" class="form-feedback hidden">Bedankt, je bericht is verzonden.</p>
     </form>
   </section>
 
