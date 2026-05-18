@@ -85,13 +85,37 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Contactformulier
-function submitForm(e) {
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
   e.preventDefault();
-  e.target.reset();
+  const form = e.target;
   const feedback = document.getElementById('form-feedback');
-  feedback.classList.remove('hidden');
-  setTimeout(() => feedback.classList.add('hidden'), 4000);
-}
+  const btn = form.querySelector('button[type="submit"]');
+
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xqenvjyo', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    });
+
+    if (res.ok) {
+      form.reset();
+      feedback.textContent = 'Bedankt, je bericht is verzonden.';
+      feedback.classList.remove('hidden');
+      setTimeout(() => feedback.classList.add('hidden'), 4000);
+    } else {
+      feedback.textContent = 'Er ging iets mis. Probeer het later opnieuw.';
+      feedback.classList.remove('hidden');
+    }
+  } catch {
+    feedback.textContent = 'Er ging iets mis. Controleer je internetverbinding.';
+    feedback.classList.remove('hidden');
+  }
+
+  btn.disabled = false;
+});
 
 // Header
 window.addEventListener('scroll', () => {
