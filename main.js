@@ -26,7 +26,7 @@ document.querySelectorAll('.portfolio-swiper').forEach(el => {
   });
 });
 
-// Lightbox — zo simpel mogelijk
+// Lightbox - zo simpel mogelijk
 const lightbox    = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 let allImages = [];

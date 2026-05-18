@@ -4,7 +4,7 @@
 SITE="/Users/andreas/fotografie-site"
 eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 
-echo "✓ Zaans Licht auto-sync gestart — wijzigingen worden automatisch online gezet"
+echo "✓ Zaans Licht auto-sync gestart - wijzigingen worden automatisch online gezet"
 
 fswatch -o "$SITE" \
   --exclude "\.git" \
