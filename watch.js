@@ -1,14 +1,17 @@
 // Zaans Licht - Auto watcher
-// Maak een nieuwe map aan in images/ en deze script doet de rest.
+// Maak een nieuwe map aan in images/ en gooi er foto's in (JPG/PNG/etc).
+// Het script converteert alles naar WebP, voegt de categorie toe aan de site
+// en pusht automatisch naar GitHub.
 
 const fs   = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 
 const IMAGES_DIR = path.join(__dirname, 'images');
 const INDEX_HTML = path.join(__dirname, 'index.html');
 const POLL_MS    = 2000;   // check elke 2 seconden
 const COPY_WAIT  = 5000;   // wacht 5s zodat foto's klaar zijn met kopiëren
+const WEBP_Q     = 85;     // WebP kwaliteit (0-100)
 
 // --- Hulpfuncties ---
 
@@ -23,6 +26,32 @@ function getImagesInDir(dirName) {
   return fs.readdirSync(dirPath)
     .filter(f => /\.(webp|jpg|jpeg|png|gif)$/i.test(f))
     .sort();
+}
+
+// --- WebP conversie ---
+
+function convertToWebp(dirName) {
+  const dirPath = path.join(IMAGES_DIR, dirName);
+  const originals = fs.readdirSync(dirPath)
+    .filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f));
+
+  if (originals.length === 0) return;
+
+  console.log(`  Converteren: ${originals.length} foto's naar WebP...`);
+
+  for (const file of originals) {
+    const input  = path.join(dirPath, file);
+    const output = path.join(dirPath, path.basename(file, path.extname(file)) + '.webp');
+
+    const result = spawnSync('sharp', ['-i', input, '-o', output, '-f', 'webp', '-q', String(WEBP_Q)], { encoding: 'utf8' });
+
+    if (result.status === 0) {
+      fs.unlinkSync(input); // origineel verwijderen
+      console.log(`  ✓ ${file} -> ${path.basename(output)}`);
+    } else {
+      console.error(`  ✗ Fout bij ${file}:`, result.stderr);
+    }
+  }
 }
 
 function toId(name) {
@@ -74,6 +103,9 @@ ${slides}
 // --- Site updaten en pushen ---
 
 function updateSite(dirName) {
+  // Eerst converteren naar WebP
+  convertToWebp(dirName);
+
   const images = getImagesInDir(dirName);
   if (images.length === 0) {
     console.log(`  Geen foto's gevonden in "${dirName}", overgeslagen.`);
