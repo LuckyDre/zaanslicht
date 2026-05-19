@@ -87,7 +87,10 @@ ${slides}
     </div>
 `;
 
-  return html.replace('  </section>\n\n  <!-- LIGHTBOX -->', block + '  </section>\n\n  <!-- LIGHTBOX -->');
+  // Ondersteun zowel Windows (CRLF) als Unix (LF) regeleinden
+  return html
+    .replace('  </section>\r\n\r\n  <!-- LIGHTBOX -->', block + '  </section>\r\n\r\n  <!-- LIGHTBOX -->')
+    .replace('  </section>\n\n  <!-- LIGHTBOX -->', block + '  </section>\n\n  <!-- LIGHTBOX -->');
 }
 
 // --- Site updaten en pushen ---
