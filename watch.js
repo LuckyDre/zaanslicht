@@ -64,16 +64,6 @@ function capitalize(str) {
 
 // --- HTML bijwerken ---
 
-function addNavItem(html, name) {
-  // Voorkom dubbele toevoeging
-  if (html.includes(`href="#${toId(name)}"`)) return html;
-  const navItem = `<a href="#${toId(name)}">${capitalize(name)}</a>`;
-  return html.replace(
-    `<a href="#over">Over mij</a>`,
-    `${navItem}\n      <a href="#over">Over mij</a>`
-  );
-}
-
 function addPortfolioCategory(html, name, images) {
   const id = toId(name);
   // Voorkom dubbele toevoeging
@@ -113,7 +103,6 @@ function updateSite(dirName) {
   }
 
   let html = fs.readFileSync(INDEX_HTML, 'utf8');
-  html = addNavItem(html, dirName);
   html = addPortfolioCategory(html, dirName, images);
   fs.writeFileSync(INDEX_HTML, html, 'utf8');
 
