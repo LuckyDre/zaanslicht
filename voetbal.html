@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voetbal — Zaans Licht</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="images/logo-oranje.png" alt="Zaans Licht" class="logo-img" />
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html" class="nav-active">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <div class="gallery-header">
+    <h1>Voetbal</h1>
+    <div class="accent-line"></div>
+    <p class="gallery-sub">Wedstrijdfotografie uit de Zaanstreek</p>
+  </div>
+
+  <div id="gallery-container" class="gallery-container">
+    <div class="loading">Foto's laden<span class="dots">...</span></div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="lightbox hidden">
+    <button class="lightbox-close">&times;</button>
+    <button id="lb-prev" class="lb-nav lb-prev">&#8592;</button>
+    <img id="lightbox-img" src="" alt="" />
+    <button id="lb-next" class="lb-nav lb-next">&#8594;</button>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+    <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan. Staat er een foto op deze site waarvan u de verwijdering wenst? Neem dan contact op via het contactformulier.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="gallery.js" data-category="voetbal"></script>
+
+  <!-- Cloudflare Web Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
+</body>
+</html>
