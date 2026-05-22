@@ -195,6 +195,246 @@ section:not(#hero) {
   border-radius: 2px;
 }
 
+/* ===== DRIE TEGELS ===== */
+#tegels {
+  padding: 5rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tegel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.tegel {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  aspect-ratio: 3/4;
+  display: block;
+  outline: none;
+}
+
+.tegel-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--grijs-licht);
+  transition: transform 0.5s ease;
+}
+
+.tegel:hover .tegel-bg,
+.tegel:focus .tegel-bg {
+  transform: scale(1.06);
+}
+
+/* Donkere gradient over de foto */
+.tegel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%);
+  z-index: 1;
+  transition: background 0.3s;
+}
+
+.tegel:hover::before {
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.15) 100%);
+}
+
+/* Oranje rand bij hover */
+.tegel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tegel:hover::after,
+.tegel:focus::after {
+  border-color: var(--oranje);
+}
+
+.tegel-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem 1.8rem;
+  z-index: 3;
+  text-align: center;
+}
+
+.tegel-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.tegel-content h2 {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--wit);
+  margin-bottom: 0.4rem;
+}
+
+.tegel-content p {
+  color: var(--tekst-dim);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .tegel-grid { grid-template-columns: 1fr; }
+  .tegel { aspect-ratio: 16/9; }
+  #tegels { padding: 3rem 1.5rem; }
+}
+
+/* ===== GALLERY PAGINA'S (voetbal.html / nosports.html) ===== */
+.gallery-header {
+  text-align: center;
+  padding: 8rem 2rem 3rem;
+}
+
+.gallery-header h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
+
+.gallery-header .accent-line {
+  margin: 1rem auto;
+}
+
+.gallery-sub {
+  color: var(--tekst-dim);
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.gallery-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem 6rem;
+}
+
+.loading {
+  text-align: center;
+  color: var(--tekst-dim);
+  font-size: 1.1rem;
+  padding: 4rem;
+}
+
+.no-content {
+  text-align: center;
+  color: var(--tekst-dim);
+  font-size: 1rem;
+  padding: 4rem;
+  font-style: italic;
+}
+
+.nav-active {
+  color: var(--oranje) !important;
+}
+
+/* ===== RANDOM SLIDESHOW ===== */
+.slideshow {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.97);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.slideshow.hidden { display: none; }
+
+.slideshow img {
+  max-width: 92vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 4px;
+  animation: zoomIn 0.3s ease;
+}
+
+.slideshow-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  background: none;
+  border: none;
+  color: var(--wit);
+  font-size: 2.5rem;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s;
+}
+.slideshow-close:hover { color: var(--oranje); }
+
+.slideshow-counter {
+  position: absolute;
+  top: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--tekst-dim);
+  font-size: 0.9rem;
+  letter-spacing: 2px;
+}
+
+.slideshow-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+}
+
+.slideshow-bar {
+  height: 100%;
+  background: var(--oranje);
+  width: 0%;
+}
+
+.ss-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  border: 2px solid rgba(255,107,0,0.5);
+  color: var(--wit);
+  font-size: 1.8rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+  z-index: 2;
+}
+.ss-nav:hover { background: var(--oranje); border-color: var(--oranje); }
+.ss-prev { left: 2rem; }
+.ss-next { right: 2rem; }
+
 /* ===== PORTFOLIO SLIDERS ===== */
 .portfolio-category {
   margin-bottom: 4rem;
