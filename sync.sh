@@ -12,10 +12,12 @@ fswatch -o "$SITE" \
   --latency 5 | while read; do
     cd "$SITE"
     if [ -n "$(git status --porcelain)" ]; then
-      echo "→ Wijzigingen gevonden, uploaden naar GitHub..."
+      echo "→ Wijzigingen gevonden..."
+      echo "→ Manifest bijwerken..."
+      python3 "$SITE/generate-manifest.py"
       git add -A
       git commit -m "Auto-sync: $(date '+%d-%m-%Y %H:%M')"
       git push
-      echo "✓ Site is bijgewerkt op https://luckydre.github.io/zaanslicht/"
+      echo "✓ Site bijgewerkt op https://zaanslicht.com"
     fi
 done
