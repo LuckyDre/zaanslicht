@@ -1,4 +1,4 @@
-// Hero slider
+// ===== HERO SLIDER =====
 new Swiper('.hero-swiper', {
   loop: true,
   effect: 'fade',
@@ -12,114 +12,148 @@ new Swiper('.hero-swiper', {
   },
 });
 
-// Portfolio sliders
-document.querySelectorAll('.portfolio-swiper').forEach(el => {
-  new Swiper(el, {
-    loop: false,
-    slidesPerView: 'auto',
-    spaceBetween: 16,
-    grabCursor: true,
-    navigation: {
-      nextEl: el.querySelector('.swiper-button-next'),
-      prevEl: el.querySelector('.swiper-button-prev'),
-    },
-  });
-});
-
-// Lightbox - zo simpel mogelijk
-const lightbox    = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-let allImages = [];
-let currentIdx = 0;
-
-// Klik op elke foto in portfolio
-document.addEventListener('click', function(e) {
-  const img = e.target.closest('.portfolio-swiper img');
-  if (!img) return;
-
-  // Verzamel alle foto's in deze slider
-  const slider = img.closest('.portfolio-swiper');
-  allImages = Array.from(slider.querySelectorAll('img'));
-  currentIdx = allImages.indexOf(img);
-
-  lightboxImg.src = img.src;
-  lightbox.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-});
-
-// Sluit lightbox
-lightbox.addEventListener('click', function(e) {
-  if (e.target !== lightboxImg) {
-    lightbox.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-});
-
-document.querySelector('.lightbox-close').addEventListener('click', function() {
-  lightbox.classList.add('hidden');
-  document.body.style.overflow = '';
-});
-
-// Pijltjes navigatie
-document.getElementById('lb-prev').addEventListener('click', function(e) {
-  e.stopPropagation();
-  if (currentIdx > 0) {
-    currentIdx--;
-    lightboxImg.src = allImages[currentIdx].src;
-  }
-});
-
-document.getElementById('lb-next').addEventListener('click', function(e) {
-  e.stopPropagation();
-  if (currentIdx < allImages.length - 1) {
-    currentIdx++;
-    lightboxImg.src = allImages[currentIdx].src;
-  }
-});
-
-document.addEventListener('keydown', function(e) {
-  if (lightbox.classList.contains('hidden')) return;
-  if (e.key === 'Escape') { lightbox.classList.add('hidden'); document.body.style.overflow = ''; }
-  if (e.key === 'ArrowLeft'  && currentIdx > 0) { currentIdx--; lightboxImg.src = allImages[currentIdx].src; }
-  if (e.key === 'ArrowRight' && currentIdx < allImages.length - 1) { currentIdx++; lightboxImg.src = allImages[currentIdx].src; }
-});
-
-// Contactformulier
-document.getElementById('contact-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const form = e.target;
-  const feedback = document.getElementById('form-feedback');
-  const btn = form.querySelector('button[type="submit"]');
-
-  btn.disabled = true;
-
+// ===== TEGELS: laad random achtergrondfotos uit manifest =====
+async function loadTegels() {
   try {
-    const res = await fetch('https://formspree.io/f/xqenvjyo', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: new FormData(form)
-    });
+    const res = await fetch('manifest.json?v=' + Date.now());
+    const manifest = await res.json();
 
-    if (res.ok) {
-      form.reset();
-      feedback.textContent = 'Bedankt, je bericht is verzonden.';
-      feedback.classList.remove('hidden');
-      setTimeout(() => feedback.classList.add('hidden'), 4000);
-    } else {
-      feedback.textContent = 'Er ging iets mis. Probeer het later opnieuw.';
-      feedback.classList.remove('hidden');
+    const allVoetbal  = getAllFotos(manifest, 'voetbal');
+    const allNosports = getAllFotos(manifest, 'nosports');
+    const allFotos    = [...allVoetbal, ...allNosports];
+
+    setTilebg('bg-voetbal',  allVoetbal);
+    setTilebg('bg-nosports', allNosports);
+    setTilebg('bg-random',   allFotos);
+
+    // Tegel 3: random slideshow bij klik
+    const tegelRandom = document.getElementById('tegel-random');
+    if (tegelRandom) {
+      tegelRandom.addEventListener('click', () => startSlideshow(allFotos));
+      tegelRandom.addEventListener('keydown', e => { if (e.key === 'Enter') startSlideshow(allFotos); });
     }
-  } catch {
-    feedback.textContent = 'Er ging iets mis. Controleer je internetverbinding.';
-    feedback.classList.remove('hidden');
-  }
 
-  btn.disabled = false;
+  } catch (e) {
+    console.error('manifest laden mislukt:', e);
+  }
+}
+
+function getAllFotos(manifest, category) {
+  const fotos = [];
+  (manifest[category] || []).forEach(item => {
+    item.fotos.forEach(f => {
+      fotos.push({ src: `images/${category}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}` });
+    });
+  });
+  return fotos;
+}
+
+function setTilebg(elId, fotos) {
+  if (!fotos.length) return;
+  const pick = fotos[Math.floor(Math.random() * fotos.length)];
+  const el = document.getElementById(elId);
+  if (el) el.style.backgroundImage = `url('${pick.src}')`;
+}
+
+loadTegels();
+
+// ===== RANDOM SLIDESHOW =====
+const slideshow = document.getElementById('slideshow');
+const ssImg     = document.getElementById('ss-img');
+const ssCurrent = document.getElementById('ss-current');
+const ssTotal   = document.getElementById('ss-total');
+const ssBar     = document.getElementById('ss-bar');
+let ssPhotos = [], ssIdx = 0, ssTimer = null;
+const SS_DELAY = 4000;
+
+function startSlideshow(allFotos) {
+  if (!allFotos.length) return;
+  const shuffled = [...allFotos].sort(() => Math.random() - 0.5);
+  ssPhotos = shuffled.slice(0, Math.min(10, shuffled.length));
+  ssIdx = 0;
+  ssTotal.textContent = ssPhotos.length;
+  showSlide(0);
+  slideshow.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  startAutoAdvance();
+}
+
+function showSlide(idx) {
+  ssIdx = idx;
+  ssImg.src = ssPhotos[idx].src;
+  ssCurrent.textContent = idx + 1;
+  ssBar.style.transition = 'none';
+  ssBar.style.width = '0%';
+  requestAnimationFrame(() => {
+    ssBar.style.transition = `width ${SS_DELAY}ms linear`;
+    ssBar.style.width = '100%';
+  });
+}
+
+function startAutoAdvance() {
+  clearInterval(ssTimer);
+  ssTimer = setInterval(() => showSlide((ssIdx + 1) % ssPhotos.length), SS_DELAY);
+}
+
+function closeSlideshow() {
+  clearInterval(ssTimer);
+  slideshow.classList.add('hidden');
+  document.body.style.overflow = '';
+  ssImg.src = '';
+}
+
+if (slideshow) {
+  document.getElementById('ss-close').addEventListener('click', closeSlideshow);
+  document.getElementById('ss-prev').addEventListener('click', e => {
+    e.stopPropagation();
+    clearInterval(ssTimer);
+    showSlide((ssIdx - 1 + ssPhotos.length) % ssPhotos.length);
+    startAutoAdvance();
+  });
+  document.getElementById('ss-next').addEventListener('click', e => {
+    e.stopPropagation();
+    clearInterval(ssTimer);
+    showSlide((ssIdx + 1) % ssPhotos.length);
+    startAutoAdvance();
+  });
+  slideshow.addEventListener('click', e => { if (e.target === slideshow) closeSlideshow(); });
+}
+
+document.addEventListener('keydown', e => {
+  if (!slideshow || slideshow.classList.contains('hidden')) return;
+  if (e.key === 'Escape') closeSlideshow();
+  if (e.key === 'ArrowLeft')  { clearInterval(ssTimer); showSlide((ssIdx - 1 + ssPhotos.length) % ssPhotos.length); startAutoAdvance(); }
+  if (e.key === 'ArrowRight') { clearInterval(ssTimer); showSlide((ssIdx + 1) % ssPhotos.length); startAutoAdvance(); }
 });
 
-// Header
+// ===== HEADER scroll effect =====
 window.addEventListener('scroll', () => {
   document.querySelector('header').style.background = window.scrollY > 80
     ? 'rgba(13,13,13,0.97)'
     : 'rgba(13,13,13,0.85)';
 });
+
+// ===== CONTACTFORMULIER =====
+const contactForm = document.getElementById('contact-form');
+if (contactForm) {
+  contactForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const feedback = document.getElementById('form-feedback');
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://formspree.io/f/xqenvjyo', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(this)
+      });
+      feedback.textContent = res.ok ? 'Bedankt, je bericht is verzonden!' : 'Er ging iets mis. Probeer het later opnieuw.';
+      if (res.ok) this.reset();
+    } catch {
+      feedback.textContent = 'Geen verbinding. Controleer je internet.';
+    }
+    feedback.classList.remove('hidden');
+    setTimeout(() => feedback.classList.add('hidden'), 5000);
+    btn.disabled = false;
+  });
+}
