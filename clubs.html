@@ -557,7 +557,12 @@
       },
       'VV Saenden':          function(){ return solid('saen', '#FFFFFF', '#1C2B7A'); },        // wit + donkerblauwe kraag
       'Sporting Krommenie':  function(){ return stripesH('spkr', '#CC0000', '#FFFFFF', 13); }, // rode/witte horizontale strepen
-      'TOS Actief':          function(){ return solid('tos',  '#0057A8', '#FFD700'); },       // *geschat
+      'TOS Actief':          function(){                                                       // wit + rode V-chevron + blauwe kraag
+        var b = '<rect x="0" y="0" width="80" height="90" fill="#FFFFFF" ' + clip('tos') + '/>'
+              + '<polygon points="0,10 30,10 40,52 50,10 80,10 40,66" fill="#CC0000" ' + clip('tos') + '/>'
+              + '<path d="' + V_COLLAR + '" fill="#1A4FC4" ' + clip('tos') + '/>';
+        return mkSvg('tos', b);
+      },
       'United Haarlem':      function(){ return solid('unit', '#1A1A1A', '#CC8800'); },       // *geschat
       'ASC De Volewijckers': function(){ return band('vole', '#FFFFFF', '#006400', 28, 20, '#006400'); },
       'WSV 1930':            function(){ return solid('wsv',  '#CC0000', '#111111'); },       // *geschat
