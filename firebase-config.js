@@ -12,4 +12,4 @@ const FIREBASE_CONFIG = {
 if (!firebase.apps || !firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
 }
-const db = firebase.database();
+var db = firebase.database();
