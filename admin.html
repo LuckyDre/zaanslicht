@@ -342,9 +342,39 @@ function toggleOpen(hdr) { hdr.closest('.slider-item').classList.toggle('open');
 function hernum(grid) { grid.querySelectorAll('.foto-nr').forEach((el, i) => el.textContent = i + 1); }
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['voetbal','nosports'][i] === tab));
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['voetbal','nosports','stats'][i] === tab));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'stats') renderStats();
+}
+
+function renderStats() {
+  const panel = document.getElementById('tab-stats');
+
+  // Lees localStorage van de site (zelfde domein = niet beschikbaar vanuit localhost)
+  // Toon instructie + placeholder
+  panel.innerHTML = `
+    <div style="padding:2rem 0; color:var(--dim); max-width:700px;">
+      <h3 style="color:var(--wit); margin-bottom:1rem;">📊 Statistieken</h3>
+      <p style="margin-bottom:1.5rem; line-height:1.7;">
+        Likes en downloads worden opgeslagen in de browser van de bezoeker.
+        Omdat de adminpagina lokaal draait (localhost), kun je de statistieken
+        van de live site hier niet direct zien.<br><br>
+        <strong style="color:var(--oranje);">Tip:</strong> Open de browser-console op
+        <a href="https://zaanslicht.com/voetbal.html" target="_blank" style="color:var(--oranje);">zaanslicht.com</a>
+        en typ het volgende om jouw likes en downloads te bekijken:
+      </p>
+      <pre style="background:#111; padding:1rem; border-radius:6px; font-size:0.82rem; color:#aaa; overflow-x:auto;">
+// Jouw likes:
+JSON.parse(localStorage.getItem('zl_likecnt') || '{}')
+
+// Jouw downloads:
+JSON.parse(localStorage.getItem('zl_downloads') || '{}')</pre>
+      <p style="margin-top:1.5rem; line-height:1.7; color:#666; font-size:0.85rem;">
+        Wil je statistieken van <em>alle</em> bezoekers bijhouden?
+        Dat kan met Firebase (gratis). Vraag het gerust!
+      </p>
+    </div>`;
 }
 function setLog(html, cls = '') {
   const el = document.getElementById('log-panel');
