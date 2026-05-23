@@ -51,7 +51,14 @@ async function loadGallery() {
       div.className = 'portfolio-category';
       div.id = 'cat-' + item.id;
 
-      const slides = item.fotos.map(f => {
+      // Sorteer foto's op like-count (meest geliked vooraan)
+      const sortedFotos = [...item.fotos].sort((a, b) => {
+        const keyA = photoKey(`${CATEGORY}/${item.map}/${a}`);
+        const keyB = photoKey(`${CATEGORY}/${item.map}/${b}`);
+        return (likeCounts[keyB] || 0) - (likeCounts[keyA] || 0);
+      });
+
+      const slides = sortedFotos.map(f => {
         const path    = `${CATEGORY}/${item.map}/${f}`;
         const key     = photoKey(path);
         const src     = `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`;
