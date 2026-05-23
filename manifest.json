@@ -1,6 +1,36 @@
 {
   "voetbal": [
     {
+      "id": "zcfc-fc-velsenoord-3-1-beker",
+      "naam": "ZCFC - FC Velsenoord 3-1  (Beker)",
+      "map": "ZCFC - FC Velsenoord 3-1  (Beker)",
+      "fotos": [
+        "122127711704902795.webp",
+        "122127711758902795.webp",
+        "122127711890902795.webp",
+        "122127711920902795.webp",
+        "122127711956902795.webp",
+        "122127711992902795.webp",
+        "122127712016902795.webp",
+        "122127712088902795.webp",
+        "122127712262902795.webp",
+        "122127712610902795.webp",
+        "122127712652902795.webp",
+        "122127713030902795.webp",
+        "122127713060902795.webp",
+        "122127713072902795.webp",
+        "122127713168902795.webp",
+        "122127713390902795.webp",
+        "122127713444902795.webp",
+        "122127713504902795.webp",
+        "122127713666902795.webp",
+        "122127713930902795.webp",
+        "122127714164902795.webp",
+        "122127714248902795.webp"
+      ],
+      "volgorde": 0
+    },
+    {
       "id": "zcfc-wieringermeer-2-3-2025",
       "naam": "ZCFC - Wieringermeer 2-3 (2025)",
       "map": "ZCFC - Wieringermeer 2-3 (2025)",
@@ -61,7 +91,7 @@
         "JKR69085_DxO.webp",
         "JKR69278_DxO.webp"
       ],
-      "volgorde": 0
+      "volgorde": 1
     },
     {
       "id": "ijburg-zcfc-1-1",
@@ -90,7 +120,7 @@
         "_M4A6767.webp",
         "_M4A7140.webp"
       ],
-      "volgorde": 1
+      "volgorde": 2
     },
     {
       "id": "fortuna-wormerveer-zcfc-1-0",
@@ -130,7 +160,7 @@
         "122110874558902795.webp",
         "122110874594902795.webp"
       ],
-      "volgorde": 2
+      "volgorde": 3
     },
     {
       "id": "zcfc-wieringermeer-2-1",
@@ -162,7 +192,7 @@
         "122151218534902795.webp",
         "122151218558902795.webp"
       ],
-      "volgorde": 3
+      "volgorde": 4
     },
     {
       "id": "saenden-zcfc",
@@ -230,7 +260,7 @@
         "122130357116902795.webp",
         "122130357128902795.webp"
       ],
-      "volgorde": 4
+      "volgorde": 5
     }
   ],
   "nosports": [
