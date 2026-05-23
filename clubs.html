@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zaanse Voetbalclubs — Zaans Licht</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ── CLUBS PAGINA ────────────────────────────────────────────────────── */
+    .clubs-header {
+      text-align: center;
+      padding: 6rem 2rem 3rem;
+      background: linear-gradient(180deg, #0d0d0d 0%, #111 100%);
+    }
+    .clubs-header h1 { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: 3px; text-transform: uppercase; }
+    .clubs-header h1 span { color: var(--oranje); }
+    .clubs-header p { color: var(--dim); margin-top: 0.8rem; font-size: 1rem; }
+
+    /* ── GRID ───────────────────────────────────────────────────────────── */
+    .clubs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem;
+    }
+
+    /* ── CLUB KAART ─────────────────────────────────────────────────────── */
+    .club-card {
+      background: var(--grijs);
+      border-radius: 10px;
+      border: 1px solid #2a2a2a;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.25s;
+      display: flex;
+      flex-direction: column;
+    }
+    .club-card:hover {
+      border-color: var(--oranje);
+      transform: translateY(-4px);
+    }
+
+    /* Veld achtergrond */
+    .club-veld {
+      height: 140px;
+      position: relative;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.03) 0px,
+          rgba(255,255,255,0.03) 1px,
+          transparent 1px,
+          transparent 40px
+        ),
+        linear-gradient(180deg, #1a3d1a 0%, #1f4d1f 40%, #1a3d1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    /* Middenstip */
+    .club-veld::before {
+      content: '';
+      position: absolute;
+      width: 60px; height: 60px;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    /* Middenlijn */
+    .club-veld::after {
+      content: '';
+      position: absolute;
+      height: 100%; width: 2px;
+      background: rgba(255,255,255,0.1);
+      left: 50%;
+    }
+
+    /* Shirt */
+    .shirt-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .shirt {
+      font-size: 3.5rem;
+      line-height: 1;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+      animation: sway 4s ease-in-out infinite;
+    }
+    @keyframes sway {
+      0%, 100% { transform: rotate(-2deg); }
+      50%       { transform: rotate(2deg); }
+    }
+    .shirt-nr {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* Info */
+    .club-info {
+      padding: 1.2rem 1.4rem 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .club-naam {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--wit);
+      letter-spacing: 0.5px;
+    }
+    .club-stad {
+      font-size: 0.82rem;
+      color: var(--dim);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .club-klasse {
+      font-size: 0.78rem;
+      color: #555;
+      margin-top: 0.2rem;
+    }
+
+    /* Contact knop */
+    .club-contact {
+      margin-top: auto;
+      padding: 0.8rem 1.4rem 1.2rem;
+    }
+    .club-contact a {
+      display: block;
+      text-align: center;
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: var(--dim);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .club-contact a:hover {
+      border-color: var(--oranje);
+      color: var(--oranje);
+      background: rgba(255,107,0,0.06);
+    }
+    .club-contact a.geen-link {
+      opacity: 0.35;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* Disclaimer */
+    .clubs-disclaimer {
+      text-align: center;
+      color: #444;
+      font-size: 0.78rem;
+      padding: 0 2rem 3rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 600px) {
+      .clubs-grid { grid-template-columns: 1fr; padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <img src="images/logo-oranje.png" alt="Zaans Licht" class="logo-img" />
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html" class="nav-active">Clubs</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <button class="header-terug" onclick="history.back()">&#8592; Terug</button>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <!-- PAGINA HEADER -->
+  <div class="clubs-header">
+    <h1>Zaanse <span>Voetbalclubs</span></h1>
+    <p>Overzicht van voetbalverenigingen in de Zaanstreek</p>
+    <div class="accent-line" style="margin:1rem auto 0;"></div>
+  </div>
+
+  <!-- CLUBS GRID -->
+  <div class="clubs-grid">
+
+    <!-- ZCFC -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Zaandam</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">ZCFC</div>
+        <div class="club-stad">📍 Zaandam</div>
+        <div class="club-klasse">Zaanse Combined Football Club</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.zcfc.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- Saenden -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Zaandam</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">VV Saenden</div>
+        <div class="club-stad">📍 Zaandam</div>
+        <div class="club-klasse">Voetbalvereniging Saenden</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.saenden.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- Fortuna Wormerveer -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Wormerveer</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">Fortuna Wormerveer</div>
+        <div class="club-stad">📍 Wormerveer</div>
+        <div class="club-klasse">Voetbalvereniging Fortuna</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.fortunawormerveer.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- ZVV Zaandijk -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Zaandijk</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">ZVV Zaandijk</div>
+        <div class="club-stad">📍 Zaandijk</div>
+        <div class="club-klasse">Zaandijkse VoetbalVereniging</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.zvvzaandijk.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- SV Wormer -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Wormer</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">SV Wormer</div>
+        <div class="club-stad">📍 Wormer</div>
+        <div class="club-klasse">Sportvereniging Wormer</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.svwormer.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- VV Assendelft -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Assendelft</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">VV Assendelft</div>
+        <div class="club-stad">📍 Assendelft</div>
+        <div class="club-klasse">Voetbalvereniging Assendelft</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.vvassendelft.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- FC Krommenie -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Krommenie</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">FC Krommenie</div>
+        <div class="club-stad">📍 Krommenie</div>
+        <div class="club-klasse">Football Club Krommenie</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.fckrommenie.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- VV Oostzaan -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Oostzaan</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">VV Oostzaan</div>
+        <div class="club-stad">📍 Oostzaan</div>
+        <div class="club-klasse">Voetbalvereniging Oostzaan</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.vvoostzaan.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- Koog-Zaandijk -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Koog aan de Zaan</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">VV Koog-Zaandijk</div>
+        <div class="club-stad">📍 Koog aan de Zaan</div>
+        <div class="club-klasse">Voetbalvereniging Koog-Zaandijk</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.vvkoogzaandijk.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+    <!-- WFC Wormerveer -->
+    <div class="club-card">
+      <div class="club-veld">
+        <div class="shirt-wrap">
+          <div class="shirt">👕</div>
+          <span class="shirt-nr">⚽ Wormerveer</span>
+        </div>
+      </div>
+      <div class="club-info">
+        <div class="club-naam">WFC Wormerveer</div>
+        <div class="club-stad">📍 Wormerveer</div>
+        <div class="club-klasse">Wormerveer Football Club</div>
+      </div>
+      <div class="club-contact">
+        <a href="https://www.wfcwormerveer.nl/contact" target="_blank" rel="noopener">Contact →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DISCLAIMER -->
+  <p class="clubs-disclaimer">
+    ⚠️ Controleer de links — club-websites worden regelmatig vernieuwd. Ontbreekt er een club of klopt een link niet? Laat het weten via het <a href="index.html#contact" style="color:var(--oranje)">contactformulier</a>.
+  </p>
+
+  <!-- NAVIGATIE ONDERAAN -->
+  <div class="page-nav">
+    <button class="btn-terug" onclick="history.back()">&#8592; Terug</button>
+    <a class="btn-home" href="index.html">&#127968; Home</a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+    <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan.</p>
+  </footer>
+
+  <!-- Cloudflare Web Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
+</body>
+</html>
