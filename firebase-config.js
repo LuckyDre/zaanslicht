@@ -1,18 +1,14 @@
 // ── Firebase configuratie voor Zaans Licht ─────────────────────────────────
-// Vul hieronder jouw Firebase config in (te vinden in Project settings → Your apps)
-// Deze waarden zijn veilig om te publiceren — beveiliging loopt via Firebase Rules.
-
 const FIREBASE_CONFIG = {
-  apiKey:            "JOUW_API_KEY",
-  authDomain:        "JOUW_PROJECT.firebaseapp.com",
-  databaseURL:       "https://JOUW_PROJECT-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "JOUW_PROJECT",
-  storageBucket:     "JOUW_PROJECT.appspot.com",
-  messagingSenderId: "JOUW_SENDER_ID",
-  appId:             "JOUW_APP_ID"
+  apiKey:            "AIzaSyCZaZmZ2GqLk7VmqGtdOdsICfY21V_Sbc0",
+  authDomain:        "zaanslicht-0001.firebaseapp.com",
+  databaseURL:       "https://zaanslicht-0001-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "zaanslicht-0001",
+  storageBucket:     "zaanslicht-0001.firebasestorage.app",
+  messagingSenderId: "361049638000",
+  appId:             "1:361049638000:web:e909e888d10f1e6be3a0b5"
 };
 
-// Initialiseer Firebase (één keer voor de hele site)
 if (!firebase.apps || !firebase.apps.length) {
   firebase.initializeApp(FIREBASE_CONFIG);
 }
