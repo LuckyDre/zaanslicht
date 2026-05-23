@@ -353,6 +353,52 @@ function setBtns(disabled) {
   ['btn-save','btn-sync','btn-convert'].forEach(id => document.getElementById(id).disabled = disabled);
 }
 
+// ── FOTO HOVER PREVIEW ────────────────────────────────────────────────────
+const preview     = document.getElementById('foto-preview');
+const previewImg  = document.getElementById('preview-img');
+const previewNaam = document.getElementById('preview-naam');
+let previewTimer  = null;
+
+document.addEventListener('mouseover', e => {
+  const thumb = e.target.closest('.foto-thumb');
+  if (!thumb) return;
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    const img  = thumb.querySelector('img');
+    if (!img) return;
+    previewImg.src       = img.src;
+    previewNaam.textContent = thumb.dataset.foto || '';
+    preview.style.display = 'block';
+    positionPreview(e);
+    requestAnimationFrame(() => preview.classList.add('visible'));
+  }, 180);
+});
+
+document.addEventListener('mouseout', e => {
+  const thumb = e.target.closest('.foto-thumb');
+  if (!thumb) return;
+  clearTimeout(previewTimer);
+  preview.classList.remove('visible');
+  setTimeout(() => { if (!preview.classList.contains('visible')) preview.style.display = 'none'; }, 160);
+});
+
+document.addEventListener('mousemove', e => {
+  if (preview.style.display === 'block') positionPreview(e);
+});
+
+function positionPreview(e) {
+  const pw = 380 + 4;
+  const ph = 320;
+  const margin = 16;
+  let x = e.clientX + 20;
+  let y = e.clientY - 20;
+  if (x + pw > window.innerWidth  - margin) x = e.clientX - pw - 16;
+  if (y + ph > window.innerHeight - margin) y = window.innerHeight - ph - margin;
+  if (y < margin) y = margin;
+  preview.style.left = x + 'px';
+  preview.style.top  = y + 'px';
+}
+
 // Cmd+S / Ctrl+S opslaan
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); doSave(); }
