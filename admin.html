@@ -362,13 +362,15 @@ let previewTimer  = null;
 document.addEventListener('mouseover', e => {
   const thumb = e.target.closest('.foto-thumb');
   if (!thumb) return;
+  // Negeer events die binnen dezelfde thumb blijven (child → child)
+  if (thumb.contains(e.relatedTarget)) return;
   clearTimeout(previewTimer);
   previewTimer = setTimeout(() => {
-    const img  = thumb.querySelector('img');
+    const img = thumb.querySelector('img');
     if (!img) return;
-    previewImg.src       = img.src;
+    previewImg.src          = img.src;
     previewNaam.textContent = thumb.dataset.foto || '';
-    preview.style.display = 'block';
+    preview.style.display   = 'block';
     positionPreview(e);
     requestAnimationFrame(() => preview.classList.add('visible'));
   }, 180);
@@ -377,6 +379,8 @@ document.addEventListener('mouseover', e => {
 document.addEventListener('mouseout', e => {
   const thumb = e.target.closest('.foto-thumb');
   if (!thumb) return;
+  // Negeer events waarbij de muis naar een child-element gaat (bijv. foto-nr)
+  if (thumb.contains(e.relatedTarget)) return;
   clearTimeout(previewTimer);
   preview.classList.remove('visible');
   setTimeout(() => { if (!preview.classList.contains('visible')) preview.style.display = 'none'; }, 160);
