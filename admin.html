@@ -122,7 +122,7 @@
       border-radius: 6px;
       overflow: hidden;
       box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 2px var(--oranje);
-      transition: opacity 0.15s ease;
+      transition: opacity 0.08s ease;
       opacity: 0;
       max-width: 570px;
     }
@@ -373,7 +373,7 @@ document.addEventListener('mouseover', e => {
     preview.style.display   = 'block';
     positionPreview(e);
     requestAnimationFrame(() => preview.classList.add('visible'));
-  }, 180);
+  }, 50);
 });
 
 document.addEventListener('mouseout', e => {
