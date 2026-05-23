@@ -29,8 +29,8 @@ async function loadTegels() {
     // Tegel 3: random slideshow bij klik
     const tegelRandom = document.getElementById('tegel-random');
     if (tegelRandom) {
-      tegelRandom.addEventListener('click', () => startSlideshow(allFotos));
-      tegelRandom.addEventListener('keydown', e => { if (e.key === 'Enter') startSlideshow(allFotos); });
+      tegelRandom.addEventListener('click', () => startSlideshow(allVoetbal));
+      tegelRandom.addEventListener('keydown', e => { if (e.key === 'Enter') startSlideshow(allVoetbal); });
     }
 
   } catch (e) {
