@@ -24,7 +24,7 @@ async function loadTegels() {
 
     setTilebg('bg-voetbal',  allVoetbal);
     setTilebg('bg-nosports', allNosports);
-    setTilebg('bg-random',   allFotos);
+    setTilebg('bg-random',   allVoetbal);
 
     // Tegel 3: random slideshow bij klik
     const tegelRandom = document.getElementById('tegel-random');
