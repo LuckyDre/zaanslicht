@@ -468,6 +468,14 @@
 
     function clip(uid) { return 'clip-path="url(#sc' + uid + ')"'; }
 
+    /* vertical centre band (e.g. Assendelft: black + white centre) */
+    function bandV(uid, c1, c2, bx, bw, collar) {
+      var b = '<rect x="0" y="0" width="80" height="90" fill="' + c1 + '" ' + clip(uid) + '/>'
+            + '<rect x="' + bx + '" y="0" width="' + bw + '" height="90" fill="' + c2 + '" ' + clip(uid) + '/>';
+      if (collar) b += '<path d="' + V_COLLAR + '" fill="' + collar + '" ' + clip(uid) + '/>';
+      return mkSvg(uid, b);
+    }
+
     /* solid shirt + optional contrasting collar */
     function solid(uid, c1, collar) {
       var b = '<rect x="0" y="0" width="80" height="90" fill="' + c1 + '" ' + clip(uid) + '/>';
