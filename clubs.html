@@ -451,5 +451,93 @@
 
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
+
+  <script>
+  (function () {
+    // Shirt path (viewBox 0 0 80 90)
+    var P = "M30,5 Q40,14 50,5 L70,18 L80,32 L62,38 L62,85 L18,85 L18,38 L0,32 L10,18 Z";
+    var V_COLLAR = "M30,5 Q40,14 50,5 L45,19 Q40,24 35,19 Z";
+
+    function mkSvg(uid, body) {
+      return '<svg viewBox="0 0 80 90" width="68" height="76" xmlns="http://www.w3.org/2000/svg">'
+        + '<defs><clipPath id="sc' + uid + '"><path d="' + P + '"/></clipPath></defs>'
+        + body
+        + '<path d="' + P + '" fill="none" stroke="rgba(180,180,180,0.35)" stroke-width="1.5"/>'
+        + '</svg>';
+    }
+
+    function clip(uid) { return 'clip-path="url(#sc' + uid + ')"'; }
+
+    /* solid shirt + optional contrasting collar */
+    function solid(uid, c1, collar) {
+      var b = '<rect x="0" y="0" width="80" height="90" fill="' + c1 + '" ' + clip(uid) + '/>';
+      if (collar) b += '<path d="' + V_COLLAR + '" fill="' + collar + '" ' + clip(uid) + '/>';
+      return mkSvg(uid, b);
+    }
+
+    /* vertical stripes */
+    function stripesV(uid, c1, c2, sw, collar) {
+      sw = sw || 8;
+      var rects = '';
+      for (var x = 0; x < 80; x += sw * 2) {
+        rects += '<rect x="' + x + '" y="0" width="' + sw + '" height="90" fill="' + c1 + '"/>';
+        rects += '<rect x="' + (x + sw) + '" y="0" width="' + sw + '" height="90" fill="' + c2 + '"/>';
+      }
+      var b = '<g ' + clip(uid) + '>' + rects + '</g>';
+      if (collar) b += '<path d="' + V_COLLAR + '" fill="' + collar + '" ' + clip(uid) + '/>';
+      return mkSvg(uid, b);
+    }
+
+    /* top / bottom halves */
+    function halfH(uid, c1, c2) {
+      var b = '<rect x="0" y="0" width="80" height="45" fill="' + c1 + '" ' + clip(uid) + '/>'
+            + '<rect x="0" y="45" width="80" height="45" fill="' + c2 + '" ' + clip(uid) + '/>';
+      return mkSvg(uid, b);
+    }
+
+    /* solid with horizontal colour band */
+    function band(uid, c1, c2, by, bh, collar) {
+      var b = '<rect x="0" y="0" width="80" height="90" fill="' + c1 + '" ' + clip(uid) + '/>'
+            + '<rect x="0" y="' + by + '" width="80" height="' + bh + '" fill="' + c2 + '" ' + clip(uid) + '/>';
+      if (collar) b += '<path d="' + V_COLLAR + '" fill="' + collar + '" ' + clip(uid) + '/>';
+      return mkSvg(uid, b);
+    }
+
+    /* ── Club shirt definitions ─────────────────────────────────────────────
+       Kleuren met * zijn een schatting — corrigeer ze gerust via het contactformulier.
+       ───────────────────────────────────────────────────────────────────── */
+    var shirts = {
+      'Alcmaria Victrix':    function(){ return stripesV('alcm', '#CC0000', '#FFFFFF', 8); },
+      'VV Assendelft':       function(){ return solid('asse', '#003DA5', '#FFFFFF'); },       // *geschat
+      'De Blokkers':         function(){ return solid('blok', '#FFD700', '#111111'); },
+      'SV DTS':              function(){ return solid('dts',  '#2E8B57', '#FFFFFF'); },       // *geschat
+      'Fortuna Wormerveer':  function(){ return stripesV('fort', '#CC0000', '#FFFFFF', 10); },
+      'AFC IJburg':          function(){ return solid('ijbu', '#FFFFFF', '#CC0000'); },
+      'KFC':                 function(){ return stripesV('kfc',  '#CC0000', '#003DA5', 8, '#FFFFFF'); },
+      'SV Koedijk':          function(){ return solid('koed', '#111111', '#FFD700'); },
+      'OFC Oostzaan':        function(){ return stripesV('ofc',  '#FFD700', '#111111', 8); },
+      'VV Opperdoes':        function(){ return solid('oppr', '#CC0000', '#FFFFFF'); },       // *geschat
+      'SC Purmerland':       function(){ return halfH('purm', '#003DA5', '#111111'); },
+      'VV Saenden':          function(){ return solid('saen', '#006400', '#FFFFFF'); },       // *geschat (RKVV)
+      'Sporting Krommenie':  function(){ return solid('spkr', '#111111', '#CC0000'); },       // *geschat
+      'TOS Actief':          function(){ return solid('tos',  '#0057A8', '#FFD700'); },       // *geschat
+      'United Haarlem':      function(){ return solid('unit', '#1A1A1A', '#CC8800'); },       // *geschat
+      'ASC De Volewijckers': function(){ return band('vole', '#FFFFFF', '#006400', 28, 20, '#006400'); },
+      'WSV 1930':            function(){ return solid('wsv',  '#CC0000', '#111111'); },       // *geschat
+      'ZVV Zaandijk':        function(){ return solid('zaan', '#003DA5', '#FFFFFF'); },
+      'ZCFC':                function(){ return solid('zcfc', '#FF6B00', '#111111'); },
+    };
+
+    document.querySelectorAll('.club-card').forEach(function(card) {
+      var naam = card.querySelector('.club-naam').textContent.trim();
+      var fn = shirts[naam];
+      if (!fn) return;
+      var shirtDiv = card.querySelector('.shirt');
+      shirtDiv.innerHTML = fn();
+      shirtDiv.style.fontSize = 'unset';
+      shirtDiv.style.lineHeight = 'unset';
+    });
+  })();
+  </script>
 </body>
 </html>
