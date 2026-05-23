@@ -3,13 +3,30 @@
 
 const CATEGORY = document.currentScript.getAttribute('data-category');
 
+// Zet een foto-pad om naar een Firebase-safe sleutel
+function photoKey(path) {
+  return path.replace(/\//g, '__').replace(/\./g, '--');
+}
+
+// Heeft deze browser al geliked?
+function isLikedLocally(key) {
+  try { return !!JSON.parse(localStorage.getItem('zl_liked') || '{}')[key]; } catch { return false; }
+}
+function setLikedLocally(key, val) {
+  try {
+    const s = JSON.parse(localStorage.getItem('zl_liked') || '{}');
+    if (val) s[key] = true; else delete s[key];
+    localStorage.setItem('zl_liked', JSON.stringify(s));
+  } catch {}
+}
+
 async function loadGallery() {
   const container = document.getElementById('gallery-container');
 
   try {
-    const res = await fetch('manifest.json?v=' + Date.now());
+    const res      = await fetch('manifest.json?v=' + Date.now());
     const manifest = await res.json();
-    const items = manifest[CATEGORY] || [];
+    const items    = manifest[CATEGORY] || [];
 
     if (items.length === 0) {
       container.innerHTML = '<p class="no-content">Nog geen foto\'s toegevoegd — kom snel terug!</p>';
@@ -18,26 +35,36 @@ async function loadGallery() {
 
     container.innerHTML = '';
 
+    // Laad alle like-aantallen in één keer uit Firebase
+    let likeCounts = {};
+    try {
+      const snap = await db.ref('likes').once('value');
+      likeCounts = snap.val() || {};
+    } catch (e) {
+      console.warn('Firebase niet beschikbaar:', e);
+    }
+
     items.forEach(item => {
       const div = document.createElement('div');
       div.className = 'portfolio-category';
       div.id = 'cat-' + item.id;
 
       const slides = item.fotos.map(f => {
-        const key     = `${CATEGORY}/${item.map}/${f}`;
+        const path    = `${CATEGORY}/${item.map}/${f}`;
+        const key     = photoKey(path);
         const src     = `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`;
-        const liked   = getLiked(key);
-        const likes   = getLikeCount(key);
-        const dls     = getDownloads(key);
+        const liked   = isLikedLocally(key);
+        const count   = likeCounts[key] || 0;
+
         return `
           <div class="swiper-slide">
             <img src="${src}" alt="${item.naam}" loading="lazy" />
             <div class="slide-actions">
-              <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" title="Like">
+              <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" data-path="${path}" title="Like deze foto">
                 <span class="heart">♥</span>
-                <span class="like-count">${likes > 0 ? likes : ''}</span>
+                <span class="like-count">${count > 0 ? count : ''}</span>
               </button>
-              <a class="btn-download" href="${src}" download="${f}" data-key="${key}" title="Download foto">
+              <a class="btn-download" href="${src}" download="${f}" title="Download foto">
                 <span>&#8681;</span>
               </a>
             </div>
@@ -70,7 +97,7 @@ async function loadGallery() {
     });
 
     initLightbox();
-    initActions();
+    initLikes();
 
   } catch (e) {
     container.innerHTML = '<p class="no-content">Kon foto\'s niet laden.</p>';
@@ -78,6 +105,42 @@ async function loadGallery() {
   }
 }
 
+// ── LIKES ─────────────────────────────────────────────────────────────────
+function initLikes() {
+  document.addEventListener('click', async e => {
+    const btn = e.target.closest('.btn-like');
+    if (!btn) return;
+    e.stopPropagation();
+
+    const key   = btn.dataset.key;
+    const liked = isLikedLocally(key);
+    const ref   = db.ref(`likes/${key}`);
+
+    try {
+      if (liked) {
+        // Unlike: verlaag met 1 (minimaal 0)
+        await ref.transaction(cur => Math.max(0, (cur || 1) - 1));
+        setLikedLocally(key, false);
+        btn.classList.remove('liked');
+      } else {
+        // Like: verhoog met 1
+        await ref.transaction(cur => (cur || 0) + 1);
+        setLikedLocally(key, true);
+        btn.classList.add('liked');
+      }
+
+      // Update teller in UI
+      const snap  = await ref.once('value');
+      const count = snap.val() || 0;
+      btn.querySelector('.like-count').textContent = count > 0 ? count : '';
+
+    } catch (err) {
+      console.warn('Like mislukt:', err);
+    }
+  });
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────────────────────
 function initLightbox() {
   const lightbox    = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
@@ -87,16 +150,14 @@ function initLightbox() {
     const img = e.target.closest('.portfolio-swiper img');
     if (!img) return;
     const slider = img.closest('.portfolio-swiper');
-    allImages = Array.from(slider.querySelectorAll('img'));
+    allImages  = Array.from(slider.querySelectorAll('img'));
     currentIdx = allImages.indexOf(img);
     lightboxImg.src = img.src;
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   });
 
-  lightbox.addEventListener('click', e => {
-    if (e.target !== lightboxImg) closeLightbox();
-  });
+  lightbox.addEventListener('click', e => { if (e.target !== lightboxImg) closeLightbox(); });
   document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
   document.getElementById('lb-prev').addEventListener('click', e => {
@@ -111,7 +172,7 @@ function initLightbox() {
   document.addEventListener('keydown', e => {
     if (lightbox.classList.contains('hidden')) return;
     if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft'  && currentIdx > 0) { currentIdx--; lightboxImg.src = allImages[currentIdx].src; }
+    if (e.key === 'ArrowLeft'  && currentIdx > 0)                    { currentIdx--; lightboxImg.src = allImages[currentIdx].src; }
     if (e.key === 'ArrowRight' && currentIdx < allImages.length - 1) { currentIdx++; lightboxImg.src = allImages[currentIdx].src; }
   });
 
@@ -119,55 +180,6 @@ function initLightbox() {
     lightbox.classList.add('hidden');
     document.body.style.overflow = '';
   }
-}
-
-// ── LIKES & DOWNLOADS ────────────────────────────────────────────────────
-function getStore(k)       { try { return JSON.parse(localStorage.getItem(k) || '{}'); } catch { return {}; } }
-function saveStore(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
-
-function getLiked(key)     { return !!getStore('zl_liked')[key]; }
-function getLikeCount(key) { return getStore('zl_likecnt')[key] || 0; }
-function getDownloads(key) { return getStore('zl_downloads')[key] || 0; }
-
-function toggleLike(key) {
-  const liked = getStore('zl_liked');
-  const cnt   = getStore('zl_likecnt');
-  if (liked[key]) {
-    delete liked[key];
-    cnt[key] = Math.max(0, (cnt[key] || 1) - 1);
-  } else {
-    liked[key] = true;
-    cnt[key]   = (cnt[key] || 0) + 1;
-  }
-  saveStore('zl_liked', liked);
-  saveStore('zl_likecnt', cnt);
-  return { liked: !!liked[key], count: cnt[key] };
-}
-
-function trackDownload(key) {
-  const dls = getStore('zl_downloads');
-  dls[key]  = (dls[key] || 0) + 1;
-  saveStore('zl_downloads', dls);
-}
-
-function initActions() {
-  document.addEventListener('click', e => {
-    // Like
-    const likeBtn = e.target.closest('.btn-like');
-    if (likeBtn) {
-      e.stopPropagation();
-      const key    = likeBtn.dataset.key;
-      const result = toggleLike(key);
-      likeBtn.classList.toggle('liked', result.liked);
-      likeBtn.querySelector('.like-count').textContent = result.count > 0 ? result.count : '';
-      return;
-    }
-    // Download
-    const dlBtn = e.target.closest('.btn-download');
-    if (dlBtn) {
-      trackDownload(dlBtn.dataset.key);
-    }
-  });
 }
 
 loadGallery();
