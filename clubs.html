@@ -519,7 +519,13 @@
       'VV Assendelft':       function(){ return bandV('asse', '#1C1C2E', '#FFFFFF', 24, 32); }, // zwart + witte baan
       'De Blokkers':         function(){ return solid('blok', '#FFD700', '#111111'); },
       'SV DTS':              function(){ return solid('dts',  '#FFFFFF', '#1E5CB3'); },        // wit + blauwe kraag
-      'Fortuna Wormerveer':  function(){ return stripesV('fort', '#CC0000', '#FFFFFF', 10); },
+      'Fortuna Wormerveer':  function(){                                                       // wit + marineblauwe/rode verticale baan links
+        var b = '<rect x="0" y="0" width="80" height="90" fill="#FFFFFF" ' + clip('fort') + '/>'
+              + '<rect x="19" y="0" width="9" height="90" fill="#1C2B5E" ' + clip('fort') + '/>'
+              + '<rect x="28" y="0" width="6" height="90" fill="#CC0000" ' + clip('fort') + '/>'
+              + '<path d="' + V_COLLAR + '" fill="#1C2B5E" ' + clip('fort') + '/>';
+        return mkSvg('fort', b);
+      },
       'AFC IJburg':          function(){ return solid('ijbu', '#FFFFFF', '#CC0000'); },
       'KFC':                 function(){ return stripesV('kfc',  '#CC0000', '#003DA5', 8, '#FFFFFF'); },
       'SV Koedijk':          function(){ return solid('koed', '#111111', '#FFD700'); },
