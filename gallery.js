@@ -121,4 +121,53 @@ function initLightbox() {
   }
 }
 
+// ── LIKES & DOWNLOADS ────────────────────────────────────────────────────
+function getStore(k)       { try { return JSON.parse(localStorage.getItem(k) || '{}'); } catch { return {}; } }
+function saveStore(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
+
+function getLiked(key)     { return !!getStore('zl_liked')[key]; }
+function getLikeCount(key) { return getStore('zl_likecnt')[key] || 0; }
+function getDownloads(key) { return getStore('zl_downloads')[key] || 0; }
+
+function toggleLike(key) {
+  const liked = getStore('zl_liked');
+  const cnt   = getStore('zl_likecnt');
+  if (liked[key]) {
+    delete liked[key];
+    cnt[key] = Math.max(0, (cnt[key] || 1) - 1);
+  } else {
+    liked[key] = true;
+    cnt[key]   = (cnt[key] || 0) + 1;
+  }
+  saveStore('zl_liked', liked);
+  saveStore('zl_likecnt', cnt);
+  return { liked: !!liked[key], count: cnt[key] };
+}
+
+function trackDownload(key) {
+  const dls = getStore('zl_downloads');
+  dls[key]  = (dls[key] || 0) + 1;
+  saveStore('zl_downloads', dls);
+}
+
+function initActions() {
+  document.addEventListener('click', e => {
+    // Like
+    const likeBtn = e.target.closest('.btn-like');
+    if (likeBtn) {
+      e.stopPropagation();
+      const key    = likeBtn.dataset.key;
+      const result = toggleLike(key);
+      likeBtn.classList.toggle('liked', result.liked);
+      likeBtn.querySelector('.like-count').textContent = result.count > 0 ? result.count : '';
+      return;
+    }
+    // Download
+    const dlBtn = e.target.closest('.btn-download');
+    if (dlBtn) {
+      trackDownload(dlBtn.dataset.key);
+    }
+  });
+}
+
 loadGallery();
