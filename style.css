@@ -307,8 +307,9 @@ section:not(#hero) {
 }
 
 @media (max-width: 900px) {
-  .tegel-grid { grid-template-columns: 1fr; }
-  .tegel { aspect-ratio: 16/9; }
+  .tegel-grid { grid-template-columns: repeat(2, 1fr); }
+  .tegel { aspect-ratio: 4/3; }
+  .tegel-grid .tegel:nth-child(n+4) { aspect-ratio: 4/3; }
   #tegels { padding: 3rem 1.5rem; }
 }
 
