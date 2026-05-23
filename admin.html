@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zaans Licht — Beheer</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --oranje: #FF6B00;
+      --zwart: #0d0d0d;
+      --grijs: #1a1a1a;
+      --grijs-licht: #2a2a2a;
+      --wit: #ffffff;
+      --dim: #888;
+    }
+    body { background: var(--zwart); color: var(--wit); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* HEADER */
+    .admin-header {
+      background: var(--grijs);
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--oranje);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .admin-header h1 { font-size: 1.3rem; letter-spacing: 2px; text-transform: uppercase; }
+    .admin-header h1 span { color: var(--oranje); }
+
+    /* OPEN/SAVE BUTTONS */
+    .btn {
+      padding: 0.6rem 1.4rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-oranje { background: var(--oranje); color: var(--wit); }
+    .btn-oranje:hover { background: #cc5500; }
+    .btn-grijs { background: var(--grijs-licht); color: var(--wit); }
+    .btn-grijs:hover { background: #3a3a3a; }
+    .header-btns { display: flex; gap: 0.8rem; align-items: center; }
+
+    /* STATUS */
+    #status {
+      font-size: 0.85rem;
+      color: var(--oranje);
+      min-width: 150px;
+      text-align: right;
+    }
+
+    /* TABS */
+    .tabs { display: flex; border-bottom: 1px solid #333; padding: 0 2rem; margin-top: 0; }
+    .tab {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--dim);
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.2s;
+    }
+    .tab.active { color: var(--oranje); border-bottom-color: var(--oranje); }
+    .tab:hover { color: var(--wit); }
+
+    /* CONTENT */
+    .content { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* OPENSTATE */
+    #openstate {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--dim);
+    }
+    #openstate p { margin-top: 1rem; font-size: 0.9rem; }
+
+    /* SLIDER LIJST */
+    .slider-lijst { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+
+    .slider-item {
+      background: var(--grijs);
+      border-radius: 6px;
+      border: 1px solid #333;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .slider-item:hover { border-color: #555; }
+    .slider-item.sortable-ghost { opacity: 0.3; }
+    .slider-item.sortable-chosen { border-color: var(--oranje); }
+
+    .slider-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .drag-handle {
+      color: var(--dim);
+      font-size: 1.2rem;
+      cursor: grab;
+      padding: 0 0.3rem;
+    }
+    .drag-handle:active { cursor: grabbing; }
+    .slider-naam { flex: 1; font-weight: 600; }
+    .slider-count { color: var(--dim); font-size: 0.85rem; }
+    .expand-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      transition: transform 0.2s, color 0.2s;
+    }
+    .expand-btn:hover { color: var(--oranje); }
+    .slider-item.open .expand-btn { transform: rotate(180deg); color: var(--oranje); }
+
+    /* FOTO GRID */
+    .foto-grid {
+      display: none;
+      padding: 0.8rem 1rem 1rem;
+      border-top: 1px solid #333;
+    }
+    .slider-item.open .foto-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .foto-thumb {
+      width: 120px;
+      height: 80px;
+      border-radius: 3px;
+      overflow: hidden;
+      cursor: grab;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .foto-thumb:hover { border-color: var(--oranje); }
+    .foto-thumb:active { cursor: grabbing; }
+    .foto-thumb.sortable-ghost { opacity: 0.3; }
+    .foto-thumb.sortable-chosen { border-color: var(--oranje); transform: scale(1.05); }
+    .foto-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+    .foto-nr {
+      position: absolute;
+      bottom: 0; left: 0;
+      background: rgba(0,0,0,0.7);
+      color: var(--wit);
+      font-size: 0.65rem;
+      padding: 1px 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-header">
+  <h1>Zaans <span>Licht</span> — Beheer</h1>
+  <div class="header-btns">
+    <span id="status">Geen bestand geopend</span>
+    <button class="btn btn-grijs" onclick="openManifest()">📂 Open manifest.json</button>
+    <button class="btn btn-oranje" onclick="saveManifest()" id="btn-save" disabled>💾 Opslaan</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('voetbal')">⚽ Voetbal</div>
+  <div class="tab" onclick="switchTab('nosports')">🌄 No Sports</div>
+</div>
+
+<div class="content">
+  <div id="openstate">
+    <p style="font-size:3rem">📂</p>
+    <p>Klik op <strong>Open manifest.json</strong> om te beginnen.</p>
+    <p style="margin-top:0.5rem">Het bestand staat in <code>/Users/andreas/fotografie-site/manifest.json</code></p>
+  </div>
+
+  <div id="tab-voetbal" class="tab-panel">
+    <ul class="slider-lijst" id="lijst-voetbal"></ul>
+  </div>
+  <div id="tab-nosports" class="tab-panel">
+    <ul class="slider-lijst" id="lijst-nosports"></ul>
+  </div>
+</div>
+
+<script>
+let fileHandle = null;
+let manifest = null;
+let activeTab = 'voetbal';
+let sliderSortables = {};
+
+// ===== BESTAND OPENEN =====
+async function openManifest() {
+  try {
+    [fileHandle] = await window.showOpenFilePicker({
+      types: [{ description: 'JSON bestanden', accept: { 'application/json': ['.json'] } }],
+      startIn: 'documents'
+    });
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    manifest = JSON.parse(text);
+    document.getElementById('openstate').style.display = 'none';
+    document.getElementById('btn-save').disabled = false;
+    setStatus('✓ ' + file.name + ' geopend');
+    renderAll();
+  } catch (e) {
+    if (e.name !== 'AbortError') setStatus('❌ Fout bij openen');
+  }
+}
+
+// ===== OPSLAAN =====
+async function saveManifest() {
+  if (!fileHandle || !manifest) return;
+  try {
+    // Lees huidige volgorde uit DOM terug in manifest
+    updateManifestFromDOM();
+    const writable = await fileHandle.createWritable();
+    await writable.write(JSON.stringify(manifest, null, 2));
+    await writable.close();
+    setStatus('✓ Opgeslagen!');
+    setTimeout(() => setStatus('Klaar om te bewerken'), 2000);
+  } catch (e) {
+    setStatus('❌ Fout bij opslaan: ' + e.message);
+  }
+}
+
+// ===== DOM → MANIFEST =====
+function updateManifestFromDOM() {
+  ['voetbal', 'nosports'].forEach(cat => {
+    const lijst = document.getElementById('lijst-' + cat);
+    if (!lijst) return;
+    const items = Array.from(lijst.querySelectorAll('.slider-item'));
+    const newOrder = items.map((el, i) => {
+      const mapNaam = el.dataset.map;
+      const existing = manifest[cat].find(x => x.map === mapNaam);
+      if (!existing) return null;
+
+      // Foto volgorde uit thumbs
+      const thumbs = el.querySelectorAll('.foto-thumb');
+      const fotos = Array.from(thumbs).map(t => t.dataset.foto);
+
+      return { ...existing, volgorde: i, fotos };
+    }).filter(Boolean);
+    manifest[cat] = newOrder;
+  });
+}
+
+// ===== RENDER =====
+function renderAll() {
+  renderCategorie('voetbal');
+  renderCategorie('nosports');
+  switchTab(activeTab);
+}
+
+function renderCategorie(cat) {
+  const lijst = document.getElementById('lijst-' + cat);
+  lijst.innerHTML = '';
+
+  const items = (manifest[cat] || []).sort((a, b) => a.volgorde - b.volgorde);
+
+  if (items.length === 0) {
+    lijst.innerHTML = '<li style="color:#888;padding:2rem;text-align:center">Nog geen mappen in images/' + cat + '/</li>';
+    return;
+  }
+
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.className = 'slider-item';
+    li.dataset.map = item.map;
+
+    // Foto thumbnails HTML
+    const thumbsHtml = item.fotos.map((f, i) => `
+      <div class="foto-thumb" data-foto="${f}">
+        <img src="images/${cat}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}" loading="lazy" />
+        <span class="foto-nr">${i + 1}</span>
+      </div>`).join('');
+
+    li.innerHTML = `
+      <div class="slider-header" onclick="toggleOpen(this)">
+        <span class="drag-handle">⠿</span>
+        <span class="slider-naam">${item.naam}</span>
+        <span class="slider-count">${item.fotos.length} foto's</span>
+        <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
+      </div>
+      <div class="foto-grid">${thumbsHtml}</div>`;
+
+    lijst.appendChild(li);
+
+    // Foto's sorteerbaar maken
+    const grid = li.querySelector('.foto-grid');
+    new Sortable(grid, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd: () => hernum(grid)
+    });
+  });
+
+  // Sliders sorteerbaar maken
+  if (sliderSortables[cat]) sliderSortables[cat].destroy();
+  sliderSortables[cat] = new Sortable(lijst, {
+    animation: 200,
+    handle: '.drag-handle',
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+  });
+}
+
+// ===== HULPFUNCTIES =====
+function toggleOpen(header) {
+  const item = header.closest('.slider-item');
+  item.classList.toggle('open');
+}
+
+function hernum(grid) {
+  grid.querySelectorAll('.foto-nr').forEach((el, i) => el.textContent = i + 1);
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['voetbal','nosports'][i] === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+// Keyboard shortcut: Ctrl+S / Cmd+S
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveManifest();
+  }
+});
+</script>
+</body>
+</html>
