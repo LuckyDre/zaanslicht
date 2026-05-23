@@ -38,8 +38,10 @@ async function loadGallery() {
     // Laad alle like-aantallen in één keer uit Firebase
     let likeCounts = {};
     try {
-      const snap = await db.ref('likes').once('value');
-      likeCounts = snap.val() || {};
+      if (typeof db !== 'undefined') {
+        const snap = await db.ref('likes').once('value');
+        likeCounts = snap.val() || {};
+      }
     } catch (e) {
       console.warn('Firebase niet beschikbaar:', e);
     }
