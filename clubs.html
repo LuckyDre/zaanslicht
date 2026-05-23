@@ -526,7 +526,13 @@
               + '<path d="' + V_COLLAR + '" fill="#1C2B5E" ' + clip('fort') + '/>';
         return mkSvg('fort', b);
       },
-      'AFC IJburg':          function(){ return solid('ijbu', '#FFFFFF', '#CC0000'); },
+      'AFC IJburg':          function(){                                                       // wit + rode schouders
+        var b = '<rect x="0" y="0" width="80" height="90" fill="#FFFFFF" ' + clip('ijbu') + '/>'
+              + '<rect x="0" y="0" width="32" height="40" fill="#CC0000" ' + clip('ijbu') + '/>'
+              + '<rect x="48" y="0" width="32" height="40" fill="#CC0000" ' + clip('ijbu') + '/>'
+              + '<path d="' + V_COLLAR + '" fill="#CC0000" ' + clip('ijbu') + '/>';
+        return mkSvg('ijbu', b);
+      },
       'KFC':                 function(){ return stripesV('kfc',  '#CC0000', '#003DA5', 8, '#FFFFFF'); },
       'SV Koedijk':          function(){ return solid('koed', '#111111', '#FFD700'); },
       'OFC Oostzaan':        function(){ return stripesV('ofc',  '#FFD700', '#111111', 8); },
