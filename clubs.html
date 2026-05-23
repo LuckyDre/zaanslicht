@@ -537,7 +537,13 @@
       'SV Koedijk':          function(){ return stripesV('koed', '#FFD700', '#111111', 8); },  // geel/zwart strepen
       'OFC Oostzaan':        function(){ return stripesV('ofc',  '#FFD700', '#111111', 8); },
       'VV Opperdoes':        function(){ return solid('oppr', '#CC0000', '#FFFFFF'); },       // *geschat
-      'SC Purmerland':       function(){ return halfH('purm', '#003DA5', '#111111'); },
+      'SC Purmerland':       function(){                                                       // zwart + blauwe schouders
+        var b = '<rect x="0" y="0" width="80" height="90" fill="#111111" ' + clip('purm') + '/>'
+              + '<rect x="0" y="0" width="32" height="40" fill="#1A6FD4" ' + clip('purm') + '/>'
+              + '<rect x="48" y="0" width="32" height="40" fill="#1A6FD4" ' + clip('purm') + '/>'
+              + '<path d="' + V_COLLAR + '" fill="#1A6FD4" ' + clip('purm') + '/>';
+        return mkSvg('purm', b);
+      },
       'VV Saenden':          function(){ return solid('saen', '#006400', '#FFFFFF'); },       // *geschat (RKVV)
       'Sporting Krommenie':  function(){ return solid('spkr', '#111111', '#CC0000'); },       // *geschat
       'TOS Actief':          function(){ return solid('tos',  '#0057A8', '#FFD700'); },       // *geschat
