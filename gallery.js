@@ -132,8 +132,8 @@ function initLikes() {
       }
 
       // Update teller in UI
-      const snap  = await ref.once('value');
-      const count = snap.val() || 0;
+      const snap  = typeof db !== 'undefined' ? await ref.once('value') : null;
+      const count = snap ? snap.val() || 0 : 0;
       btn.querySelector('.like-count').textContent = count > 0 ? count : '';
 
     } catch (err) {
