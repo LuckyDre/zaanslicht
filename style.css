@@ -759,6 +759,64 @@ footer {
   line-height: 1.6;
 }
 
+/* ===== PAGINA NAVIGATIE (terug / home) ===== */
+.page-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.2rem 2rem;
+  background: var(--grijs);
+  border-top: 1px solid #222;
+}
+.page-nav a, .page-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.page-nav a:hover, .page-nav button:hover { transform: translateY(-1px); }
+.btn-terug {
+  background: var(--grijs-licht);
+  color: var(--wit);
+}
+.btn-terug:hover { background: #333; }
+.btn-home {
+  background: var(--oranje);
+  color: var(--wit);
+}
+.btn-home:hover { background: var(--oranje-dark); }
+
+/* Terug knop in header */
+.header-terug {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--dim);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.header-terug:hover { color: var(--oranje); background: rgba(255,107,0,0.08); }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   header { padding: 1rem 1.5rem; }
