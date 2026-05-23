@@ -12,7 +12,7 @@ new Swiper('.hero-swiper', {
   },
 });
 
-// ===== TEGELS: laad random achtergrondfotos uit manifest =====
+// ===== TEGELS: laad achtergrondfotos + gebruik top-liked voor Verrassing =====
 async function loadTegels() {
   try {
     const res = await fetch('manifest.json?v=' + Date.now());
@@ -20,22 +20,40 @@ async function loadTegels() {
 
     const allVoetbal  = getAllFotos(manifest, 'voetbal');
     const allNosports = getAllFotos(manifest, 'nosports');
-    const allFotos    = [...allVoetbal, ...allNosports];
 
     setTilebg('bg-voetbal',  allVoetbal);
     setTilebg('bg-nosports', allNosports);
-    setTilebg('bg-random',   allVoetbal);
 
-    // Tegel 3: random slideshow bij klik
+    // Haal like-aantallen op uit Firebase → sorteer voetbalfoto's op likes
+    let topFotos = allVoetbal;
+    try {
+      const snap   = await db.ref('likes').once('value');
+      const counts = snap.val() || {};
+      const sorted = [...allVoetbal].sort((a, b) => {
+        const ka = photoKeyMain(a.path);
+        const kb = photoKeyMain(b.path);
+        return (counts[kb] || 0) - (counts[ka] || 0);
+      });
+      // Gebruik top-gelikte foto's als er likes zijn, anders gewoon random
+      const hasLikes = sorted.some(f => (counts[photoKeyMain(f.path)] || 0) > 0);
+      topFotos = hasLikes ? sorted : allVoetbal;
+    } catch {}
+
+    setTilebg('bg-random', topFotos);
+
     const tegelRandom = document.getElementById('tegel-random');
     if (tegelRandom) {
-      tegelRandom.addEventListener('click', () => startSlideshow(allVoetbal));
-      tegelRandom.addEventListener('keydown', e => { if (e.key === 'Enter') startSlideshow(allVoetbal); });
+      tegelRandom.addEventListener('click', () => startSlideshow(topFotos));
+      tegelRandom.addEventListener('keydown', e => { if (e.key === 'Enter') startSlideshow(topFotos); });
     }
 
   } catch (e) {
     console.error('manifest laden mislukt:', e);
   }
+}
+
+function photoKeyMain(path) {
+  return path.replace(/\//g, '__').replace(/\./g, '--');
 }
 
 function getAllFotos(manifest, category) {
