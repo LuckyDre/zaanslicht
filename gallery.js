@@ -116,6 +116,7 @@ function initLikes() {
 
     const key   = btn.dataset.key;
     const liked = isLikedLocally(key);
+    if (typeof db === 'undefined') return;
     const ref   = db.ref(`likes/${key}`);
 
     try {
