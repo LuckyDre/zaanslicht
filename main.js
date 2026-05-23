@@ -12,46 +12,7 @@ new Swiper('.hero-swiper', {
   },
 });
 
-// ===== TEGELS: laad achtergrondfotos + gebruik top-liked voor Verrassing =====
-async function loadTegels() {
-  try {
-    const res = await fetch('manifest.json?v=' + Date.now());
-    const manifest = await res.json();
-
-    const allVoetbal  = getAllFotos(manifest, 'voetbal');
-    const allNosports = getAllFotos(manifest, 'nosports');
-
-    setTilebg('bg-voetbal',  allVoetbal);
-    setTilebg('bg-nosports', allNosports);
-
-    // Haal like-aantallen op uit Firebase → sorteer voetbalfoto's op likes
-    let topFotos = allVoetbal;
-    try {
-      const snap   = await db.ref('likes').once('value');
-      const counts = snap.val() || {};
-      const sorted = [...allVoetbal].sort((a, b) => {
-        const ka = photoKeyMain(a.path);
-        const kb = photoKeyMain(b.path);
-        return (counts[kb] || 0) - (counts[ka] || 0);
-      });
-      // Gebruik top-gelikte foto's als er likes zijn, anders gewoon random
-      const hasLikes = sorted.some(f => (counts[photoKeyMain(f.path)] || 0) > 0);
-      topFotos = hasLikes ? sorted : allVoetbal;
-    } catch {}
-
-    setTilebg('bg-random', topFotos);
-
-    const tegelRandom = document.getElementById('tegel-random');
-    if (tegelRandom) {
-      tegelRandom.addEventListener('click', () => startSlideshow(topFotos));
-      tegelRandom.addEventListener('keydown', e => { if (e.key === 'Enter') startSlideshow(topFotos); });
-    }
-
-  } catch (e) {
-    console.error('manifest laden mislukt:', e);
-  }
-}
-
+// ===== HELPERS =====
 function photoKeyMain(path) {
   return path.replace(/\//g, '__').replace(/\./g, '--');
 }
@@ -69,11 +30,74 @@ function getAllFotos(manifest, category) {
   return fotos;
 }
 
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
 function setTilebg(elId, fotos) {
   if (!fotos.length) return;
   const pick = fotos[Math.floor(Math.random() * fotos.length)];
-  const el = document.getElementById(elId);
+  const el   = document.getElementById(elId);
   if (el) el.style.backgroundImage = `url('${pick.src}')`;
+}
+
+// Haal top-gelikte foto's op uit Firebase (max N stuks)
+async function getTopLiked(fotos, maxN) {
+  try {
+    if (typeof db === 'undefined') return shuffle(fotos).slice(0, maxN);
+    const snap   = await db.ref('likes').once('value');
+    const counts = snap.val() || {};
+    const sorted = [...fotos]
+      .map(f => ({ ...f, likes: counts[photoKeyMain(f.path)] || 0 }))
+      .sort((a, b) => b.likes - a.likes);
+    // Als er gelikte foto's zijn, neem top N; anders willekeurig
+    const hasLikes = sorted[0]?.likes > 0;
+    return hasLikes ? sorted.slice(0, maxN) : shuffle(fotos).slice(0, maxN);
+  } catch {
+    return shuffle(fotos).slice(0, maxN);
+  }
+}
+
+// ===== TEGELS LADEN =====
+async function loadTegels() {
+  try {
+    const res      = await fetch('manifest.json?v=' + Date.now());
+    const manifest = await res.json();
+
+    const allVoetbal  = getAllFotos(manifest, 'voetbal');
+    const allNosports = getAllFotos(manifest, 'nosports');
+
+    // ── Achtergronden ──────────────────────────────────────────────────────
+    setTilebg('bg-voetbal',  allVoetbal);
+    setTilebg('bg-nosports', allNosports);
+
+    // Top-liked ophalen voor beide categorieën
+    const [topVoetbal, topNosports] = await Promise.all([
+      getTopLiked(allVoetbal,  20),
+      getTopLiked(allNosports, 20),
+    ]);
+
+    setTilebg('bg-random',         shuffle(allVoetbal));
+    setTilebg('bg-random-nosports', shuffle(allNosports));
+    setTilebg('bg-liked-voetbal',  topVoetbal);
+    setTilebg('bg-liked-nosports', topNosports);
+
+    // ── Klikgedrag ─────────────────────────────────────────────────────────
+    bindTegel('tegel-random',          () => startSlideshow(shuffle(allVoetbal).slice(0, 10)));
+    bindTegel('tegel-liked-voetbal',   () => startSlideshow(topVoetbal));
+    bindTegel('tegel-random-nosports', () => startSlideshow(shuffle(allNosports).slice(0, 10)));
+    bindTegel('tegel-liked-nosports',  () => startSlideshow(topNosports));
+
+  } catch (e) {
+    console.error('Tegels laden mislukt:', e);
+  }
+}
+
+function bindTegel(id, fn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click',   fn);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') fn(); });
 }
 
 loadTegels();
@@ -87,11 +111,10 @@ const ssBar     = document.getElementById('ss-bar');
 let ssPhotos = [], ssIdx = 0, ssTimer = null;
 const SS_DELAY = 4000;
 
-function startSlideshow(allFotos) {
-  if (!allFotos.length) return;
-  const shuffled = [...allFotos].sort(() => Math.random() - 0.5);
-  ssPhotos = shuffled.slice(0, Math.min(10, shuffled.length));
-  ssIdx = 0;
+function startSlideshow(fotos) {
+  if (!fotos.length) return;
+  ssPhotos = fotos.slice(0, Math.min(20, fotos.length));
+  ssIdx    = 0;
   ssTotal.textContent = ssPhotos.length;
   showSlide(0);
   slideshow.classList.remove('hidden');
@@ -142,12 +165,12 @@ if (slideshow) {
 
 document.addEventListener('keydown', e => {
   if (!slideshow || slideshow.classList.contains('hidden')) return;
-  if (e.key === 'Escape') closeSlideshow();
+  if (e.key === 'Escape')     closeSlideshow();
   if (e.key === 'ArrowLeft')  { clearInterval(ssTimer); showSlide((ssIdx - 1 + ssPhotos.length) % ssPhotos.length); startAutoAdvance(); }
   if (e.key === 'ArrowRight') { clearInterval(ssTimer); showSlide((ssIdx + 1) % ssPhotos.length); startAutoAdvance(); }
 });
 
-// ===== HEADER scroll effect =====
+// ===== HEADER SCROLL =====
 window.addEventListener('scroll', () => {
   document.querySelector('header').style.background = window.scrollY > 80
     ? 'rgba(13,13,13,0.97)'
