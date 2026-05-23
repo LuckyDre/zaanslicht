@@ -497,6 +497,47 @@ section:not(#hero) {
   background: rgba(255,107,0,0.2);
 }
 
+/* ===== LIKE & DOWNLOAD KNOPPEN ===== */
+.slide-actions {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 8px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65));
+  opacity: 0;
+  transition: opacity 0.25s;
+  z-index: 10;
+  pointer-events: none;
+}
+.portfolio-swiper .swiper-slide:hover .slide-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn-like, .btn-download {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  backdrop-filter: blur(4px);
+}
+.btn-like:hover, .btn-download:hover {
+  background: rgba(0,0,0,0.75);
+  transform: scale(1.08);
+}
+.btn-like .heart { font-size: 1rem; transition: color 0.2s; }
+.btn-like.liked .heart { color: #ef4444; }
+.btn-like .like-count { font-size: 0.75rem; }
+.btn-download span { font-size: 1rem; }
+
 /* ===== LIGHTBOX ===== */
 .lightbox {
   position: fixed;
