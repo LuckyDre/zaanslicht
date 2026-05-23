@@ -23,9 +23,26 @@ async function loadGallery() {
       div.className = 'portfolio-category';
       div.id = 'cat-' + item.id;
 
-      const slides = item.fotos.map(f =>
-        `<div class="swiper-slide"><img src="images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}" alt="${item.naam}" loading="lazy" /></div>`
-      ).join('');
+      const slides = item.fotos.map(f => {
+        const key     = `${CATEGORY}/${item.map}/${f}`;
+        const src     = `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`;
+        const liked   = getLiked(key);
+        const likes   = getLikeCount(key);
+        const dls     = getDownloads(key);
+        return `
+          <div class="swiper-slide">
+            <img src="${src}" alt="${item.naam}" loading="lazy" />
+            <div class="slide-actions">
+              <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" title="Like">
+                <span class="heart">♥</span>
+                <span class="like-count">${likes > 0 ? likes : ''}</span>
+              </button>
+              <a class="btn-download" href="${src}" download="${f}" data-key="${key}" title="Download foto">
+                <span>&#8681;</span>
+              </a>
+            </div>
+          </div>`;
+      }).join('');
 
       div.innerHTML = `
         <h3>${item.naam}</h3>
@@ -53,6 +70,7 @@ async function loadGallery() {
     });
 
     initLightbox();
+    initActions();
 
   } catch (e) {
     container.innerHTML = '<p class="no-content">Kon foto\'s niet laden.</p>';
