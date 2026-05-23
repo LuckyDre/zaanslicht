@@ -112,6 +112,37 @@
 
     /* LEGE STAAT */
     .leeg { color: var(--dim); padding: 2rem; text-align: center; font-size: 0.9rem; }
+
+    /* FOTO HOVER PREVIEW */
+    #foto-preview {
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      display: none;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 2px var(--oranje);
+      transition: opacity 0.15s ease;
+      opacity: 0;
+      max-width: 380px;
+    }
+    #foto-preview.visible { opacity: 1; }
+    #foto-preview img {
+      display: block;
+      width: 380px;
+      max-height: 280px;
+      object-fit: contain;
+      background: #111;
+    }
+    #foto-preview .preview-naam {
+      background: rgba(0,0,0,0.85);
+      color: var(--dim);
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -143,6 +174,12 @@
   <p style="margin-top:1rem">Admin server draait niet.</p>
   <p style="margin-top:0.5rem">Start de server via <strong>Start Admin</strong> op het bureaublad,<br>of open een Terminal en typ:</p>
   <p style="margin-top:0.8rem"><code>python3 /Users/andreas/fotografie-site/admin-server.py</code></p>
+</div>
+
+<!-- FOTO HOVER PREVIEW -->
+<div id="foto-preview">
+  <img id="preview-img" src="" alt="" />
+  <div class="preview-naam" id="preview-naam"></div>
 </div>
 
 <!-- CONTENT -->
