@@ -496,6 +496,17 @@
       return mkSvg(uid, b);
     }
 
+    /* horizontal stripes */
+    function stripesH(uid, c1, c2, sh) {
+      sh = sh || 12;
+      var rects = '';
+      for (var y = 0; y < 90; y += sh * 2) {
+        rects += '<rect x="0" y="' + y + '" width="80" height="' + sh + '" fill="' + c1 + '"/>';
+        rects += '<rect x="0" y="' + (y + sh) + '" width="80" height="' + sh + '" fill="' + c2 + '"/>';
+      }
+      return mkSvg(uid, '<g ' + clip(uid) + '>' + rects + '</g>');
+    }
+
     /* top / bottom halves */
     function halfH(uid, c1, c2) {
       var b = '<rect x="0" y="0" width="80" height="45" fill="' + c1 + '" ' + clip(uid) + '/>'
