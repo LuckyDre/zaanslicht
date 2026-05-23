@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zaans Licht — Online Beheer</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --oranje: #FF6B00; --oranje-dark: #cc5500;
+      --zwart: #0d0d0d; --grijs: #1a1a1a; --grijs-licht: #2a2a2a;
+      --wit: #ffffff; --dim: #888; --groen: #22c55e; --rood: #ef4444;
+    }
+    body { background: var(--zwart); color: var(--wit); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+    /* LOGIN SCHERM */
+    #login-scherm {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem; gap: 1.5rem;
+    }
+    #login-scherm h1 { font-size: 1.6rem; letter-spacing: 3px; text-transform: uppercase; }
+    #login-scherm h1 span { color: var(--oranje); }
+    #login-scherm p { color: var(--dim); font-size: 0.9rem; text-align: center; max-width: 400px; line-height: 1.6; }
+    .login-box {
+      background: var(--grijs); border-radius: 10px; padding: 2rem;
+      width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 1rem;
+      border: 1px solid #333;
+    }
+    .login-box label { font-size: 0.85rem; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+    .login-box input[type="password"], .login-box input[type="text"] {
+      width: 100%; padding: 0.7rem 1rem; background: var(--zwart); border: 1px solid #444;
+      border-radius: 5px; color: var(--wit); font-size: 0.95rem; font-family: monospace;
+    }
+    .login-box input:focus { outline: none; border-color: var(--oranje); }
+    .login-box a { color: var(--oranje); font-size: 0.82rem; }
+    #login-fout { color: var(--rood); font-size: 0.85rem; display: none; }
+
+    /* HEADER */
+    .admin-header {
+      background: var(--grijs); padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      border-bottom: 2px solid var(--oranje);
+      position: sticky; top: 0; z-index: 100; flex-wrap: wrap;
+    }
+    .admin-header h1 { font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+    .admin-header h1 span { color: var(--oranje); }
+    .header-btns { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+
+    /* STATUS BADGE */
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: var(--grijs-licht); border-radius: 20px;
+      padding: 0.3rem 0.8rem; font-size: 0.8rem; color: var(--dim); white-space: nowrap;
+    }
+    .badge.warn { color: #f59e0b; }
+    .badge.ok   { color: var(--groen); }
+
+    /* KNOPPEN */
+    .btn {
+      padding: 0.55rem 1.2rem; border: none; border-radius: 4px;
+      font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 1px;
+      transition: background 0.2s, transform 0.15s, opacity 0.2s; white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: default; }
+    .btn-oranje { background: var(--oranje); color: var(--wit); }
+    .btn-oranje:hover:not(:disabled) { background: var(--oranje-dark); }
+    .btn-groen  { background: #16a34a; color: var(--wit); }
+    .btn-groen:hover:not(:disabled)  { background: #15803d; }
+    .btn-dim    { background: #333; color: var(--dim); }
+    .btn-dim:hover:not(:disabled)    { background: #444; color: var(--wit); }
+
+    /* TABS */
+    .tabs { display: flex; border-bottom: 1px solid #333; padding: 0 2rem; }
+    .tab { padding: 0.9rem 1.4rem; cursor: pointer; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: color 0.2s; }
+    .tab.active { color: var(--oranje); border-bottom-color: var(--oranje); }
+    .tab:hover { color: var(--wit); }
+
+    /* LOG */
+    #log-panel {
+      background: #0a0a0a; border-top: 1px solid #222;
+      padding: 0.8rem 2rem; font-size: 0.8rem; color: var(--dim);
+      font-family: monospace; min-height: 2.4rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    #log-panel.success { color: var(--groen); }
+    #log-panel.error   { color: var(--rood); }
+    #log-panel.loading { color: #f59e0b; }
+    .spinner { display: inline-block; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* CONTENT */
+    .content { padding: 1.5rem 2rem; max-width: 1300px; margin: 0 auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* SLIDER LIJST */
+    .slider-lijst { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+    .slider-item { background: var(--grijs); border-radius: 6px; border: 1px solid #333; overflow: hidden; transition: border-color 0.2s; }
+    .slider-item:hover { border-color: #444; }
+    .slider-item.sortable-ghost { opacity: 0.25; }
+    .slider-item.sortable-chosen { border-color: var(--oranje); }
+
+    .slider-header { display: flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1rem; cursor: pointer; user-select: none; }
+    .drag-handle { color: var(--dim); font-size: 1.2rem; cursor: grab; padding: 0 0.2rem; }
+    .drag-handle:active { cursor: grabbing; }
+    .slider-naam { flex: 1; font-weight: 600; }
+    .slider-count { color: var(--dim); font-size: 0.82rem; }
+    .expand-btn { background: none; border: none; color: var(--dim); font-size: 0.9rem; cursor: pointer; padding: 0.2rem 0.5rem; transition: transform 0.2s, color 0.2s; }
+    .expand-btn:hover { color: var(--oranje); }
+    .slider-item.open .expand-btn { transform: rotate(180deg); color: var(--oranje); }
+
+    /* FOTO GRID */
+    .foto-grid { display: none; padding: 0.8rem 1rem 1rem; border-top: 1px solid #2a2a2a; flex-wrap: wrap; gap: 6px; }
+    .slider-item.open .foto-grid { display: flex; }
+
+    .foto-thumb { width: 110px; height: 74px; border-radius: 3px; overflow: hidden; cursor: grab; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; position: relative; flex-shrink: 0; }
+    .foto-thumb:hover { border-color: var(--oranje); }
+    .foto-thumb:active { cursor: grabbing; }
+    .foto-thumb.sortable-ghost { opacity: 0.25; }
+    .foto-thumb.sortable-chosen { border-color: var(--oranje); transform: scale(1.06); }
+    .foto-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .foto-nr { position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: var(--wit); font-size: 0.6rem; padding: 1px 4px; }
+
+    .leeg { color: var(--dim); padding: 2rem; text-align: center; font-size: 0.9rem; }
+
+    /* FOTO HOVER PREVIEW */
+    #foto-preview {
+      position: fixed; z-index: 9999; pointer-events: none; display: none;
+      border-radius: 6px; overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 2px var(--oranje);
+      transition: opacity 0.08s ease; opacity: 0; max-width: 570px;
+    }
+    #foto-preview.visible { opacity: 1; }
+    #foto-preview img { display: block; width: 570px; max-height: 420px; object-fit: contain; background: #111; }
+    #foto-preview .preview-naam { background: rgba(0,0,0,0.85); color: var(--dim); font-size: 0.7rem; padding: 4px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* APPINFO */
+    #app { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN SCHERM -->
+<div id="login-scherm">
+  <h1>Zaans <span>Licht</span></h1>
+  <p>Online beheer — voer je GitHub-token in om in te loggen.<br>
+     Het token wordt alleen lokaal in je browser opgeslagen.</p>
+  <div class="login-box">
+    <label>GitHub Personal Access Token</label>
+    <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+    <p id="login-fout">Ongeldig token of geen toegang tot de repository.</p>
+    <button class="btn btn-oranje" onclick="doLogin()">Inloggen →</button>
+    <a href="https://github.com/settings/tokens/new?description=ZaansLicht+Beheer&scopes=repo" target="_blank">
+      → Token aanmaken op GitHub (vink "repo" aan)
+    </a>
+  </div>
+</div>
+
+<!-- HOOFDAPP -->
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="admin-header">
+    <h1>Zaans <span>Licht</span> — Beheer</h1>
+    <div class="header-btns">
+      <span class="badge ok" id="badge-status">✓ Online</span>
+      <button class="btn btn-oranje" id="btn-save" onclick="doSave()">💾 Opslaan &amp; publiceren</button>
+      <button class="btn btn-dim"    onclick="doLogout()">Uitloggen</button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div id="log-panel">Manifest laden...</div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('voetbal')">⚽ Voetbal</div>
+    <div class="tab"        onclick="switchTab('nosports')">🌄 No Sports</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div id="tab-voetbal"  class="tab-panel active"><ul class="slider-lijst" id="lijst-voetbal"></ul></div>
+    <div id="tab-nosports" class="tab-panel"><ul class="slider-lijst" id="lijst-nosports"></ul></div>
+  </div>
+
+</div>
+
+<!-- FOTO PREVIEW -->
+<div id="foto-preview">
+  <img id="preview-img" src="" alt="" />
+  <div class="preview-naam" id="preview-naam"></div>
+</div>
+
+<script>
+const REPO   = 'LuckyDre/zaanslicht';
+const BRANCH = 'main';
+const API    = 'https://api.github.com';
+const SITE   = 'https://zaanslicht.com';
+
+let token    = '';
+let manifest = null;
+let fileSHA  = '';
+let dirty    = false;
+let activeTab = 'voetbal';
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('zl_token');
+  if (saved) { token = saved; startApp(); }
+});
+
+async function doLogin() {
+  token = document.getElementById('token-input').value.trim();
+  if (!token) return;
+  document.getElementById('login-fout').style.display = 'none';
+  try {
+    // Test of het token werkt door manifest te laden
+    await loadManifest();
+    localStorage.setItem('zl_token', token);
+    startApp();
+  } catch {
+    document.getElementById('login-fout').style.display = 'block';
+    token = '';
+  }
+}
+
+function doLogout() {
+  if (dirty && !confirm('Je hebt niet-opgeslagen wijzigingen. Toch uitloggen?')) return;
+  localStorage.removeItem('zl_token');
+  token = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-scherm').style.display = 'flex';
+  document.getElementById('token-input').value = '';
+}
+
+function startApp() {
+  document.getElementById('login-scherm').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderAll();
+  setLog('✓ Ingelogd — sleep om de volgorde aan te passen', 'success');
+}
+
+// ── GITHUB API ────────────────────────────────────────────────────────────
+async function ghGet(path) {
+  const r = await fetch(`${API}${path}`, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+  });
+  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  return r.json();
+}
+
+async function ghPut(path, body) {
+  const r = await fetch(`${API}${path}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) { const e = await r.json(); throw new Error(e.message || `GitHub ${r.status}`); }
+  return r.json();
+}
+
+async function loadManifest() {
+  const data = await ghGet(`/repos/${REPO}/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
+  fileSHA  = data.sha;
+  manifest = JSON.parse(atob(data.content.replace(/\n/g, '')));
+}
+
+// ── OPSLAAN → COMMIT ──────────────────────────────────────────────────────
+async function doSave() {
+  updateManifestFromDOM();
+  setLog('<span class="spinner">⟳</span> Opslaan en publiceren...', 'loading');
+  document.getElementById('btn-save').disabled = true;
+  try {
+    const now    = new Date();
+    const ts     = now.toLocaleDateString('nl-NL') + ' ' + now.toTimeString().slice(0,5);
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2))));
+    const result  = await ghPut(`/repos/${REPO}/contents/manifest.json`, {
+      message: `Beheer sync: ${ts}`,
+      content,
+      sha: fileSHA,
+      branch: BRANCH
+    });
+    fileSHA = result.content.sha;
+    dirty   = false;
+    setLog(`✓ Gepubliceerd — wijzigingen zijn live op zaanslicht.com`, 'success');
+    document.getElementById('badge-status').textContent = '✓ Gesynchroniseerd';
+  } catch (e) {
+    setLog('❌ Fout: ' + e.message, 'error');
+  }
+  document.getElementById('btn-save').disabled = false;
+}
+
+// ── MANIFEST UIT DOM ──────────────────────────────────────────────────────
+function updateManifestFromDOM() {
+  ['voetbal', 'nosports'].forEach(cat => {
+    const lijst = document.getElementById('lijst-' + cat);
+    manifest[cat] = Array.from(lijst.querySelectorAll('.slider-item')).map((el, i) => {
+      const mapNaam = el.dataset.map;
+      const base    = manifest[cat].find(x => x.map === mapNaam) || {};
+      const fotos   = Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto);
+      return { ...base, volgorde: i, fotos };
+    });
+  });
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderCategorie('voetbal');
+  renderCategorie('nosports');
+  switchTab(activeTab);
+}
+
+function renderCategorie(cat) {
+  const lijst = document.getElementById('lijst-' + cat);
+  lijst.innerHTML = '';
+  const items = (manifest[cat] || []).sort((a, b) => a.volgorde - b.volgorde);
+
+  if (!items.length) {
+    lijst.innerHTML = `<li class="leeg">Nog geen mappen in images/${cat}/</li>`;
+    return;
+  }
+
+  items.forEach(item => {
+    const li = document.createElement('li');
+    li.className   = 'slider-item';
+    li.dataset.map = item.map;
+
+    const thumbs = item.fotos.map((f, i) => `
+      <div class="foto-thumb" data-foto="${f}">
+        <img src="${SITE}/images/${cat}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}" loading="lazy" />
+        <span class="foto-nr">${i + 1}</span>
+      </div>`).join('');
+
+    li.innerHTML = `
+      <div class="slider-header" onclick="toggleOpen(this)">
+        <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
+        <span class="slider-naam">${item.naam}</span>
+        <span class="slider-count">${item.fotos.length} foto's</span>
+        <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
+      </div>
+      <div class="foto-grid">${thumbs}</div>`;
+
+    lijst.appendChild(li);
+
+    new Sortable(li.querySelector('.foto-grid'), {
+      animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+      onEnd() { hernum(li.querySelector('.foto-grid')); dirty = true; }
+    });
+  });
+
+  new Sortable(lijst, {
+    animation: 200, handle: '.drag-handle',
+    ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+    onEnd() { dirty = true; }
+  });
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function toggleOpen(hdr) { hdr.closest('.slider-item').classList.toggle('open'); }
+function hernum(grid) { grid.querySelectorAll('.foto-nr').forEach((el, i) => el.textContent = i + 1); }
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['voetbal','nosports'][i] === tab));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+function setLog(html, cls = '') {
+  const el = document.getElementById('log-panel');
+  el.innerHTML = html;
+  el.className = cls;
+}
+
+// Cmd+S / Ctrl+S
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); doSave(); }
+});
+
+window.addEventListener('beforeunload', e => {
+  if (dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+// ── FOTO HOVER PREVIEW ────────────────────────────────────────────────────
+const preview     = document.getElementById('foto-preview');
+const previewImg  = document.getElementById('preview-img');
+const previewNaam = document.getElementById('preview-naam');
+let previewTimer  = null;
+
+document.addEventListener('mouseover', e => {
+  const thumb = e.target.closest('.foto-thumb');
+  if (!thumb) return;
+  if (thumb.contains(e.relatedTarget)) return;
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    const img = thumb.querySelector('img');
+    if (!img) return;
+    previewImg.src          = img.src;
+    previewNaam.textContent = thumb.dataset.foto || '';
+    preview.style.display   = 'block';
+    positionPreview(e);
+    requestAnimationFrame(() => preview.classList.add('visible'));
+  }, 50);
+});
+
+document.addEventListener('mouseout', e => {
+  const thumb = e.target.closest('.foto-thumb');
+  if (!thumb) return;
+  if (thumb.contains(e.relatedTarget)) return;
+  clearTimeout(previewTimer);
+  preview.classList.remove('visible');
+  setTimeout(() => { if (!preview.classList.contains('visible')) preview.style.display = 'none'; }, 160);
+});
+
+document.addEventListener('mousemove', e => {
+  if (preview.style.display === 'block') positionPreview(e);
+});
+
+function positionPreview(e) {
+  const pw = 574, ph = 480, margin = 16;
+  let x = e.clientX + 20;
+  let y = e.clientY - 20;
+  if (x + pw > window.innerWidth  - margin) x = e.clientX - pw - 16;
+  if (y + ph > window.innerHeight - margin) y = window.innerHeight - ph - margin;
+  if (y < margin) y = margin;
+  preview.style.left = x + 'px';
+  preview.style.top  = y + 'px';
+}
+</script>
+</body>
+</html>
