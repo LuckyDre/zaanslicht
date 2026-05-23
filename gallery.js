@@ -147,36 +147,97 @@ function initLikes() {
 function initLightbox() {
   const lightbox    = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
-  let allImages = [], currentIdx = 0;
+  const lbLike      = document.getElementById('lb-like');
+  const lbLikeCount = document.getElementById('lb-like-count');
+  const lbDownload  = document.getElementById('lb-download');
+  let allImages = [], allKeys = [], currentIdx = 0;
+
+  function showLightbox(idx) {
+    currentIdx      = idx;
+    const img       = allImages[idx];
+    lightboxImg.src = img.src;
+
+    // Like & download knoppen bijwerken
+    const key = allKeys[idx];
+    if (key && lbLike) {
+      lbLike.dataset.key = key;
+      lbLike.classList.toggle('liked', isLikedLocally(key));
+      if (typeof db !== 'undefined') {
+        db.ref(`likes/${key}`).once('value').then(s => {
+          const c = s.val() || 0;
+          lbLikeCount.textContent = c > 0 ? c : '';
+        });
+      }
+    }
+    if (lbDownload) {
+      lbDownload.href     = img.src;
+      lbDownload.download = img.src.split('/').pop();
+    }
+  }
 
   document.addEventListener('click', e => {
     const img = e.target.closest('.portfolio-swiper img');
     if (!img) return;
     const slider = img.closest('.portfolio-swiper');
     allImages  = Array.from(slider.querySelectorAll('img'));
-    currentIdx = allImages.indexOf(img);
-    lightboxImg.src = img.src;
+    // Verzamel bijbehorende keys uit de slide-actions knoppen
+    allKeys = Array.from(slider.querySelectorAll('.swiper-slide')).map(slide => {
+      const btn = slide.querySelector('.btn-like');
+      return btn ? btn.dataset.key : '';
+    });
+    showLightbox(allImages.indexOf(img));
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   });
 
-  lightbox.addEventListener('click', e => { if (e.target !== lightboxImg) closeLightbox(); });
+  // Like in lightbox
+  if (lbLike) {
+    lbLike.addEventListener('click', async e => {
+      e.stopPropagation();
+      const key = lbLike.dataset.key;
+      if (!key || typeof db === 'undefined') return;
+      const liked = isLikedLocally(key);
+      const ref   = db.ref(`likes/${key}`);
+      if (liked) {
+        await ref.transaction(cur => Math.max(0, (cur || 1) - 1));
+        setLikedLocally(key, false);
+        lbLike.classList.remove('liked');
+      } else {
+        await ref.transaction(cur => (cur || 0) + 1);
+        setLikedLocally(key, true);
+        lbLike.classList.add('liked');
+      }
+      const snap = await ref.once('value');
+      const c    = snap.val() || 0;
+      lbLikeCount.textContent = c > 0 ? c : '';
+      // Sync ook de kleine knop in de slider
+      const smallBtn = document.querySelector(`.btn-like[data-key="${key}"]`);
+      if (smallBtn) {
+        smallBtn.classList.toggle('liked', !liked);
+        smallBtn.querySelector('.like-count').textContent = c > 0 ? c : '';
+      }
+    });
+  }
+
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
+  });
   document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
   document.getElementById('lb-prev').addEventListener('click', e => {
     e.stopPropagation();
-    if (currentIdx > 0) { currentIdx--; lightboxImg.src = allImages[currentIdx].src; }
+    if (currentIdx > 0) showLightbox(currentIdx - 1);
   });
   document.getElementById('lb-next').addEventListener('click', e => {
     e.stopPropagation();
-    if (currentIdx < allImages.length - 1) { currentIdx++; lightboxImg.src = allImages[currentIdx].src; }
+    if (currentIdx < allImages.length - 1) showLightbox(currentIdx + 1);
   });
 
   document.addEventListener('keydown', e => {
     if (lightbox.classList.contains('hidden')) return;
     if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft'  && currentIdx > 0)                    { currentIdx--; lightboxImg.src = allImages[currentIdx].src; }
-    if (e.key === 'ArrowRight' && currentIdx < allImages.length - 1) { currentIdx++; lightboxImg.src = allImages[currentIdx].src; }
+    if (e.key === 'ArrowLeft'  && currentIdx > 0)                    showLightbox(currentIdx - 1);
+    if (e.key === 'ArrowRight' && currentIdx < allImages.length - 1) showLightbox(currentIdx + 1);
   });
 
   function closeLightbox() {
