@@ -60,7 +60,10 @@ function getAllFotos(manifest, category) {
   const fotos = [];
   (manifest[category] || []).forEach(item => {
     item.fotos.forEach(f => {
-      fotos.push({ src: `images/${category}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}` });
+      fotos.push({
+        src:  `images/${category}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+        path: `${category}/${item.map}/${f}`
+      });
     });
   });
   return fotos;
