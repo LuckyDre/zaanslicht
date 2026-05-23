@@ -208,6 +208,11 @@ section:not(#hero) {
   gap: 1.5rem;
 }
 
+/* Tweede rij tegels iets minder hoog */
+.tegel-grid .tegel:nth-child(n+4) {
+  aspect-ratio: 4/3;
+}
+
 .tegel {
   position: relative;
   border-radius: 8px;
