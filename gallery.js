@@ -255,4 +255,112 @@ function initLightbox() {
   }
 }
 
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtTs(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'})
+       + ' ' + d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── REACTIES ──────────────────────────────────────────────────────────────
+function initComments() {
+  const drawer   = document.getElementById('reacties-drawer');
+  const rdClose  = document.getElementById('rd-close');
+  const rdLijst  = document.getElementById('rd-lijst');
+  const rdForm   = document.getElementById('rd-form');
+  const rdNaam   = document.getElementById('rd-naam');
+  const rdTekst  = document.getElementById('rd-tekst');
+  const rdCount  = document.getElementById('rd-count');
+  const rcBtn    = document.getElementById('lb-reacties-btn');
+  const rcCount  = document.getElementById('lb-rc-count');
+  if (!drawer || !rcBtn) return;
+
+  let curKey = '', curSrc = '';
+
+  // Wordt aangeroepen vanuit showLightbox()
+  window._setCommentPhoto = function(key, src) {
+    curKey = key || '';
+    curSrc = src  || '';
+    updateCount(curKey);
+    if (!drawer.classList.contains('slide-out')) loadComments(curKey);
+  };
+
+  function updateCount(key) {
+    if (!key || typeof db === 'undefined') { rcCount.textContent = ''; return; }
+    db.ref('comments/' + key).once('value').then(snap => {
+      const n = snap.numChildren();
+      rcCount.textContent = n > 0 ? n : '';
+      if (rdCount) rdCount.textContent = n > 0 ? '(' + n + ')' : '';
+    });
+  }
+
+  function loadComments(key) {
+    rdLijst.innerHTML = '<p class="rd-geen">Laden…</p>';
+    if (!key || typeof db === 'undefined') {
+      rdLijst.innerHTML = '<p class="rd-geen">Geen verbinding</p>'; return;
+    }
+    db.ref('comments/' + key).orderByChild('ts').once('value').then(snap => {
+      const items = [];
+      snap.forEach(c => items.push({id: c.key, ...c.val()}));
+      items.reverse();
+      rdLijst.innerHTML = items.length === 0
+        ? '<p class="rd-geen">Nog geen reacties — wees de eerste!</p>'
+        : items.map(c => `
+            <div class="rd-reactie">
+              <div class="rd-r-naam">${escHtml(c.naam||'Anoniem')}</div>
+              <div class="rd-r-tekst">${escHtml(c.tekst)}</div>
+              <div class="rd-r-ts">${fmtTs(c.ts)}</div>
+            </div>`).join('');
+      updateCount(key);
+    });
+  }
+
+  // Open / sluit drawer
+  rcBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (drawer.classList.contains('slide-out')) {
+      drawer.classList.remove('slide-out');
+      loadComments(curKey);
+    } else {
+      drawer.classList.add('slide-out');
+    }
+  });
+  rdClose.addEventListener('click', () => drawer.classList.add('slide-out'));
+
+  // Formulier insturen
+  rdForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const tekst = rdTekst.value.trim();
+    if (!tekst || !curKey || typeof db === 'undefined') return;
+    const naam = rdNaam.value.trim() || 'Anoniem';
+    const ts   = Date.now();
+    const btn  = rdForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    const data = { naam, tekst, ts, pagina: CATEGORY, src: curSrc };
+    try {
+      const ref = await db.ref('comments/' + curKey).push(data);
+      await db.ref('recent_comments/' + ref.key).set({ ...data, photoKey: curKey });
+      rdTekst.value = '';
+      loadComments(curKey);
+    } catch(err) {
+      console.warn('Reactie mislukt:', err);
+    }
+    btn.disabled = false;
+  });
+
+  // Sluit drawer ook als lightbox sluit
+  document.querySelector('.lightbox-close')?.addEventListener('click', () => {
+    drawer.classList.add('slide-out');
+  });
+  document.getElementById('lightbox')?.addEventListener('click', e => {
+    if (e.target.id === 'lightbox' || e.target.id === 'lightbox-img') {
+      drawer.classList.add('slide-out');
+    }
+  });
+}
+
 loadGallery();
