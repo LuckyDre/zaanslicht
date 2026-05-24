@@ -50,6 +50,25 @@
       <a class="btn-download lb-download" id="lb-download" download title="Download foto">
         <span>&#8681;</span> Download
       </a>
+      <button class="btn-reacties" id="lb-reacties-btn" title="Reacties">
+        &#128172; <span class="rc-count" id="lb-rc-count"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- REACTIES DRAWER -->
+  <div id="reacties-drawer" class="reacties-drawer slide-out">
+    <div class="rd-header">
+      <span>&#128172; Reacties <span id="rd-count"></span></span>
+      <button id="rd-close" aria-label="Sluiten">&#10005;</button>
+    </div>
+    <div class="rd-body">
+      <div class="rd-lijst" id="rd-lijst"><p class="rd-geen">Nog geen reacties</p></div>
+      <form class="rd-form" id="rd-form" autocomplete="off">
+        <input type="text" id="rd-naam" placeholder="Naam (optioneel)" maxlength="50" />
+        <textarea id="rd-tekst" placeholder="Schrijf een reactie..." maxlength="400" rows="3" required></textarea>
+        <button type="submit">Plaatsen &#10230;</button>
+      </form>
     </div>
   </div>
 
