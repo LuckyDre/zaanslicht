@@ -547,7 +547,7 @@ section:not(#hero) {
 }
 
 .portfolio-swiper .swiper-slide:hover::after {
-  background: rgba(255,107,0,0.2);
+  background: var(--oranje-20);
 }
 
 /* ===== LIKE & DOWNLOAD KNOPPEN ===== */
