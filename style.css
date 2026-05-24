@@ -51,6 +51,25 @@ header {
   width: 40px;
   height: 40px;
   object-fit: contain;
+  transition: filter 0.4s ease;
+}
+/* Logo-icoontje mee naar geel bij nosports thema */
+.thema-nosports .logo-img {
+  filter: hue-rotate(30deg) saturate(1.2) brightness(1.15);
+}
+/* Vloeiende overgang op accentkleur voor tekst en randen */
+.logo span,
+nav a,
+nav a.nav-active,
+.accent-line,
+.btn-like.liked .heart,
+.tegel-icon,
+.rcw-title,
+.rcw-naam,
+.rd-r-naam,
+.gallery-sub,
+h1 span {
+  transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
 }
 
 nav a {
