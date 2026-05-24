@@ -1,27 +1,40 @@
 // ===== HERO SLIDER (wordt geïnitialiseerd na het laden van foto's) =====
-const HERO_TEKSTEN = [
-  { h1: 'Het Zaanse <span>licht</span>',       p: 'Fotografie door Andreas Luckfiel' },
-  { h1: 'Elk moment <span>telt</span>',         p: 'Fotografie door Andreas Luckfiel' },
-  { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel' },
-  { h1: 'Actie en <span>emotie</span>',         p: 'Fotografie door Andreas Luckfiel' },
-  { h1: 'Zaans <span>voetbal</span>',           p: 'Fotografie door Andreas Luckfiel' },
-];
+const HERO_TEKSTEN = {
+  voetbal: [
+    { h1: 'Het Zaanse <span>licht</span>',       p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Elk moment <span>telt</span>',         p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Actie en <span>emotie</span>',         p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Zaans <span>voetbal</span>',           p: 'Fotografie door Andreas Luckfiel' },
+  ],
+  nosports: [
+    { h1: 'Voorbij <span>de sport</span>',        p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Licht en <span>landschap</span>',      p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Mensen en <span>momenten</span>',      p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Architectuur en <span>natuur</span>',  p: 'Fotografie door Andreas Luckfiel' },
+  ],
+};
 
-function vulHeroEnStart(fotos) {
+const THEMA_KLEUR = { voetbal: '#FF6B00', nosports: '#F5C000' };
+
+let heroSwiper    = null;
+let huidigThema   = 'voetbal';
+let wisselBusy    = false;
+
+function vulHeroEnStart(fotos, thema) {
   const wrapper = document.getElementById('hero-wrapper');
   if (!wrapper) return;
-  const top5 = fotos.slice(0, 5);
-  wrapper.innerHTML = top5.map((f, i) => {
-    const t = HERO_TEKSTEN[i % HERO_TEKSTEN.length];
+  const teksten = HERO_TEKSTEN[thema] || HERO_TEKSTEN.voetbal;
+  wrapper.innerHTML = fotos.slice(0, 5).map((f, i) => {
+    const t = teksten[i % teksten.length];
     return `<div class="swiper-slide" style="background-image: url('${f.src}')">
-      <div class="slide-overlay">
-        <h1>${t.h1}</h1>
-        <p>${t.p}</p>
-      </div>
+      <div class="slide-overlay"><h1>${t.h1}</h1><p>${t.p}</p></div>
     </div>`;
   }).join('');
 
-  new Swiper('.hero-swiper', {
+  if (heroSwiper) { heroSwiper.destroy(true, true); heroSwiper = null; }
+  heroSwiper = new Swiper('.hero-swiper', {
     loop: true,
     effect: 'fade',
     fadeEffect: { crossFade: true },
@@ -33,6 +46,33 @@ function vulHeroEnStart(fotos) {
       prevEl: '.hero-swiper .swiper-button-prev',
     },
   });
+}
+
+// ── Thema wisselen (kleur + hero) ──────────────────────────────────────────
+function wisselThema(thema, fotosVoetbal, fotosNosports) {
+  if (huidigThema === thema || wisselBusy) return;
+  huidigThema = thema;
+  wisselBusy  = true;
+
+  // Kleur direct wisselen
+  document.documentElement.style.setProperty('--oranje', THEMA_KLEUR[thema]);
+
+  // Hero fade-out → swap → fade-in
+  const heroEl = document.getElementById('hero');
+  heroEl.style.transition = 'opacity 0.35s ease';
+  heroEl.style.opacity    = '0';
+
+  setTimeout(() => {
+    const fotos = thema === 'nosports' ? fotosNosports : fotosVoetbal;
+    vulHeroEnStart(fotos, thema);
+    heroEl.style.opacity = '1';
+    setTimeout(() => { wisselBusy = false; }, 400);
+  }, 350);
+}
+
+// ── Afbeeldingen stil preloaden ────────────────────────────────────────────
+function preloadFotos(fotos) {
+  fotos.slice(0, 5).forEach(f => { const img = new Image(); img.src = f.src; });
 }
 
 // ===== HELPERS =====
