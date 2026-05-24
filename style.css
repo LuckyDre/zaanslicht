@@ -4,7 +4,22 @@
 :root {
   --oranje: #FF6B00;
   --oranje-08: rgba(255, 107, 0, 0.08);
+  --oranje-15: rgba(255, 107, 0, 0.15);
+  --oranje-20: rgba(255, 107, 0, 0.20);
+  --oranje-50: rgba(255, 107, 0, 0.50);
+  --oranje-60: rgba(255, 107, 0, 0.60);
   --oranje-dark: #cc5500;
+
+/* ── Nosports (geel) thema ── */
+body.thema-nosports {
+  --oranje: #F5C000;
+  --oranje-08: rgba(245, 192, 0, 0.08);
+  --oranje-15: rgba(245, 192, 0, 0.15);
+  --oranje-20: rgba(245, 192, 0, 0.20);
+  --oranje-50: rgba(245, 192, 0, 0.50);
+  --oranje-60: rgba(245, 192, 0, 0.60);
+  --oranje-dark: #c9a000;
+}
   --zwart: #0d0d0d;
   --wit: #ffffff;
   --grijs: #1a1a1a;
