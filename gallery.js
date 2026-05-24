@@ -181,6 +181,7 @@ function initLightbox() {
       lbDownload.href     = img.src;
       lbDownload.download = img.src.split('/').pop();
     }
+    if (window._setCommentPhoto) window._setCommentPhoto(key, img.src);
   }
 
   document.addEventListener('click', e => {
