@@ -58,19 +58,31 @@ header {
 .thema-nosports .logo-img {
   filter: hue-rotate(30deg) saturate(1.2) brightness(1.15);
 }
-/* Vloeiende overgang op accentkleur voor tekst en randen */
-.logo span,
-nav a,
-nav a.nav-active,
+/* Vloeiende thema-overgang — alles wat var(--oranje) gebruikt gaat mee */
+.logo span, .logo-img,
+nav a, nav a.nav-active,
+h1 span, h2 span,
 .accent-line,
-.btn-like.liked .heart,
-.tegel-icon,
-.rcw-title,
-.rcw-naam,
-.rd-r-naam,
-.gallery-sub,
-h1 span {
-  transition: color 0.4s ease, border-color 0.4s ease, background-color 0.4s ease;
+.tegel, .tegel-icon,
+.scroll-down,
+.swiper-button-next, .swiper-button-prev,
+.swiper-pagination-bullet-active,
+.btn-like, .btn-like .heart,
+.btn-download, .btn-reacties,
+.lb-nav,
+.lightbox-close,
+.rcw-title, .rcw-naam, .rcw-card,
+.rd-r-naam, .rd-form button,
+.recent-comments-widget,
+#recent-comments-widget,
+.gallery-header h1, .gallery-sub,
+.header-terug,
+.page-nav a, .page-nav button,
+.contact-form button,
+.slideshow-close, .ss-nav,
+.portfolio-category h3 {
+  transition: color 0.4s ease, background-color 0.4s ease,
+              border-color 0.4s ease, filter 0.4s ease !important;
 }
 
 nav a {
