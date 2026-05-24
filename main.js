@@ -177,9 +177,7 @@ async function loadTegels() {
       if (el) el.addEventListener('mouseenter', () => wisselThema('voetbal', topVoetbal, topNosports));
     });
 
-    // Muis verlaat de tegel-grid → terug naar voetbal
-    const grid = document.querySelector('.tegel-grid');
-    if (grid) grid.addEventListener('mouseleave', () => wisselThema('voetbal', topVoetbal, topNosports));
+    // Geen mouseleave op grid: thema blijft staan tot de andere zone actief wordt
 
   } catch (e) {
     console.error('Tegels laden mislukt:', e);
