@@ -363,4 +363,17 @@ function initComments() {
   });
 }
 
-loadGallery();
+// Deep-link: voetbal.html#foto=photoKey opent de lightbox direct
+function checkDeepLink() {
+  const hash = decodeURIComponent(location.hash);
+  if (!hash.startsWith('#foto=')) return;
+  const targetKey = hash.slice(6);
+  // Zoek de slide met deze key
+  const btn = document.querySelector(`.btn-like[data-key="${targetKey}"]`);
+  if (btn) {
+    const img = btn.closest('.swiper-slide')?.querySelector('img');
+    if (img) { img.click(); location.hash = ''; }
+  }
+}
+
+loadGallery().then(() => setTimeout(checkDeepLink, 400));
