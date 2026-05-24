@@ -100,6 +100,9 @@ async function loadTegels() {
       getTopLiked(allNosports, 20),
     ]);
 
+    // ── Hero vullen met top-5 meest gelikte voetbalfoto's ──────────────────
+    vulHeroEnStart(topVoetbal);
+
     setTilebg('bg-random',         shuffle(allVoetbal));
     setTilebg('bg-random-nosports', shuffle(allNosports));
     setTilebg('bg-liked-voetbal',  topVoetbal);
