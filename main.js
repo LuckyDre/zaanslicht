@@ -61,7 +61,11 @@ function wisselThema(thema, fotosVoetbal, fotosNosports) {
     document.body.classList.toggle('thema-nosports', thema === 'nosports');
 
     // Kleur direct wisselen (alle var(--oranje) plekken)
-    document.documentElement.style.setProperty('--oranje', THEMA_KLEUR[thema]);
+    const kleur = THEMA_KLEUR[thema];
+    document.documentElement.style.setProperty('--oranje', kleur);
+    // Ook de rgba-variant updaten (gebruikt in hover-states)
+    const rgb = thema === 'nosports' ? '245, 192, 0' : '255, 107, 0';
+    document.documentElement.style.setProperty('--oranje-08', `rgba(${rgb}, 0.08)`);
 
     // Hero fade-out → swap → fade-in
     const heroEl = document.getElementById('hero');
