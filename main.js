@@ -57,15 +57,8 @@ function wisselThema(thema, fotosVoetbal, fotosNosports) {
     huidigThema = thema;
     wisselBusy  = true;
 
-    // Body-klasse voor logo-filter en eventuele andere CSS-selectors
+    // Body-klasse wisselen — CSS doet de rest via body.thema-nosports variabelen
     document.body.classList.toggle('thema-nosports', thema === 'nosports');
-
-    // Kleur direct wisselen (alle var(--oranje) plekken)
-    const kleur = THEMA_KLEUR[thema];
-    document.documentElement.style.setProperty('--oranje', kleur);
-    // Ook de rgba-variant updaten (gebruikt in hover-states)
-    const rgb = thema === 'nosports' ? '245, 192, 0' : '255, 107, 0';
-    document.documentElement.style.setProperty('--oranje-08', `rgba(${rgb}, 0.08)`);
 
     // Hero fade-out → swap → fade-in
     const heroEl = document.getElementById('hero');
