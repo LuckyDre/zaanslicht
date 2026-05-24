@@ -1,16 +1,39 @@
-// ===== HERO SLIDER =====
-new Swiper('.hero-swiper', {
-  loop: true,
-  effect: 'fade',
-  fadeEffect: { crossFade: true },
-  speed: 1000,
-  autoplay: { delay: 5000, disableOnInteraction: false },
-  pagination: { el: '.hero-swiper .swiper-pagination', clickable: true },
-  navigation: {
-    nextEl: '.hero-swiper .swiper-button-next',
-    prevEl: '.hero-swiper .swiper-button-prev',
-  },
-});
+// ===== HERO SLIDER (wordt geïnitialiseerd na het laden van foto's) =====
+const HERO_TEKSTEN = [
+  { h1: 'Het Zaanse <span>licht</span>',       p: 'Fotografie door Andreas Luckfiel' },
+  { h1: 'Elk moment <span>telt</span>',         p: 'Fotografie door Andreas Luckfiel' },
+  { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel' },
+  { h1: 'Actie en <span>emotie</span>',         p: 'Fotografie door Andreas Luckfiel' },
+  { h1: 'Zaans <span>voetbal</span>',           p: 'Fotografie door Andreas Luckfiel' },
+];
+
+function vulHeroEnStart(fotos) {
+  const wrapper = document.getElementById('hero-wrapper');
+  if (!wrapper) return;
+  const top5 = fotos.slice(0, 5);
+  wrapper.innerHTML = top5.map((f, i) => {
+    const t = HERO_TEKSTEN[i % HERO_TEKSTEN.length];
+    return `<div class="swiper-slide" style="background-image: url('${f.src}')">
+      <div class="slide-overlay">
+        <h1>${t.h1}</h1>
+        <p>${t.p}</p>
+      </div>
+    </div>`;
+  }).join('');
+
+  new Swiper('.hero-swiper', {
+    loop: true,
+    effect: 'fade',
+    fadeEffect: { crossFade: true },
+    speed: 1000,
+    autoplay: { delay: 5000, disableOnInteraction: false },
+    pagination: { el: '.hero-swiper .swiper-pagination', clickable: true },
+    navigation: {
+      nextEl: '.hero-swiper .swiper-button-next',
+      prevEl: '.hero-swiper .swiper-button-prev',
+    },
+  });
+}
 
 // ===== HELPERS =====
 function photoKeyMain(path) {
