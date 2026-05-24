@@ -662,7 +662,7 @@ section:not(#hero) {
   top: 50%;
   transform: translateY(-50%);
   background: rgba(0,0,0,0.5);
-  border: 2px solid rgba(255,107,0,0.6);
+  border: 2px solid var(--oranje-60);
   color: var(--wit);
   font-size: 2rem;
   width: 3rem;
