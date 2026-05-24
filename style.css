@@ -48,7 +48,7 @@ header {
   padding: 1.2rem 3rem;
   background: rgba(13,13,13,0.85);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,107,0,0.15);
+  border-bottom: 1px solid var(--oranje-15);
   transition: background 0.3s;
 }
 
