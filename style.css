@@ -242,7 +242,7 @@ section:not(#hero) {
   aspect-ratio: 3/4;
   display: block;
   outline: none;
-  border: 2px solid #FF6B00;
+  border: 2px solid var(--oranje);
   transition: border-color 0.3s;
 }
 .tegel:hover {
