@@ -141,7 +141,10 @@ async function loadTegels() {
     ]);
 
     // ── Hero vullen met top-5 meest gelikte voetbalfoto's ──────────────────
-    vulHeroEnStart(topVoetbal);
+    vulHeroEnStart(topVoetbal, 'voetbal');
+
+    // Nosports foto's stil preloaden zodat ze direct klaarstaan bij hover
+    preloadFotos(topNosports);
 
     setTilebg('bg-random',         shuffle(allVoetbal));
     setTilebg('bg-random-nosports', shuffle(allNosports));
@@ -153,6 +156,23 @@ async function loadTegels() {
     bindTegel('tegel-liked-voetbal',   () => startSlideshow(topVoetbal));
     bindTegel('tegel-random-nosports', () => startSlideshow(shuffle(allNosports).slice(0, 10)));
     bindTegel('tegel-liked-nosports',  () => startSlideshow(topNosports));
+
+    // ── Thema-hover: nosports tegels → geel, voetbal tegels → oranje ───────
+    const nosportsTegels = ['tegel-nosports', 'tegel-random-nosports', 'tegel-liked-nosports'];
+    const voetbalTegels  = ['tegel-voetbal',  'tegel-random',          'tegel-liked-voetbal'];
+
+    nosportsTegels.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('mouseenter', () => wisselThema('nosports', topVoetbal, topNosports));
+    });
+    voetbalTegels.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('mouseenter', () => wisselThema('voetbal', topVoetbal, topNosports));
+    });
+
+    // Muis verlaat de tegel-grid → terug naar voetbal
+    const grid = document.querySelector('.tegel-grid');
+    if (grid) grid.addEventListener('mouseleave', () => wisselThema('voetbal', topVoetbal, topNosports));
 
   } catch (e) {
     console.error('Tegels laden mislukt:', e);
