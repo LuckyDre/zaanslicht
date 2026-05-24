@@ -835,7 +835,7 @@ footer {
   transition: color 0.2s, background 0.2s;
   white-space: nowrap;
 }
-.header-terug:hover { color: var(--oranje); background: rgba(255,107,0,0.08); }
+.header-terug:hover { color: var(--oranje); background: var(--oranje-08); }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
