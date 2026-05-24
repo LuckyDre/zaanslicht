@@ -373,9 +373,66 @@ function toggleOpen(hdr) { hdr.closest('.slider-item').classList.toggle('open');
 function hernum(grid) { grid.querySelectorAll('.foto-nr').forEach((el, i) => el.textContent = i + 1); }
 function switchTab(tab) {
   activeTab = tab;
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['voetbal','nosports'][i] === tab));
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['voetbal','nosports','reacties'][i] === tab);
+  });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'reacties') laadReacties();
+}
+
+// ── REACTIES BEHEER ────────────────────────────────────────────────────────
+function escB(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtTsB(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'})
+       + ' ' + d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function laadReacties() {
+  const container = document.getElementById('reacties-beheer-lijst');
+  container.innerHTML = '<p style="color:#555">Laden…</p>';
+  try {
+    const db = window._fbdb;
+    if (!db) { container.innerHTML = '<p style="color:#ef4444">Firebase niet beschikbaar</p>'; return; }
+    const snap = await db.ref('recent_comments').orderByChild('ts').once('value');
+    const items = [];
+    snap.forEach(c => items.push({id: c.key, ...c.val()}));
+    items.reverse();
+    if (items.length === 0) {
+      container.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen reacties geplaatst.</p>';
+      return;
+    }
+    container.innerHTML = items.map(c => `
+      <div id="rc-${c.id}" style="background:#1a1a1a;border-radius:8px;padding:1rem 1.2rem;border:1px solid #2a2a2a;display:flex;align-items:flex-start;gap:1rem">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.76rem;font-weight:700;color:#FF6B00;margin-bottom:0.3rem">${escB(c.naam||'Anoniem')} &mdash; <span style="color:#555;font-weight:400">${fmtTsB(c.ts)}</span></div>
+          <div style="font-size:0.85rem;color:#ccc;line-height:1.5">${escB(c.tekst)}</div>
+          <div style="font-size:0.72rem;color:#444;margin-top:0.4rem">📸 ${c.pagina||''} &middot; sleutel: <code style="color:#555;font-size:0.7rem">${escB(c.photoKey||'')}</code></div>
+        </div>
+        <button onclick="verwijderReactie('${c.id}','${escB(c.photoKey||'')}')"
+          style="background:#ef4444;border:none;border-radius:4px;color:#fff;padding:0.4rem 0.7rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;transition:opacity 0.2s"
+          onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">🗑</button>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>';
+  }
+}
+
+async function verwijderReactie(pushId, photoKey) {
+  if (!confirm('Reactie verwijderen?')) return;
+  const db = window._fbdb;
+  if (!db) return;
+  try {
+    await Promise.all([
+      db.ref('recent_comments/' + pushId).remove(),
+      photoKey ? db.ref('comments/' + photoKey + '/' + pushId).remove() : Promise.resolve()
+    ]);
+    const el = document.getElementById('rc-' + pushId);
+    if (el) el.remove();
+  } catch(e) {
+    alert('Verwijderen mislukt: ' + e.message);
+  }
 }
 function setLog(html, cls = '') {
   const el = document.getElementById('log-panel');
