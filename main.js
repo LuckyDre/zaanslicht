@@ -51,24 +51,30 @@ function vulHeroEnStart(fotos, thema) {
 
 // ── Thema wisselen (kleur + hero) ──────────────────────────────────────────
 function wisselThema(thema, fotosVoetbal, fotosNosports) {
-  if (huidigThema === thema || wisselBusy) return;
-  huidigThema = thema;
-  wisselBusy  = true;
+  clearTimeout(themaTimer);
+  themaTimer = setTimeout(() => {
+    if (huidigThema === thema || wisselBusy) return;
+    huidigThema = thema;
+    wisselBusy  = true;
 
-  // Kleur direct wisselen
-  document.documentElement.style.setProperty('--oranje', THEMA_KLEUR[thema]);
+    // Body-klasse voor logo-filter en eventuele andere CSS-selectors
+    document.body.classList.toggle('thema-nosports', thema === 'nosports');
 
-  // Hero fade-out → swap → fade-in
-  const heroEl = document.getElementById('hero');
-  heroEl.style.transition = 'opacity 0.35s ease';
-  heroEl.style.opacity    = '0';
+    // Kleur direct wisselen (alle var(--oranje) plekken)
+    document.documentElement.style.setProperty('--oranje', THEMA_KLEUR[thema]);
 
-  setTimeout(() => {
-    const fotos = thema === 'nosports' ? fotosNosports : fotosVoetbal;
-    vulHeroEnStart(fotos, thema);
-    heroEl.style.opacity = '1';
-    setTimeout(() => { wisselBusy = false; }, 400);
-  }, 350);
+    // Hero fade-out → swap → fade-in
+    const heroEl = document.getElementById('hero');
+    heroEl.style.transition = 'opacity 0.35s ease';
+    heroEl.style.opacity    = '0';
+
+    setTimeout(() => {
+      const fotos = thema === 'nosports' ? fotosNosports : fotosVoetbal;
+      vulHeroEnStart(fotos, thema);
+      heroEl.style.opacity = '1';
+      setTimeout(() => { wisselBusy = false; }, 400);
+    }, 350);
+  }, 120); // klein debounce tegen flikkeren bij snel bewegen
 }
 
 // ── Afbeeldingen stil preloaden ────────────────────────────────────────────
