@@ -179,12 +179,21 @@
   <div class="tabs">
     <div class="tab active" onclick="switchTab('voetbal')">⚽ Voetbal</div>
     <div class="tab"        onclick="switchTab('nosports')">🌄 No Sports</div>
+    <div class="tab"        onclick="switchTab('reacties')">💬 Reacties</div>
   </div>
 
   <!-- CONTENT -->
   <div class="content">
     <div id="tab-voetbal"  class="tab-panel active"><ul class="slider-lijst" id="lijst-voetbal"></ul></div>
     <div id="tab-nosports" class="tab-panel"><ul class="slider-lijst" id="lijst-nosports"></ul></div>
+    <div id="tab-reacties" class="tab-panel">
+      <div style="padding:1.5rem 2rem">
+        <p style="color:#888;font-size:0.85rem;margin-bottom:1.2rem">Klik op 🗑 om een reactie te verwijderen. Verwijdering is onomkeerbaar.</p>
+        <div id="reacties-beheer-lijst" style="display:flex;flex-direction:column;gap:0.8rem">
+          <p style="color:#555">Laden…</p>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
