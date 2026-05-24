@@ -535,7 +535,7 @@ section:not(#hero) {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255,107,0,0);
+  background: transparent;
   transition: background 0.3s;
   pointer-events: none;
 }
