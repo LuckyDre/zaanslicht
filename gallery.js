@@ -278,6 +278,9 @@ function initComments() {
   const rcCount  = document.getElementById('lb-rc-count');
   if (!drawer || !rcBtn) return;
 
+  // Zorg dat de drawer altijd gesloten start, ongeacht browser-cache
+  drawer.classList.add('slide-out');
+
   let curKey = '', curSrc = '';
 
   // Wordt aangeroepen vanuit showLightbox()
