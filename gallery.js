@@ -20,7 +20,7 @@ function setLikedLocally(key, val) {
   } catch {}
 }
 
-async function loadGallery() {
+async function loadGallery() { // returns Promise
   const container = document.getElementById('gallery-container');
 
   try {
