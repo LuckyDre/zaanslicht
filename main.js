@@ -21,6 +21,7 @@ const THEMA_KLEUR = { voetbal: '#FF6B00', nosports: '#F5C000' };
 let heroSwiper    = null;
 let huidigThema   = 'voetbal';
 let wisselBusy    = false;
+let themaTimer    = null;
 
 function vulHeroEnStart(fotos, thema) {
   const wrapper = document.getElementById('hero-wrapper');
