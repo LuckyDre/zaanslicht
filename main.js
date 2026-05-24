@@ -101,6 +101,38 @@ function bindTegel(id, fn) {
 }
 
 loadTegels();
+loadRecentComments();
+
+// ===== LAATSTE REACTIES WIDGET =====
+function escHtmlM(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function loadRecentComments() {
+  const widget = document.getElementById('recent-comments-widget');
+  if (!widget || typeof db === 'undefined') return;
+  try {
+    const snap = await db.ref('recent_comments').orderByChild('ts').limitToLast(3).once('value');
+    const items = [];
+    snap.forEach(c => items.push({id: c.key, ...c.val()}));
+    items.reverse(); // nieuwste eerst
+    if (items.length === 0) return;
+
+    widget.innerHTML = `
+      <p class="rcw-title">&#128172; Laatste reacties</p>
+      <div class="rcw-list">
+        ${items.map(c => `
+          <div class="rcw-card" onclick="window.location='${c.pagina}.html#foto=${encodeURIComponent(c.photoKey)}'" role="button" tabindex="0">
+            <div class="rcw-naam">${escHtmlM(c.naam||'Anoniem')}</div>
+            <div class="rcw-tekst">${escHtmlM(c.tekst)}</div>
+            <div class="rcw-meta">&#128247; ${c.pagina === 'voetbal' ? 'Voetbal' : 'No Sports'}</div>
+          </div>`).join('')}
+      </div>`;
+    widget.style.display = 'block';
+  } catch(e) {
+    console.warn('Reacties widget mislukt:', e);
+  }
+}
 
 // ===== RANDOM SLIDESHOW =====
 const slideshow = document.getElementById('slideshow');
