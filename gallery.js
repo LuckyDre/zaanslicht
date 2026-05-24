@@ -107,6 +107,7 @@ async function loadGallery() {
 
     initLightbox();
     initLikes();
+    initComments();
 
   } catch (e) {
     container.innerHTML = '<p class="no-content">Kon foto\'s niet laden.</p>';
