@@ -9,6 +9,13 @@
   --oranje-50: rgba(255, 107, 0, 0.50);
   --oranje-60: rgba(255, 107, 0, 0.60);
   --oranje-dark: #cc5500;
+  --zwart: #0d0d0d;
+  --wit: #ffffff;
+  --grijs: #1a1a1a;
+  --grijs-licht: #2a2a2a;
+  --tekst-dim: #aaaaaa;
+  --font: 'Segoe UI', system-ui, sans-serif;
+}
 
 /* ── Nosports (geel) thema ── */
 body.thema-nosports {
@@ -19,13 +26,6 @@ body.thema-nosports {
   --oranje-50: rgba(245, 192, 0, 0.50);
   --oranje-60: rgba(245, 192, 0, 0.60);
   --oranje-dark: #c9a000;
-}
-  --zwart: #0d0d0d;
-  --wit: #ffffff;
-  --grijs: #1a1a1a;
-  --grijs-licht: #2a2a2a;
-  --tekst-dim: #aaaaaa;
-  --font: 'Segoe UI', system-ui, sans-serif;
 }
 
 html { scroll-behavior: smooth; }
