@@ -186,8 +186,8 @@ function initLightbox() {
       }
     }
     if (lbDownload) {
-      lbDownload.href     = img.src;
-      lbDownload.download = img.src.split('/').pop();
+      lbDownload.dataset.src  = img.src;
+      lbDownload.dataset.naam = img.src.split('/').pop();
     }
     if (window._setCommentPhoto) window._setCommentPhoto(key, img.src);
   }
