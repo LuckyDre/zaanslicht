@@ -1180,6 +1180,40 @@ function rSaved(){
 }
 
 // ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT JSON
+// ═══════════════════════════════════════════════════════
+document.getElementById('export-btn').addEventListener('click',()=>{
+  if(!saved.length){alert('Geen opgeslagen opstellingen om te exporteren.');return;}
+  const data=JSON.stringify(saved,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='tactiekbord-opstellingen.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+});
+
+document.getElementById('import-input').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(!Array.isArray(imported))throw new Error('Ongeldig bestand');
+      let toegevoegd=0;
+      imported.forEach(item=>{
+        if(item.name&&item.state){saved.push(item);toegevoegd++;}
+      });
+      persistSaved();rSaved();
+      alert(toegevoegd+' opstelling'+(toegevoegd===1?'':'en')+' geïmporteerd.');
+    }catch(err){
+      alert('Fout bij importeren: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+  this.value=''; // reset zodat je hetzelfde bestand opnieuw kunt laden
+});
+
+// ═══════════════════════════════════════════════════════
 
 
 // ── WEERGAVE TOGGLE (heel / eigen helft / tegenstander helft) ──────
