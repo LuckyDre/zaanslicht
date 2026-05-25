@@ -148,6 +148,8 @@ async function loadTegels() {
       getTopLiked(allVoetbal,  20),
       getTopLiked(allNosports, 20),
     ]);
+    _topVoetbal  = topVoetbal;
+    _topNosports = topNosports;
 
     // ── Hero vullen met top-5 meest gelikte voetbalfoto's ──────────────────
     vulHeroEnStart(topVoetbal, 'voetbal');
