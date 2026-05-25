@@ -13,6 +13,10 @@ fswatch -o "$SITE" \
     cd "$SITE"
     if [ -n "$(git status --porcelain)" ]; then
       echo "→ Wijzigingen gevonden..."
+      echo "→ Laatste versie ophalen (inclusief volgorde-aanpassingen via beheer)..."
+      git stash 2>/dev/null || true
+      git pull --rebase origin main 2>/dev/null || true
+      git stash pop 2>/dev/null || true
       echo "→ Manifest bijwerken..."
       python3 "$SITE/generate-manifest.py"
       git add -A
