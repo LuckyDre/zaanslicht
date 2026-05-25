@@ -117,6 +117,14 @@ async function loadGallery() { // returns Promise
 
 // ── LIKES ─────────────────────────────────────────────────────────────────
 function initLikes() {
+  // Download-knop in slider
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.btn-download[data-src]');
+    if (!btn) return;
+    e.stopPropagation();
+    downloadAlsJpg(btn.dataset.src, btn.dataset.naam);
+  });
+
   document.addEventListener('click', async e => {
     const btn = e.target.closest('.btn-like');
     if (!btn) return;
