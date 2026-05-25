@@ -12,10 +12,21 @@
 
   <!-- NAVIGATIE -->
   <header>
-    <div class="logo">
+    <div class="logo" id="logo-easter" style="cursor:default;" title="">
       <img src="images/logo-oranje.png" alt="Zaans Licht" class="logo-img" />
       Zaans<span> Licht</span>
     </div>
+    <script>
+      // Easter egg: 3x snel klikken op logo opent tactiekbord
+      (function(){
+        var clicks=0,t;
+        document.getElementById('logo-easter').addEventListener('click',function(){
+          clicks++;clearTimeout(t);
+          t=setTimeout(function(){clicks=0;},600);
+          if(clicks>=3){window.location='tactiekbord.html';}
+        });
+      })();
+    </script>
     <nav>
       <a href="#hero">Home</a>
       <a href="voetbal.html">Voetbal</a>
