@@ -241,6 +241,16 @@ function initLightbox() {
   });
   document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
+  // Download in lightbox → altijd als JPG
+  if (lbDownload) {
+    lbDownload.addEventListener('click', e => {
+      e.stopPropagation();
+      const src  = lbDownload.dataset.src;
+      const naam = lbDownload.dataset.naam;
+      if (src) downloadAlsJpg(src, naam);
+    });
+  }
+
   document.getElementById('lb-prev').addEventListener('click', e => {
     e.stopPropagation();
     if (currentIdx > 0) showLightbox(currentIdx - 1);
