@@ -358,6 +358,19 @@ textarea{width:100%;min-height:50px;font-size:12px;resize:vertical;border:0.5px 
         <button id="snapshot-btn" title="JPG opslaan">📷</button>
       </div>
       <div id="saved-list"><div style="font-size:11px;color:#bbb;">Nog niets opgeslagen.</div></div>
+      <div style="display:flex;gap:4px;margin-top:6px;">
+        <button class="btn-sec" id="export-btn" style="margin-top:0;" title="Exporteer alle opstellingen als JSON">&#8681; Exporteer</button>
+        <label class="btn-sec" style="margin-top:0;cursor:pointer;text-align:center;" title="Importeer opstellingen uit JSON">&#8679; Importeer<input type="file" id="import-input" accept=".json" style="display:none;"/></label>
+      </div>
+    </div>
+
+    <!-- Handleiding -->
+    <div class="panel" style="text-align:center;">
+      <a href="tactiekbord-handleiding.html" target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#888;text-decoration:none;transition:color 0.2s;"
+         onmouseover="this.style.color='#FF6B00'" onmouseout="this.style.color='#888'">
+        &#10067; Handleiding &amp; uitleg
+      </a>
     </div>
 
   </div><!-- /sidebar-right -->
