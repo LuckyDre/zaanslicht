@@ -1253,6 +1253,25 @@ function applyFieldView(){
   }
 }
 
+// ═══════════════════════════════════════════════════════
+// DOWNLOADBEVEILIGING
+// (werkt alleen buiten het veld zodat de tool intact blijft)
+// ═══════════════════════════════════════════════════════
+const fieldWrapEl = document.getElementById('field-wrap');
+
+// Rechtermuisknop blokkeren buiten het speelveld
+document.addEventListener('contextmenu', e => {
+  if (!fieldWrapEl.contains(e.target)) e.preventDefault();
+});
+
+// Ctrl/Cmd+S (opslaan), Ctrl/Cmd+U (broncode), F12 (devtools) blokkeren
+document.addEventListener('keydown', e => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key === 's') { e.preventDefault(); return; }
+  if (mod && e.key === 'u') { e.preventDefault(); return; }
+  if (e.key === 'F12')      { e.preventDefault(); return; }
+});
+
 // BOOT
 // ═══════════════════════════════════════════════════════
 loadSaved();
