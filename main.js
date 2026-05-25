@@ -158,10 +158,10 @@ async function loadTegels() {
     setTilebg('bg-liked-nosports', topNosports);
 
     // ── Klikgedrag ─────────────────────────────────────────────────────────
-    bindTegel('tegel-random',          () => { wisselThema('voetbal',  topVoetbal, topNosports); startSlideshow(shuffle(allVoetbal).slice(0, 10)); });
-    bindTegel('tegel-liked-voetbal',   () => { wisselThema('voetbal',  topVoetbal, topNosports); startSlideshow(topVoetbal); });
-    bindTegel('tegel-random-nosports', () => { wisselThema('nosports', topVoetbal, topNosports); startSlideshow(shuffle(allNosports).slice(0, 10)); });
-    bindTegel('tegel-liked-nosports',  () => { wisselThema('nosports', topVoetbal, topNosports); startSlideshow(topNosports); });
+    bindTegel('tegel-random',          () => { wisselThema('voetbal',  topVoetbal, topNosports, true); startSlideshow(shuffle(allVoetbal).slice(0, 10)); });
+    bindTegel('tegel-liked-voetbal',   () => { wisselThema('voetbal',  topVoetbal, topNosports, true); startSlideshow(topVoetbal); });
+    bindTegel('tegel-random-nosports', () => { wisselThema('nosports', topVoetbal, topNosports, true); startSlideshow(shuffle(allNosports).slice(0, 10)); });
+    bindTegel('tegel-liked-nosports',  () => { wisselThema('nosports', topVoetbal, topNosports, true); startSlideshow(topNosports); });
 
     // ── Thema-hover: nosports tegels → geel, voetbal tegels → oranje ───────
     const nosportsTegels = ['tegel-nosports', 'tegel-random-nosports', 'tegel-liked-nosports'];
