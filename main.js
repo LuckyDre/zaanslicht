@@ -183,6 +183,16 @@ async function loadTegels() {
 
     // Geen mouseleave op grid: thema blijft staan tot de andere zone actief wordt
 
+    // ── Nav-links ook koppelen aan thema ──────────────────────────────────
+    document.querySelectorAll('nav a').forEach(a => {
+      const href = a.getAttribute('href') || '';
+      if (href.includes('nosports')) {
+        a.addEventListener('mouseenter', () => wisselThema('nosports', topVoetbal, topNosports));
+      } else if (href.includes('voetbal') || href === '#hero' || href === 'index.html') {
+        a.addEventListener('mouseenter', () => wisselThema('voetbal', topVoetbal, topNosports));
+      }
+    });
+
   } catch (e) {
     console.error('Tegels laden mislukt:', e);
   }
