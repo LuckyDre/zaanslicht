@@ -81,6 +81,9 @@ function preloadFotos(fotos) {
   fotos.slice(0, 5).forEach(f => { const img = new Image(); img.src = f.src; });
 }
 
+// Foto-arrays beschikbaar buiten loadTegels voor nav-hover
+let _topVoetbal = [], _topNosports = [];
+
 // ===== HELPERS =====
 function photoKeyMain(path) {
   return path.replace(/\//g, '__').replace(/\./g, '--');
