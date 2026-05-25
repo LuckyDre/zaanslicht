@@ -73,9 +73,9 @@ async function loadGallery() { // returns Promise
                 <span class="heart">♥</span>
                 <span class="like-count">${count > 0 ? count : ''}</span>
               </button>
-              <a class="btn-download" href="${src}" download="${f}" title="Download foto">
+              <button class="btn-download" data-src="${src}" data-naam="${f}" title="Download foto">
                 <span>&#8681;</span>
-              </a>
+              </button>
             </div>
           </div>`;
       }).join('');
@@ -253,6 +253,27 @@ function initLightbox() {
     lightbox.classList.add('hidden');
     document.body.style.overflow = '';
   }
+}
+
+// ── DOWNLOAD ALS JPG ──────────────────────────────────────────────────────
+function downloadAlsJpg(src, bestandsnaam) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    canvas.width  = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href     = url;
+      a.download = bestandsnaam.replace(/\.[^.]+$/, '') + '.jpg';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }, 'image/jpeg', 0.92);
+  };
+  img.src = src;
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
