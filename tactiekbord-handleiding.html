@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tactiekbord — Handleiding</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d0d0d;color:#cccccc;min-height:100vh;line-height:1.7;}
+
+/* ── TOPBALK ── */
+#zl-topbar{display:flex;align-items:center;gap:12px;padding:14px 2rem;border-bottom:1px solid #222;background:#0d0d0d;position:sticky;top:0;z-index:100;}
+#zl-topbar a{display:flex;align-items:center;gap:8px;text-decoration:none;color:#ffffff;font-size:14px;font-weight:700;letter-spacing:1px;opacity:0.85;transition:opacity 0.2s;}
+#zl-topbar a:hover{opacity:1;}
+#zl-topbar a span{color:#FF6B00;}
+#zl-topbar img{width:30px;height:30px;object-fit:contain;}
+#zl-topbar-sep{flex:1;}
+.topbar-back{font-size:12px;padding:6px 14px;background:transparent;border:1px solid #333;border-radius:6px;color:#aaa;text-decoration:none;transition:border-color 0.2s,color 0.2s;}
+.topbar-back:hover{border-color:#FF6B00;color:#FF6B00;}
+
+/* ── LAYOUT ── */
+.page{max-width:760px;margin:0 auto;padding:3rem 2rem 5rem;}
+
+/* ── TITEL ── */
+.doc-header{text-align:center;margin-bottom:3.5rem;padding-bottom:2rem;border-bottom:1px solid #222;}
+.doc-header .icon{font-size:3rem;margin-bottom:0.5rem;}
+.doc-header h1{font-size:2rem;font-weight:800;color:#ffffff;letter-spacing:1px;}
+.doc-header .sub{font-size:0.85rem;color:#555;margin-top:0.4rem;letter-spacing:2px;text-transform:uppercase;}
+
+/* ── SECTIES ── */
+.sectie{margin-bottom:2.5rem;padding-bottom:2.5rem;border-bottom:1px solid #1e1e1e;}
+.sectie:last-child{border-bottom:none;}
+.sectie h2{font-size:1.15rem;font-weight:700;color:#FF6B00;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+.sectie h2 .nr{background:#FF6B00;color:#fff;font-size:0.7rem;font-weight:800;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sectie p{color:#aaa;margin-bottom:0.8rem;font-size:0.95rem;}
+.sectie ul{padding-left:1.2rem;color:#aaa;font-size:0.95rem;}
+.sectie ul li{margin-bottom:0.4rem;}
+.sectie ul li strong{color:#cccccc;}
+
+/* ── CALLOUT ── */
+.callout{background:#1a1a1a;border-left:3px solid #FF6B00;border-radius:0 8px 8px 0;padding:0.9rem 1.1rem;margin:1rem 0;font-size:0.88rem;color:#888;font-style:italic;}
+
+/* ── TABEL ── */
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;}
+th{background:#1a1a1a;color:#FF6B00;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;padding:0.6rem 0.8rem;text-align:left;border-bottom:1px solid #333;}
+td{padding:0.55rem 0.8rem;border-bottom:1px solid #1e1e1e;color:#aaa;vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+
+/* ── SUBSECTIES ── */
+.sub-title{font-size:0.85rem;font-weight:700;color:#cccccc;margin-bottom:0.3rem;margin-top:1rem;}
+
+/* ── JSON HIGHLIGHT ── */
+.badge{display:inline-block;background:#FF6B00;color:#fff;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;vertical-align:middle;margin-left:6px;}
+.badge.new{background:#2ecc71;}
+code{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;padding:1px 6px;font-size:0.82rem;color:#FF6B00;font-family:monospace;}
+
+/* ── COPYRIGHT ── */
+.copyright{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.5rem;text-align:center;margin-top:3rem;}
+.copyright h3{color:#FF6B00;font-size:0.9rem;margin-bottom:0.6rem;}
+.copyright p{font-size:0.82rem;color:#555;line-height:1.8;}
+.copyright a{color:#FF6B00;text-decoration:none;font-weight:600;}
+.copyright a:hover{text-decoration:underline;}
+
+/* ── PDF KNOP ── */
+.pdf-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:1.5rem;padding:0.6rem 1.2rem;background:transparent;border:1px solid #333;border-radius:7px;color:#888;text-decoration:none;font-size:0.85rem;transition:border-color 0.2s,color 0.2s;}
+.pdf-btn:hover{border-color:#FF6B00;color:#FF6B00;}
+</style>
+</head>
+<body>
+
+<div id="zl-topbar">
+  <a href="index.html">
+    <img src="images/logo-oranje.png" alt="Zaans Licht" />
+    Zaans<span> Licht</span>
+  </a>
+  <div id="zl-topbar-sep"></div>
+  <a class="topbar-back" href="tactiekbord.html">← Terug naar tactiekbord</a>
+</div>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div class="icon">⚽</div>
+    <h1>Tactiekbord</h1>
+    <div class="sub">Handleiding &mdash; Zaans Licht 2026</div>
+    <a class="pdf-btn" href="tactiekbord-handleiding.pdf" download>&#8681; Download als PDF</a>
+  </div>
+
+  <!-- 1. Het bord openen -->
+  <div class="sectie">
+    <h2><span class="nr">1</span> Het bord openen</h2>
+    <p>Open het tactiekbord via <strong>zaanslicht.com/tactiekbord.html</strong> in Chrome, Edge of Safari. Geen installatie of internet nodig — alles werkt lokaal in je browser.</p>
+    <div class="callout">Het bord onthoudt automatisch je laatste staat. Bij het volgende keer openen staat alles nog precies zoals je het hebt achtergelaten.</div>
+  </div>
+
+  <!-- 2. Formatie kiezen -->
+  <div class="sectie">
+    <h2><span class="nr">2</span> Formatie kiezen</h2>
+    <p>Kies links bovenaan de formatie van je eigen team via het dropdown-menu. De spelers (oranje) verschijnen direct op het veld. Je kunt ook een formatie kiezen voor de tegenstander (zwart) via het dropdown eronder.</p>
+    <p>Beschikbare formaties:</p>
+    <ul>
+      <li><strong>Eigen team</strong> — 4-3-3, 4-4-2, 3-5-2, 4-2-3-1, 5-3-2, Vrij plaatsen</li>
+      <li><strong>Tegenstander</strong> — 4-3-3, 4-4-2, 3-5-2, 4-2-3-1, 5-3-2, 4-5-1</li>
+    </ul>
+    <p style="margin-top:0.8rem;">De gekleurde ring om elke speler geeft de linie aan:</p>
+    <ul>
+      <li><strong>Blauwe ring</strong> — Verdediging (GK, CB, LB, RB, LWB, RWB)</li>
+      <li><strong>Gele ring</strong> — Middenveld (CM, DM, AM, LM, RM)</li>
+      <li><strong>Rode ring</strong> — Aanval (ST, LW, RW)</li>
+    </ul>
+  </div>
+
+  <!-- 3. Gereedschap -->
+  <div class="sectie">
+    <h2><span class="nr">3</span> Gereedschap</h2>
+    <p>Kies een gereedschap via de knoppen in het linker paneel.</p>
+
+    <div class="sub-title">↔ Verplaatsen</div>
+    <p>Standaardmodus. Sleep spelers, de tegenstander of de bal naar een andere plek. Spelers kunnen niet over elkaar heen gezet worden.</p>
+
+    <div class="sub-title">— Lijn</div>
+    <p>Dubbelklik op een speler om een lijn te starten. Dubbelklik op een tweede speler om de lijn te bevestigen. De lijn blijft magnetisch gekoppeld aan de spelers.</p>
+
+    <div class="sub-title">→ Pijl</div>
+    <p>Werkt hetzelfde als Lijn, maar met een pijlpunt aan het einde.</p>
+
+    <div class="sub-title">⌒ Gebogen pijl</div>
+    <p>Zelfde als Pijl, maar de lijn buigt. Sleep het gele controlepunt om de bocht aan te passen.</p>
+
+    <div class="sub-title">⇒ Looprichting</div>
+    <p>Klik op een speler (of een leeg deel van het veld) en sleep om een brede, transparante looprichtingspijl te tekenen. Kies de kleur via de kleurswatches.</p>
+
+    <div class="sub-title">◯ Zone</div>
+    <p>Klik en sleep op het veld om een zone te tekenen (ellips, rechthoek of driehoek). Zones liggen onder de spelers zodat ze niet in de weg zitten.</p>
+  </div>
+
+  <!-- 4. Muisacties -->
+  <div class="sectie">
+    <h2><span class="nr">4</span> Muisacties overzicht</h2>
+    <table>
+      <tr><th>Actie</th><th>Resultaat</th></tr>
+      <tr><td>Linkermuisknop + sleep</td><td>Speler of bal verplaatsen (in verplaatsmodus)</td></tr>
+      <tr><td>Rechtermuisknop klik</td><td>Speler of object verwijderen</td></tr>
+      <tr><td>Dubbelklik op speler</td><td>Lijn of pijl starten (in lijn/pijl modus)</td></tr>
+      <tr><td>Klik op lijn/zone/looprichting</td><td>Object verwijderen (dubbelklik)</td></tr>
+      <tr><td>Klik op speler (verplaatsmodus)</td><td>Positiemenu openen (GK, DEF, MID, ATT)</td></tr>
+    </table>
+    <div class="callout">Rechtermuisknop verwijdert spelers direct. Zo hoef je nooit van modus te wisselen.</div>
+  </div>
+
+  <!-- 5. Opslaan en terugkeren -->
+  <div class="sectie">
+    <h2><span class="nr">5</span> Opslaan en terugkeren</h2>
+    <p>Typ een naam in het veld rechtsonder en klik op 💾. De opstelling wordt opgeslagen in de browser. Klik op een opgeslagen naam om hem terug te laden. Klik op ✕ om hem te verwijderen.</p>
+    <div class="callout">Opgeslagen opstellingen worden lokaal bewaard in je browser en zijn alleen zichtbaar op het apparaat waar je het bord gebruikt.</div>
+  </div>
+
+  <!-- 6. Exporteren en importeren (JSON) -->
+  <div class="sectie">
+    <h2><span class="nr">6</span> Exporteren &amp; importeren <span class="badge new">Nieuw</span></h2>
+    <p>Je kunt al je opgeslagen opstellingen exporteren als <code>.json</code> bestand. Zo kun je ze bewaren op je computer, delen met anderen, of laden op een ander apparaat.</p>
+
+    <div class="sub-title">&#8681; Exporteren</div>
+    <p>Klik op de knop <strong>↓ Exporteer</strong> in het opgeslagen-paneel. Er wordt een bestand <code>tactiekbord-opstellingen.json</code> gedownload met al je opgeslagen opstellingen.</p>
+
+    <div class="sub-title">&#8679; Importeren</div>
+    <p>Klik op <strong>↑ Importeer</strong> en kies een eerder geëxporteerd <code>.json</code> bestand. De opstellingen worden toegevoegd aan je huidige lijst — bestaande opstellingen blijven staan.</p>
+
+    <div class="callout">Handig om opstellingen te delen met de trainer of assistent-trainer. Stuur het .json bestand per app of mail, de ontvanger klikt op Importeer en heeft de opstelling direct beschikbaar.</div>
+  </div>
+
+  <!-- 7. Snapshot als JPG -->
+  <div class="sectie">
+    <h2><span class="nr">7</span> Snapshot als JPG</h2>
+    <p>Klik op de 📷 knop om het tactiekbord op te slaan als JPG-afbeelding. De naam van de opstelling wordt gebruikt als bestandsnaam. De afbeelding heeft hoge resolutie en is direct klaar om te delen.</p>
+  </div>
+
+  <!-- 8. Volledig scherm -->
+  <div class="sectie">
+    <h2><span class="nr">8</span> Volledig scherm</h2>
+    <p>Klik op ⛶ rechtsboven op het veld. Alle gereedschappen zijn ook in fullscreen beschikbaar via het zweefmenu (☰) linksboven. Sluit met ✕ of de Escape-toets.</p>
+  </div>
+
+  <!-- 9. Snelle tips -->
+  <div class="sectie">
+    <h2><span class="nr">9</span> Snelle tips</h2>
+    <ul>
+      <li><strong>Wissen</strong> — Dubbelklik op een lijn, pijl, zone of looprichting om hem direct te verwijderen.</li>
+      <li><strong>Leegmaken</strong> — Klik op ↺ Leegmaken om het hele veld te wissen en opnieuw te beginnen.</li>
+      <li><strong>Lijnen wissen</strong> — Gebruik "✕ Lijnen &amp; pijlen wissen" om alle lijnen tegelijk te verwijderen.</li>
+      <li><strong>Tegenstander verwijderen</strong> — Klik op "✕ Tegenstander verwijderen" onder het tegenstander-menu.</li>
+      <li><strong>Notities</strong> — Gebruik het notitievak rechts om tactische aandachtspunten te noteren. Deze worden meegeslagen.</li>
+      <li><strong>Ongedaan maken</strong> — Gebruik ↩ Ongedaan of <code>Ctrl+Z</code> om de laatste actie terug te draaien.</li>
+      <li><strong>Veld draaien</strong> — Klik op ⟳ om het veld 90° te draaien (handig op een tablet).</li>
+    </ul>
+  </div>
+
+  <!-- Copyright -->
+  <div class="copyright">
+    <h3>© Auteursrecht &amp; Gebruiksvoorwaarden</h3>
+    <p>
+      Dit tactiekbord is auteursrechtelijk beschermde software.<br>
+      <strong style="color:#ccc;">Gebruik zonder uitdrukkelijke toestemming van de ontwikkelaar is ten strengste verboden.</strong><br>
+      Dit omvat — maar is niet beperkt tot — kopiëren, verspreiden, aanpassen of commercieel inzetten van de software.<br><br>
+      Voor licentieverlening en gebruiksvoorwaarden:<br>
+      <a href="mailto:lucky_dre@hotmail.com">lucky_dre@hotmail.com</a>
+    </p>
+  </div>
+
+</div>
+</body>
+</html>
