@@ -62,7 +62,7 @@ header {
   align-items: center;
   gap: 0.6rem;
 }
-.logo span { color: var(--oranje); }
+.logo span, .accent-kleur { color: var(--oranje); }
 .logo-img {
   width: 40px;
   height: 40px;
