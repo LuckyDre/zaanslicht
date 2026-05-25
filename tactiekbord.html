@@ -181,8 +181,8 @@ textarea{width:100%;min-height:50px;font-size:12px;resize:vertical;border:0.5px 
       <div id="own-drag-panel" style="display:none;">
         <div style="font-size:10px;color:#aaa;margin-top:6px;margin-bottom:4px;">Sleep naar veld:</div>
         <div class="drag-palette">
-          <div class="drag-src" id="drag-own" style="background:#EF9F27;" title="Sleep naar veld">
-            <svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="9" fill="#EF9F27" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/><text y="4" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="sans-serif">+</text></svg>
+          <div class="drag-src" id="drag-own" style="background:#FF6B00;" title="Sleep naar veld">
+            <svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="9" fill="#FF6B00" stroke="rgba(0,0,0,0.2)" stroke-width="1.5"/><text y="4" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="sans-serif">+</text></svg>
           </div>
         </div>
         <button class="btn-sec" id="clr-own-free">✕ Vrije spelers wissen</button>
@@ -404,8 +404,8 @@ textarea{width:100%;min-height:50px;font-size:12px;resize:vertical;border:0.5px 
 const SVG_W=680,SVG_H=1045,FL=20,FT=25,FW=640,FH=995,FCX=340,FCY=522.5;
 const MND=34,BR=12,PR=16,RR=20,RHW=10,NS='http://www.w3.org/2000/svg';
 
-const CONE_COLORS=['#EF9F27','#E24B4A','#4A90D9','#2ecc71','#9b59b6','#ffffff','#1a1a1a'];
-const ANON_COLORS=['#EF9F27','#E24B4A','#4A90D9','#2ecc71','#9b59b6','#ffffff','#1a1a1a','#f39c12'];
+const CONE_COLORS=['#FF6B00','#E24B4A','#4A90D9','#2ecc71','#9b59b6','#ffffff','#1a1a1a'];
+const ANON_COLORS=['#FF6B00','#E24B4A','#4A90D9','#2ecc71','#9b59b6','#ffffff','#1a1a1a','#f39c12'];
 const ZC=[{f:"rgba(255,200,0,0.18)",s:"rgba(255,200,0,0.75)"},{f:"rgba(255,80,80,0.18)",s:"rgba(255,100,100,0.75)"},{f:"rgba(80,160,255,0.18)",s:"rgba(80,160,255,0.75)"},{f:"rgba(239,159,39,0.22)",s:"rgba(239,159,39,0.85)"},{f:"rgba(220,100,255,0.18)",s:"rgba(220,100,255,0.75)"},{f:"rgba(255,255,255,0.12)",s:"rgba(255,255,255,0.55)"}];
 const RNC=[{f:"rgba(255,220,50,0.45)",s:"rgba(255,220,50,0.9)"},{f:"rgba(255,100,100,0.45)",s:"rgba(255,100,100,0.9)"},{f:"rgba(80,180,255,0.45)",s:"rgba(80,180,255,0.9)"},{f:"rgba(239,159,39,0.45)",s:"rgba(239,159,39,0.9)"},{f:"rgba(230,110,255,0.45)",s:"rgba(230,110,255,0.9)"},{f:"rgba(255,255,255,0.35)",s:"rgba(255,255,255,0.8)"}];
 
@@ -540,10 +540,10 @@ function mkP(x,y,nr,pos,isOpp,ring){
   const g=document.createElementNS(NS,'g');g.setAttribute('transform',`translate(${x},${y})`);
   // Ring
   let ringColor=ring!==undefined?ring:ringForPos(pos);
-  if(ringColor==='same')ringColor=isOpp?'#2C2C2A':'#EF9F27';
+  if(ringColor==='same')ringColor=isOpp?'#2C2C2A':'#FF6B00';
   if(ringColor){const ro=document.createElementNS(NS,'circle');ro.setAttribute('r',RR);ro.setAttribute('fill',ringColor);g.appendChild(ro);}
   // Cirkel
-  const c=document.createElementNS(NS,'circle');c.setAttribute('r',PR);c.setAttribute('fill',isOpp?'#2C2C2A':'#EF9F27');g.appendChild(c);
+  const c=document.createElementNS(NS,'circle');c.setAttribute('r',PR);c.setAttribute('fill',isOpp?'#2C2C2A':'#FF6B00');g.appendChild(c);
   // Nummer
   const t=document.createElementNS(NS,'text');t.setAttribute('class','fp-nr');t.setAttribute('y','0');t.textContent=nr;g.appendChild(t);
   return g;
@@ -1058,7 +1058,7 @@ makeDragItem('cone-palette',CONE_COLORS,(pt,color)=>{cones.push({x:clamp(pt.x,FL
   const ownPal=document.getElementById('anon-own-palette');
   const oppPal=document.getElementById('anon-opp-palette');
   PLAYER_DEFS.forEach(def=>{
-    ownPal.appendChild(mkPlayerSrc('#EF9F27',false,def));
+    ownPal.appendChild(mkPlayerSrc('#FF6B00',false,def));
     oppPal.appendChild(mkPlayerSrc('#2C2C2A',true,def));
   });
 })();
@@ -1070,7 +1070,7 @@ function makeDragPlayer(srcId,isOpp){
   const el=document.getElementById(srcId);if(!el)return;
   el.addEventListener('mousedown',e=>{
     if(e.button!==0)return;e.preventDefault();
-    const color=isOpp?'#2C2C2A':'#EF9F27';
+    const color=isOpp?'#2C2C2A':'#FF6B00';
     const ghost=document.createElement('div');
     ghost.style.cssText='position:fixed;pointer-events:none;z-index:9999;transform:translate(-13px,-13px);';
     ghost.innerHTML=`<svg width="28" height="28" viewBox="-14 -14 28 28"><circle r="12" fill="${color}" stroke="${isOpp?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.2)'}" stroke-width="1.5"/><text y="4" text-anchor="middle" fill="white" font-size="10" font-weight="700" font-family="sans-serif">+</text></svg>`;
