@@ -221,13 +221,16 @@
             <div class="ab-count" id="ab-count">—</div>
             <p style="font-size:0.78rem;color:#555;margin-top:0.3rem;margin-bottom:1.2rem">aangemeld voor updates</p>
 
-            <label>Worker URL</label>
+            <label style="display:flex;align-items:center;justify-content:space-between;">
+              Worker URL
+              <button id="ab-lock-btn" class="btn btn-dim" style="padding:0.15rem 0.6rem;font-size:0.78rem;margin:0;display:none" onclick="abToggleLock()" title="Klik om te ontgrendelen">🔒 Vergrendeld</button>
+            </label>
             <input type="text" id="ab-worker-url" placeholder="https://zaanslicht-updates.xxx.workers.dev" />
 
-            <label>Worker Secret</label>
+            <label style="margin-top:0.6rem">Worker Secret</label>
             <input type="password" id="ab-worker-secret" placeholder="jouw geheime sleutel" />
 
-            <button class="btn btn-dim" style="margin-top:0.2rem" onclick="abSlaConfig()">Opslaan &amp; verbinden</button>
+            <button class="btn btn-dim" id="ab-save-btn" style="margin-top:0.2rem" onclick="abSlaConfig()">Opslaan &amp; verbinden</button>
           </div>
 
           <!-- Nieuwsbrief versturen -->
