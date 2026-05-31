@@ -205,6 +205,46 @@
   <div class="content">
     <div id="tab-voetbal"  class="tab-panel active"><ul class="slider-lijst" id="lijst-voetbal"></ul></div>
     <div id="tab-nosports" class="tab-panel"><ul class="slider-lijst" id="lijst-nosports"></ul></div>
+    <div id="tab-abonnees" class="tab-panel">
+      <div style="padding:1.5rem 0">
+
+        <div class="ab-setup" id="ab-setup-warning">
+          ⚙️ <strong>Eenmalige instelling:</strong> vul hieronder de Worker URL in om de abonnees-functie te activeren.
+          Daarna hoef je dit niet meer te doen — de URL wordt opgeslagen in je browser.
+        </div>
+
+        <div class="abonnees-grid">
+
+          <!-- Teller + Worker URL -->
+          <div class="ab-card">
+            <h3>Abonnees</h3>
+            <div class="ab-count" id="ab-count">—</div>
+            <p style="font-size:0.78rem;color:#555;margin-top:0.3rem;margin-bottom:1.2rem">aangemeld voor updates</p>
+
+            <label>Worker URL</label>
+            <input type="text" id="ab-worker-url" placeholder="https://zaanslicht-updates.xxx.workers.dev" />
+
+            <label>Worker Secret</label>
+            <input type="password" id="ab-worker-secret" placeholder="jouw geheime sleutel" />
+
+            <button class="btn btn-dim" style="margin-top:0.2rem" onclick="abSlaConfig()">Opslaan &amp; verbinden</button>
+          </div>
+
+          <!-- Nieuwsbrief versturen -->
+          <div class="ab-card">
+            <h3>Nieuwsbrief versturen</h3>
+            <label>Onderwerp</label>
+            <input type="text" id="ab-subject" placeholder="Nieuwe foto's online!" />
+            <label>Bericht</label>
+            <textarea id="ab-message" placeholder="Hoi! Er staan weer nieuwe foto's op zaanslicht.com. Kijk maar snel..."></textarea>
+            <button class="btn btn-oranje" onclick="abVerstuur()" id="ab-send-btn">📧 Verstuur naar alle abonnees</button>
+            <p id="ab-send-result" style="font-size:0.82rem;margin-top:0.8rem;display:none"></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <div id="tab-reacties" class="tab-panel">
       <div style="padding:1.5rem 2rem">
         <p style="color:#888;font-size:0.85rem;margin-bottom:1.2rem">Klik op 🗑 om een reactie te verwijderen. Verwijdering is onomkeerbaar.</p>
