@@ -457,6 +457,81 @@ function switchTab(tab) {
   if (tab === 'reacties') laadReacties();
 }
 
+// ── ABONNEES ──────────────────────────────────────────────────────────────
+function abLaadConfig() {
+  const url    = localStorage.getItem('zl_worker_url')    || '';
+  const secret = localStorage.getItem('zl_worker_secret') || '';
+  if (url)    document.getElementById('ab-worker-url').value    = url;
+  if (secret) document.getElementById('ab-worker-secret').value = secret;
+  if (url && secret) {
+    document.getElementById('ab-setup-warning').style.display = 'none';
+    abHaalAantal(url, secret);
+  }
+}
+
+function abSlaConfig() {
+  const url    = document.getElementById('ab-worker-url').value.trim().replace(/\/$/, '');
+  const secret = document.getElementById('ab-worker-secret').value.trim();
+  if (!url || !secret) { alert('Vul zowel de Worker URL als de Worker Secret in.'); return; }
+  localStorage.setItem('zl_worker_url', url);
+  localStorage.setItem('zl_worker_secret', secret);
+  document.getElementById('ab-setup-warning').style.display = 'none';
+  abHaalAantal(url, secret);
+}
+
+async function abHaalAantal(url, secret) {
+  try {
+    const res  = await fetch(url + '/count', { headers: { 'X-Worker-Secret': secret } });
+    const data = await res.json();
+    document.getElementById('ab-count').textContent = data.count ?? '?';
+  } catch {
+    document.getElementById('ab-count').textContent = '!';
+  }
+}
+
+async function abVerstuur() {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  if (!url || !secret) { alert('Stel eerst de Worker URL en Secret in.'); return; }
+
+  const subject = document.getElementById('ab-subject').value.trim();
+  const message = document.getElementById('ab-message').value.trim();
+  if (!subject || !message) { alert('Vul een onderwerp en bericht in.'); return; }
+
+  const count = parseInt(document.getElementById('ab-count').textContent) || 0;
+  if (!confirm(`Weet je zeker dat je een mail stuurt naar ${count} abonnee(s)?`)) return;
+
+  const btn    = document.getElementById('ab-send-btn');
+  const result = document.getElementById('ab-send-result');
+  btn.disabled = true;
+  btn.textContent = '⟳ Bezig met versturen…';
+  result.style.display = 'none';
+
+  try {
+    const res  = await fetch(url + '/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ subject, message }),
+    });
+    const data = await res.json();
+    result.style.display = '';
+    if (data.sent !== undefined) {
+      result.style.color = '#22c55e';
+      result.textContent = `✓ Verstuurd naar ${data.sent} abonnee(s).${data.errors ? ` (${data.errors} mislukt)` : ''}`;
+    } else {
+      result.style.color = '#ef4444';
+      result.textContent = 'Fout: ' + (data.error || 'Onbekende fout');
+    }
+  } catch (e) {
+    result.style.display = '';
+    result.style.color = '#ef4444';
+    result.textContent = 'Verbindingsfout: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '📧 Verstuur naar alle abonnees';
+}
+
 // ── FIREBASE LAZY LOADER ──────────────────────────────────────────────────
 let firebaseLoaded = false;
 
