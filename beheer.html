@@ -318,8 +318,12 @@ function doLogout() {
 function startApp() {
   document.getElementById('login-scherm').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  renderAll();
-  setLog('✓ Ingelogd — sleep om de volgorde aan te passen', 'success');
+  try {
+    renderAll();
+    setLog('✓ Ingelogd — sleep om de volgorde aan te passen', 'success');
+  } catch(e) {
+    setLog('❌ Fout bij laden: ' + e.message + ' — ververs de pagina.', 'error');
+  }
 }
 
 // ── GITHUB API ────────────────────────────────────────────────────────────
