@@ -496,10 +496,6 @@ function positionPreview(e) {
 }
 </script>
 
-<!-- Firebase voor reacties-beheer -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="firebase-config.js"></script>
-<script>window._fbdb = (typeof db !== 'undefined') ? db : null;</script>
+<!-- Firebase wordt lazy geladen bij eerste klik op Reacties-tabblad -->
 </body>
 </html>
