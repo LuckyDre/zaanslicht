@@ -989,3 +989,78 @@ footer {
   .rd-form { width: 100%; }
   .reacties-drawer { max-height: 70vh; }
 }
+
+/* ── UPDATES ABONNEREN ─────────────────────────────────────────────────── */
+#updates {
+  padding: 5rem 2rem;
+  text-align: center;
+}
+.updates-box {
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--grijs);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 2.2rem 2rem;
+}
+.updates-tekst {
+  font-size: 0.92rem;
+  color: #999;
+  line-height: 1.7;
+  margin-bottom: 1.4rem;
+}
+.updates-form {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.updates-form input[type="email"] {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  background: var(--zwart);
+  border: 1px solid #333;
+  border-radius: 5px;
+  color: var(--wit);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.updates-form input[type="email"]:focus { border-color: var(--oranje); }
+.updates-form button {
+  padding: 0.65rem 1.3rem;
+  background: var(--oranje);
+  color: var(--wit);
+  border: none;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.updates-form button:hover:not(:disabled) { background: #cc5500; }
+.updates-form button:disabled { opacity: 0.5; cursor: default; }
+.updates-privacy {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: #555;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+.updates-privacy input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--oranje);
+}
+.updates-feedback {
+  margin-top: 0.9rem;
+  font-size: 0.85rem;
+}
+@media (max-width: 500px) {
+  .updates-form { flex-direction: column; }
+}
