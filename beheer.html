@@ -450,11 +450,12 @@ function hernum(grid) { grid.querySelectorAll('.foto-nr').forEach((el, i) => el.
 function switchTab(tab) {
   activeTab = tab;
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['voetbal','nosports','reacties'][i] === tab);
+    t.classList.toggle('active', ['voetbal','nosports','reacties','abonnees'][i] === tab);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   if (tab === 'reacties') laadReacties();
+  if (tab === 'abonnees') abLaadConfig();
 }
 
 // ── ABONNEES ──────────────────────────────────────────────────────────────
