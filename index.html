@@ -222,6 +222,48 @@
   <script src="firebase-config.js"></script>
   <script src="main.js"></script>
 
+  <!-- Updates abonneren -->
+  <script>
+  (function(){
+    const WORKER_URL = 'VULL_WORKER_URL_IN'; // bijv. https://zaanslicht-updates.jouw-naam.workers.dev
+    const form     = document.getElementById('updates-form');
+    const feedback = document.getElementById('updates-feedback');
+    if (!form) return;
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      const akkoord = document.getElementById('updates-akkoord').checked;
+      if (!akkoord) { toonFeedback('Vink het vakje aan om akkoord te gaan.', false); return; }
+      const email = document.getElementById('updates-email').value.trim();
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Bezig…';
+      try {
+        const res  = await fetch(WORKER_URL + '/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          toonFeedback('✓ Aangemeld! Je ontvangt een mail als er nieuwe foto\'s zijn.', true);
+          form.reset();
+        } else {
+          toonFeedback('Er ging iets mis. Probeer het opnieuw.', false);
+        }
+      } catch {
+        toonFeedback('Geen verbinding. Probeer het later opnieuw.', false);
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Aanmelden <span>&#8594;</span>';
+    });
+    function toonFeedback(tekst, ok) {
+      feedback.textContent = tekst;
+      feedback.style.display = '';
+      feedback.style.color = ok ? '#22c55e' : '#ef4444';
+    }
+  })();
+  </script>
+
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
 </body>
