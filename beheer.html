@@ -137,6 +137,24 @@
     #foto-preview img { display: block; width: 570px; max-height: 420px; object-fit: contain; background: #111; }
     #foto-preview .preview-naam { background: rgba(0,0,0,0.85); color: var(--dim); font-size: 0.7rem; padding: 4px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+    /* ABONNEES */
+    .abonnees-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 700px) { .abonnees-grid { grid-template-columns: 1fr; } }
+    .ab-card { background: var(--grijs); border: 1px solid #2a2a2a; border-radius: 8px; padding: 1.4rem 1.6rem; }
+    .ab-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--dim); margin-bottom: 0.6rem; }
+    .ab-count { font-size: 2.4rem; font-weight: 800; color: var(--oranje); line-height: 1; }
+    .ab-card label { display: block; font-size: 0.78rem; color: var(--dim); margin-bottom: 0.4rem; letter-spacing: 1px; text-transform: uppercase; }
+    .ab-card input, .ab-card textarea {
+      width: 100%; padding: 0.6rem 0.8rem; background: var(--zwart); border: 1px solid #333;
+      border-radius: 4px; color: var(--wit); font-size: 0.9rem; font-family: inherit; outline: none;
+      transition: border-color 0.2s; margin-bottom: 0.8rem;
+    }
+    .ab-card input:focus, .ab-card textarea:focus { border-color: var(--oranje); }
+    .ab-card textarea { resize: vertical; min-height: 120px; }
+    .ab-setup { background: #0f1a0f; border: 1px solid #1a3a1a; border-radius: 8px; padding: 1.2rem 1.4rem; font-size: 0.82rem; color: #6a9a6a; line-height: 1.7; margin-bottom: 1.5rem; }
+    .ab-setup strong { color: #8fce8f; }
+    .ab-setup code { background: #0a0a0a; border: 1px solid #1a2a1a; border-radius: 3px; padding: 1px 5px; font-size: 0.78rem; color: #7aba7a; }
+
     /* APPINFO */
     #app { display: none; }
   </style>
