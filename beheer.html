@@ -276,9 +276,19 @@ let dirty    = false;
 let activeTab = 'voetbal';
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   const saved = localStorage.getItem('zl_token');
-  if (saved) { token = saved; startApp(); }
+  if (saved) {
+    token = saved;
+    try {
+      await loadManifest();
+      startApp();
+    } catch {
+      // Token verlopen of ongeldig — terug naar loginscherm
+      localStorage.removeItem('zl_token');
+      token = '';
+    }
+  }
 });
 
 async function doLogin() {
