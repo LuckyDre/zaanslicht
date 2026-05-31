@@ -5,4 +5,4 @@ compatibility_date = "2024-01-01"
 # KV-namespace voor abonnees — vul het id in na aanmaken in Cloudflare dashboard
 [[kv_namespaces]]
 binding = "SUBSCRIBERS"
-id      = "VULL_KV_NAMESPACE_ID_IN"
+id      = "2f52b910c51c4f1b970c39d156d5977c"
