@@ -483,7 +483,49 @@ function abLaadConfig() {
   if (secret) document.getElementById('ab-worker-secret').value = secret;
   if (url && secret) {
     document.getElementById('ab-setup-warning').style.display = 'none';
+    abVergrendel();
     abHaalAantal(url, secret);
+  }
+}
+
+function abVergrendel() {
+  const urlInput    = document.getElementById('ab-worker-url');
+  const secretInput = document.getElementById('ab-worker-secret');
+  const lockBtn     = document.getElementById('ab-lock-btn');
+  const saveBtn     = document.getElementById('ab-save-btn');
+  urlInput.readOnly    = true;
+  secretInput.readOnly = true;
+  urlInput.style.opacity    = '0.55';
+  secretInput.style.opacity = '0.55';
+  urlInput.style.cursor    = 'not-allowed';
+  secretInput.style.cursor = 'not-allowed';
+  lockBtn.style.display = '';
+  lockBtn.textContent   = '🔒 Vergrendeld';
+  saveBtn.style.display = 'none';
+}
+
+function abOntgrendel() {
+  const urlInput    = document.getElementById('ab-worker-url');
+  const secretInput = document.getElementById('ab-worker-secret');
+  const lockBtn     = document.getElementById('ab-lock-btn');
+  const saveBtn     = document.getElementById('ab-save-btn');
+  urlInput.readOnly    = false;
+  secretInput.readOnly = false;
+  urlInput.style.opacity    = '1';
+  secretInput.style.opacity = '1';
+  urlInput.style.cursor    = '';
+  secretInput.style.cursor = '';
+  lockBtn.textContent = '🔓 Ontgrendeld';
+  saveBtn.style.display = '';
+  urlInput.focus();
+}
+
+function abToggleLock() {
+  const urlInput = document.getElementById('ab-worker-url');
+  if (urlInput.readOnly) {
+    abOntgrendel();
+  } else {
+    abVergrendel();
   }
 }
 
