@@ -431,6 +431,7 @@ async function laadReacties() {
   const container = document.getElementById('reacties-beheer-lijst');
   container.innerHTML = '<p style="color:#555">Laden…</p>';
   try {
+    await laadFirebase();
     const db = window._fbdb;
     if (!db) { container.innerHTML = '<p style="color:#ef4444">Firebase niet beschikbaar</p>'; return; }
     const snap = await db.ref('recent_comments').orderByChild('ts').once('value');
