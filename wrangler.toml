@@ -1,0 +1,8 @@
+name             = "zaanslicht-updates"
+main             = "cloudflare-worker.js"
+compatibility_date = "2024-01-01"
+
+# KV-namespace voor abonnees — vul het id in na aanmaken in Cloudflare dashboard
+[[kv_namespaces]]
+binding = "SUBSCRIBERS"
+id      = "VULL_KV_NAMESPACE_ID_IN"
