@@ -310,7 +310,10 @@ function updateManifestFromDOM() {
     manifest[cat] = Array.from(lijst.querySelectorAll('.slider-item')).map((el, i) => {
       const mapNaam = el.dataset.map;
       const base    = manifest[cat].find(x => x.map === mapNaam) || {};
-      const fotos   = Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto);
+      // Map nooit geopend → originele fotovolgorde bewaren
+      const fotos   = el.dataset.fotosLoaded === 'true'
+        ? Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto)
+        : (base.fotos || []);
       return { ...base, volgorde: i, fotos };
     });
   });
