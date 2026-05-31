@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Afmelden — Zaans Licht</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d0d0d;color:#cccccc;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
+.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:3rem 2.5rem;max-width:440px;width:100%;text-align:center;}
+.logo{font-size:1.3rem;font-weight:800;letter-spacing:2px;color:#fff;margin-bottom:2rem;}
+.logo span{color:#FF6B00;}
+.icon{font-size:3rem;margin-bottom:1rem;}
+h1{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:0.8rem;}
+p{font-size:0.9rem;color:#888;line-height:1.7;margin-bottom:1.2rem;}
+.btn{display:inline-block;margin-top:1.5rem;padding:0.65rem 1.6rem;background:#FF6B00;color:#fff;text-decoration:none;border-radius:6px;font-weight:700;font-size:0.85rem;letter-spacing:1px;border:none;cursor:pointer;transition:background 0.2s;}
+.btn:hover{background:#cc5500;}
+.btn-dim{background:transparent;border:1px solid #333;color:#888;}
+.btn-dim:hover{border-color:#555;color:#ccc;background:transparent;}
+#status{margin-top:1rem;font-size:0.85rem;}
+.ok{color:#22c55e;}
+.err{color:#ef4444;}
+.spinner{display:inline-block;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">Zaans<span> Licht</span></div>
+
+  <div id="view-loading">
+    <div class="icon">⟳</div>
+    <h1>Moment…</h1>
+    <p>Bezig met verwerken van je afmelding.</p>
+  </div>
+
+  <div id="view-ok" style="display:none">
+    <div class="icon">✓</div>
+    <h1>Afgemeld</h1>
+    <p>Je staat niet meer op de lijst. Je ontvangt geen updates meer van Zaans Licht.</p>
+    <a class="btn btn-dim" href="index.html">← Terug naar de site</a>
+  </div>
+
+  <div id="view-err" style="display:none">
+    <div class="icon">✕</div>
+    <h1>Niet gevonden</h1>
+    <p>Deze afmeldlink is al gebruikt of ongeldig. Als je nog steeds mails ontvangt, neem dan contact op.</p>
+    <a class="btn btn-dim" href="index.html">← Terug naar de site</a>
+  </div>
+</div>
+
+<script>
+const WORKER_URL = 'VULL_WORKER_URL_IN'; // bijv. https://zaanslicht-updates.jouw-naam.workers.dev
+
+async function afmelden() {
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('token');
+
+  if (!token) { showView('err'); return; }
+
+  try {
+    const res = await fetch(WORKER_URL + '/unsubscribe', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ token }),
+    });
+    const data = await res.json();
+    showView(data.ok ? 'ok' : 'err');
+  } catch {
+    showView('err');
+  }
+}
+
+function showView(v) {
+  document.getElementById('view-loading').style.display = 'none';
+  document.getElementById('view-ok').style.display  = v === 'ok'  ? '' : 'none';
+  document.getElementById('view-err').style.display = v === 'err' ? '' : 'none';
+}
+
+afmelden();
+</script>
+</body>
+</html>
