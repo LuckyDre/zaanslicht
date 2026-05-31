@@ -335,14 +335,10 @@ function renderCategorie(cat) {
 
   items.forEach(item => {
     const li = document.createElement('li');
-    li.className   = 'slider-item';
-    li.dataset.map = item.map;
-
-    const thumbs = item.fotos.map((f, i) => `
-      <div class="foto-thumb" data-foto="${f}">
-        <img src="${SITE}/images/${cat}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}" loading="lazy" />
-        <span class="foto-nr">${i + 1}</span>
-      </div>`).join('');
+    li.className          = 'slider-item';
+    li.dataset.map        = item.map;
+    li.dataset.cat        = cat;
+    li.dataset.fotosLoaded = 'false';
 
     li.innerHTML = `
       <div class="slider-header" onclick="toggleOpen(this)">
@@ -351,14 +347,9 @@ function renderCategorie(cat) {
         <span class="slider-count">${item.fotos.length} foto's</span>
         <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
       </div>
-      <div class="foto-grid">${thumbs}</div>`;
+      <div class="foto-grid"></div>`;
 
     lijst.appendChild(li);
-
-    new Sortable(li.querySelector('.foto-grid'), {
-      animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
-      onEnd() { hernum(li.querySelector('.foto-grid')); dirty = true; }
-    });
   });
 
   new Sortable(lijst, {
@@ -369,7 +360,30 @@ function renderCategorie(cat) {
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
-function toggleOpen(hdr) { hdr.closest('.slider-item').classList.toggle('open'); }
+function toggleOpen(hdr) {
+  const li = hdr.closest('.slider-item');
+  li.classList.toggle('open');
+
+  // Lazy-render foto thumbs bij eerste keer openen
+  if (li.classList.contains('open') && li.dataset.fotosLoaded === 'false') {
+    const cat     = li.dataset.cat;
+    const mapNaam = li.dataset.map;
+    const item    = (manifest[cat] || []).find(x => x.map === mapNaam);
+    if (item) {
+      const grid = li.querySelector('.foto-grid');
+      grid.innerHTML = item.fotos.map((f, i) => `
+        <div class="foto-thumb" data-foto="${f}">
+          <img src="${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}" loading="lazy" />
+          <span class="foto-nr">${i + 1}</span>
+        </div>`).join('');
+      new Sortable(grid, {
+        animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+        onEnd() { hernum(grid); dirty = true; }
+      });
+      li.dataset.fotosLoaded = 'true';
+    }
+  }
+}
 function hernum(grid) { grid.querySelectorAll('.foto-nr').forEach((el, i) => el.textContent = i + 1); }
 function switchTab(tab) {
   activeTab = tab;
