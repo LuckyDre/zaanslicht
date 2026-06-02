@@ -175,6 +175,30 @@ function buildEmail(message, unsubscribeUrl) {
 </body></html>`;
 }
 
+// ── LIJST ABONNEES ────────────────────────────────────────────────────────
+async function handleSubscribers(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+
+  const list = [];
+  let cursor = undefined;
+  do {
+    const result = await env.SUBSCRIBERS.list({ prefix: 'sub:', cursor, limit: 1000 });
+    for (const key of result.keys) {
+      const raw = await env.SUBSCRIBERS.get(key.name);
+      if (raw) {
+        try {
+          const sub = JSON.parse(raw);
+          list.push({ email: sub.email, ts: sub.ts });
+        } catch {}
+      }
+    }
+    cursor = result.list_complete ? undefined : result.cursor;
+  } while (cursor);
+
+  list.sort((a, b) => b.ts - a.ts);
+  return json({ list });
+}
+
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
@@ -187,6 +211,7 @@ export default {
     if (url.pathname === '/subscribe'   && request.method === 'POST') return handleSubscribe(request, env);
     if (url.pathname === '/unsubscribe' && request.method === 'POST') return handleUnsubscribe(request, env);
     if (url.pathname === '/count'       && request.method === 'GET')  return handleCount(request, env);
+    if (url.pathname === '/subscribers' && request.method === 'GET')  return handleSubscribers(request, env);
     if (url.pathname === '/send'        && request.method === 'POST') return handleSend(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
