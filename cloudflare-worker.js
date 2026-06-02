@@ -242,7 +242,7 @@ const RSS_BRONNEN = [
 
 const NIEUWS_CACHE_KEY = 'cache:nieuws';
 const NIEUWS_CACHE_TTL = 1800; // 30 minuten
-const TWEE_MAANDEN_MS  = 60 * 24 * 60 * 60 * 1000; // 60 dagen
+const TWEE_MAANDEN_MS  = 180 * 24 * 60 * 60 * 1000; // 180 dagen (half jaar)
 
 function parseRSS(xml, bron) {
   const items = [];
