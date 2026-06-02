@@ -551,25 +551,27 @@ async function abHaalAantal(url, secret) {
   }
   // Haal ook de lijst op
   const lijst = document.getElementById('ab-lijst');
-  lijst.innerHTML = '<span style="color:#555;font-size:0.75rem">Lijst laden…</span>';
+  lijst.innerHTML = '<span style="color:#888;font-size:0.8rem">Lijst laden…</span>';
   try {
     const res2 = await fetch(url + '/subscribers', { headers: { 'X-Worker-Secret': secret } });
     const data2 = await res2.json();
     if (data2.error) {
-      lijst.innerHTML = `<span style="color:#ef4444;font-size:0.75rem">Fout: ${data2.error}</span>`;
+      lijst.innerHTML = `<span style="color:#ef4444;font-size:0.8rem">⚠ ${data2.error}</span>`;
     } else if (data2.list && data2.list.length) {
-      lijst.innerHTML = data2.list.map(s => {
-        const datum = s.ts ? new Date(s.ts).toLocaleDateString('nl-NL', { day:'numeric', month:'short', year:'numeric' }) : '';
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid #222;font-size:0.78rem;">
-          <span style="color:#ccc">${s.email}</span>
-          <span style="color:#444;font-size:0.7rem">${datum}</span>
-        </div>`;
-      }).join('');
+      lijst.innerHTML = `<div style="margin-top:0.8rem;border:1px solid #333;border-radius:6px;overflow:hidden">` +
+        data2.list.map((s, i) => {
+          const datum = s.ts ? new Date(s.ts).toLocaleDateString('nl-NL', { day:'numeric', month:'short', year:'numeric' }) : '';
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0.8rem;background:${i%2===0?'#1f1f1f':'#1a1a1a'};font-size:0.8rem;">
+            <span style="color:#eee">${s.email}</span>
+            <span style="color:#666;font-size:0.72rem;flex-shrink:0;margin-left:1rem">${datum}</span>
+          </div>`;
+        }).join('') +
+      `</div>`;
     } else {
-      lijst.innerHTML = '<span style="color:#555;font-size:0.75rem">Geen abonnees gevonden.</span>';
+      lijst.innerHTML = '<span style="color:#888;font-size:0.8rem">Geen abonnees gevonden.</span>';
     }
   } catch(e) {
-    lijst.innerHTML = `<span style="color:#ef4444;font-size:0.75rem">Verbindingsfout: ${e.message}</span>`;
+    lijst.innerHTML = `<span style="color:#ef4444;font-size:0.8rem">⚠ Verbindingsfout: ${e.message}</span>`;
   }
 }
 
