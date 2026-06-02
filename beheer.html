@@ -588,6 +588,60 @@ async function abHaalAantal(url, secret) {
   }
 }
 
+async function abVerwijder(email) {
+  if (!confirm(`Abonnee verwijderen?\n${email}`)) return;
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const res = await fetch(url + '/delete-subscriber', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (data.ok) {
+    const row = document.getElementById('abrow-' + btoa(email));
+    if (row) row.remove();
+    const count = parseInt(document.getElementById('ab-count').textContent) || 0;
+    document.getElementById('ab-count').textContent = Math.max(0, count - 1);
+  } else {
+    alert('Fout: ' + (data.error || 'onbekend'));
+  }
+}
+
+async function abBan(email, ban) {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  await fetch(url + '/ban', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+    body: JSON.stringify({ email, ban }),
+  });
+  abHaalAantal(url, secret); // herlaad de lijst
+}
+
+async function abTogglePauze() {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const btn    = document.getElementById('ab-pauze-btn');
+  const huidig = btn.dataset.paused === '1';
+  const res = await fetch(url + '/pause', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+    body: JSON.stringify({ paused: !huidig }),
+  });
+  const data = await res.json();
+  abPauzeStatus(data.paused);
+}
+
+function abPauzeStatus(paused) {
+  const btn = document.getElementById('ab-pauze-btn');
+  if (!btn) return;
+  btn.dataset.paused = paused ? '1' : '0';
+  btn.textContent    = paused ? '▶ Hervat verzenden' : '⏸ Pauze';
+  btn.style.borderColor = paused ? '#ef4444' : '#444';
+  btn.style.color       = paused ? '#ef4444' : '#aaa';
+}
+
 async function abVerstuur() {
   const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
