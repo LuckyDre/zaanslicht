@@ -222,22 +222,27 @@ function matchFilter(tekst, filters) {
 
 // Bronnen — clubs-feeds hebben geen filter (altijd relevant)
 const RSS_BRONNEN = [
-  // ── KNVB — NOS Sport gefilterd op KNVB-termen ──
-  { url: 'https://feeds.nos.nl/nossportalgemeen', label: 'KNVB', categorie: 'knvb',
-    filter: ['knvb','bondscoach','oranje elftal','nationaal elftal','eredivisie','play-offs'] },
+  // ── AZ — VI.nl AZ-specifieke feed (bevestigd werkend) ──
+  { url: 'https://www.vi.nl/feed/news.xml?tag=az', label: 'AZ', categorie: 'az', filter: null },
 
-  // ── AZ — NOS Sport gefilterd op AZ (woordgrens via matchFilter) ──
-  { url: 'https://feeds.nos.nl/nossportalgemeen', label: 'AZ', categorie: 'az',
-    filter: ['az', 'alkmaar'] },
+  // ── KNVB — VI.nl KNVB-tag + FCUpdate algemeen ──
+  { url: 'https://www.vi.nl/feed/news.xml?tag=knvb',       label: 'KNVB', categorie: 'knvb', filter: null },
+  { url: 'https://www.vi.nl/feed/news.xml',                label: 'KNVB', categorie: 'knvb', filter: ['knvb','bondscoach','nationaal elftal','oranje'] },
+  { url: 'https://www.fcupdate.nl/rss',                    label: 'KNVB', categorie: 'knvb', filter: ['knvb','bondscoach','oranje','eredivisie'] },
 
-  // ── REGIONAAL — NHNieuws correcte RSS-pad ──
+  // ── REGIONAAL — NHNieuws ──
   { url: 'https://www.nhnieuws.nl/rss/nieuws', label: 'NHNieuws', categorie: 'zaanstreek',
     filter: [...ZAANSTREEK_FILTER, 'voetbal'] },
 
-  // ── LOKALE CLUBS (eigen feeds, geen filter nodig) ──
+  // ── LOKALE CLUBS (eigen feeds, bevestigd werkend) ──
   { url: 'https://www.zcfc.nl/feed/',              label: 'ZCFC',               categorie: 'clubs', filter: null },
   { url: 'https://www.zvvzaandijk.nl/feed/',       label: 'ZVV Zaandijk',       categorie: 'clubs', filter: null },
   { url: 'https://www.sportingkrommenie.nl/feed/', label: 'Sporting Krommenie', categorie: 'clubs', filter: null },
+  { url: 'https://www.uniteddavo.nl/feed/',        label: 'United Davo',        categorie: 'clubs', filter: null },
+
+  // ── NOOT: ofc-oostzaan.nl, blokkers.nl, fortuna-wormerveer.nl, tos-actief.nl
+  //    blokkeren automatisch serververkeer (Cloudflare Bot Protection) —
+  //    deze kunnen niet automatisch worden opgehaald. ──
 ];
 
 const NIEUWS_CACHE_KEY = 'cache:nieuws';
