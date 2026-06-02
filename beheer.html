@@ -549,6 +549,23 @@ async function abHaalAantal(url, secret) {
   } catch {
     document.getElementById('ab-count').textContent = '!';
   }
+  // Haal ook de lijst op
+  try {
+    const res2 = await fetch(url + '/subscribers', { headers: { 'X-Worker-Secret': secret } });
+    const data2 = await res2.json();
+    const lijst = document.getElementById('ab-lijst');
+    if (data2.list && data2.list.length) {
+      lijst.innerHTML = data2.list.map(s => {
+        const datum = s.ts ? new Date(s.ts).toLocaleDateString('nl-NL', { day:'numeric', month:'short', year:'numeric' }) : '';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid #222;font-size:0.78rem;">
+          <span style="color:#ccc">${s.email}</span>
+          <span style="color:#444;font-size:0.7rem">${datum}</span>
+        </div>`;
+      }).join('');
+    } else {
+      lijst.innerHTML = '';
+    }
+  } catch {}
 }
 
 async function abVerstuur() {
