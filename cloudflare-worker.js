@@ -193,36 +193,50 @@ function buildEmail(message, unsubscribeUrl) {
 
 // ── RSS NIEUWS FEED ────────────────────────────────────────────────────────
 
-const RSS_BRONNEN = [
-  {
-    url:       'https://www.knvb.nl/rss/nieuws',
-    label:     'KNVB',
-    categorie: 'knvb',
-    filter:    null,
-  },
-  {
-    url:       'https://www.az.nl/rss',
-    label:     'AZ',
-    categorie: 'az',
-    filter:    null,
-  },
-  {
-    url:       'https://www.nhnieuws.nl/rss/nieuws',
-    label:     'NHNieuws',
-    categorie: 'zaanstreek',
-    filter:    ['zaanstreek','zaandam','zaanstad','zcfc','afc zaandam','koog aan de zaan','wormerveer','assendelft','krommenie','zaankanter','voetbal'],
-  },
-  {
-    url:       'https://zaansnieuws.nl/feed/',
-    label:     'Zaansnieuws',
-    categorie: 'zaanstreek',
-    filter:    ['voetbal','zcfc','afc','elftal','competitie','eredivisie','amateur'],
-  },
+// Clubs van de clubs-pagina — altijd prioriteit in nieuws
+const CLUB_KEYWORDS = [
+  'zcfc','zvv zaandijk','fortuna wormerveer','sporting krommenie','ofc oostzaan',
+  'vv assendelft','kfc 1910','tos actief','united davo','wsv 1930','sv dts',
+  'saenden','de blokkers','alcmaria','sv koedijk','vv opperdoes','sc purmerland',
+  'volewijckers','afc ijburg',
 ];
 
-const SPELER_KEYWORDS = ['transfer','aanwinst','tekent','verlengt','speler','aanvaller','verdediger','keeper','middenvelder','doelman','debuut','selectie','oproep','kampioen'];
+const ZAANSTREEK_FILTER = [
+  'zaanstreek','zaandam','zaanstad','koog aan de zaan','wormerveer','assendelft',
+  'krommenie','zaandijk','oostzaan','purmerend','zaankanter','purmerland',
+  ...CLUB_KEYWORDS,
+];
+
+const SPELER_KEYWORDS = [
+  'transfer','aanwinst','tekent','verlengt','speler','aanvaller','verdediger',
+  'keeper','middenvelder','doelman','debuut','selectie','oproep',
+];
+
+// Bronnen — clubs-feeds hebben geen filter (altijd relevant)
+const RSS_BRONNEN = [
+  // ── KNVB ──
+  { url: 'https://www.knvb.nl/rss',            label: 'KNVB',      categorie: 'knvb',       filter: null },
+  // ── AZ ──
+  { url: 'https://www.az.nl/nieuws/rss.xml',   label: 'AZ',        categorie: 'az',         filter: null },
+  { url: 'https://www.az.nl/feed/',            label: 'AZ',        categorie: 'az',         filter: null },
+  // ── REGIONAAL ──
+  { url: 'https://www.nhnieuws.nl/rss',        label: 'NHNieuws',  categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'voetbal'] },
+  { url: 'https://zaansnieuws.nl/feed/',       label: 'Zaansnieuws', categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'voetbal', 'sport'] },
+  // ── LANDELIJK VOETBAL (filter op Zaanstreek + clubs) ──
+  { url: 'https://feeds.nos.nl/nossportalgemeen', label: 'NOS Sport', categorie: 'zaanstreek', filter: ZAANSTREEK_FILTER },
+  { url: 'https://www.voetbalzone.nl/rss.asp', label: 'Voetbalzone', categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'az '] },
+  // ── LOKALE CLUBS (eigen feeds, geen filter nodig) ──
+  { url: 'https://www.zcfc.nl/feed/',              label: 'ZCFC',      categorie: 'clubs', filter: null },
+  { url: 'https://www.zvvzaandijk.nl/feed/',       label: 'ZVV Zaandijk', categorie: 'clubs', filter: null },
+  { url: 'https://www.fortuna-wormerveer.nl/feed/', label: 'Fortuna',   categorie: 'clubs', filter: null },
+  { url: 'https://www.sportingkrommenie.nl/feed/', label: 'Sporting Krommenie', categorie: 'clubs', filter: null },
+  { url: 'https://www.tos-actief.nl/feed/',        label: 'TOS Actief', categorie: 'clubs', filter: null },
+  { url: 'https://www.ofc-oostzaan.nl/feed/',      label: 'OFC Oostzaan', categorie: 'clubs', filter: null },
+];
+
 const NIEUWS_CACHE_KEY = 'cache:nieuws';
 const NIEUWS_CACHE_TTL = 1800; // 30 minuten
+const TWEE_MAANDEN_MS  = 60 * 24 * 60 * 60 * 1000; // 60 dagen
 
 function parseRSS(xml, bron) {
   const items = [];
@@ -238,7 +252,6 @@ function parseRSS(xml, bron) {
       return pl ? pl[1].trim() : '';
     };
 
-    // <link> staat soms als tekst tussen tags, soms als <link href="..."/>
     const linkM = /<link[^>]*>(?:<!\[CDATA\[)?(https?:[^\]<\s]+)(?:\]\]>)?<\/link>/i.exec(c)
                || /<link[^>]*href=["'](https?:[^"']+)["'][^>]*\/>/i.exec(c);
     const link = linkM ? linkM[1].trim() : get('guid').replace(/^<!\[CDATA\[|\]\]>$/g, '').trim();
@@ -246,63 +259,89 @@ function parseRSS(xml, bron) {
     const rawDesc = get('description');
     const beschrijving = rawDesc
       .replace(/<[^>]+>/g, ' ')
-      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').replace(/&#\d+;/g, '').replace(/&[a-z]+;/g, '')
-      .replace(/\s+/g, ' ').trim();
+      .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ')
+      .replace(/&#\d+;/g,'').replace(/&[a-z]+;/g,'').replace(/\s+/g,' ').trim();
 
     const titel   = get('title');
     const pubDate = get('pubDate');
     if (!titel || !link) continue;
 
+    const ts = pubDate ? new Date(pubDate).getTime() : 0;
+
+    // Sla items ouder dan 2 maanden over (maar behoud items zonder datum)
+    if (ts > 0 && ts < Date.now() - TWEE_MAANDEN_MS) continue;
+
     const tekst    = (titel + ' ' + beschrijving).toLowerCase();
     const isSpeler = SPELER_KEYWORDS.some(kw => tekst.includes(kw));
+    const isClub   = bron.categorie === 'clubs' || CLUB_KEYWORDS.some(kw => tekst.includes(kw));
 
     items.push({
       titel,
       link,
       beschrijving: beschrijving.length > 220 ? beschrijving.slice(0, 220) + '…' : beschrijving,
       pubDate,
-      datum: pubDate ? new Date(pubDate).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
-      ts:    pubDate ? new Date(pubDate).getTime() : 0,
+      datum: pubDate ? new Date(pubDate).toLocaleDateString('nl-NL', { day:'numeric', month:'short', year:'numeric' }) : '',
+      ts,
       bron:      bron.label,
-      categorie: isSpeler ? 'speler' : bron.categorie,
+      categorie: isSpeler ? 'speler' : isClub ? 'clubs' : bron.categorie,
     });
   }
   return items;
 }
 
 async function handleNieuws(request, env) {
-  // Serveer uit cache als beschikbaar
-  try {
-    const cached = await env.SUBSCRIBERS.get(NIEUWS_CACHE_KEY);
-    if (cached) return json(JSON.parse(cached));
-  } catch {}
+  const url    = new URL(request.url);
+  const forceer = url.searchParams.has('forceer');
 
-  // Haal alle RSS-bronnen parallel op (max 6 sec per bron)
+  // Serveer uit cache (tenzij forceer=true)
+  if (!forceer) {
+    try {
+      const cached = await env.SUBSCRIBERS.get(NIEUWS_CACHE_KEY);
+      if (cached) return json(JSON.parse(cached));
+    } catch {}
+  }
+
+  // Haal alle RSS-bronnen parallel op
   const resultaten = await Promise.allSettled(
     RSS_BRONNEN.map(async (bron) => {
-      const res = await fetch(bron.url, {
-        headers: { 'User-Agent': 'ZaansLicht-NewsFeed/1.0 (zaanslicht.com)' },
-        signal:  AbortSignal.timeout(6000),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const xml   = await res.text();
-      const items = parseRSS(xml, bron);
-      if (!bron.filter) return items;
-      return items.filter(item => {
-        const tekst = (item.titel + ' ' + item.beschrijving).toLowerCase();
-        return bron.filter.some(kw => tekst.includes(kw));
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 7000);
+      try {
+        const res = await fetch(bron.url, {
+          headers: { 'User-Agent': 'ZaansLicht-NewsFeed/1.0 (zaanslicht.com)' },
+          signal:  controller.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const xml   = await res.text();
+        const items = parseRSS(xml, bron);
+        if (!bron.filter) return items;
+        return items.filter(item => {
+          const tekst = (item.titel + ' ' + item.beschrijving).toLowerCase();
+          return bron.filter.some(kw => tekst.includes(kw));
+        });
+      } finally {
+        clearTimeout(timer);
+      }
     })
   );
 
-  // Combineer, dedup op URL, sorteer op datum
+  // Combineer, verwijder dubbele labels/URL's, sorteer: clubs eerst, dan op datum
   const alles  = resultaten.flatMap(r => r.status === 'fulfilled' ? r.value : []);
   const gezien = new Set();
-  const uniek  = alles.filter(i => { if (gezien.has(i.link)) return false; gezien.add(i.link); return true; });
-  uniek.sort((a, b) => b.ts - a.ts);
+  const uniek  = alles.filter(i => {
+    if (gezien.has(i.link)) return false;
+    gezien.add(i.link);
+    return true;
+  });
+  uniek.sort((a, b) => {
+    // Clubs en KNVB/AZ altijd bovenaan
+    const prioriteit = (i) => (i.categorie === 'clubs' ? 0 : i.categorie === 'knvb' || i.categorie === 'az' ? 1 : 2);
+    const pDiff = prioriteit(a) - prioriteit(b);
+    if (pDiff !== 0) return pDiff;
+    return b.ts - a.ts;
+  });
   const top60 = uniek.slice(0, 60);
 
-  // Sla 30 min op in KV
   try { await env.SUBSCRIBERS.put(NIEUWS_CACHE_KEY, JSON.stringify(top60), { expirationTtl: NIEUWS_CACHE_TTL }); } catch {}
 
   return json(top60);
