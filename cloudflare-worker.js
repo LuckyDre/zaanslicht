@@ -191,6 +191,123 @@ function buildEmail(message, unsubscribeUrl) {
 </body></html>`;
 }
 
+// ── RSS NIEUWS FEED ────────────────────────────────────────────────────────
+
+const RSS_BRONNEN = [
+  {
+    url:       'https://www.knvb.nl/rss/nieuws',
+    label:     'KNVB',
+    categorie: 'knvb',
+    filter:    null,
+  },
+  {
+    url:       'https://www.az.nl/rss',
+    label:     'AZ',
+    categorie: 'az',
+    filter:    null,
+  },
+  {
+    url:       'https://www.nhnieuws.nl/rss/nieuws',
+    label:     'NHNieuws',
+    categorie: 'zaanstreek',
+    filter:    ['zaanstreek','zaandam','zaanstad','zcfc','afc zaandam','koog aan de zaan','wormerveer','assendelft','krommenie','zaankanter','voetbal'],
+  },
+  {
+    url:       'https://zaansnieuws.nl/feed/',
+    label:     'Zaansnieuws',
+    categorie: 'zaanstreek',
+    filter:    ['voetbal','zcfc','afc','elftal','competitie','eredivisie','amateur'],
+  },
+];
+
+const SPELER_KEYWORDS = ['transfer','aanwinst','tekent','verlengt','speler','aanvaller','verdediger','keeper','middenvelder','doelman','debuut','selectie','oproep','kampioen'];
+const NIEUWS_CACHE_KEY = 'cache:nieuws';
+const NIEUWS_CACHE_TTL = 1800; // 30 minuten
+
+function parseRSS(xml, bron) {
+  const items = [];
+  const itemRgx = /<item[^>]*>([\s\S]*?)<\/item>/gi;
+  let m;
+  while ((m = itemRgx.exec(xml)) !== null) {
+    const c = m[1];
+
+    const get = (tag) => {
+      const cd = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`, 'i').exec(c);
+      if (cd) return cd[1].trim();
+      const pl = new RegExp(`<${tag}[^>]*>([^<]*)<\\/${tag}>`, 'i').exec(c);
+      return pl ? pl[1].trim() : '';
+    };
+
+    // <link> staat soms als tekst tussen tags, soms als <link href="..."/>
+    const linkM = /<link[^>]*>(?:<!\[CDATA\[)?(https?:[^\]<\s]+)(?:\]\]>)?<\/link>/i.exec(c)
+               || /<link[^>]*href=["'](https?:[^"']+)["'][^>]*\/>/i.exec(c);
+    const link = linkM ? linkM[1].trim() : get('guid').replace(/^<!\[CDATA\[|\]\]>$/g, '').trim();
+
+    const rawDesc = get('description');
+    const beschrijving = rawDesc
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').replace(/&#\d+;/g, '').replace(/&[a-z]+;/g, '')
+      .replace(/\s+/g, ' ').trim();
+
+    const titel   = get('title');
+    const pubDate = get('pubDate');
+    if (!titel || !link) continue;
+
+    const tekst    = (titel + ' ' + beschrijving).toLowerCase();
+    const isSpeler = SPELER_KEYWORDS.some(kw => tekst.includes(kw));
+
+    items.push({
+      titel,
+      link,
+      beschrijving: beschrijving.length > 220 ? beschrijving.slice(0, 220) + '…' : beschrijving,
+      pubDate,
+      datum: pubDate ? new Date(pubDate).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' }) : '',
+      ts:    pubDate ? new Date(pubDate).getTime() : 0,
+      bron:      bron.label,
+      categorie: isSpeler ? 'speler' : bron.categorie,
+    });
+  }
+  return items;
+}
+
+async function handleNieuws(request, env) {
+  // Serveer uit cache als beschikbaar
+  try {
+    const cached = await env.SUBSCRIBERS.get(NIEUWS_CACHE_KEY);
+    if (cached) return json(JSON.parse(cached));
+  } catch {}
+
+  // Haal alle RSS-bronnen parallel op (max 6 sec per bron)
+  const resultaten = await Promise.allSettled(
+    RSS_BRONNEN.map(async (bron) => {
+      const res = await fetch(bron.url, {
+        headers: { 'User-Agent': 'ZaansLicht-NewsFeed/1.0 (zaanslicht.com)' },
+        signal:  AbortSignal.timeout(6000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const xml   = await res.text();
+      const items = parseRSS(xml, bron);
+      if (!bron.filter) return items;
+      return items.filter(item => {
+        const tekst = (item.titel + ' ' + item.beschrijving).toLowerCase();
+        return bron.filter.some(kw => tekst.includes(kw));
+      });
+    })
+  );
+
+  // Combineer, dedup op URL, sorteer op datum
+  const alles  = resultaten.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+  const gezien = new Set();
+  const uniek  = alles.filter(i => { if (gezien.has(i.link)) return false; gezien.add(i.link); return true; });
+  uniek.sort((a, b) => b.ts - a.ts);
+  const top60 = uniek.slice(0, 60);
+
+  // Sla 30 min op in KV
+  try { await env.SUBSCRIBERS.put(NIEUWS_CACHE_KEY, JSON.stringify(top60), { expirationTtl: NIEUWS_CACHE_TTL }); } catch {}
+
+  return json(top60);
+}
+
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
