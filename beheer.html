@@ -218,9 +218,17 @@
           <!-- Teller + Worker URL -->
           <div class="ab-card">
             <h3>Abonnees</h3>
-            <div class="ab-count" id="ab-count">—</div>
-            <p style="font-size:0.78rem;color:#555;margin-top:0.3rem;margin-bottom:0.6rem">aangemeld voor updates</p>
-            <div id="ab-lijst" style="margin-bottom:1rem"></div>
+            <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+              <div>
+                <div class="ab-count" id="ab-count">—</div>
+                <p style="font-size:0.78rem;color:#555;margin-top:0.3rem">aangemeld voor updates</p>
+              </div>
+              <button id="ab-pauze-btn" onclick="abTogglePauze()"
+                style="padding:0.4rem 1rem;border-radius:6px;border:1px solid #444;background:transparent;color:#aaa;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.2s;margin-left:auto">
+                ⏸ Pauze
+              </button>
+            </div>
+            <div id="ab-lijst" style="margin:0.8rem 0 1rem"></div>
 
             <label style="display:flex;align-items:center;justify-content:space-between;">
               Worker URL
