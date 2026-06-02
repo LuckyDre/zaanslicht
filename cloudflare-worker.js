@@ -230,10 +230,6 @@ const RSS_BRONNEN = [
   { url: 'https://www.vi.nl/feed/news.xml',                label: 'KNVB', categorie: 'knvb', filter: ['knvb','bondscoach','nationaal elftal','oranje'] },
   { url: 'https://www.fcupdate.nl/rss',                    label: 'KNVB', categorie: 'knvb', filter: ['knvb','bondscoach','oranje','eredivisie'] },
 
-  // ── REGIONAAL — NHNieuws ──
-  { url: 'https://www.nhnieuws.nl/rss/nieuws', label: 'NHNieuws', categorie: 'zaanstreek',
-    filter: [...ZAANSTREEK_FILTER, 'voetbal'] },
-
   // ── LOKALE CLUBS (eigen feeds, bevestigd werkend) ──
   { url: 'https://www.zcfc.nl/feed/',              label: 'ZCFC',               categorie: 'clubs', filter: null },
   { url: 'https://www.zvvzaandijk.nl/feed/',       label: 'ZVV Zaandijk',       categorie: 'clubs', filter: null },
