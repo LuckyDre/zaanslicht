@@ -941,13 +941,22 @@
   });
 })();
 
-// ── NAV SCROLL ─────────────────────────────────────────────────────────────
+// ── NAV SCROLL + HAMBURGER ────────────────────────────────────────────────
 (function(){
-  const nav = document.getElementById('nav');
+  const wrap = document.getElementById('nav-wrap');
   window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 60);
+    wrap.classList.toggle('scrolled', window.scrollY > 60);
   }, { passive: true });
+
+  document.getElementById('nav-hamburger').addEventListener('click', () => {
+    document.getElementById('nav-mobile').classList.add('open');
+  });
+  document.getElementById('nav-mobile-close').addEventListener('click', sluitMenu);
 })();
+
+function sluitMenu() {
+  document.getElementById('nav-mobile').classList.remove('open');
+}
 
 // ── EASTER EGG ──────────────────────────────────────────────────────────────
 (function(){
