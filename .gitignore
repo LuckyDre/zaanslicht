@@ -4,3 +4,4 @@ admin-server.py
 .env.local
 .env.loc
 .env*
+wrangler.toml
