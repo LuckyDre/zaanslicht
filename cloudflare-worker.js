@@ -1,12 +1,13 @@
 /**
  * Zaans Licht — Cloudflare Worker
- * Beheert e-mailabonnees en verzendt nieuwsbrieven via Resend.
+ * Beheert e-mailabonnees, verzendt nieuwsbrieven en levert nieuws-feed.
  *
  * Endpoints:
  *   POST /subscribe      { email }               → abonneren
  *   POST /unsubscribe    { token }               → afmelden
  *   GET  /count          (vereist X-Worker-Secret) → { count }
  *   POST /send           (vereist X-Worker-Secret) → { subject, message } → mails versturen
+ *   GET  /nieuws                                  → geaggregeerde RSS nieuws-feed (JSON)
  *
  * Benodigde Worker-omgevingsvariabelen (in Cloudflare dashboard → Settings → Variables):
  *   WORKER_SECRET      willekeurige geheime sleutel (bijv. een lang wachtwoord)
