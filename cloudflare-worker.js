@@ -175,6 +175,54 @@ function buildEmail(message, unsubscribeUrl) {
 </body></html>`;
 }
 
+// ── VERWIJDER ABONNEE (admin) ─────────────────────────────────────────────
+async function handleDeleteSubscriber(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { email } = await request.json().catch(() => ({}));
+  if (!email) return json({ error: 'Email ontbreekt' }, 400);
+  const emailLower = email.toLowerCase().trim();
+  const raw = await env.SUBSCRIBERS.get('sub:' + emailLower);
+  if (raw) {
+    const sub = JSON.parse(raw);
+    await env.SUBSCRIBERS.delete('sub:' + emailLower);
+    if (sub.token) await env.SUBSCRIBERS.delete('tok:' + sub.token);
+  }
+  await env.SUBSCRIBERS.delete('ban:' + emailLower);
+  return json({ ok: true });
+}
+
+// ── BAN / UNBAN ABONNEE ───────────────────────────────────────────────────
+async function handleBan(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { email, ban } = await request.json().catch(() => ({}));
+  if (!email) return json({ error: 'Email ontbreekt' }, 400);
+  const emailLower = email.toLowerCase().trim();
+  if (ban) {
+    await env.SUBSCRIBERS.put('ban:' + emailLower, '1');
+  } else {
+    await env.SUBSCRIBERS.delete('ban:' + emailLower);
+  }
+  return json({ ok: true });
+}
+
+// ── PAUZE (alle mails aan/uit) ────────────────────────────────────────────
+async function handlePause(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { paused } = await request.json().catch(() => ({}));
+  if (paused) {
+    await env.SUBSCRIBERS.put('settings:paused', '1');
+  } else {
+    await env.SUBSCRIBERS.delete('settings:paused');
+  }
+  return json({ ok: true, paused });
+}
+
+async function handleGetPause(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const val = await env.SUBSCRIBERS.get('settings:paused');
+  return json({ paused: val === '1' });
+}
+
 // ── LIJST ABONNEES ────────────────────────────────────────────────────────
 async function handleSubscribers(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
