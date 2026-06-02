@@ -321,6 +321,7 @@ export default {
     if (url.pathname === '/unsubscribe' && request.method === 'POST') return handleUnsubscribe(request, env);
     if (url.pathname === '/count'       && request.method === 'GET')  return handleCount(request, env);
     if (url.pathname === '/send'        && request.method === 'POST') return handleSend(request, env);
+    if (url.pathname === '/nieuws'      && request.method === 'GET')  return handleNieuws(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
   },
