@@ -214,24 +214,28 @@ const SPELER_KEYWORDS = [
 
 // Bronnen — clubs-feeds hebben geen filter (altijd relevant)
 const RSS_BRONNEN = [
-  // ── KNVB ──
-  { url: 'https://www.knvb.nl/rss',            label: 'KNVB',      categorie: 'knvb',       filter: null },
-  // ── AZ ──
-  { url: 'https://www.az.nl/nieuws/rss.xml',   label: 'AZ',        categorie: 'az',         filter: null },
-  { url: 'https://www.az.nl/feed/',            label: 'AZ',        categorie: 'az',         filter: null },
+  // ── KNVB — via NOS en Voetbalzone (directe knvb.nl RSS bestaat niet meer) ──
+  { url: 'https://feeds.nos.nl/nossportalgemeen',  label: 'KNVB',      categorie: 'knvb',       filter: ['knvb'] },
+  { url: 'https://www.voetbalzone.nl/rss.asp',     label: 'KNVB',      categorie: 'knvb',       filter: ['knvb'] },
+
+  // ── AZ — via NOS en Voetbalzone (directe az.nl RSS onbetrouwbaar) ──
+  { url: 'https://feeds.nos.nl/nossportalgemeen',  label: 'AZ',        categorie: 'az',         filter: ['az alkmaar','alkmaar','az.nl','az-nieuws'] },
+  { url: 'https://www.voetbalzone.nl/rss.asp',     label: 'AZ',        categorie: 'az',         filter: ['az alkmaar','az speelt','az wint','az verliest','az treft','alkmaar'] },
+
   // ── REGIONAAL ──
-  { url: 'https://www.nhnieuws.nl/rss',        label: 'NHNieuws',  categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'voetbal'] },
-  { url: 'https://zaansnieuws.nl/feed/',       label: 'Zaansnieuws', categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'voetbal', 'sport'] },
-  // ── LANDELIJK VOETBAL (filter op Zaanstreek + clubs) ──
-  { url: 'https://feeds.nos.nl/nossportalgemeen', label: 'NOS Sport', categorie: 'zaanstreek', filter: ZAANSTREEK_FILTER },
-  { url: 'https://www.voetbalzone.nl/rss.asp', label: 'Voetbalzone', categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'az '] },
+  { url: 'https://www.nhnieuws.nl/rss',            label: 'NHNieuws',  categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'voetbal'] },
+  { url: 'https://zaansnieuws.nl/feed/',           label: 'Zaansnieuws', categorie: 'zaanstreek', filter: [...ZAANSTREEK_FILTER, 'voetbal', 'sport'] },
+
+  // ── NOS SPORT ZAANSTREEK ──
+  { url: 'https://feeds.nos.nl/nossportalgemeen',  label: 'NOS Sport', categorie: 'zaanstreek', filter: ZAANSTREEK_FILTER },
+
   // ── LOKALE CLUBS (eigen feeds, geen filter nodig) ──
-  { url: 'https://www.zcfc.nl/feed/',              label: 'ZCFC',      categorie: 'clubs', filter: null },
-  { url: 'https://www.zvvzaandijk.nl/feed/',       label: 'ZVV Zaandijk', categorie: 'clubs', filter: null },
-  { url: 'https://www.fortuna-wormerveer.nl/feed/', label: 'Fortuna',   categorie: 'clubs', filter: null },
+  { url: 'https://www.zcfc.nl/feed/',              label: 'ZCFC',               categorie: 'clubs', filter: null },
+  { url: 'https://www.zvvzaandijk.nl/feed/',       label: 'ZVV Zaandijk',       categorie: 'clubs', filter: null },
+  { url: 'https://www.fortuna-wormerveer.nl/feed/', label: 'Fortuna',           categorie: 'clubs', filter: null },
   { url: 'https://www.sportingkrommenie.nl/feed/', label: 'Sporting Krommenie', categorie: 'clubs', filter: null },
-  { url: 'https://www.tos-actief.nl/feed/',        label: 'TOS Actief', categorie: 'clubs', filter: null },
-  { url: 'https://www.ofc-oostzaan.nl/feed/',      label: 'OFC Oostzaan', categorie: 'clubs', filter: null },
+  { url: 'https://www.tos-actief.nl/feed/',        label: 'TOS Actief',         categorie: 'clubs', filter: null },
+  { url: 'https://www.ofc-oostzaan.nl/feed/',      label: 'OFC Oostzaan',       categorie: 'clubs', filter: null },
 ];
 
 const NIEUWS_CACHE_KEY = 'cache:nieuws';
