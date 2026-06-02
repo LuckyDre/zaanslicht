@@ -559,6 +559,13 @@ async function abHaalAantal(url, secret) {
   }
   // Haal ook de lijst op
   const lijst = document.getElementById('ab-lijst');
+  // Haal pauze-status op
+  try {
+    const rp = await fetch(url + '/pause', { headers: { 'X-Worker-Secret': secret } });
+    const dp = await rp.json();
+    abPauzeStatus(dp.paused);
+  } catch {}
+
   lijst.innerHTML = '<span style="color:#888;font-size:0.8rem">Lijst laden…</span>';
   try {
     const res2 = await fetch(url + '/subscribers', { headers: { 'X-Worker-Secret': secret } });
