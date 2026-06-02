@@ -107,10 +107,17 @@ async function handleSend(request, env) {
 
   if (!emails.length) return json({ sent: 0, message: 'Geen abonnees' });
 
-  let sent = 0;
-  let errors = 0;
+  // Controleer pauze
+  const paused = await env.SUBSCRIBERS.get('settings:paused');
+  if (paused === '1') return json({ sent: 0, message: 'Verzenden is gepauzeerd' });
+
+  let sent = 0, errors = 0, skipped = 0;
 
   for (const sub of emails) {
+    // Sla gebande abonnees over
+    const banned = await env.SUBSCRIBERS.get('ban:' + sub.email);
+    if (banned === '1') { skipped++; continue; }
+
     const unsubUrl = `https://zaanslicht.com/afmelden.html?token=${sub.token}`;
     const html = buildEmail(message, unsubUrl);
 
