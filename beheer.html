@@ -629,10 +629,16 @@ async function laadReacties() {
     await laadFirebase();
     const db = window._fbdb;
     if (!db) { container.innerHTML = '<p style="color:#ef4444">Firebase niet beschikbaar</p>'; return; }
-    const snap = await db.ref('recent_comments').orderByChild('ts').once('value');
+    // Laad alle reacties uit het volledige comments-node
+    const snap = await db.ref('comments').once('value');
     const items = [];
-    snap.forEach(c => items.push({id: c.key, ...c.val()}));
-    items.reverse();
+    snap.forEach(fotoSnap => {
+      fotoSnap.forEach(c => {
+        const val = c.val();
+        if (val && val.tekst) items.push({ id: c.key, photoKey: fotoSnap.key, ...val });
+      });
+    });
+    items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
     if (items.length === 0) {
       container.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen reacties geplaatst.</p>';
       return;
