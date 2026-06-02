@@ -584,6 +584,27 @@
     /* ═══════════════════════════════════════════════════
        RESPONSIVE
     ═══════════════════════════════════════════════════ */
+    /* Mobile nav dropdown */
+    .nav-mobile {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8,8,8,0.97); z-index: 999;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 2rem;
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      font-size: 2rem; font-weight: 700; color: var(--text);
+      letter-spacing: -1px; transition: color 0.2s;
+    }
+    .nav-mobile a:hover { color: var(--orange); }
+    .nav-mobile-close {
+      position: absolute; top: 2rem; right: 2rem;
+      background: none; border: 1px solid var(--border);
+      color: var(--text); width: 44px; height: 44px;
+      border-radius: 50%; font-size: 1.2rem;
+    }
+
     @media (max-width: 900px) {
       .bento {
         grid-template-columns: 1fr 1fr;
