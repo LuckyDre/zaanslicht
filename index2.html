@@ -643,21 +643,34 @@
 <div id="cursor-ring"></div>
 
 <!-- NAVIGATIE -->
-<nav id="nav">
-  <a href="#hero" class="nav-logo" id="logo-easter">
-    <img src="images/logo-oranje.png" alt="Zaans Licht" />
-    Zaans<span> Licht</span>
-  </a>
-  <div class="nav-links">
-    <a href="#portfolio">Portfolio</a>
-    <a href="voetbal.html">Voetbal</a>
-    <a href="nosports.html">No Sports</a>
-    <a href="clubs.html">Clubs</a>
-    <a href="#over">Over mij</a>
-    <a href="#contact" class="nav-cta">Contact</a>
-  </div>
-  <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">&#9776;</button>
-</nav>
+<div id="nav-wrap">
+  <nav id="nav">
+    <a href="#hero" class="nav-logo" id="logo-easter">
+      <img src="images/logo-oranje.png" alt="Zaans Licht" />
+      Zaans<span> Licht</span>
+    </a>
+    <div class="nav-links">
+      <a href="#portfolio">Portfolio</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="#over">Over mij</a>
+      <a href="#contact" class="nav-cta">Contact</a>
+    </div>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">&#9776;</button>
+  </nav>
+</div>
+
+<!-- MOBIEL MENU -->
+<div class="nav-mobile" id="nav-mobile">
+  <button class="nav-mobile-close" id="nav-mobile-close">&times;</button>
+  <a href="#portfolio"   onclick="sluitMenu()">Portfolio</a>
+  <a href="voetbal.html" onclick="sluitMenu()">Voetbal</a>
+  <a href="nosports.html" onclick="sluitMenu()">No Sports</a>
+  <a href="clubs.html"   onclick="sluitMenu()">Clubs</a>
+  <a href="#over"        onclick="sluitMenu()">Over mij</a>
+  <a href="#contact"     onclick="sluitMenu()">Contact</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
