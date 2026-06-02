@@ -271,7 +271,11 @@ export default {
     if (url.pathname === '/subscribe'   && request.method === 'POST') return handleSubscribe(request, env);
     if (url.pathname === '/unsubscribe' && request.method === 'POST') return handleUnsubscribe(request, env);
     if (url.pathname === '/count'       && request.method === 'GET')  return handleCount(request, env);
-    if (url.pathname === '/subscribers' && request.method === 'GET')  return handleSubscribers(request, env);
+    if (url.pathname === '/subscribers'        && request.method === 'GET')    return handleSubscribers(request, env);
+    if (url.pathname === '/delete-subscriber'  && request.method === 'POST')   return handleDeleteSubscriber(request, env);
+    if (url.pathname === '/ban'                && request.method === 'POST')   return handleBan(request, env);
+    if (url.pathname === '/pause'              && request.method === 'POST')   return handlePause(request, env);
+    if (url.pathname === '/pause'              && request.method === 'GET')    return handleGetPause(request, env);
     if (url.pathname === '/send'        && request.method === 'POST') return handleSend(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
