@@ -323,7 +323,7 @@ async function handleNieuws(request, env) {
         if (!bron.filter) return items;
         return items.filter(item => {
           const tekst = (item.titel + ' ' + item.beschrijving).toLowerCase();
-          return bron.filter.some(kw => tekst.includes(kw));
+          return matchFilter(tekst, bron.filter);
         });
       } finally {
         clearTimeout(timer);
