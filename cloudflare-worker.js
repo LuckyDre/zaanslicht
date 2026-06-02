@@ -370,7 +370,7 @@ async function handleNieuwsDebug(request, env) {
         const items = parseRSS(xml, bron);
         const filtered = bron.filter ? items.filter(item => {
           const tekst = (item.titel + ' ' + item.beschrijving).toLowerCase();
-          return bron.filter.some(kw => tekst.includes(kw));
+          return matchFilter(tekst, bron.filter);
         }) : items;
         return { url: bron.url, label: bron.label, status: res.status, contentType: ct.slice(0,40), totalItems: items.length, filteredItems: filtered.length, firstTitle: filtered[0]?.titel || items[0]?.titel || '—' };
       } catch(e) {
