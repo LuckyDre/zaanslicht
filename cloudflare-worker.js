@@ -138,7 +138,7 @@ async function handleSend(request, env) {
     if (res.ok) sent++; else errors++;
   }
 
-  return json({ sent, errors });
+  return json({ sent, errors, skipped });
 }
 
 // ── E-MAIL TEMPLATE ────────────────────────────────────────────────────────
