@@ -243,6 +243,11 @@ async function handleSubscribers(request, env) {
     cursor = result.list_complete ? undefined : result.cursor;
   } while (cursor);
 
+  // Voeg ban-status toe
+  for (const sub of list) {
+    const banned = await env.SUBSCRIBERS.get('ban:' + sub.email);
+    sub.banned = banned === '1';
+  }
   list.sort((a, b) => b.ts - a.ts);
   return json({ list });
 }
