@@ -293,8 +293,15 @@
     '</div>';
   }
 
+  // Decodeer HTML-entiteiten en escape daarna opnieuw veilig
+  function decodeHtml(str) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
+  }
   function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const decoded = decodeHtml(str);
+    return decoded.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   // ── LADEN ──────────────────────────────────────────────────
