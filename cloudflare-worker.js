@@ -351,6 +351,36 @@ async function handleNieuws(request, env) {
   return json(top60);
 }
 
+// ── DEBUG ENDPOINT ────────────────────────────────────────────────────────
+async function handleNieuwsDebug(request, env) {
+  const resultaten = await Promise.allSettled(
+    RSS_BRONNEN.map(async (bron) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 7000);
+      try {
+        const res = await fetch(bron.url, {
+          headers: { 'User-Agent': 'ZaansLicht-NewsFeed/1.0 (zaanslicht.com)' },
+          signal: controller.signal,
+        });
+        const ct = res.headers.get('content-type') || '';
+        if (!res.ok) return { url: bron.url, label: bron.label, status: res.status, error: `HTTP ${res.status}` };
+        const xml = await res.text();
+        const items = parseRSS(xml, bron);
+        const filtered = bron.filter ? items.filter(item => {
+          const tekst = (item.titel + ' ' + item.beschrijving).toLowerCase();
+          return bron.filter.some(kw => tekst.includes(kw));
+        }) : items;
+        return { url: bron.url, label: bron.label, status: res.status, contentType: ct.slice(0,40), totalItems: items.length, filteredItems: filtered.length, firstTitle: filtered[0]?.titel || items[0]?.titel || '—' };
+      } catch(e) {
+        return { url: bron.url, label: bron.label, error: e.message };
+      } finally {
+        clearTimeout(timer);
+      }
+    })
+  );
+  return json(resultaten.map(r => r.status === 'fulfilled' ? r.value : { error: r.reason?.message }));
+}
+
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
@@ -365,6 +395,7 @@ export default {
     if (url.pathname === '/count'       && request.method === 'GET')  return handleCount(request, env);
     if (url.pathname === '/send'        && request.method === 'POST') return handleSend(request, env);
     if (url.pathname === '/nieuws'      && request.method === 'GET')  return handleNieuws(request, env);
+    if (url.pathname === '/nieuws-debug' && request.method === 'GET') return handleNieuwsDebug(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
   },
