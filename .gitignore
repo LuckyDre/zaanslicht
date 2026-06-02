@@ -1,3 +1,6 @@
 images/_originelen/
 admin.html
 admin-server.py
+.env.local
+.env.loc
+.env*
