@@ -789,13 +789,24 @@ async function toonDashboard() {
     btn.disabled = true; btn.textContent = 'Bezig met uploaden…';
     fb.className = 'feedback';
 
+    const doConvert = document.getElementById('auto-convert')?.checked;
     let ok = 0, fout = 0;
     for (let i = 0; i < bestanden.length; i++) {
       const s = document.getElementById('qs-' + i);
       s.textContent = '⟳ Bezig'; s.className = 'queue-status bezig';
 
+      let uploadBestand = bestanden[i];
+      if (doConvert && isJpg(uploadBestand)) {
+        try {
+          s.textContent = '⟳ Omzetten…'; s.className = 'queue-status bezig';
+          uploadBestand = await converteerNaarWebp(uploadBestand);
+        } catch(convErr) {
+          s.textContent = '✕ Conversie mislukt'; s.className = 'queue-status fout'; fout++; continue;
+        }
+      }
+
       const form = new FormData();
-      form.append('foto', bestanden[i]);
+      form.append('foto', uploadBestand);
       form.append('map', map);
       form.append('categorie', cat);
 
