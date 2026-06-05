@@ -503,12 +503,23 @@ async function handleFotosLijst(request, env) {
     : `fotografen/${id}/`;
 
   const lijst   = await env.FOTOS.list({ prefix, limit: 500 });
-  const fotos   = lijst.objects.map(o => ({
-    key:  o.key,
-    naam: o.key.split('/').pop(),
-    url:  `https://zaanslicht-fotos.${env.CF_ACCOUNT_ID || ''}.r2.cloudflarestorage.com/${o.key}`,
-    ts:   o.uploaded?.getTime() || 0,
-  }));
+
+  // Haal verborgen mappen en fotos op
+  const [verborgenMappenRaw, verborgenFotosRaw] = await Promise.all([
+    env.SUBSCRIBERS.get('fotograaf:verborgen-mappen:' + id),
+    env.SUBSCRIBERS.get('fotograaf:verborgen-fotos:' + id),
+  ]);
+  const verborgenMappen = verborgenMappenRaw ? JSON.parse(verborgenMappenRaw) : [];
+  const verborgenFotos  = verborgenFotosRaw  ? JSON.parse(verborgenFotosRaw)  : [];
+
+  const fotos = lijst.objects
+    .filter(o => !verborgenFotos.includes(o.key))
+    .filter(o => !verborgenMappen.some(m => o.key.includes(`/${encodeURIComponent(m)}/`) || o.key.includes(`/${m}/`)))
+    .map(o => ({
+      key:  o.key,
+      naam: o.key.split('/').pop(),
+      ts:   o.uploaded?.getTime() || 0,
+    }));
 
   return json({ fotos });
 }
