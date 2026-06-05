@@ -535,6 +535,19 @@ export default {
     if (url.pathname === '/pause'              && request.method === 'GET')    return handleGetPause(request, env);
     if (url.pathname === '/send'        && request.method === 'POST') return handleSend(request, env);
 
+    // ── FOTOGRAFEN SYSTEEM ──
+    if (url.pathname === '/fotograaf/uitnodigen'  && request.method === 'POST') return handleFotograafUitnodiging(request, env);
+    if (url.pathname === '/fotograaf/register'    && request.method === 'POST') return handleFotograafRegister(request, env);
+    if (url.pathname === '/fotograaf/login'       && request.method === 'POST') return handleFotograafLogin(request, env);
+    if (url.pathname === '/fotograaf/upload'      && request.method === 'POST') return handleFotoUpload(request, env);
+    if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
+    if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return handleFotograafManifest(request, env);
+    if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
+    if (url.pathname === '/fotograaf/verwijderen' && request.method === 'POST') return handleFotograafVerwijderen(request, env);
+    if (url.pathname === '/fotograaf/foto-delete' && request.method === 'POST') return handleFotoVerwijderen(request, env);
+    if (url.pathname === '/fotograaf/kleur'       && request.method === 'POST') return handleFotograafKleur(request, env);
+    if (url.pathname.startsWith('/foto/fotografen/'))                           return handleFotoServe(request, env);
+
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
   },
 };
