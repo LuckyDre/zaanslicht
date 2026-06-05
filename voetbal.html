@@ -52,7 +52,7 @@
   ═══════════════════════════════════════════════════════ */
   header {
     position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-    display: flex; align-items: center;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 1.2rem 3rem;
     background: rgba(13,13,13,0.85);
     backdrop-filter: blur(10px);
@@ -65,19 +65,18 @@
     font-size: 1.6rem; font-weight: 800;
     letter-spacing: 2px; text-transform: uppercase;
     color: var(--text); flex-shrink: 0;
-    margin-right: 2.5rem;
   }
   .logo img { width: 40px; height: 40px; object-fit: contain; }
   .logo span { color: var(--orange); }
 
-  nav { display: flex; flex: 1; }
+  nav { display: flex; }
   nav a {
     color: var(--muted); font-size: 0.9rem;
     letter-spacing: 1px; text-transform: uppercase;
     margin-left: 2rem; transition: color 0.2s;
     padding: 0;
   }
-  nav a:hover  { color: var(--orange); background: none; }
+  nav a:hover  { color: var(--orange); }
   nav a.active { color: var(--orange); }
 
   .header-back {
