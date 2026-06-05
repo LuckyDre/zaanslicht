@@ -724,8 +724,11 @@ async function toonDashboard() {
   input.addEventListener('change', () => verwerkBestanden([...input.files]));
 
   function verwerkBestanden(files) {
-    const webps = files.filter(f => f.name.toLowerCase().endsWith('.webp') && f.size <= 15*1024*1024);
-    bestanden = [...bestanden, ...webps];
+    const toegestaan = files.filter(f => {
+      const n = f.name.toLowerCase();
+      return (n.endsWith('.webp') || n.endsWith('.jpg') || n.endsWith('.jpeg')) && f.size <= 15*1024*1024;
+    });
+    bestanden = [...bestanden, ...toegestaan];
     toonQueue();
   }
 
