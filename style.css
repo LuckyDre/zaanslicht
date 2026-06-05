@@ -146,6 +146,11 @@ nav a:hover { color: var(--oranje); }
   background-color: var(--grijs);
 }
 
+/* Eerste slide: gezichten bovenin zichtbaar */
+.hero-swiper .swiper-slide:first-child {
+  background-position: center 20%;
+}
+
 /* Animatie: elke slide begint iets ingezoomd */
 .hero-swiper .swiper-slide::before {
   content: '';
