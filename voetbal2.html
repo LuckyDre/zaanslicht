@@ -685,16 +685,19 @@ window.addEventListener('scroll', () => {
     window.scrollY > 40 ? 'rgba(8,8,8,0.97)' : 'rgba(8,8,8,0.88)';
 }, { passive: true });
 
-// ── META STATS (wacht op manifest) ────────────────────────────────────────
-function vulMeta() {
-  if (typeof window.zaansManifest !== 'undefined') {
-    const mappen = (window.zaansManifest.voetbal || []);
+// ── META STATS — eigen manifest fetch ────────────────────────────────────
+fetch('manifest.json?v=' + Date.now())
+  .then(r => r.json())
+  .then(manifest => {
+    const mappen = manifest.voetbal || [];
     const fotos  = mappen.reduce((s, m) => s + (m.fotos || []).length, 0);
-    document.getElementById('meta-fotos').textContent   = fotos.toLocaleString('nl-NL');
-    document.getElementById('meta-mappen').textContent  = mappen.length;
-  } else { setTimeout(vulMeta, 300); }
-}
-vulMeta();
+    document.getElementById('meta-fotos').textContent  = fotos.toLocaleString('nl-NL');
+    document.getElementById('meta-mappen').textContent = mappen.length;
+  })
+  .catch(() => {
+    document.getElementById('meta-fotos').textContent  = '—';
+    document.getElementById('meta-mappen').textContent = '—';
+  });
 </script>
 
 <!-- Cloudflare Web Analytics -->
