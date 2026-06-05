@@ -612,7 +612,8 @@ export default {
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
     if (url.pathname === '/fotograaf/verwijderen' && request.method === 'POST') return handleFotograafVerwijderen(request, env);
     if (url.pathname === '/fotograaf/foto-delete' && request.method === 'POST') return handleFotoVerwijderen(request, env);
-    if (url.pathname === '/fotograaf/kleur'       && request.method === 'POST') return handleFotograafKleur(request, env);
+    if (url.pathname === '/fotograaf/kleur'          && request.method === 'POST') return handleFotograafKleur(request, env);
+    if (url.pathname === '/fotograaf/delete-account' && request.method === 'POST') return handleAccountVerwijderen(request, env);
     if (url.pathname.startsWith('/foto/fotografen/'))                           return handleFotoServe(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
