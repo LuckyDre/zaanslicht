@@ -671,15 +671,26 @@ async function toonDashboard() {
       <!-- TAB: INSTELLINGEN -->
       <div class="tab-panel" id="tab-instellingen">
         <div class="form-group">
-          <label>Jouw naam op de site</label>
+          <div class="label-row">
+            <label>Jouw naam op de site</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">Je naam is ingesteld door de beheerder (Andreas). Neem contact op als je hem wilt wijzigen.</div>
+            </div>
+          </div>
           <input type="text" id="inst-naam" value="${sessie.naam}" disabled style="opacity:0.6" />
-          <small style="color:var(--muted);font-size:0.72rem;margin-top:0.3rem">Naam wordt ingesteld door de beheerder.</small>
         </div>
         <div class="form-group" style="margin-top:1rem">
-          <label>Accentkleur voor jouw foto's</label>
+          <div class="label-row">
+            <label>Accentkleur voor jouw foto's</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">Kies een kleur die bij jouw stijl past. Deze kleur verschijnt als accent bij al jouw bijdragen op de site — bij titels, iconen en knoppen.</div>
+            </div>
+          </div>
           <div class="kleur-row">
             <input type="color" id="inst-kleur" value="${sessie.kleur || '#3b82f6'}" />
-            <span class="kleur-label">Wordt gebruikt als kleur op de site bij jouw bijdragen</span>
+            <span class="kleur-label">Klik op het vlak om een kleur te kiezen</span>
           </div>
         </div>
         <button class="btn btn-primary" onclick="slaKleurOp()" style="margin-top:0.5rem">Kleur opslaan</button>
