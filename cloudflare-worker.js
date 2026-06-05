@@ -325,6 +325,52 @@ async function handleFotograafRegister(request, env) {
   const sessieToken = randomToken();
   await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, id, { expirationTtl: 30 * 24 * 3600 });
 
+  // Stuur welkomstmail via Resend
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    env.FROM_EMAIL || 'Zaans Licht <updates@zaanslicht.com>',
+        to:      account.email,
+        subject: 'Welkom bij Zaans Licht — jouw account is aangemaakt',
+        html: `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:30px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+      <tr><td style="background:#0d0d0d;padding:28px 36px;text-align:center;">
+        <p style="margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:2px;">Zaans<span style="color:#FF6B00;"> Licht</span></p>
+        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel</p>
+      </td></tr>
+      <tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
+      <tr><td style="padding:36px 36px 28px;">
+        <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#111;">Welkom, ${account.naam}! 👋</p>
+        <p style="margin:0 0 16px;font-size:15px;color:#333;line-height:1.7;">
+          Je account op Zaans Licht is aangemaakt. Je kunt nu inloggen en foto's uploaden.
+        </p>
+        <p style="margin:0 0 8px;font-size:14px;color:#555;"><strong>Inloggen:</strong> <a href="https://zaanslicht.com/fotograaf.html" style="color:#FF6B00">zaanslicht.com/fotograaf.html</a></p>
+        <p style="margin:0 0 28px;font-size:14px;color:#555;"><strong>E-mailadres:</strong> ${account.email}</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="https://zaanslicht.com/fotograaf.html" style="display:inline-block;background:#FF6B00;color:#fff;text-decoration:none;padding:13px 32px;border-radius:6px;font-weight:700;font-size:14px;letter-spacing:1px;">
+            Naar het fotograaf portaal &rarr;
+          </a>
+        </div>
+        <p style="font-size:13px;color:#888;line-height:1.6;">
+          Je kunt altijd inloggen met je e-mailadres en het wachtwoord dat je hebt ingesteld.
+          Je account heeft geen vervaldatum.
+        </p>
+      </td></tr>
+      <tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:20px 36px;text-align:center;">
+        <p style="margin:0;font-size:11px;color:#aaa;">Je ontvangt deze mail omdat je bent uitgenodigd als fotograaf op Zaans Licht.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table></body></html>`,
+      }),
+    });
+  } catch { /* mail-fout mag registratie niet blokkeren */ }
+
   return json({ ok: true, token: sessieToken, naam: account.naam, kleur: account.kleur, id });
 }
 
