@@ -25,7 +25,8 @@ def scan(category):
             for item in data.get(category, []):
                 existing_sliders[item['map']] = item.get('volgorde', 9999)
                 existing_foto_order[item['map']] = item.get('fotos', [])
-                existing_fotograaf[item['map']] = item.get('fotograaf', 'Andreas Luckfiel & Co.')
+                existing_fotograaf[item['map']]    = item.get('fotograaf', 'Andreas Luckfiel & Co.')
+                existing_beschrijving[item['map']] = item.get('beschrijving', '')
 
     items = []
     for d in cat_dir.iterdir():
