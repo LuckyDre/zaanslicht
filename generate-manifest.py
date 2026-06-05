@@ -45,12 +45,14 @@ def scan(category):
 
         item_id = re.sub(r'[^a-z0-9]+', '-', d.name.lower()).strip('-')
         volgorde = existing_sliders.get(d.name, -1)  # -1 = nieuw → bovenaan
+        fotograaf = existing_fotograaf.get(d.name, 'Andreas Luckfiel & Co.')
         items.append({
             'id': item_id,
             'naam': d.name,
             'map': d.name,
             'fotos': fotos,
-            'volgorde': volgorde
+            'volgorde': volgorde,
+            'fotograaf': fotograaf
         })
 
     # Nieuwe items bovenaan, daarna op volgorde
