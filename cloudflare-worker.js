@@ -416,7 +416,10 @@ async function handleFotoUpload(request, env) {
   const map      = (formData.get('map') || 'Mijn foto\'s').substring(0, 80);
 
   if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
-  if (!file.name.toLowerCase().endsWith('.webp')) return json({ error: 'Alleen WebP bestanden toegestaan' }, 400);
+  const naam_lower = file.name.toLowerCase();
+  const toegestaan = naam_lower.endsWith('.webp') || naam_lower.endsWith('.jpg') || naam_lower.endsWith('.jpeg');
+  if (!toegestaan) return json({ error: 'Alleen WebP of JPG bestanden toegestaan' }, 400);
+  const contentType = naam_lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
   if (file.size > 15 * 1024 * 1024) return json({ error: 'Bestand te groot (max 15MB)' }, 400);
 
   const veiligNaam = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
