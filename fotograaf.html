@@ -549,7 +549,8 @@ function toonRegistreren() {
       if (!data.ok) throw new Error(data.error || 'Registratie mislukt');
       sessie = { token: data.token, naam: data.naam, kleur: data.kleur, id: data.id };
       localStorage.setItem('zl_fotograaf', JSON.stringify(sessie));
-      toonDashboard();
+      history.replaceState(null, '', '/fotograaf.html');
+      toonDashboard(true);
     } catch(err) {
       fb.textContent = err.message; fb.className = 'feedback err';
       btn.disabled = false; btn.textContent = 'Account aanmaken →';
