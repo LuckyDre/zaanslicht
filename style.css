@@ -516,6 +516,11 @@ section:not(#hero) {
   opacity: 0.8;
 }
 
+/* Gast-fotograaf secties krijgen eigen accentkleur */
+.gast-fotograaf .portfolio-category h3::before,
+.gast-fotograaf.portfolio-category h3::before { background: var(--gast-kleur) !important; }
+.gast-fotograaf .serie-fotograaf { color: var(--gast-kleur); opacity: 1; font-style: normal; font-weight: 600; }
+
 .portfolio-category h3 {
   font-size: 1.1rem;
   letter-spacing: 3px;
