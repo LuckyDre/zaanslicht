@@ -439,10 +439,11 @@ function updateManifestFromDOM() {
       const mapNaam = el.dataset.map;
       const base    = manifest[cat].find(x => x.map === mapNaam) || {};
       // Map nooit geopend → originele fotovolgorde bewaren
-      const fotos   = el.dataset.fotosLoaded === 'true'
+      const fotos = el.dataset.fotosLoaded === 'true'
         ? Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto)
         : (base.fotos || []);
-      return { ...base, volgorde: i, fotos };
+      const fotograaf = el.dataset.fotograaf || base.fotograaf || 'Andreas Luckfiel & Co.';
+      return { ...base, volgorde: i, fotos, fotograaf };
     });
   });
 }
