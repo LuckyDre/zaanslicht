@@ -426,7 +426,7 @@ async function handleFotoUpload(request, env) {
   const r2Key = `fotografen/${fotograaf.id}/${categorie}/${encodeURIComponent(map)}/${veiligNaam}`;
 
   await env.FOTOS.put(r2Key, file.stream(), {
-    httpMetadata: { contentType: 'image/webp' },
+    httpMetadata: { contentType },
     customMetadata: { fotograafId: fotograaf.id, fotograafNaam: fotograaf.naam, map, categorie },
   });
 
