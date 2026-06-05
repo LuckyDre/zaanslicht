@@ -888,6 +888,19 @@ window.slaKleurOp = async () => {
 // ══════════════════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════════════════
+window.bladwijzerTip = (btn) => {
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+  const tip = isMac
+    ? 'Druk op Cmd+D om deze pagina op te slaan als bladwijzer.'
+    : 'Druk op Ctrl+D om deze pagina op te slaan als bladwijzer.';
+  btn.textContent = tip;
+  btn.style.background = '#166534';
+  setTimeout(() => {
+    btn.textContent = '🔖 Hoe sla ik een bladwijzer op?';
+    btn.style.background = '#22c55e';
+  }, 4000);
+};
+
 window.switchTab = (tabNaam, btn) => {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
