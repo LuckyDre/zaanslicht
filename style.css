@@ -505,6 +505,14 @@ section:not(#hero) {
   margin-bottom: 4rem;
 }
 
+.serie-beschrijving {
+  font-size: 0.85rem;
+  color: var(--tekst-dim);
+  line-height: 1.65;
+  margin: 0.4rem 0 1rem;
+  max-width: 720px;
+}
+
 .serie-fotograaf {
   font-size: 0.72rem;
   font-weight: 400;
