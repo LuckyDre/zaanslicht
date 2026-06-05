@@ -884,6 +884,38 @@ window.uitloggen = () => {
   sessie = null;
   toonInloggen();
 };
+
+window.verwijderAccount = async () => {
+  if (!confirm('Weet je het zeker?\n\nJe account én alle geüploade foto\'s worden permanent verwijderd.\nDit kan niet ongedaan worden gemaakt.')) return;
+  if (!confirm('Laatste kans — echt alles verwijderen?')) return;
+
+  const btn = document.querySelector('[onclick="verwijderAccount()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Bezig…'; }
+
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/delete-account', {
+      method: 'POST',
+      headers: { 'X-Fotograaf-Token': sessie.token },
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Onbekende fout');
+
+    localStorage.removeItem('zl_fotograaf');
+    sessie = null;
+
+    // Toon bevestiging
+    document.getElementById('main-content').innerHTML = `
+      <div class="card" style="text-align:center">
+        <div style="font-size:3rem;margin-bottom:1rem">✓</div>
+        <h2 style="margin-bottom:0.5rem">Account verwijderd</h2>
+        <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem">Je account en alle foto's zijn verwijderd.</p>
+        <a href="index.html" style="display:inline-block;background:var(--accent);color:#fff;padding:0.7rem 1.5rem;border-radius:var(--radius);font-weight:700;text-decoration:none">← Terug naar de site</a>
+      </div>`;
+  } catch(e) {
+    if (btn) { btn.disabled = false; btn.textContent = '🗑 Mijn account en foto\'s verwijderen'; }
+    alert('Fout bij verwijderen: ' + e.message);
+  }
+};
 </script>
 
 <!-- Cloudflare Web Analytics -->
