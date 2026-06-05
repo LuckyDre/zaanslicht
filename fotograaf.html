@@ -492,7 +492,13 @@ function toonRegistreren() {
       <p class="card-sub">Je bent uitgenodigd om foto's te delen op Zaans Licht. Kies een wachtwoord en je accentkleur.</p>
       <form id="register-form">
         <div class="form-group">
-          <label>Wachtwoord</label>
+          <div class="label-row">
+            <label>Wachtwoord</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">Kies een wachtwoord van minimaal 8 tekens. Onthoud het goed — je hebt het nodig om later in te loggen.</div>
+            </div>
+          </div>
           <input type="password" id="reg-pw" placeholder="Minimaal 8 tekens" minlength="8" required />
         </div>
         <div class="form-group">
@@ -500,7 +506,13 @@ function toonRegistreren() {
           <input type="password" id="reg-pw2" placeholder="••••••••" required />
         </div>
         <div class="form-group">
-          <label>Jouw accentkleur</label>
+          <div class="label-row">
+            <label>Jouw accentkleur</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">Deze kleur wordt als accent gebruikt bij jouw foto's op de site. Je kunt hem later altijd aanpassen via Instellingen.</div>
+            </div>
+          </div>
           <div class="kleur-row">
             <input type="color" id="reg-kleur" value="#3b82f6" />
             <span class="kleur-label">Wordt gebruikt als kleur voor jouw foto's op de site</span>
