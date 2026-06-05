@@ -341,9 +341,12 @@ async function handleFotograafUitnodiging(request, env) {
 </table></td></tr></table></body></html>`,
       }),
     });
-  } catch { /* mail-fout mag uitnodiging niet blokkeren */ }
+  } catch(mailErr) {
+    // Mail mislukt — maar uitnodiging is wel aangemaakt
+    return json({ ok: true, mailFout: String(mailErr) });
+  }
 
-  return json({ ok: true });
+  return json({ ok: true, mailVerstuurd: true });
 }
 
 // ── REGISTREREN ────────────────────────────────────────────────────────────
