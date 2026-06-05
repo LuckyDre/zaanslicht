@@ -505,6 +505,17 @@ section:not(#hero) {
   margin-bottom: 4rem;
 }
 
+.serie-fotograaf {
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--tekst-dim);
+  margin-left: 0.8rem;
+  text-transform: none;
+  font-style: italic;
+  opacity: 0.8;
+}
+
 .portfolio-category h3 {
   font-size: 1.1rem;
   letter-spacing: 3px;
