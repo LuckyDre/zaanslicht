@@ -99,6 +99,91 @@
     line-height: 1.6;
   }
 
+  /* ── TOOLTIP HELP ── */
+  .help-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  .help-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--muted); font-size: 0.65rem; font-weight: 700;
+    cursor: default; flex-shrink: 0; margin-left: 0.4rem;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+  .help-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .help-tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%; transform: translateX(-50%);
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.75rem; font-weight: 400; text-transform: none;
+    line-height: 1.5; letter-spacing: 0;
+    color: #ccc;
+    width: 220px; max-width: 90vw;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    z-index: 100;
+    pointer-events: none;
+    white-space: normal;
+  }
+  .help-tip::after {
+    content: '';
+    position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1e1e1e;
+  }
+  .help-wrap:hover .help-tip { display: block; }
+
+  /* Label rij met help knop */
+  .label-row {
+    display: flex; align-items: center; gap: 0;
+  }
+
+  /* ── HANDLEIDING ── */
+  .handleiding {
+    background: rgba(255,107,0,0.06);
+    border: 1px solid rgba(255,107,0,0.2);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .handleiding-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.2rem; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; color: var(--accent);
+  }
+  .handleiding-header:hover { background: rgba(255,107,0,0.04); }
+  .handleiding-header span { font-size: 0.75rem; color: var(--muted); font-weight: 400; }
+  .handleiding-body {
+    display: none;
+    padding: 0 1.2rem 1.2rem;
+    border-top: 1px solid rgba(255,107,0,0.15);
+  }
+  .handleiding-body.open { display: block; }
+  .handleiding-stap {
+    display: flex; gap: 0.8rem; align-items: flex-start;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.82rem; color: #bbb; line-height: 1.5;
+  }
+  .handleiding-stap:last-child { border-bottom: none; }
+  .handleiding-nr {
+    background: var(--accent); color: #fff;
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
   /* ── FORM ── */
   .form-group {
     display: flex;
