@@ -29,8 +29,8 @@ function vulHeroEnStart(fotos, thema) {
   const teksten = HERO_TEKSTEN[thema] || HERO_TEKSTEN.voetbal;
   wrapper.innerHTML = fotos.slice(0, 5).map((f, i) => {
     const t = teksten[i % teksten.length];
-    // Eerste foto: trainers gezichten bovenin — iets omlaag schuiven zodat ze onder de nav vallen
-    const pos = i === 0 ? 'background-position: center 30%;' : '';
+    // Eerste foto: trainers gezichten bovenin — nav is ~120px, foto top 120px omlaag zetten
+    const pos = i === 0 ? 'background-position: center top;' : '';
     return `<div class="swiper-slide" style="background-image: url('${f.src}');${pos}">
       <div class="slide-overlay"><h1>${t.h1}</h1><p>${t.p}</p></div>
     </div>`;
