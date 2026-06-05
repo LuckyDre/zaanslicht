@@ -626,6 +626,142 @@ async function fgLaadLijst() {
   }
 }
 
+async function fgLaadStatus(id) {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  try {
+    const res  = await fetch(url + '/fotograaf/verborgen?id=' + id, { headers: { 'X-Worker-Secret': secret } });
+    const data = await res.json();
+    const btn  = document.getElementById('fg-blok-' + id);
+    if (!btn) return;
+    if (data.geblokkeerd) {
+      btn.textContent = '🔓 Deblokkeer';
+      btn.style.borderColor = '#ef4444';
+      btn.style.color = '#ef4444';
+    } else {
+      btn.textContent = '🔒 Blokkeer';
+      btn.style.borderColor = '#444';
+      btn.style.color = '#aaa';
+    }
+    btn.dataset.geblokkeerd = data.geblokkeerd ? '1' : '0';
+    btn.dataset.verborgenMappen = JSON.stringify(data.verborgenMappen || []);
+  } catch {}
+}
+
+async function fgToggleBlokkeer(id) {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const btn    = document.getElementById('fg-blok-' + id);
+  const huidig = btn?.dataset.geblokkeerd === '1';
+  try {
+    await fetch(url + '/fotograaf/blokkeer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id, geblokkeerd: !huidig }),
+    });
+    fgLaadStatus(id);
+  } catch(e) { alert('Fout: ' + e.message); }
+}
+
+async function fgToggleMappen(id) {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const paneel = document.getElementById('fg-mappen-' + id);
+  if (!paneel) return;
+
+  if (paneel.style.display !== 'none') { paneel.style.display = 'none'; return; }
+  paneel.style.display = 'block';
+  paneel.innerHTML = '<p style="font-size:0.75rem;color:#555">Laden…</p>';
+
+  try {
+    const [fotosRes, statusRes] = await Promise.all([
+      fetch(url + '/fotograaf/fotos?id=' + id, { headers: { 'X-Worker-Secret': secret } }),
+      fetch(url + '/fotograaf/verborgen?id=' + id, { headers: { 'X-Worker-Secret': secret } }),
+    ]);
+    const fotosData  = await fotosRes.json();
+    const statusData = await statusRes.json();
+    const verborgenM = statusData.verborgenMappen || [];
+    const verborgenF = statusData.verborgenFotos  || [];
+
+    // Groepeer per map
+    const mapGroepen = {};
+    (fotosData.fotos || []).forEach(f => {
+      const delen = f.key.split('/');
+      const mapNaam = decodeURIComponent(delen[3] || 'Overig');
+      if (!mapGroepen[mapNaam]) mapGroepen[mapNaam] = [];
+      mapGroepen[mapNaam].push(f);
+    });
+
+    if (!Object.keys(mapGroepen).length) {
+      paneel.innerHTML = '<p style="font-size:0.75rem;color:#555">Geen foto\'s geüpload.</p>';
+      return;
+    }
+
+    paneel.innerHTML = Object.entries(mapGroepen).map(([mapNaam, fotos]) => {
+      const verborgen = verborgenM.includes(mapNaam);
+      return `<div style="margin-bottom:0.8rem">
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem">
+          <span style="font-size:0.8rem;font-weight:700;color:#ccc;flex:1">📁 ${escB(mapNaam)} <span style="color:#555;font-weight:400">(${fotos.length} foto's)</span></span>
+          <button onclick="fgToggleMap('${id}','${escB(mapNaam)}',this)" data-verborgen="${verborgen}"
+            style="background:transparent;border:1px solid ${verborgen ? '#ef4444' : '#333'};color:${verborgen ? '#ef4444' : '#666'};padding:0.2rem 0.6rem;border-radius:4px;font-size:0.7rem;cursor:pointer">
+            ${verborgen ? '👁 Toon' : '🚫 Verberg'}
+          </button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.3rem">
+          ${fotos.map(f => {
+            const hidden = verborgenF.includes(f.key);
+            const naam = f.naam;
+            return `<span onclick="fgToggleFoto('${id}','${f.key}',this)" data-verborgen="${hidden}"
+              title="${naam}"
+              style="cursor:pointer;padding:0.15rem 0.4rem;border-radius:4px;font-size:0.65rem;font-family:monospace;
+                     background:${hidden ? '#3a1a1a' : '#1e2a1e'};color:${hidden ? '#ef4444' : '#4ade80'};
+                     border:1px solid ${hidden ? '#ef444444' : '#22c55e44'}">
+              ${hidden ? '✕' : '✓'} ${naam.substring(0, 12)}
+            </span>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    paneel.innerHTML = `<p style="font-size:0.75rem;color:#ef4444">Fout: ${e.message}</p>`;
+  }
+}
+
+async function fgToggleMap(id, mapNaam, btn) {
+  const url     = localStorage.getItem('zl_worker_url');
+  const secret  = localStorage.getItem('zl_worker_secret');
+  const verberg = btn.dataset.verborgen !== 'true';
+  try {
+    await fetch(url + '/fotograaf/verberg-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id, map: mapNaam, verborgen: verberg }),
+    });
+    btn.dataset.verborgen = verberg ? 'true' : 'false';
+    btn.textContent = verberg ? '👁 Toon' : '🚫 Verberg';
+    btn.style.borderColor = verberg ? '#ef4444' : '#333';
+    btn.style.color = verberg ? '#ef4444' : '#666';
+  } catch(e) { alert('Fout: ' + e.message); }
+}
+
+async function fgToggleFoto(id, key, el) {
+  const url     = localStorage.getItem('zl_worker_url');
+  const secret  = localStorage.getItem('zl_worker_secret');
+  const verberg = el.dataset.verborgen !== 'true';
+  try {
+    await fetch(url + '/fotograaf/verberg-foto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id, key, verborgen: verberg }),
+    });
+    el.dataset.verborgen = verberg ? 'true' : 'false';
+    el.style.background = verberg ? '#3a1a1a' : '#1e2a1e';
+    el.style.color = verberg ? '#ef4444' : '#4ade80';
+    el.style.borderColor = verberg ? '#ef444444' : '#22c55e44';
+    el.innerHTML = `${verberg ? '✕' : '✓'} ${el.innerHTML.split(' ').slice(1).join(' ')}`;
+  } catch(e) { alert('Fout: ' + e.message); }
+}
+
 async function fgVerwijder(id, naam) {
   if (!confirm(`Fotograaf "${naam}" verwijderen?\n\nAlle geüploade foto's worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.`)) return;
   const url    = localStorage.getItem('zl_worker_url');
