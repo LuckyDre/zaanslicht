@@ -259,6 +259,263 @@ async function handleSubscribers(request, env) {
   return json({ list });
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// FOTOGRAFEN SYSTEEM
+// ══════════════════════════════════════════════════════════════════════════
+
+// KV keys:
+//   fotograaf:invite:{token}   → { naam, email, expires }
+//   fotograaf:account:{id}     → { id, naam, email, kleur, passwordHash, ts }
+//   fotograaf:token:{token}    → id  (sessie-token na inloggen)
+//   fotograaf:mappen:{id}      → [{ map, categorie, ts }]  (eigen mappen)
+
+// R2 keys:  fotografen/{id}/{categorie}/{map}/{filename}.webp
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function randomToken(bytes = 24) {
+  return Array.from(crypto.getRandomValues(new Uint8Array(bytes)))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function hashPassword(password) {
+  const enc  = new TextEncoder().encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function getFotograafByToken(token, env) {
+  const id  = await env.SUBSCRIBERS.get('fotograaf:token:' + token);
+  if (!id) return null;
+  const raw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
+  return raw ? JSON.parse(raw) : null;
+}
+
+// ── UITNODIGEN ─────────────────────────────────────────────────────────────
+async function handleFotograafUitnodiging(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { naam, email } = await request.json().catch(() => ({}));
+  if (!naam || !email) return json({ error: 'Naam en email verplicht' }, 400);
+
+  const token   = randomToken();
+  const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 dagen
+  await env.SUBSCRIBERS.put('fotograaf:invite:' + token, JSON.stringify({ naam, email, expires }), { expirationTtl: 7 * 24 * 3600 });
+
+  const link = `https://zaanslicht.com/fotograaf.html?invite=${token}`;
+  return json({ ok: true, link });
+}
+
+// ── REGISTREREN ────────────────────────────────────────────────────────────
+async function handleFotograafRegister(request, env) {
+  const { inviteToken, password, kleur } = await request.json().catch(() => ({}));
+  if (!inviteToken || !password) return json({ error: 'Invite token en wachtwoord verplicht' }, 400);
+
+  const raw = await env.SUBSCRIBERS.get('fotograaf:invite:' + inviteToken);
+  if (!raw) return json({ error: 'Ongeldige of verlopen uitnodiging' }, 400);
+
+  const invite = JSON.parse(raw);
+  if (Date.now() > invite.expires) return json({ error: 'Uitnodiging verlopen' }, 400);
+
+  const id           = randomToken(8);
+  const passwordHash = await hashPassword(password);
+  const account      = { id, naam: invite.naam, email: invite.email, kleur: kleur || '#3b82f6', passwordHash, ts: Date.now() };
+
+  await env.SUBSCRIBERS.put('fotograaf:account:' + id, JSON.stringify(account));
+  await env.SUBSCRIBERS.delete('fotograaf:invite:' + inviteToken);
+
+  const sessieToken = randomToken();
+  await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, id, { expirationTtl: 30 * 24 * 3600 });
+
+  return json({ ok: true, token: sessieToken, naam: account.naam, kleur: account.kleur, id });
+}
+
+// ── INLOGGEN ───────────────────────────────────────────────────────────────
+async function handleFotograafLogin(request, env) {
+  const { email, password } = await request.json().catch(() => ({}));
+  if (!email || !password) return json({ error: 'Email en wachtwoord verplicht' }, 400);
+
+  // Zoek account op email
+  let found = null;
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+      if (a.email.toLowerCase() === email.toLowerCase()) { found = a; break; }
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor && !found);
+
+  if (!found) return json({ error: 'Onbekend e-mailadres' }, 401);
+
+  const hash = await hashPassword(password);
+  if (hash !== found.passwordHash) return json({ error: 'Onjuist wachtwoord' }, 401);
+
+  const sessieToken = randomToken();
+  await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, found.id, { expirationTtl: 30 * 24 * 3600 });
+
+  return json({ ok: true, token: sessieToken, naam: found.naam, kleur: found.kleur, id: found.id });
+}
+
+// ── FOTO UPLOADEN ──────────────────────────────────────────────────────────
+async function handleFotoUpload(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const formData = await request.formData().catch(() => null);
+  if (!formData) return json({ error: 'Geen formData' }, 400);
+
+  const file     = formData.get('foto');
+  const categorie = (formData.get('categorie') || 'eigen').toLowerCase().replace(/[^a-z0-9]/g, '-');
+  const map      = (formData.get('map') || 'Mijn foto\'s').substring(0, 80);
+
+  if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
+  if (!file.name.toLowerCase().endsWith('.webp')) return json({ error: 'Alleen WebP bestanden toegestaan' }, 400);
+  if (file.size > 15 * 1024 * 1024) return json({ error: 'Bestand te groot (max 15MB)' }, 400);
+
+  const veiligNaam = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const r2Key = `fotografen/${fotograaf.id}/${categorie}/${encodeURIComponent(map)}/${veiligNaam}`;
+
+  await env.FOTOS.put(r2Key, file.stream(), {
+    httpMetadata: { contentType: 'image/webp' },
+    customMetadata: { fotograafId: fotograaf.id, fotograafNaam: fotograaf.naam, map, categorie },
+  });
+
+  // Bijhouden welke mappen de fotograaf heeft
+  const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograaf.id);
+  const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
+  if (!mappen.find(m => m.map === map && m.categorie === categorie)) {
+    mappen.push({ map, categorie, ts: Date.now() });
+    await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
+  }
+
+  return json({ ok: true, key: r2Key, naam: veiligNaam });
+}
+
+// ── FOTO'S OPHALEN ─────────────────────────────────────────────────────────
+async function handleFotosLijst(request, env) {
+  const url       = new URL(request.url);
+  const id        = url.searchParams.get('id');
+  const categorie = url.searchParams.get('categorie');
+
+  if (!id) return json({ error: 'id verplicht' }, 400);
+
+  const prefix  = categorie
+    ? `fotografen/${id}/${categorie}/`
+    : `fotografen/${id}/`;
+
+  const lijst   = await env.FOTOS.list({ prefix, limit: 500 });
+  const fotos   = lijst.objects.map(o => ({
+    key:  o.key,
+    naam: o.key.split('/').pop(),
+    url:  `https://zaanslicht-fotos.${env.CF_ACCOUNT_ID || ''}.r2.cloudflarestorage.com/${o.key}`,
+    ts:   o.uploaded?.getTime() || 0,
+  }));
+
+  return json({ fotos });
+}
+
+// ── MANIFEST VOOR GASTFOTOGRAFEN ───────────────────────────────────────────
+async function handleFotograafManifest(request, env) {
+  // Geeft een manifest-achtige structuur terug van alle gastfotografen
+  const accounts = [];
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+      const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
+      const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
+      accounts.push({ id: a.id, naam: a.naam, kleur: a.kleur, mappen });
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor);
+
+  return json({ fotografen: accounts });
+}
+
+// ── LIJST FOTOGRAFEN (admin) ───────────────────────────────────────────────
+async function handleFotograafLijst(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const lijst = [];
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+      const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
+      lijst.push({ id: a.id, naam: a.naam, email: a.email, kleur: a.kleur, ts: a.ts, aantalMappen: mappenRaw ? JSON.parse(mappenRaw).length : 0 });
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor);
+  return json({ fotografen: lijst });
+}
+
+// ── FOTOGRAAF VERWIJDEREN (admin) ──────────────────────────────────────────
+async function handleFotograafVerwijderen(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id } = await request.json().catch(() => ({}));
+  if (!id) return json({ error: 'id verplicht' }, 400);
+
+  // Verwijder account + mappen-index
+  await env.SUBSCRIBERS.delete('fotograaf:account:' + id);
+  await env.SUBSCRIBERS.delete('fotograaf:mappen:' + id);
+
+  // Verwijder alle R2 foto's van deze fotograaf
+  const lijst = await env.FOTOS.list({ prefix: `fotografen/${id}/`, limit: 1000 });
+  for (const obj of lijst.objects) { await env.FOTOS.delete(obj.key); }
+
+  return json({ ok: true });
+}
+
+// ── FOTO VERWIJDEREN (eigen foto) ──────────────────────────────────────────
+async function handleFotoVerwijderen(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { key } = await request.json().catch(() => ({}));
+  if (!key) return json({ error: 'key verplicht' }, 400);
+
+  // Controleer dat de key bij deze fotograaf hoort
+  if (!key.startsWith(`fotografen/${fotograaf.id}/`)) return json({ error: 'Geen toegang tot dit bestand' }, 403);
+
+  await env.FOTOS.delete(key);
+  return json({ ok: true });
+}
+
+// ── KLEUR BIJWERKEN ────────────────────────────────────────────────────────
+async function handleFotograafKleur(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { kleur } = await request.json().catch(() => ({}));
+  if (!kleur || !/^#[0-9a-fA-F]{6}$/.test(kleur)) return json({ error: 'Ongeldige kleur' }, 400);
+
+  fotograaf.kleur = kleur;
+  await env.SUBSCRIBERS.put('fotograaf:account:' + fotograaf.id, JSON.stringify(fotograaf));
+  return json({ ok: true, kleur });
+}
+
+// ── FOTO SERVEREN VIA WORKER (publiek toegankelijk) ───────────────────────
+async function handleFotoServe(request, env) {
+  const url = new URL(request.url);
+  const key = url.pathname.replace('/foto/', '');
+  if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
+
+  const object = await env.FOTOS.get(key);
+  if (!object) return new Response('Niet gevonden', { status: 404 });
+
+  return new Response(object.body, {
+    headers: {
+      'Content-Type': 'image/webp',
+      'Cache-Control': 'public, max-age=31536000',
+      'Access-Control-Allow-Origin': '*',
+    },
+  });
+}
+
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
 export default {
   async fetch(request, env, ctx) {
