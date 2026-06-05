@@ -563,10 +563,10 @@ async function fgUitnodig() {
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Fout');
-    document.getElementById('fg-invite-link').value = data.link;
-    res_div.style.display = '';
     document.getElementById('fg-naam').value  = '';
     document.getElementById('fg-email').value = '';
+    fb.textContent = `✓ Uitnodigingsmail verstuurd naar ${email}. De fotograaf ontvangt een persoonlijke link die 7 dagen geldig is.`;
+    fb.style.display = ''; fb.style.color = '#22c55e';
   } catch(e) {
     fb.textContent = '⚠ ' + e.message; fb.style.display = ''; fb.style.color = '#ef4444';
   }
