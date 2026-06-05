@@ -561,7 +561,7 @@ function toonRegistreren() {
 // ══════════════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════════════
-async function toonDashboard() {
+async function toonDashboard(nieuwAangemeld = false) {
   document.getElementById('main-content').innerHTML = `
     <div class="card" style="max-width:680px">
       <div class="dash-header">
