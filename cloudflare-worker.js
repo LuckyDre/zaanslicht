@@ -159,7 +159,7 @@ function buildEmail(message, unsubscribeUrl) {
         <p style="margin:0;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:2px;">
           Zaans<span style="color:#FF6B00;"> Licht</span>
         </p>
-        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel</p>
+        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel & Co.</p>
       </td></tr>
       <tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
       <tr><td style="padding:36px 36px 28px;">
@@ -341,7 +341,7 @@ async function handleFotograafRegister(request, env) {
     <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
       <tr><td style="background:#0d0d0d;padding:28px 36px;text-align:center;">
         <p style="margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:2px;">Zaans<span style="color:#FF6B00;"> Licht</span></p>
-        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel</p>
+        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel & Co.</p>
       </td></tr>
       <tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
       <tr><td style="padding:36px 36px 28px;">

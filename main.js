@@ -1,18 +1,18 @@
 // ===== HERO SLIDER (wordt geïnitialiseerd na het laden van foto's) =====
 const HERO_TEKSTEN = {
   voetbal: [
-    { h1: 'Het Zaanse <span>licht</span>',       p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'Elk moment <span>telt</span>',         p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'Actie en <span>emotie</span>',         p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'Zaans <span>voetbal</span>',           p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Het Zaanse <span>licht</span>',       p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'Elk moment <span>telt</span>',         p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'Actie en <span>emotie</span>',         p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'Zaans <span>voetbal</span>',           p: 'Fotografie door Andreas Luckfiel & Co.' },
   ],
   nosports: [
-    { h1: 'Voorbij <span>de sport</span>',        p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'Licht en <span>landschap</span>',      p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'Mensen en <span>momenten</span>',      p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel' },
-    { h1: 'Architectuur en <span>natuur</span>',  p: 'Fotografie door Andreas Luckfiel' },
+    { h1: 'Voorbij <span>de sport</span>',        p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'Licht en <span>landschap</span>',      p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'Mensen en <span>momenten</span>',      p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'De Zaanstreek <span>in beeld</span>',  p: 'Fotografie door Andreas Luckfiel & Co.' },
+    { h1: 'Architectuur en <span>natuur</span>',  p: 'Fotografie door Andreas Luckfiel & Co.' },
   ],
 };
 
