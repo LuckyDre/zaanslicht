@@ -690,7 +690,7 @@ window.addEventListener('scroll', () => {
 fetch('manifest.json?v=' + Date.now())
   .then(r => r.json())
   .then(manifest => {
-    const mappen = manifest.voetbal || [];
+    const mappen = manifest.nosports || [];
     const fotos  = mappen.reduce((s, m) => s + (m.fotos || []).length, 0);
     document.getElementById('meta-fotos').textContent  = fotos.toLocaleString('nl-NL');
     document.getElementById('meta-mappen').textContent = mappen.length;
