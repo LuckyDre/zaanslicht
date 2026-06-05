@@ -81,7 +81,7 @@ async function loadGallery() { // returns Promise
       }).join('');
 
       div.innerHTML = `
-        <h3>${item.naam}</h3>
+        <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}</h3>
         <div class="swiper portfolio-swiper">
           <div class="swiper-wrapper">${slides}</div>
           <div class="swiper-button-prev"></div>
