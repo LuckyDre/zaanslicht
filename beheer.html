@@ -435,8 +435,9 @@ function updateManifestFromDOM() {
       const fotos = el.dataset.fotosLoaded === 'true'
         ? Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto)
         : (base.fotos || []);
-      const fotograaf = el.dataset.fotograaf || base.fotograaf || 'Andreas Luckfiel & Co.';
-      return { ...base, volgorde: i, fotos, fotograaf };
+      const fotograaf    = el.dataset.fotograaf    || base.fotograaf    || 'Andreas Luckfiel & Co.';
+      const beschrijving = el.dataset.beschrijving !== undefined ? el.dataset.beschrijving : (base.beschrijving || '');
+      return { ...base, volgorde: i, fotos, fotograaf, beschrijving };
     });
   });
 }
