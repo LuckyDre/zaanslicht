@@ -463,8 +463,9 @@ function renderCategorie(cat) {
     li.className          = 'slider-item';
     li.dataset.map        = item.map;
     li.dataset.cat        = cat;
-    li.dataset.fotosLoaded = 'false';
-    li.dataset.fotograaf  = item.fotograaf || 'Andreas Luckfiel & Co.';
+    li.dataset.fotosLoaded  = 'false';
+    li.dataset.fotograaf    = item.fotograaf   || 'Andreas Luckfiel & Co.';
+    li.dataset.beschrijving = item.beschrijving || '';
 
     li.innerHTML = `
       <div class="slider-header" onclick="toggleOpen(this)">
@@ -473,13 +474,23 @@ function renderCategorie(cat) {
         <span class="slider-count">${item.fotos.length} foto's</span>
         <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
       </div>
-      <div class="fotograaf-row" style="padding:0.4rem 1rem 0.6rem;display:flex;align-items:center;gap:0.5rem;border-top:1px solid #222;">
+      <div class="fotograaf-row" style="padding:0.4rem 1rem 0.3rem;display:flex;align-items:center;gap:0.5rem;border-top:1px solid #222;">
         <span style="font-size:0.72rem;color:#555;flex-shrink:0">Fotograaf:</span>
         <input type="text" class="fotograaf-input" value="${item.fotograaf || 'Andreas Luckfiel & Co.'}"
           style="flex:1;background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none"
           onclick="event.stopPropagation()"
           onchange="this.closest('.slider-item').dataset.fotograaf=this.value;dirty=true;"
           onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
+      </div>
+      <div style="padding:0.3rem 1rem 0.6rem;display:flex;align-items:flex-start;gap:0.5rem;border-bottom:1px solid #1a1a1a;">
+        <span style="font-size:0.72rem;color:#555;flex-shrink:0;margin-top:0.3rem">Verhaal:</span>
+        <textarea class="beschrijving-input" rows="2"
+          style="flex:1;background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;resize:vertical;font-family:inherit"
+          onclick="event.stopPropagation()"
+          onchange="this.closest('.slider-item').dataset.beschrijving=this.value;dirty=true;"
+          onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'"
+          placeholder="Kort wedstrijdverslag of beschrijving (goed voor Google)..."
+        >${item.beschrijving || ''}</textarea>
       </div>
       <div class="foto-grid"></div>`;
 
