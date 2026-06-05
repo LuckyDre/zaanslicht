@@ -454,6 +454,9 @@ async function handleFotoUpload(request, env) {
   const fotograaf = await getFotograafByToken(authToken, env);
   if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
 
+  const geblokkeerd = await env.SUBSCRIBERS.get('fotograaf:geblokkeerd:' + fotograaf.id);
+  if (geblokkeerd === '1') return json({ error: 'Je account is tijdelijk geblokkeerd.' }, 403);
+
   const formData = await request.formData().catch(() => null);
   if (!formData) return json({ error: 'Geen formData' }, 400);
 
