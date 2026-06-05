@@ -533,6 +533,24 @@ async function handleFotoVerwijderen(request, env) {
   return json({ ok: true });
 }
 
+// ── EIGEN ACCOUNT VERWIJDEREN ─────────────────────────────────────────────
+async function handleAccountVerwijderen(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  // Verwijder alle R2 foto's
+  const lijst = await env.FOTOS.list({ prefix: `fotografen/${fotograaf.id}/`, limit: 1000 });
+  for (const obj of lijst.objects) { await env.FOTOS.delete(obj.key); }
+
+  // Verwijder KV data
+  await env.SUBSCRIBERS.delete('fotograaf:account:' + fotograaf.id);
+  await env.SUBSCRIBERS.delete('fotograaf:mappen:' + fotograaf.id);
+  await env.SUBSCRIBERS.delete('fotograaf:token:' + authToken);
+
+  return json({ ok: true });
+}
+
 // ── KLEUR BIJWERKEN ────────────────────────────────────────────────────────
 async function handleFotograafKleur(request, env) {
   const authToken = request.headers.get('X-Fotograaf-Token');
