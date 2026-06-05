@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fotograaf Portal — Zaans Licht</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700&display=swap" rel="stylesheet" />
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --accent:  #FF6B00;
+    --black:   #080808;
+    --s1:      #111;
+    --s2:      #181818;
+    --border:  rgba(255,255,255,0.08);
+    --text:    #F0F0F0;
+    --muted:   #666;
+    --font:    'Space Grotesk', system-ui, sans-serif;
+    --mono:    'Space Mono', monospace;
+    --radius:  12px;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font-family: var(--font); cursor: pointer; }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,8,0.9);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 1.4rem; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .logo img { width: 32px; height: 32px; object-fit: contain; }
+  .logo span { color: var(--accent); }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .card-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card-label::before {
+    content: ''; display: block;
+    width: 16px; height: 1px;
+    background: var(--accent);
+  }
+
+  .card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.4rem;
+  }
+
+  .card-sub {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  /* ── FORM ── */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: rgba(240,240,240,0.7);
+    text-transform: uppercase;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"],
+  input[type="color"] {
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+
+  .btn {
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: var(--radius);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #ff8c33; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #333; color: var(--muted); transform: none; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .feedback {
+    margin-top: 1rem;
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    display: none;
+  }
+  .feedback.ok  { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; display: block; }
+  .feedback.err { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: #f87171; display: block; }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(255,107,0,0.04);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+  }
+  .upload-zone .uz-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .upload-zone .uz-titel {
+    font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem;
+  }
+  .upload-zone .uz-sub { font-size: 0.8rem; color: var(--muted); }
+
+  /* ── UPLOAD QUEUE ── */
+  .upload-queue {
+    margin-top: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.82rem;
+  }
+  .queue-item img {
+    width: 44px; height: 44px;
+    object-fit: cover; border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .queue-naam { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .queue-size { color: var(--muted); flex-shrink: 0; font-family: var(--mono); font-size: 0.72rem; }
+  .queue-status { flex-shrink: 0; font-size: 0.75rem; }
+  .queue-status.wacht { color: var(--muted); }
+  .queue-status.bezig { color: #fbbf24; }
+  .queue-status.ok    { color: #4ade80; }
+  .queue-status.fout  { color: #f87171; }
+
+  /* ── KLEUR PICKER ── */
+  .kleur-row {
+    display: flex; align-items: center; gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .kleur-row input[type="color"] {
+    width: 48px; height: 48px;
+    padding: 0.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .kleur-label { font-size: 0.82rem; color: var(--muted); }
+
+  /* ── DASHBOARD (na inlog) ── */
+  .dash-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; gap: 0.8rem;
+  }
+  .dash-naam {
+    font-size: 1.4rem; font-weight: 700;
+  }
+  .dash-badge {
+    font-size: 0.72rem; font-family: var(--mono);
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 0.25rem 0.7rem; border-radius: 100px;
+    border: 1px solid var(--border); color: var(--muted);
+  }
+
+  .tabs {
+    display: flex; gap: 0.3rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .tab-btn {
+    background: none; border: none;
+    color: var(--muted); font-size: 0.82rem;
+    font-weight: 600; letter-spacing: 0.5px;
+    padding: 0.6rem 1rem;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all 0.2s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── MAPPEN OVERZICHT ── */
+  .mappen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .map-card {
+    background: var(--s2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .map-card:hover { border-color: var(--accent); }
+  .map-card .mc-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+  .map-card .mc-naam { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .map-card .mc-cat  { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* ── UITLOGGEN ── */
+  .logout-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 0.35rem 0.9rem;
+    border-radius: 8px; font-size: 0.78rem; transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+  @media (max-width: 600px) {
+    header { padding: 1rem 1.2rem; }
+    .card  { padding: 1.5rem; }
+  }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="images/logo-oranje.png" alt="Zaans Licht" />
+    Zaans<span> Licht</span>
+  </div>
+  <a href="index.html" style="font-size:0.8rem;color:var(--muted)">← Terug naar site</a>
+</header>
+
+<main id="main-content">
+  <!-- Wordt ingevuld door JavaScript -->
+  <div class="card">
+    <p style="color:var(--muted);text-align:center;font-family:var(--mono);font-size:0.85rem">Laden…</p>
+  </div>
+</main>
+
+<script>
+const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+const params = new URLSearchParams(window.location.search);
+const inviteToken = params.get('invite');
+
+// ── Laad opgeslagen sessie ────────────────────────────────────────────────
+let sessie = JSON.parse(localStorage.getItem('zl_fotograaf') || 'null');
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessie?.token) {
+    toonDashboard();
+  } else if (inviteToken) {
+    toonRegistreren();
+  } else {
+    toonInloggen();
+  }
+});
+
+// ══════════════════════════════════════════════════════
+// INLOGGEN
+// ══════════════════════════════════════════════════════
+function toonInloggen() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="card">
+      <p class="card-label">Fotograaf Portal</p>
+      <h2>Inloggen</h2>
+      <p class="card-sub">Log in met je e-mailadres en wachtwoord om foto's te uploaden.</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label>E-mailadres</label>
+          <input type="email" id="login-email" placeholder="jouw@email.nl" required />
+        </div>
+        <div class="form-group">
+          <label>Wachtwoord</label>
+          <input type="password" id="login-pw" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Inloggen →</button>
+      </form>
+      <div id="login-feedback" class="feedback"></div>
+    </div>`;
+
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Bezig…';
+    const fb = document.getElementById('login-feedback');
+    fb.className = 'feedback';
+
+    try {
+      const res  = await fetch(WORKER + '/fotograaf/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:    document.getElementById('login-email').value.trim(),
+          password: document.getElementById('login-pw').value,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Inloggen mislukt');
+      sessie = { token: data.token, naam: data.naam, kleur: data.kleur, id: data.id };
+      localStorage.setItem('zl_fotograaf', JSON.stringify(sessie));
+      toonDashboard();
+    } catch(err) {
+      fb.textContent = err.message; fb.className = 'feedback err';
+      btn.disabled = false; btn.textContent = 'Inloggen →';
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// REGISTREREN (via invite link)
+// ══════════════════════════════════════════════════════
+function toonRegistreren() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="card">
+      <p class="card-label">Welkom bij Zaans Licht</p>
+      <h2>Account aanmaken</h2>
+      <p class="card-sub">Je bent uitgenodigd om foto's te delen op Zaans Licht. Kies een wachtwoord en je accentkleur.</p>
+      <form id="register-form">
+        <div class="form-group">
+          <label>Wachtwoord</label>
+          <input type="password" id="reg-pw" placeholder="Minimaal 8 tekens" minlength="8" required />
+        </div>
+        <div class="form-group">
+          <label>Herhaal wachtwoord</label>
+          <input type="password" id="reg-pw2" placeholder="••••••••" required />
+        </div>
+        <div class="form-group">
+          <label>Jouw accentkleur</label>
+          <div class="kleur-row">
+            <input type="color" id="reg-kleur" value="#3b82f6" />
+            <span class="kleur-label">Wordt gebruikt als kleur voor jouw foto's op de site</span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Account aanmaken →</button>
+      </form>
+      <div id="reg-feedback" class="feedback"></div>
+    </div>`;
+
+  document.getElementById('register-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const fb  = document.getElementById('reg-feedback');
+    const pw  = document.getElementById('reg-pw').value;
+    const pw2 = document.getElementById('reg-pw2').value;
+
+    if (pw !== pw2) { fb.textContent = 'Wachtwoorden komen niet overeen.'; fb.className = 'feedback err'; return; }
+
+    btn.disabled = true; btn.textContent = 'Bezig…';
+    fb.className = 'feedback';
+
+    try {
+      const res  = await fetch(WORKER + '/fotograaf/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inviteToken, password: pw,
+          kleur: document.getElementById('reg-kleur').value,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Registratie mislukt');
+      sessie = { token: data.token, naam: data.naam, kleur: data.kleur, id: data.id };
+      localStorage.setItem('zl_fotograaf', JSON.stringify(sessie));
+      toonDashboard();
+    } catch(err) {
+      fb.textContent = err.message; fb.className = 'feedback err';
+      btn.disabled = false; btn.textContent = 'Account aanmaken →';
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+async function toonDashboard() {
+  document.getElementById('main-content').innerHTML = `
+    <div class="card" style="max-width:680px">
+      <div class="dash-header">
+        <div>
+          <div class="dash-naam" id="dash-naam">Welkom, ${sessie.naam}</div>
+          <div style="font-size:0.8rem;color:var(--muted);margin-top:0.2rem">Jouw foto's op Zaans Licht</div>
+        </div>
+        <button class="logout-btn" onclick="uitloggen()">Uitloggen</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('upload', this)">📤 Uploaden</button>
+        <button class="tab-btn" onclick="switchTab('mappen', this)">📁 Mijn mappen</button>
+        <button class="tab-btn" onclick="switchTab('instellingen', this)">⚙️ Instellingen</button>
+      </div>
+
+      <!-- TAB: UPLOAD -->
+      <div class="tab-panel active" id="tab-upload">
+        <div class="form-group">
+          <label>Categorie</label>
+          <select id="up-categorie" style="background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:0.75rem 1rem;font-family:var(--font);font-size:0.95rem;outline:none;width:100%">
+            <option value="voetbal">⚽ Voetbal</option>
+            <option value="nosports">🌄 No Sports</option>
+            <option value="eigen">📸 Eigen pagina</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Map / albumtitel</label>
+          <input type="text" id="up-map" placeholder="bijv. ZCFC - Ajax (Vriendschappelijk)" maxlength="80" />
+        </div>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="file-input" accept=".webp,image/webp" multiple />
+          <div class="uz-icon">📷</div>
+          <div class="uz-titel">Sleep WebP foto's hierheen</div>
+          <div class="uz-sub">of klik om bestanden te kiezen · max 15MB per foto</div>
+        </div>
+        <div class="upload-queue" id="upload-queue"></div>
+        <button class="btn btn-primary" id="upload-btn" onclick="startUpload()" style="display:none;margin-top:1rem">
+          📤 Uploaden starten
+        </button>
+        <div id="upload-feedback" class="feedback"></div>
+      </div>
+
+      <!-- TAB: MAPPEN -->
+      <div class="tab-panel" id="tab-mappen">
+        <div id="mappen-inhoud">
+          <p style="color:var(--muted);font-size:0.85rem">Laden…</p>
+        </div>
+      </div>
+
+      <!-- TAB: INSTELLINGEN -->
+      <div class="tab-panel" id="tab-instellingen">
+        <div class="form-group">
+          <label>Jouw naam op de site</label>
+          <input type="text" id="inst-naam" value="${sessie.naam}" disabled style="opacity:0.6" />
+          <small style="color:var(--muted);font-size:0.72rem;margin-top:0.3rem">Naam wordt ingesteld door de beheerder.</small>
+        </div>
+        <div class="form-group" style="margin-top:1rem">
+          <label>Accentkleur voor jouw foto's</label>
+          <div class="kleur-row">
+            <input type="color" id="inst-kleur" value="${sessie.kleur || '#3b82f6'}" />
+            <span class="kleur-label">Wordt gebruikt als kleur op de site bij jouw bijdragen</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="slaKleurOp()" style="margin-top:0.5rem">Kleur opslaan</button>
+        <div id="inst-feedback" class="feedback"></div>
+      </div>
+    </div>`;
+
+  // Stijl accentkleur dynamisch
+  document.documentElement.style.setProperty('--accent', sessie.kleur || '#FF6B00');
+
+  // Upload zone drag & drop
+  const zone  = document.getElementById('upload-zone');
+  const input = document.getElementById('file-input');
+  let bestanden = [];
+
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    verwerkBestanden([...e.dataTransfer.files]);
+  });
+  input.addEventListener('change', () => verwerkBestanden([...input.files]));
+
+  function verwerkBestanden(files) {
+    const webps = files.filter(f => f.name.toLowerCase().endsWith('.webp') && f.size <= 15*1024*1024);
+    bestanden = [...bestanden, ...webps];
+    toonQueue();
+  }
+
+  function toonQueue() {
+    const queue = document.getElementById('upload-queue');
+    const btn   = document.getElementById('upload-btn');
+    queue.innerHTML = bestanden.map((f, i) => `
+      <div class="queue-item" id="qi-${i}">
+        <div class="uz-icon" style="font-size:1.2rem">🖼</div>
+        <span class="queue-naam">${f.name}</span>
+        <span class="queue-size">${(f.size/1024/1024).toFixed(1)} MB</span>
+        <span class="queue-status wacht" id="qs-${i}">Wacht</span>
+      </div>`).join('');
+    btn.style.display = bestanden.length ? '' : 'none';
+  }
+
+  window.startUpload = async () => {
+    const btn  = document.getElementById('upload-btn');
+    const map  = document.getElementById('up-map').value.trim();
+    const cat  = document.getElementById('up-categorie').value;
+    const fb   = document.getElementById('upload-feedback');
+
+    if (!map) { fb.textContent = 'Vul een mapnaam in.'; fb.className = 'feedback err'; return; }
+    if (!bestanden.length) return;
+
+    btn.disabled = true; btn.textContent = 'Bezig met uploaden…';
+    fb.className = 'feedback';
+
+    let ok = 0, fout = 0;
+    for (let i = 0; i < bestanden.length; i++) {
+      const s = document.getElementById('qs-' + i);
+      s.textContent = '⟳ Bezig'; s.className = 'queue-status bezig';
+
+      const form = new FormData();
+      form.append('foto', bestanden[i]);
+      form.append('map', map);
+      form.append('categorie', cat);
+
+      try {
+        const res  = await fetch(WORKER + '/fotograaf/upload', {
+          method: 'POST',
+          headers: { 'X-Fotograaf-Token': sessie.token },
+          body: form,
+        });
+        const data = await res.json();
+        if (data.ok) { s.textContent = '✓'; s.className = 'queue-status ok'; ok++; }
+        else { s.textContent = '✕ ' + (data.error || 'fout'); s.className = 'queue-status fout'; fout++; }
+      } catch {
+        s.textContent = '✕ verbinding'; s.className = 'queue-status fout'; fout++;
+      }
+    }
+
+    btn.disabled = false; btn.textContent = '📤 Uploaden starten';
+    if (ok > 0) {
+      fb.textContent = `✓ ${ok} foto${ok > 1 ? "'s" : ''} geüpload${fout ? `, ${fout} mislukt` : ''}`;
+      fb.className = 'feedback ok';
+      bestanden = bestanden.filter((_, i) => document.getElementById('qs-' + i)?.className?.includes('fout'));
+    }
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// INSTELLINGEN
+// ══════════════════════════════════════════════════════
+window.slaKleurOp = async () => {
+  const kleur = document.getElementById('inst-kleur').value;
+  const fb    = document.getElementById('inst-feedback');
+  fb.className = 'feedback';
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/kleur', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ kleur }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    sessie.kleur = kleur;
+    localStorage.setItem('zl_fotograaf', JSON.stringify(sessie));
+    document.documentElement.style.setProperty('--accent', kleur);
+    fb.textContent = '✓ Kleur opgeslagen!'; fb.className = 'feedback ok';
+  } catch(e) {
+    fb.textContent = 'Fout: ' + e.message; fb.className = 'feedback err';
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+window.switchTab = (tabNaam, btn) => {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tabNaam)?.classList.add('active');
+  btn?.classList.add('active');
+};
+
+window.uitloggen = () => {
+  localStorage.removeItem('zl_fotograaf');
+  sessie = null;
+  toonInloggen();
+};
+</script>
+
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
+</body>
+</html>
