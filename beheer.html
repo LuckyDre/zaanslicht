@@ -258,6 +258,48 @@
       </div>
     </div>
 
+    <!-- ═══ FOTOGRAFEN TAB ═══ -->
+    <div id="tab-fotografen" class="tab-panel">
+      <div style="padding:1.5rem 2rem;max-width:900px">
+
+        <!-- Uitnodigen -->
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.5rem;margin-bottom:2rem">
+          <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:1.2rem">📩 Fotograaf uitnodigen</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.8rem;align-items:end">
+            <div>
+              <label style="display:block;font-size:0.75rem;color:#666;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:1px">Naam</label>
+              <input type="text" id="fg-naam" placeholder="Jan de Fotograaf" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;color:#fff;padding:0.6rem 0.8rem;font-size:0.85rem" />
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;color:#666;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:1px">E-mailadres</label>
+              <input type="email" id="fg-email" placeholder="jan@foto.nl" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;color:#fff;padding:0.6rem 0.8rem;font-size:0.85rem" />
+            </div>
+            <button onclick="fgUitnodig()" style="background:#FF6B00;border:none;color:#fff;padding:0.6rem 1.2rem;border-radius:6px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap">
+              Uitnodiging genereren →
+            </button>
+          </div>
+          <div id="fg-invite-result" style="margin-top:1rem;display:none">
+            <p style="font-size:0.78rem;color:#888;margin-bottom:0.4rem">Stuur deze link naar de fotograaf (geldig 7 dagen):</p>
+            <div style="display:flex;gap:0.6rem;align-items:center">
+              <input type="text" id="fg-invite-link" readonly style="flex:1;background:#111;border:1px solid #333;border-radius:6px;color:#FF6B00;padding:0.5rem 0.8rem;font-size:0.78rem;font-family:monospace" />
+              <button onclick="fgKopieer()" style="background:#333;border:none;color:#ccc;padding:0.5rem 0.8rem;border-radius:6px;font-size:0.78rem;cursor:pointer">📋 Kopieer</button>
+            </div>
+          </div>
+          <p id="fg-uitnodig-feedback" style="font-size:0.8rem;margin-top:0.8rem;display:none"></p>
+        </div>
+
+        <!-- Fotografen lijst -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888">Actieve fotografen</h3>
+          <button onclick="fgLaadLijst()" style="background:none;border:1px solid #333;color:#666;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.75rem;cursor:pointer">↺ Vernieuwen</button>
+        </div>
+        <div id="fg-lijst" style="display:flex;flex-direction:column;gap:0.8rem">
+          <p style="color:#555;font-size:0.85rem">Laden…</p>
+        </div>
+
+      </div>
+    </div>
+
     <div id="tab-reacties" class="tab-panel">
       <div style="padding:1.5rem 2rem">
         <p style="color:#888;font-size:0.85rem;margin-bottom:1.2rem">Klik op 🗑 om een reactie te verwijderen. Verwijdering is onomkeerbaar.</p>
