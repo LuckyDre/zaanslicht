@@ -732,17 +732,49 @@ async function toonDashboard() {
     toonQueue();
   }
 
+  function isJpg(f) { const n = f.name.toLowerCase(); return n.endsWith('.jpg') || n.endsWith('.jpeg'); }
+
   function toonQueue() {
-    const queue = document.getElementById('upload-queue');
-    const btn   = document.getElementById('upload-btn');
-    queue.innerHTML = bestanden.map((f, i) => `
-      <div class="queue-item" id="qi-${i}">
-        <div class="uz-icon" style="font-size:1.2rem">🖼</div>
+    const queue   = document.getElementById('upload-queue');
+    const btn     = document.getElementById('upload-btn');
+    const convert = document.getElementById('auto-convert')?.checked;
+    queue.innerHTML = bestanden.map((f, i) => {
+      const jpg = isJpg(f);
+      const tag = jpg && convert ? '<span style="font-size:0.65rem;background:rgba(255,107,0,0.2);color:var(--accent);border-radius:4px;padding:0.1rem 0.4rem;flex-shrink:0">→ WebP</span>' : '';
+      return `<div class="queue-item" id="qi-${i}">
+        <div style="font-size:1.2rem">${jpg ? '🖼️' : '🌐'}</div>
         <span class="queue-naam">${f.name}</span>
+        ${tag}
         <span class="queue-size">${(f.size/1024/1024).toFixed(1)} MB</span>
         <span class="queue-status wacht" id="qs-${i}">Wacht</span>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     btn.style.display = bestanden.length ? '' : 'none';
+  }
+
+  // Herrender queue als convert-checkbox verandert
+  document.getElementById('auto-convert')?.addEventListener('change', toonQueue);
+
+  // Converteer JPG naar WebP via Canvas
+  async function converteerNaarWebp(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width  = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(blob => {
+          if (!blob) { reject(new Error('Conversie mislukt')); return; }
+          const webpNaam = file.name.replace(/\.(jpg|jpeg)$/i, '.webp');
+          resolve(new File([blob], webpNaam, { type: 'image/webp' }));
+        }, 'image/webp', 0.88);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Afbeelding kon niet worden geladen')); };
+      img.src = url;
+    });
   }
 
   window.startUpload = async () => {
