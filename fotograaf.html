@@ -557,6 +557,36 @@ async function toonDashboard() {
         <button class="logout-btn" onclick="uitloggen()">Uitloggen</button>
       </div>
 
+      <!-- HANDLEIDING -->
+      <div class="handleiding">
+        <div class="handleiding-header" onclick="this.nextElementSibling.classList.toggle('open')">
+          📖 Hoe werkt het?
+          <span>Klik om de handleiding te openen ▾</span>
+        </div>
+        <div class="handleiding-body">
+          <div class="handleiding-stap">
+            <div class="handleiding-nr">1</div>
+            <div><strong>Kies een categorie</strong> — Voetbal of No Sports plaatst jouw foto's in de bestaande galerij. Kies "Eigen pagina" voor een eigen album dat alleen jouw naam draagt.</div>
+          </div>
+          <div class="handleiding-stap">
+            <div class="handleiding-nr">2</div>
+            <div><strong>Geef een mapnaam op</strong> — Dit wordt de titel van jouw album op de site. Gebruik een duidelijke naam, bijv. de wedstrijdnaam of een korte omschrijving.</div>
+          </div>
+          <div class="handleiding-stap">
+            <div class="handleiding-nr">3</div>
+            <div><strong>Sleep je WebP-bestanden</strong> in het uploadvak of klik om ze te kiezen. Alleen .webp-bestanden worden geaccepteerd, maximaal 15 MB per foto.</div>
+          </div>
+          <div class="handleiding-stap">
+            <div class="handleiding-nr">4</div>
+            <div><strong>Klik op "Uploaden starten"</strong> — De foto's worden één voor één geüpload. Je ziet per foto of het gelukt is.</div>
+          </div>
+          <div class="handleiding-stap">
+            <div class="handleiding-nr">5</div>
+            <div><strong>Jouw foto's verschijnen automatisch</strong> op de site onder jouw naam en met jouw accentkleur. Je kunt die kleur aanpassen via het tabblad ⚙️ Instellingen.</div>
+          </div>
+        </div>
+      </div>
+
       <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('upload', this)">📤 Uploaden</button>
         <button class="tab-btn" onclick="switchTab('mappen', this)">📁 Mijn mappen</button>
@@ -566,7 +596,17 @@ async function toonDashboard() {
       <!-- TAB: UPLOAD -->
       <div class="tab-panel active" id="tab-upload">
         <div class="form-group">
-          <label>Categorie</label>
+          <div class="label-row">
+            <label>Categorie</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">
+                <strong>Voetbal</strong> — foto's komen in de voetbalgalerij.<br>
+                <strong>No Sports</strong> — landschap, mensen, architectuur.<br>
+                <strong>Eigen pagina</strong> — een apart album op de site onder jouw naam.
+              </div>
+            </div>
+          </div>
           <select id="up-categorie" style="background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:0.75rem 1rem;font-family:var(--font);font-size:0.95rem;outline:none;width:100%">
             <option value="voetbal">⚽ Voetbal</option>
             <option value="nosports">🌄 No Sports</option>
@@ -574,8 +614,27 @@ async function toonDashboard() {
           </select>
         </div>
         <div class="form-group">
-          <label>Map / albumtitel</label>
+          <div class="label-row">
+            <label>Map / albumtitel</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">
+                Dit wordt de naam van jouw album op de site. Gebruik een duidelijke titel, bijv. <em>"ZCFC – Ajax 2-1"</em> of <em>"Zaanse haven zonsondergang"</em>. Max. 80 tekens.
+              </div>
+            </div>
+          </div>
           <input type="text" id="up-map" placeholder="bijv. ZCFC - Ajax (Vriendschappelijk)" maxlength="80" />
+        </div>
+        <div class="form-group">
+          <div class="label-row">
+            <label>Foto's</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">
+                Alleen <strong>.webp</strong> bestanden worden geaccepteerd. Max. 15 MB per foto. Je kunt meerdere bestanden tegelijk uploaden.
+              </div>
+            </div>
+          </div>
         </div>
         <div class="upload-zone" id="upload-zone">
           <input type="file" id="file-input" accept=".webp,image/webp" multiple />
