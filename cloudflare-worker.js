@@ -301,7 +301,49 @@ async function handleFotograafUitnodiging(request, env) {
   await env.SUBSCRIBERS.put('fotograaf:invite:' + token, JSON.stringify({ naam, email, expires }), { expirationTtl: 7 * 24 * 3600 });
 
   const link = `https://zaanslicht.com/fotograaf.html?invite=${token}`;
-  return json({ ok: true, link });
+
+  // Stuur uitnodigingsmail via Resend
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from:    env.FROM_EMAIL || 'Zaans Licht <updates@zaanslicht.com>',
+        to:      email,
+        subject: `${naam}, je bent uitgenodigd als fotograaf op Zaans Licht`,
+        html: `<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:30px 0;">
+<tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:10px;overflow:hidden;">
+<tr><td style="background:#0d0d0d;padding:28px 36px;text-align:center;">
+  <p style="margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:2px;">Zaans<span style="color:#FF6B00;"> Licht</span></p>
+  <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel & Co.</p>
+</td></tr>
+<tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
+<tr><td style="padding:36px;">
+  <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#111;">Hoi ${naam}! 👋</p>
+  <p style="margin:0 0 20px;font-size:15px;color:#333;line-height:1.7;">Je bent uitgenodigd om foto's te delen op <strong>Zaans Licht</strong>. Klik op de knop hieronder om je account aan te maken.</p>
+  <div style="background:#f8f8f8;border-left:4px solid #FF6B00;padding:14px 18px;border-radius:4px;margin:0 0 24px;">
+    <p style="margin:0;font-size:13px;color:#555;line-height:1.9;">
+      💡 <strong>Bewaar deze mail goed</strong> — de link is 7 dagen geldig en eenmalig te gebruiken.<br>
+      🔐 <strong>Kies een sterk wachtwoord</strong> — minimaal 8 tekens, iets wat je goed onthoudt.<br>
+      🔖 <strong>Sla de pagina daarna op als bladwijzer</strong> — zo kom je altijd snel terug.
+    </p>
+  </div>
+  <div style="text-align:center;margin:28px 0;">
+    <a href="${link}" style="display:inline-block;background:#FF6B00;color:#fff;text-decoration:none;padding:14px 36px;border-radius:6px;font-weight:700;font-size:15px;">Account aanmaken &rarr;</a>
+  </div>
+  <p style="font-size:12px;color:#aaa;text-align:center;margin-top:16px;">Of kopieer deze link: <span style="color:#FF6B00;word-break:break-all;">${link}</span></p>
+</td></tr>
+<tr><td style="background:#f9f9f9;border-top:1px solid #eee;padding:16px 36px;text-align:center;">
+  <p style="margin:0;font-size:11px;color:#aaa;">Zaans Licht — uitnodiging voor gastfotograaf</p>
+</td></tr>
+</table></td></tr></table></body></html>`,
+      }),
+    });
+  } catch { /* mail-fout mag uitnodiging niet blokkeren */ }
+
+  return json({ ok: true });
 }
 
 // ── REGISTREREN ────────────────────────────────────────────────────────────
