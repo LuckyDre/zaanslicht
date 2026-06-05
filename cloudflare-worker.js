@@ -19,7 +19,7 @@
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin':  'https://zaanslicht.com',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Worker-Secret',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Worker-Secret, X-Fotograaf-Token',
 };
 
 function json(data, status = 200) {
