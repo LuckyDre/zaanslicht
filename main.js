@@ -209,6 +209,96 @@ function bindTegel(id, fn) {
 
 loadTegels();
 loadRecentComments();
+laadGastTegels();
+
+// ── GASTFOTOGRAAF TEGELS ──────────────────────────────────────────────────
+const WORKER_URL_MAIN = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+async function laadGastTegels() {
+  try {
+    const res  = await fetch(WORKER_URL_MAIN + '/fotograaf/manifest');
+    const data = await res.json();
+    const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
+    if (!fotografen.length) return;
+
+    const grid = document.querySelector('.tegel-grid');
+    if (!grid) return;
+
+    // Scheidingslijn vóór de gast-tegels
+    const sep = document.createElement('div');
+    sep.style.cssText = 'grid-column:1/-1;border-top:1px solid rgba(255,255,255,0.07);margin:0.5rem 0;';
+    grid.appendChild(sep);
+
+    for (const fg of fotografen) {
+      // Haal foto's op
+      const fotosRes = await fetch(`${WORKER_URL_MAIN}/fotograaf/fotos?id=${fg.id}`);
+      const fotosData = await fotosRes.json();
+      const fotos = (fotosData.fotos || []).map(f => ({
+        src:  `${WORKER_URL_MAIN}/foto/${f.key}`,
+        path: f.key
+      }));
+      if (!fotos.length) continue;
+
+      const kleur  = fg.kleur || '#3b82f6';
+      const prefix = `gast-${fg.id}`;
+
+      // Tegel 1: hoofd-tegel fotograaf
+      const t1 = maakGastTegel(`${prefix}-main`, kleur, `
+        <div class="tegel-icon">📸</div>
+        <h2>${fg.naam}</h2>
+        <p>Foto's van ${fg.naam}</p>`);
+      t1.addEventListener('click', () => {
+        const cat = fg.mappen[0]?.categorie || 'voetbal';
+        window.location.href = cat === 'nosports' ? 'nosports.html' : 'voetbal.html';
+      });
+
+      // Tegel 2: verrassing (random 10)
+      const t2 = maakGastTegel(`${prefix}-random`, kleur, `
+        <div class="tegel-icon">&#127922;</div>
+        <h2>Verrassing</h2>
+        <p>10 willekeurige foto's van ${fg.naam}</p>`);
+      t2.addEventListener('click', () => startSlideshow(shuffle(fotos).slice(0, 10)));
+
+      // Tegel 3: alle foto's slideshow
+      const t3 = maakGastTegel(`${prefix}-alle`, kleur, `
+        <div class="tegel-icon">&#128247;</div>
+        <h2>Alles</h2>
+        <p>Alle foto's van ${fg.naam}</p>`);
+      t3.addEventListener('click', () => startSlideshow(fotos));
+
+      // Achtergronden instellen
+      if (fotos.length > 0) {
+        const pick = (arr, n) => shuffle(arr).slice(0, n);
+        [t1, t2, t3].forEach((t, i) => {
+          const bg = t.querySelector('.tegel-bg');
+          if (bg && fotos[i % fotos.length]) {
+            bg.style.backgroundImage = `url('${fotos[i % fotos.length].src}')`;
+          }
+        });
+      }
+
+      grid.appendChild(t1);
+      grid.appendChild(t2);
+      grid.appendChild(t3);
+    }
+  } catch(e) {
+    console.warn('Gast-tegels niet geladen:', e);
+  }
+}
+
+function maakGastTegel(id, kleur, inhoud) {
+  const div = document.createElement('div');
+  div.className = 'tegel';
+  div.id = id;
+  div.role = 'button';
+  div.tabIndex = 0;
+  div.style.setProperty('--gast-kleur', kleur);
+  div.innerHTML = `
+    <div class="tegel-bg" style="background-size:cover;background-position:center"></div>
+    <div class="tegel-content" style="--oranje:${kleur}">${inhoud}</div>`;
+  div.addEventListener('keydown', e => { if (e.key === 'Enter') div.click(); });
+  return div;
+}
 
 // ===== LAATSTE REACTIES WIDGET =====
 function escHtmlM(s) {
