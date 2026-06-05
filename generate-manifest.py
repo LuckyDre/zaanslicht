@@ -17,6 +17,7 @@ def scan(category):
     # Laad bestaande manifest voor volgorde-bewaring
     existing_sliders = {}
     existing_foto_order = {}
+    existing_fotograaf = {}
     manifest_file = SITE / 'manifest.json'
     if manifest_file.exists():
         with open(manifest_file, encoding='utf-8') as f:
@@ -24,6 +25,7 @@ def scan(category):
             for item in data.get(category, []):
                 existing_sliders[item['map']] = item.get('volgorde', 9999)
                 existing_foto_order[item['map']] = item.get('fotos', [])
+                existing_fotograaf[item['map']] = item.get('fotograaf', 'Andreas Luckfiel & Co.')
 
     items = []
     for d in cat_dir.iterdir():
