@@ -570,8 +570,13 @@ async function fgUitnodig() {
     if (!data.ok) throw new Error(data.error || 'Fout');
     document.getElementById('fg-naam').value  = '';
     document.getElementById('fg-email').value = '';
-    fb.textContent = `✓ Uitnodigingsmail verstuurd naar ${email}. De fotograaf ontvangt een persoonlijke link die 7 dagen geldig is.`;
-    fb.style.display = ''; fb.style.color = '#22c55e';
+    if (data.mailFout) {
+      fb.textContent = `⚠ Uitnodiging aangemaakt maar mail mislukt: ${data.mailFout}. Controleer de Resend API-sleutel in Cloudflare.`;
+      fb.style.display = ''; fb.style.color = '#f59e0b';
+    } else {
+      fb.textContent = `✓ Uitnodigingsmail verstuurd naar ${email}. De fotograaf ontvangt een persoonlijke link die 7 dagen geldig is.`;
+      fb.style.display = ''; fb.style.color = '#22c55e';
+    }
   } catch(e) {
     fb.textContent = '⚠ ' + e.message; fb.style.display = ''; fb.style.color = '#ef4444';
   }
