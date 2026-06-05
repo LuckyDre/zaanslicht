@@ -37,6 +37,11 @@
     color: var(--text);
     font-family: var(--font);
     overflow-x: hidden;
+    animation: pageFadeIn 0.22s ease;
+  }
+  @keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   a { color: inherit; text-decoration: none; }
