@@ -575,6 +575,69 @@ async function handleFotoVerwijderen(request, env) {
   return json({ ok: true });
 }
 
+// ── ACCOUNT BLOKKEREN / DEBLOKKEREN (admin) ───────────────────────────────
+async function handleBlokkeer(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, geblokkeerd } = await request.json().catch(() => ({}));
+  if (!id) return json({ error: 'id verplicht' }, 400);
+  if (geblokkeerd) {
+    await env.SUBSCRIBERS.put('fotograaf:geblokkeerd:' + id, '1');
+  } else {
+    await env.SUBSCRIBERS.delete('fotograaf:geblokkeerd:' + id);
+  }
+  return json({ ok: true, geblokkeerd });
+}
+
+// ── SERIE VERBERGEN / TONEN (admin) ───────────────────────────────────────
+async function handleVerborgeMap(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, map, verborgen } = await request.json().catch(() => ({}));
+  if (!id || !map) return json({ error: 'id en map verplicht' }, 400);
+  const raw = await env.SUBSCRIBERS.get('fotograaf:verborgen-mappen:' + id);
+  let lijst = raw ? JSON.parse(raw) : [];
+  if (verborgen) {
+    if (!lijst.includes(map)) lijst.push(map);
+  } else {
+    lijst = lijst.filter(m => m !== map);
+  }
+  await env.SUBSCRIBERS.put('fotograaf:verborgen-mappen:' + id, JSON.stringify(lijst));
+  return json({ ok: true });
+}
+
+// ── FOTO VERBERGEN / TONEN (admin) ────────────────────────────────────────
+async function handleVerborgeFoto(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, key, verborgen } = await request.json().catch(() => ({}));
+  if (!id || !key) return json({ error: 'id en key verplicht' }, 400);
+  const raw = await env.SUBSCRIBERS.get('fotograaf:verborgen-fotos:' + id);
+  let lijst = raw ? JSON.parse(raw) : [];
+  if (verborgen) {
+    if (!lijst.includes(key)) lijst.push(key);
+  } else {
+    lijst = lijst.filter(k => k !== key);
+  }
+  await env.SUBSCRIBERS.put('fotograaf:verborgen-fotos:' + id, JSON.stringify(lijst));
+  return json({ ok: true });
+}
+
+// ── VERBORGEN STATUS OPHALEN (admin) ──────────────────────────────────────
+async function handleVerborgeLijst(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const url = new URL(request.url);
+  const id  = url.searchParams.get('id');
+  if (!id) return json({ error: 'id verplicht' }, 400);
+  const [mappen, fotos, geblokkeerd] = await Promise.all([
+    env.SUBSCRIBERS.get('fotograaf:verborgen-mappen:' + id),
+    env.SUBSCRIBERS.get('fotograaf:verborgen-fotos:' + id),
+    env.SUBSCRIBERS.get('fotograaf:geblokkeerd:' + id),
+  ]);
+  return json({
+    geblokkeerd: geblokkeerd === '1',
+    verborgenMappen: mappen ? JSON.parse(mappen) : [],
+    verborgenFotos:  fotos  ? JSON.parse(fotos)  : [],
+  });
+}
+
 // ── EIGEN ACCOUNT VERWIJDEREN ─────────────────────────────────────────────
 async function handleAccountVerwijderen(request, env) {
   const authToken = request.headers.get('X-Fotograaf-Token');
