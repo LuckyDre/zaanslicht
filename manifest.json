@@ -129,7 +129,8 @@
         "_M4A9255.webp"
       ],
       "volgorde": 0,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "ijburg-zcfc-1-1-25-26",
@@ -159,7 +160,8 @@
         "_M4A7140.webp"
       ],
       "volgorde": 1,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-wieringermeer-2-1-25-26",
@@ -192,7 +194,8 @@
         "122151218558902795.webp"
       ],
       "volgorde": 2,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-alcmaria-victrix-1-1-25-26",
@@ -231,7 +234,8 @@
         "122140667186902795.webp"
       ],
       "volgorde": 3,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-sv-koedijk-1-4-25-26",
@@ -274,7 +278,8 @@
         "122138671712902795.webp"
       ],
       "volgorde": 4,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-de-blokkers-2-0-25-26",
@@ -305,7 +310,8 @@
         "122136068912902795.webp"
       ],
       "volgorde": 5,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-sporting-krommenie-0-2-25-26",
@@ -357,7 +363,8 @@
         "122132543672902795.webp"
       ],
       "volgorde": 6,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-de-volenwijkers-1-4-25-26",
@@ -402,7 +409,8 @@
         "122131343156902795.webp"
       ],
       "volgorde": 7,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-fc-velsenoord-3-1-beker",
@@ -468,7 +476,8 @@
         "122127714104902795.webp"
       ],
       "volgorde": 8,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-zaandijk-6-2-beker",
@@ -530,7 +539,8 @@
         "122129046680902795.webp"
       ],
       "volgorde": 9,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "fortuna-wormerveer-zcfc-1-0-toernooi",
@@ -571,7 +581,8 @@
         "122110874594902795.webp"
       ],
       "volgorde": 10,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "saenden-zcfc-toernooi",
@@ -640,7 +651,8 @@
         "122130357128902795.webp"
       ],
       "volgorde": 11,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "jisp-zcfc-0-0-toernooi",
@@ -703,7 +715,8 @@
         "122111403254902795.webp"
       ],
       "volgorde": 12,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "zcfc-wieringermeer-3-2-24-25",
@@ -767,7 +780,8 @@
         "JKR69278_DxO.webp"
       ],
       "volgorde": 13,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "teamfoto-2025-2026",
@@ -778,7 +792,8 @@
         "122116855118902795.webp"
       ],
       "volgorde": 14,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     }
   ],
   "nosports": [
@@ -904,7 +919,8 @@
         "122124350636902795.webp"
       ],
       "volgorde": 0,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "verkade",
@@ -919,7 +935,8 @@
         "P6250112.webp"
       ],
       "volgorde": 1,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     },
     {
       "id": "lizzy",
@@ -936,7 +953,8 @@
         "122122750208902795.webp"
       ],
       "volgorde": 2,
-      "fotograaf": "Andreas Luckfiel & Co."
+      "fotograaf": "Andreas Luckfiel & Co.",
+      "beschrijving": ""
     }
   ]
 }
