@@ -17,7 +17,8 @@ def scan(category):
     # Laad bestaande manifest voor volgorde-bewaring
     existing_sliders = {}
     existing_foto_order = {}
-    existing_fotograaf = {}
+    existing_fotograaf    = {}
+    existing_beschrijving = {}
     manifest_file = SITE / 'manifest.json'
     if manifest_file.exists():
         with open(manifest_file, encoding='utf-8') as f:
