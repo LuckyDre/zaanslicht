@@ -109,9 +109,89 @@ async function loadGallery() { // returns Promise
     initLikes();
     initComments();
 
+    // Laad gastfotografen-foto's
+    laadGastFotos(container);
+
   } catch (e) {
     container.innerHTML = '<p class="no-content">Kon foto\'s niet laden.</p>';
     console.error(e);
+  }
+}
+
+// ── GASTFOTOGRAFEN ────────────────────────────────────────────────────────
+const WORKER_URL = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+async function laadGastFotos(container) {
+  try {
+    const res  = await fetch(WORKER_URL + '/fotograaf/manifest');
+    const data = await res.json();
+    const fotografen = data.fotografen || [];
+
+    for (const fg of fotografen) {
+      // Filter mappen die bij deze categorie horen
+      const mappen = (fg.mappen || []).filter(m => m.categorie === CATEGORY || m.categorie === 'eigen');
+      if (!mappen.length) continue;
+
+      for (const map of mappen) {
+        // Haal de foto's op voor deze map
+        const fotosRes = await fetch(`${WORKER_URL}/fotograaf/fotos?id=${fg.id}&categorie=${encodeURIComponent(map.categorie)}`);
+        const fotosData = await fotosRes.json();
+        const alleFotos = (fotosData.fotos || []).filter(f =>
+          f.key.includes(`/${encodeURIComponent(map.map)}/`) || f.key.includes(`/${map.map}/`)
+        );
+        if (!alleFotos.length) continue;
+
+        const div = document.createElement('div');
+        div.className = 'portfolio-category gast-fotograaf';
+        div.style.setProperty('--gast-kleur', fg.kleur || '#3b82f6');
+
+        const slides = alleFotos.map(f => {
+          const src = `${WORKER_URL}/foto/${f.key}`;
+          const naam = f.naam;
+          return `<div class="swiper-slide" data-src="${src}" data-naam="${naam}">
+            <img src="${src}" alt="${naam}" loading="lazy" />
+            <div class="slide-actions">
+              <button class="btn-like" data-key="gast__${fg.id}__${naam}" data-path="gast/${naam}">
+                <span class="heart">♥</span>
+                <span class="like-count"></span>
+              </button>
+              <button class="btn-download" data-src="${src}" data-naam="${naam}" title="Download">
+                <span>&#8681;</span> Download
+              </button>
+            </div>
+          </div>`;
+        }).join('');
+
+        div.innerHTML = `
+          <h3>${map.map}<span class="serie-fotograaf">${fg.naam}</span></h3>
+          <div class="swiper portfolio-swiper">
+            <div class="swiper-wrapper">${slides}</div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+          </div>`;
+
+        container.appendChild(div);
+
+        // Initialiseer Swiper voor deze map
+        const swiperEl = div.querySelector('.portfolio-swiper');
+        new Swiper(swiperEl, {
+          loop: false,
+          slidesPerView: 'auto',
+          spaceBetween: 16,
+          grabCursor: true,
+          navigation: {
+            nextEl: swiperEl.querySelector('.swiper-button-next'),
+            prevEl: swiperEl.querySelector('.swiper-button-prev'),
+          },
+        });
+      }
+    }
+
+    // Herinitialiseer lightbox voor nieuwe slides
+    if (fotografen.length) initLightbox();
+
+  } catch (e) {
+    console.warn('Gastfotografen niet geladen:', e);
   }
 }
 
