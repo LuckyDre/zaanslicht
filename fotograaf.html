@@ -706,6 +706,17 @@ async function toonDashboard() {
         </div>
         <button class="btn btn-primary" onclick="slaKleurOp()" style="margin-top:0.5rem">Kleur opslaan</button>
         <div id="inst-feedback" class="feedback"></div>
+
+        <!-- Account verwijderen -->
+        <div style="margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid rgba(239,68,68,0.2)">
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;line-height:1.6">
+            ⚠️ <strong style="color:#f87171">Account verwijderen</strong> — dit verwijdert je account én alle foto's die je hebt geüpload. Dit kan niet ongedaan worden gemaakt.
+          </p>
+          <button onclick="verwijderAccount()" style="background:transparent;border:1px solid #ef4444;color:#ef4444;padding:0.65rem 1.4rem;border-radius:var(--radius);font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s"
+            onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">
+            🗑 Mijn account en foto's verwijderen
+          </button>
+        </div>
       </div>
     </div>`;
 
