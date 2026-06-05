@@ -438,6 +438,10 @@ async function handleFotograafLogin(request, env) {
   const hash = await hashPassword(password);
   if (hash !== found.passwordHash) return json({ error: 'Onjuist wachtwoord' }, 401);
 
+  // Controleer blokkering
+  const geblokkeerd = await env.SUBSCRIBERS.get('fotograaf:geblokkeerd:' + found.id);
+  if (geblokkeerd === '1') return json({ error: 'Je account is tijdelijk geblokkeerd. Neem contact op met de beheerder.' }, 403);
+
   const sessieToken = randomToken();
   await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, found.id, { expirationTtl: 30 * 24 * 3600 });
 
