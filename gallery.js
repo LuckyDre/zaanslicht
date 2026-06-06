@@ -277,6 +277,9 @@ function initLightbox() {
     const img       = allImages[idx];
     lightboxImg.src = img.src;
 
+    const teller = document.getElementById('lb-teller');
+    if (teller) teller.textContent = `${idx + 1} / ${allImages.length}`;
+
     // Like & download knoppen bijwerken
     const key = allKeys[idx];
     if (key && lbLike) {
