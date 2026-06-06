@@ -949,7 +949,7 @@ async function handleProfielen(request, env) {
 // ── FOTO SERVEREN VIA WORKER (publiek toegankelijk) ───────────────────────
 async function handleFotoServe(request, env) {
   const url = new URL(request.url);
-  const key = decodeURIComponent(url.pathname.replace('/foto/', ''));
+  const key = url.pathname.replace('/foto/', '');
   if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
 
   const object = await env.FOTOS.get(key);
