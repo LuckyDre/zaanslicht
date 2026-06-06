@@ -200,11 +200,6 @@ async function loadGallery() { // returns Promise
           </div>`;
       }).join('');
 
-      const serieFotos = sortedFotos.map(f => ({
-        src:  `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
-        naam: f,
-      }));
-
       div.innerHTML = `
         <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}
           <span class="foto-count">${sortedFotos.length} foto's</span>
@@ -221,8 +216,9 @@ async function loadGallery() { // returns Promise
       container.appendChild(div);
 
       // Grid-overzicht knop
+      const swiperEl = div.querySelector('.swiper');
       div.querySelector('.btn-serie-grid').addEventListener('click', () => {
-        openSerieOverlay(item.naam, item.fotograaf || 'Zaans Licht', serieFotos);
+        openSerieOverlay(item.naam, item.fotograaf || 'Zaans Licht', swiperEl);
       });
     });
 
