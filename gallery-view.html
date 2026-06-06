@@ -277,7 +277,7 @@ function toonFoto() {
   viewer.innerHTML = '';
   viewer.appendChild(img);
   viewer.insertAdjacentHTML('beforeend', `
-    <div class="viewer-label" id="viewer-label">${reeks}</div>
+    <div class="viewer-label" id="viewer-label">${activeReeks}</div>
     <button class="viewer-nav viewer-prev" id="btn-prev">❮</button>
     <button class="viewer-nav viewer-next" id="btn-next">❯</button>
     <div class="viewer-counter"><span id="counter">${currentIdx + 1}</span> / <span id="total">${fotos.length}</span></div>
