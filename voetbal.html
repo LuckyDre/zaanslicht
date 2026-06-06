@@ -215,9 +215,15 @@
     flex-shrink: 0;
   }
 
-  /* Fotocount badge — ingespoten door gallery.js als data-attr */
-  .portfolio-category h3 .foto-count {
+  /* Rechter groep: foto-count + overzicht knop samen */
+  .portfolio-category h3 .h3-rechts {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .portfolio-category h3 .foto-count {
     font-size: 0.72rem; font-family: var(--mono);
     letter-spacing: 2px; color: var(--muted);
     background: var(--s2); border: 1px solid var(--border);
