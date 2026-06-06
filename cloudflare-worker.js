@@ -879,7 +879,10 @@ export default {
     if (url.pathname === '/fotograaf/verberg-map'     && request.method === 'POST') return handleVerborgeMap(request, env);
     if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
-    if (url.pathname.startsWith('/foto/fotografen/'))                           return handleFotoServe(request, env);
+    if (url.pathname === '/fotograaf/bio-opslaan'    && request.method === 'POST') return handleBioOpslaan(request, env);
+    if (url.pathname === '/fotograaf/profielfoto'    && request.method === 'POST') return handleProfielfotoUpload(request, env);
+    if (url.pathname === '/fotograaf/profielen'      && request.method === 'GET')  return handleProfielen(request, env);
+    if (url.pathname.startsWith('/foto/fotografen/'))                              return handleFotoServe(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
   },
