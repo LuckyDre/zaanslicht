@@ -442,7 +442,7 @@ async function doSave() {
 function updateManifestFromDOM() {
   ['voetbal', 'nosports'].forEach(cat => {
     const lijst = document.getElementById('lijst-' + cat);
-    manifest[cat] = Array.from(lijst.querySelectorAll('.slider-item')).map((el, i) => {
+    manifest[cat] = Array.from(lijst.querySelectorAll('.slider-item:not([data-type="gast"])')).map((el, i) => {
       const mapNaam = el.dataset.map;
       const base    = manifest[cat].find(x => x.map === mapNaam) || {};
       // Map nooit geopend → originele fotovolgorde bewaren
