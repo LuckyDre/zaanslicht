@@ -758,15 +758,21 @@ function initComments() {
   rdForm.addEventListener('submit', async e => {
     e.preventDefault();
     const tekst = rdTekst.value.trim();
-    if (!tekst||!curKey||typeof db==='undefined') return;
-    const naam = rdNaam.value.trim()||'Anoniem';
     const btn  = rdForm.querySelector('button[type="submit"]');
+
+    if (!tekst) { alert('Vul een bericht in'); return; }
+    if (!curKey) { alert('Selecteer eerst een foto door erop te klikken'); return; }
+    if (typeof db === 'undefined') { alert('Verbinding verbroken'); return; }
+
+    const naam = rdNaam.value.trim()||'Anoniem';
     btn.disabled = true;
     try {
       const ref = await db.ref('comments/'+curKey).push({naam,tekst,ts:Date.now(),pagina:'fotograaf',src:curSrc});
       await db.ref('recent_comments/'+ref.key).set({naam,tekst,ts:Date.now(),photoKey:curKey,src:curSrc});
       rdTekst.value = ''; loadComments(curKey);
-    } catch {}
+    } catch (err) {
+      alert('Fout bij opslaan: ' + err.message);
+    }
     btn.disabled = false;
   });
 }
