@@ -75,6 +75,9 @@ function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
     huidigThema = thema;
     wisselBusy  = true;
 
+    // Fotograaf-modus uitzetten
+    window._fotograafActief = false;
+
     // Ruim eventuele inline fotograaf-kleur op
     document.body.style.removeProperty('--oranje');
     const logoImg = document.querySelector('.logo-img');
@@ -89,6 +92,8 @@ function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
     heroEl.style.opacity    = '0';
 
     setTimeout(() => {
+      // Annuleer als fotograaf-modus tussendoor geactiveerd is
+      if (window._fotograafActief) { heroEl.style.opacity = '1'; wisselBusy = false; return; }
       const fotos = thema === 'nosports' ? fotosNosports : fotosVoetbal;
       vulHeroEnStart(fotos, thema);
       heroEl.style.opacity = '1';
