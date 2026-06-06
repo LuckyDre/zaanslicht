@@ -388,15 +388,23 @@
   }
   .lightbox.hidden { display: none; }
 
-  .lightbox-close {
-    position: absolute; top: 1.5rem; right: 1.5rem;
+  /* Gedeelde ronde knopstijl voor alle lightbox controls */
+  .lb-btn-rond {
+    position: absolute;
     width: 44px; height: 44px; border-radius: 50%;
     background: rgba(255,255,255,0.06);
     border: 1px solid var(--border);
-    color: var(--text); font-size: 1.4rem;
-    transition: all 0.2s;
+    color: var(--text); font-size: 1.3rem;
+    transition: all 0.2s; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
   }
-  .lightbox-close:hover { background: var(--orange); border-color: var(--orange); }
+  .lb-btn-rond:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
+
+  .lightbox-close { top: 1.5rem; right: 1.5rem; font-size: 1.4rem; }
+  .lb-terug-overzicht { top: 1.5rem; left: 1.5rem; font-size: 1rem; }
+  .lb-nav { top: 50%; transform: translateY(-50%); width: 52px; height: 52px; }
+  .lb-prev { left: 1.5rem; }
+  .lb-next { right: 1.5rem; }
 
   #lightbox-img {
     max-width: min(90vw, 1200px);
@@ -405,18 +413,6 @@
     border-radius: 8px;
     box-shadow: 0 30px 80px rgba(0,0,0,0.8);
   }
-
-  .lb-nav {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 52px; height: 52px; border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid var(--border);
-    color: var(--text); font-size: 1.3rem;
-    transition: all 0.2s;
-  }
-  .lb-nav:hover { background: var(--orange); border-color: var(--orange); }
-  .lb-prev { left: 1.5rem; }
-  .lb-next { right: 1.5rem; }
 
   .lb-actions {
     position: absolute; bottom: 2rem;
@@ -427,7 +423,6 @@
     border-radius: 100px;
     padding: 0.6rem 1.2rem;
   }
-
   .lb-actions button {
     background: none; border: none;
     color: var(--muted); font-size: 0.85rem;
@@ -436,7 +431,6 @@
   }
   .lb-actions button:hover { color: var(--text); background: rgba(255,255,255,0.08); }
   .lb-actions .btn-like.liked { color: var(--orange); }
-  .lb-terug-overzicht { left: 4.5rem; }
 
   /* ═══════════════════════════════════════════════════════
      REACTIES DRAWER
