@@ -556,22 +556,6 @@ function initLightbox() {
   const lbActions   = document.querySelector('.lb-actions');
   let allImages = [], allKeys = [], currentIdx = 0;
 
-  // Voeg "Terug naar overzicht" knop toe
-  if (lbActions && !document.getElementById('lb-terug-overzicht')) {
-    const btnTerug = document.createElement('button');
-    btnTerug.id = 'lb-terug-overzicht';
-    btnTerug.className = 'btn-terug-overzicht';
-    btnTerug.title = 'Terug naar overzicht';
-    btnTerug.innerHTML = '← Overzicht';
-    btnTerug.style.display = 'none';
-    btnTerug.addEventListener('click', (e) => {
-      e.stopPropagation();
-      lightbox.classList.add('hidden');
-      document.body.style.overflow = '';
-      terugnaarOverzicht();
-    });
-    lbActions.appendChild(btnTerug);
-  }
 
   function showLightbox(idx) {
     currentIdx      = idx;
@@ -611,12 +595,6 @@ function initLightbox() {
     showLightbox(allImages.indexOf(img));
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-
-    // Toon "Terug naar overzicht" knop als het overzicht modal actief was
-    const btnTerug = document.getElementById('lb-terug-overzicht');
-    if (btnTerug) {
-      btnTerug.style.display = window._currentOverzicht ? 'block' : 'none';
-    }
   }
 
   // Globaal beschikbaar voor gastfotograaf-slides
