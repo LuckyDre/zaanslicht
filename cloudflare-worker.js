@@ -823,8 +823,12 @@ async function handleProfielfotoUpload(request, env) {
 // ── REACTIE OPSLAAN ──────────────────────────────────────────────────────────
 async function handleComment(request, env) {
   try {
-    const { naam, tekst, photoKey, src } = await request.json();
-    if (!tekst || !photoKey) return json({ error: 'Bericht en foto vereist' }, 400);
+    const body = await request.json().catch(e => null);
+    if (!body) return json({ error: 'Geen geldige JSON' }, 400);
+
+    const { naam, tekst, photoKey, src } = body;
+    if (!tekst) return json({ error: 'Bericht vereist' }, 400);
+    if (!photoKey) return json({ error: 'Foto niet geselecteerd' }, 400);
 
     const timestamp = Date.now();
     const commentId = Array.from(crypto.getRandomValues(new Uint8Array(12)))
