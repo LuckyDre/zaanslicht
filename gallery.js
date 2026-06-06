@@ -706,6 +706,8 @@ function initLightbox() {
   function closeLightbox() {
     lightbox.classList.add('hidden');
     document.body.style.overflow = '';
+    const lbHeader = document.getElementById('lb-header');
+    if (lbHeader) lbHeader.style.display = 'none';
   }
 }
 
