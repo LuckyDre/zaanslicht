@@ -1,4 +1,31 @@
 // ===== HERO SLIDER (wordt geïnitialiseerd na het laden van foto's) =====
+
+// Haal gastfotograafnamen op en update hero-teksten dynamisch
+async function laadHeroFotograafNamen() {
+  try {
+    const res  = await fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/fotograaf/manifest');
+    const data = await res.json();
+    const namen = (data.fotografen || [])
+      .filter(fg => fg.mappen && fg.mappen.length > 0)
+      .map(fg => fg.naam);
+    if (!namen.length) return;
+
+    const alleFotografen = ['Andreas Luckfiel', ...namen];
+    const tekst = 'Fotografie door ' + alleFotografen.join(', ');
+
+    // Werk alle hero-teksten bij
+    ['voetbal', 'nosports'].forEach(cat => {
+      HERO_TEKSTEN[cat].forEach(slide => { slide.p = tekst; });
+    });
+
+    // Update lopende hero-slide als die al draait
+    const pEl = document.querySelector('.hero-slide.actief p');
+    if (pEl && !window._fotograafActief) pEl.textContent = tekst;
+  } catch (e) {
+    // stil falen — statische tekst blijft staan
+  }
+}
+
 const HERO_TEKSTEN = {
   voetbal: [
     { h1: 'Het Zaanse <span>licht</span>',       p: 'Fotografie door Andreas Luckfiel' },
@@ -15,6 +42,9 @@ const HERO_TEKSTEN = {
     { h1: 'Architectuur en <span>natuur</span>',  p: 'Fotografie door Andreas Luckfiel' },
   ],
 };
+
+// Start ophalen zodra pagina geladen is
+laadHeroFotograafNamen();
 
 const THEMA_KLEUR = { voetbal: '#FF6B00', nosports: '#F5C000' };
 
