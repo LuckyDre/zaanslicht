@@ -3,6 +3,88 @@
 
 const CATEGORY = document.currentScript.getAttribute('data-category');
 
+// ── SERIE-OVERZICHT OVERLAY ───────────────────────────────────────────────
+(function injectOverlay() {
+  const overlay = document.createElement('div');
+  overlay.id = 'serie-overlay';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:2500;
+    background:rgba(10,10,10,0.97);
+    display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.22s ease;
+  `;
+  overlay.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      padding:1.2rem 2rem;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0">
+      <div>
+        <div id="serie-overlay-label" style="font-size:0.7rem;letter-spacing:3px;
+          text-transform:uppercase;color:#666;font-family:monospace;margin-bottom:0.3rem"></div>
+        <h2 id="serie-overlay-titel" style="font-size:1.4rem;font-weight:700;color:#f0f0f0"></h2>
+      </div>
+      <button id="serie-overlay-sluit" style="
+        background:none;border:1px solid rgba(255,255,255,0.12);color:#888;
+        width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;
+        transition:all 0.2s;flex-shrink:0"
+        onmouseover="this.style.borderColor='var(--orange,#FF6B00)';this.style.color='var(--orange,#FF6B00)'"
+        onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='#888'">&times;</button>
+    </div>
+    <div id="serie-overlay-grid" style="
+      flex:1;overflow-y:auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:4px;padding:4px;"></div>
+    <div style="padding:0.7rem 2rem;border-top:1px solid rgba(255,255,255,0.06);
+      font-size:0.72rem;color:#444;font-family:monospace;text-align:center;flex-shrink:0">
+      <span id="serie-overlay-count"></span> &nbsp;·&nbsp; Klik op een foto om te vergroten &nbsp;·&nbsp; ESC om te sluiten
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('serie-overlay-sluit').addEventListener('click', sluitSerieOverlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) sluitSerieOverlay(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitSerieOverlay(); });
+})();
+
+function openSerieOverlay(titel, fotograaf, fotos) {
+  const overlay = document.getElementById('serie-overlay');
+  const grid    = document.getElementById('serie-overlay-grid');
+
+  document.getElementById('serie-overlay-label').textContent  = fotograaf || 'Zaans Licht';
+  document.getElementById('serie-overlay-titel').textContent  = titel;
+  document.getElementById('serie-overlay-count').textContent  = `${fotos.length} foto's`;
+
+  grid.innerHTML = '';
+  fotos.forEach((f, i) => {
+    const cel = document.createElement('div');
+    cel.style.cssText = 'aspect-ratio:1/1;overflow:hidden;cursor:pointer;position:relative;background:#111';
+    cel.dataset.idx   = i;
+    const img = document.createElement('img');
+    img.src             = f.src;
+    img.alt             = f.naam || '';
+    img.loading         = 'lazy';
+    img.style.cssText   = 'width:100%;height:100%;object-fit:cover;transition:transform 0.3s,filter 0.3s;filter:brightness(0.88)';
+    img.onmouseover     = () => { img.style.transform = 'scale(1.05)'; img.style.filter = 'brightness(1)'; };
+    img.onmouseout      = () => { img.style.transform = ''; img.style.filter = 'brightness(0.88)'; };
+    cel.appendChild(img);
+    cel.addEventListener('click', () => {
+      sluitSerieOverlay();
+      setTimeout(() => { if (window._openLightboxVanSerie) window._openLightboxVanSerie(fotos, i); }, 120);
+    });
+    grid.appendChild(cel);
+  });
+
+  overlay.style.pointerEvents = 'auto';
+  overlay.style.opacity       = '1';
+  document.body.style.overflow = 'hidden';
+}
+
+function sluitSerieOverlay() {
+  const overlay = document.getElementById('serie-overlay');
+  overlay.style.opacity       = '0';
+  overlay.style.pointerEvents = 'none';
+  document.body.style.overflow = '';
+}
+
 // Zet een foto-pad om naar een Firebase-safe sleutel
 function photoKey(path) {
   return path.replace(/\//g, '__').replace(/\./g, '--');
