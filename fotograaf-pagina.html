@@ -762,16 +762,20 @@ function initComments() {
 
     if (!tekst) { alert('Vul een bericht in'); return; }
     if (!curKey) { alert('Selecteer eerst een foto door erop te klikken'); return; }
-    if (typeof db === 'undefined') { alert('Verbinding verbroken'); return; }
 
     const naam = rdNaam.value.trim()||'Anoniem';
     btn.disabled = true;
     try {
-      const ref = await db.ref('comments/'+curKey).push({naam,tekst,ts:Date.now(),pagina:'fotograaf',src:curSrc});
-      await db.ref('recent_comments/'+ref.key).set({naam,tekst,ts:Date.now(),photoKey:curKey,src:curSrc});
+      const res = await fetch(WORKER + '/comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ naam, tekst, photoKey: curKey, src: curSrc }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Fout bij opslaan');
       rdTekst.value = ''; loadComments(curKey);
     } catch (err) {
-      alert('Fout bij opslaan: ' + err.message);
+      alert('Fout: ' + err.message);
     }
     btn.disabled = false;
   });
