@@ -239,6 +239,88 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="main.js"></script>
+  <script src="nav-fotografen.js"></script>
+
+  <!-- Gastfotograaf tegels -->
+  <script>
+  (async function() {
+    const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+    try {
+      const res = await fetch(WORKER + '/fotograaf/manifest');
+      const { fotografen } = await res.json();
+      const actief = (fotografen || []).filter(fg => fg.mappen?.length > 0);
+      if (!actief.length) return;
+
+      const wrapper = document.getElementById('gast-tegels');
+
+      for (const fg of actief) {
+        const kleur = fg.kleur || '#FF6B00';
+
+        // Haal eerste beschikbare foto op als achtergrond
+        let bgUrl = '';
+        try {
+          const fotosRes  = await fetch(`${WORKER}/fotograaf/fotos?id=${fg.id}`);
+          const fotosData = await fotosRes.json();
+          if (fotosData.fotos?.length) {
+            bgUrl = `${WORKER}/foto/${fotosData.fotos[0].key}`;
+          }
+        } catch {}
+
+        const rij = document.createElement('div');
+        rij.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:1.5rem';
+
+        // Responsief aanpassen
+        const mediaQ = window.matchMedia('(max-width: 900px)');
+        function pasAan(q) { rij.style.gridTemplateColumns = q.matches ? 'repeat(2,1fr)' : 'repeat(3,1fr)'; }
+        mediaQ.addEventListener('change', pasAan); pasAan(mediaQ);
+
+        const bgStyle = bgUrl ? `background-image:url('${bgUrl}');background-size:cover;background-position:center;` : `background-color:#1a1a1a;`;
+        const borderStyle = `border-color:${kleur}`;
+
+        rij.innerHTML = `
+          <!-- Hoofdtegel: eigen pagina -->
+          <a href="fotograaf-pagina.html?id=${fg.id}" class="tegel" style="${borderStyle}">
+            <div class="tegel-bg" style="${bgStyle}"></div>
+            <div class="tegel-content">
+              <div class="tegel-icon">📷</div>
+              <h2 style="color:#fff">${fg.naam}</h2>
+              <p>Fotografie</p>
+            </div>
+          </a>
+
+          <!-- Voetbal bijdragen -->
+          <a href="voetbal.html" class="tegel" style="${borderStyle}">
+            <div class="tegel-bg" style="${bgStyle}filter:hue-rotate(0deg)brightness(0.6);"></div>
+            <div class="tegel-content">
+              <div class="tegel-icon">⚽</div>
+              <h2 style="color:#fff">Voetbal</h2>
+              <p>door ${fg.naam}</p>
+            </div>
+          </a>
+
+          <!-- Alle foto's -->
+          <a href="fotograaf-pagina.html?id=${fg.id}" class="tegel" style="${borderStyle}">
+            <div class="tegel-bg" style="${bgStyle}filter:brightness(0.5);"></div>
+            <div class="tegel-content">
+              <div class="tegel-icon">🖼️</div>
+              <h2 style="color:#fff">Portfolio</h2>
+              <p>${fg.mappen.length} serie${fg.mappen.length !== 1 ? 's' : ''}</p>
+            </div>
+          </a>`;
+
+        // Pas hover-kleur aan via inline style override
+        rij.querySelectorAll('.tegel').forEach(t => {
+          t.addEventListener('mouseover', () => { t.style.borderColor = kleur; });
+          t.style.setProperty('--oranje', kleur);
+        });
+
+        wrapper.appendChild(rij);
+      }
+    } catch (e) {
+      // Stille fout — homepage werkt zonder gastfotograaf-tegels
+    }
+  })();
+  </script>
 
   <!-- Updates abonneren -->
   <script>
