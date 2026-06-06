@@ -411,6 +411,27 @@ async function laadGastFotos(container) {
             if (window._openLightboxVanImg) window._openLightboxVanImg(img);
           });
         });
+
+        // Voeg overzicht-button toe aan h3
+        const h3 = div.querySelector('h3');
+        if (h3) {
+          const btn = document.createElement('button');
+          btn.className = 'btn-overzicht';
+          btn.title = 'Overzicht fotos';
+          btn.innerHTML = '⊞';
+          h3.appendChild(btn);
+
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const fotos = Array.from(swiperEl.querySelectorAll('img')).map(img => ({
+              src: img.src,
+              _img: img
+            }));
+            if (fotos.length) {
+              openOverzicht(h3.textContent.split(/\d+ foto/)[0].trim(), fotos, swiperEl);
+            }
+          });
+        }
       }
     }
 
