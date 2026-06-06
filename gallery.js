@@ -419,6 +419,15 @@ function initLightbox() {
   // Globaal beschikbaar voor gastfotograaf-slides
   window._openLightboxVanImg = openLightboxVanImg;
 
+  // Openen vanuit serie-overlay (geeft array van {src,naam} en startindex)
+  window._openLightboxVanSerie = function(fotos, startIdx) {
+    allImages = fotos.map(f => ({ src: f.src }));
+    allKeys   = fotos.map(() => '');
+    showLightbox(startIdx);
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  };
+
   document.addEventListener('click', e => {
     const img = e.target.closest('.portfolio-swiper img');
     if (!img) return;
