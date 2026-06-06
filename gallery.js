@@ -226,20 +226,25 @@ async function loadGallery() { // returns Promise
   const container = document.getElementById('gallery-container');
 
   try {
-    // Laad manifest, gastfotografen en gecombineerde volgorde parallel
-    const [manifestRes, gastRes, volgordeRes] = await Promise.all([
+    // Laad manifest en gastfotografen — volgorde is optioneel
+    const [manifestRes, gastRes] = await Promise.all([
       fetch('manifest.json?v=' + Date.now()),
       fetch(WORKER_URL + '/fotograaf/manifest'),
-      fetch(WORKER_URL + '/gallery/volgorde'),
     ]);
 
-    const manifest    = await manifestRes.json();
-    const gastData    = await gastRes.json();
-    const volgordeData = await volgordeRes.json();
+    const manifest   = await manifestRes.json();
+    const gastData   = await gastRes.json();
 
-    const eigenItems  = manifest[CATEGORY] || [];
-    const fotografen  = gastData.fotografen || [];
-    const gecombineerd = volgordeData[CATEGORY] || null;
+    // Gecombineerde volgorde ophalen — stil falen als niet beschikbaar
+    let gecombineerd = null;
+    try {
+      const volgordeRes  = await fetch(WORKER_URL + '/gallery/volgorde');
+      const volgordeData = await volgordeRes.json();
+      gecombineerd = volgordeData[CATEGORY] || null;
+    } catch (e) { /* geen volgorde opgeslagen, dat is ok */ }
+
+    const eigenItems = manifest[CATEGORY] || [];
+    const fotografen = gastData.fotografen || [];
 
     if (eigenItems.length === 0 && fotografen.length === 0) {
       container.innerHTML = '<p class="no-content">Nog geen foto\'s toegevoegd — kom snel terug!</p>';
