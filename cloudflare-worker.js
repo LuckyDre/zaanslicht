@@ -282,9 +282,36 @@ function randomToken(bytes = 24) {
 }
 
 async function hashPassword(password) {
-  const enc  = new TextEncoder().encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('');
+  const enc  = new TextEncoder();
+  const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+  const key  = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(salt), iterations: 100_000 },
+    key, 256
+  );
+  const hash = Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return `pbkdf2:${salt}:${hash}`;
+}
+
+async function verifyPassword(password, stored) {
+  // Oud formaat: gewone SHA-256 hex string (geen dubbele punt)
+  if (!stored.startsWith('pbkdf2:')) {
+    const enc  = new TextEncoder().encode(password);
+    const hash = await crypto.subtle.digest('SHA-256', enc);
+    const hex  = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    return hex === stored;
+  }
+  // Nieuw formaat: pbkdf2:{salt}:{hash}
+  const [, salt, expectedHash] = stored.split(':');
+  const enc  = new TextEncoder();
+  const key  = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: enc.encode(salt), iterations: 100_000 },
+    key, 256
+  );
+  const hash = Array.from(new Uint8Array(bits)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return hash === expectedHash;
 }
 
 async function getFotograafByToken(token, env) {
