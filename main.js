@@ -18,8 +18,17 @@ const HERO_TEKSTEN = {
 
 const THEMA_KLEUR = { voetbal: '#FF6B00', nosports: '#F5C000' };
 
-// Maak vulHeroEnStart globaal zodat fotograaf-tegels de hero kunnen vullen
-window.vulHeroEnStartGlobal = null; // wordt ingesteld zodra loadTegels klaar is
+// Globaal beschikbaar voor fotograaf-tegels
+window.vulHeroVoorFotograaf = function(fotos, naam) {
+  if (typeof vulHeroEnStart === 'function') {
+    // Tijdelijk een fotograaf-thema toevoegen
+    HERO_TEKSTEN._fotograaf = fotos.slice(0, 5).map(() => ({
+      h1: `Fotografie door <span>${naam}</span>`,
+      p:  'Zaans Licht',
+    }));
+    vulHeroEnStart(fotos, '_fotograaf');
+  }
+};
 
 let heroSwiper    = null;
 let huidigThema   = 'voetbal';
