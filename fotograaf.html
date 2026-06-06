@@ -696,6 +696,47 @@ async function toonDashboard(nieuwAangemeld = false) {
         </div>
       </div>
 
+      <!-- TAB: PROFIEL -->
+      <div class="tab-panel" id="tab-profiel">
+        <div class="form-group">
+          <div class="label-row">
+            <label>Jouw profielfoto</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">Kies een foto van jezelf. Max 5MB, WebP of JPG. Verschijnt op de "Over ons" pagina.</div>
+            </div>
+          </div>
+          <div id="profiel-foto-preview" style="margin-bottom:0.8rem;display:none">
+            <img id="profiel-foto-img" src="" alt="Profielfoto" style="width:100px;height:100px;object-fit:cover;border-radius:50%;border:2px solid var(--accent)" />
+          </div>
+          <input type="file" id="profiel-foto-input" accept=".webp,.jpg,.jpeg" style="display:none" />
+          <button class="btn btn-secondary" onclick="document.getElementById('profiel-foto-input').click()" style="margin-bottom:0.5rem">
+            📷 Foto kiezen
+          </button>
+          <span id="profiel-foto-naam" style="font-size:0.8rem;color:var(--muted);margin-left:0.5rem"></span>
+        </div>
+
+        <div class="form-group" style="margin-top:1.2rem">
+          <div class="label-row">
+            <label>Jouw verhaal</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">Vertel iets over jezelf en je fotografie. Max 1000 tekens. Verschijnt op de "Over ons" pagina.</div>
+            </div>
+          </div>
+          <textarea id="profiel-bio" maxlength="1000" rows="6"
+            placeholder="Vertel iets over jezelf, je stijl, wat je fotografeert…"
+            style="width:100%;background:var(--card);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);color:var(--text);padding:0.8rem 1rem;font-family:var(--font);font-size:0.88rem;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+          <div style="text-align:right;font-size:0.72rem;color:var(--muted);margin-top:0.3rem">
+            <span id="bio-teller">0</span> / 1000
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="slaProfielOp()" style="margin-top:0.5rem">Profiel opslaan</button>
+        <div id="profiel-feedback" class="feedback"></div>
+      </div>
+
       <!-- TAB: INSTELLINGEN -->
       <div class="tab-panel" id="tab-instellingen">
         <div class="form-group">
