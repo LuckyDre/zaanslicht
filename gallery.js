@@ -667,8 +667,8 @@ function initLightbox() {
   function closeLightbox() {
     lightbox.classList.add('hidden');
     document.body.style.overflow = '';
-    const lbHeader = document.getElementById('lb-header');
-    if (lbHeader) lbHeader.style.display = 'none';
+    if (lbTerugBtn) lbTerugBtn.style.display = 'none';
+    if (lbTerugSep) lbTerugSep.style.display = 'none';
   }
 }
 
