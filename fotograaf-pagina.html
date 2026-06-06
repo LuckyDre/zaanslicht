@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fotograaf — Zaans Licht</title>
+  <meta name="description" content="Fotografie op Zaans Licht." />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange:  #FF6B00;
+    --orange2: #ff9040;
+    --black:   #0d0d0d;
+    --s1:      #111;
+    --s2:      #181818;
+    --border:  rgba(255,255,255,0.07);
+    --text:    #F0F0F0;
+    --muted:   #666;
+    --font:    'Segoe UI', system-ui, sans-serif;
+    --mono:    'Courier New', monospace;
+    --radius:  14px;
+  }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    background: var(--black); color: var(--text);
+    font-family: var(--font); overflow-x: hidden;
+    animation: pageFadeIn 0.22s ease;
+  }
+  @keyframes pageFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: var(--font); cursor: pointer; }
+
+  /* ── HEADER ── */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,107,0,0.15);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 3.2rem; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--text); flex-shrink: 0;
+  }
+  .logo img { width: 80px; height: 80px; object-fit: contain; }
+  .logo span { color: var(--orange); }
+  nav { display: flex; }
+  nav a {
+    color: #aaaaaa; font-size: 0.9rem;
+    letter-spacing: 1px; text-transform: uppercase;
+    margin-left: 2rem; transition: color 0.2s; padding: 0;
+  }
+  nav a:hover, nav a.active { color: var(--orange); }
+  .menu-toggle {
+    display: none; margin-left: auto;
+    background: none; border: 1px solid var(--border);
+    color: var(--text); width: 40px; height: 40px;
+    border-radius: 8px; font-size: 1rem;
+  }
+
+  /* ── PAGE HERO ── */
+  .page-hero {
+    padding: 120px 2.5rem 3rem;
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: end; gap: 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+  .page-hero::before {
+    content: attr(data-naam);
+    position: absolute; right: -0.05em; bottom: -0.1em;
+    font-size: clamp(5rem, 15vw, 14rem);
+    font-weight: 700; color: rgba(255,107,0,0.04);
+    line-height: 1; pointer-events: none;
+    letter-spacing: -4px; font-family: var(--mono);
+    user-select: none; text-transform: uppercase;
+  }
+  .hero-label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: var(--orange); margin-bottom: 0.8rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .hero-label::before {
+    content: ''; display: block;
+    width: 24px; height: 1px; background: var(--orange);
+  }
+  .page-hero h1 {
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 700; letter-spacing: -2px; line-height: 0.95; position: relative;
+  }
+  .hero-meta {
+    text-align: right; color: var(--muted);
+    font-size: 0.82rem; font-family: var(--mono);
+    line-height: 1.8; position: relative;
+  }
+  .hero-meta strong { color: var(--text); font-size: 1.4rem; display: block; }
+
+  /* ── LOADING ── */
+  .loading {
+    text-align: center; padding: 6rem 2rem;
+    color: var(--muted); font-family: var(--mono);
+    font-size: 0.85rem; letter-spacing: 2px;
+  }
+  .dots::after { content: ''; animation: dots 1.4s infinite; }
+  @keyframes dots {
+    0%,20%  { content: '.'; }
+    40%,60% { content: '..'; }
+    80%,100%{ content: '...'; }
+  }
+
+  /* ── GALLERY ── */
+  .gallery-container {
+    padding: 3rem 2.5rem 6rem;
+    display: flex; flex-direction: column; gap: 5rem;
+  }
+  .portfolio-category { display: grid; grid-template-rows: auto auto auto; gap: 0; }
+  .portfolio-category h3 {
+    font-size: clamp(1.2rem, 2.5vw, 1.9rem); font-weight: 700;
+    letter-spacing: -0.5px; padding-bottom: 1rem;
+    display: flex; align-items: center; gap: 1rem;
+    border-bottom: 1px solid var(--border); margin-bottom: 1.2rem; flex-wrap: wrap;
+  }
+  .portfolio-category h3::before {
+    content: ''; display: block; width: 4px; height: 1.4em;
+    background: var(--orange); border-radius: 2px; flex-shrink: 0;
+  }
+  .categorie-badge {
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 0.2rem 0.6rem;
+    border-radius: 100px; border: 1px solid var(--border);
+    color: var(--muted); background: var(--s2);
+  }
+
+  /* ── SWIPER ── */
+  .portfolio-swiper { width: 100%; overflow: hidden; border-radius: var(--radius); }
+  .portfolio-swiper .swiper-wrapper { align-items: stretch; }
+  .portfolio-swiper .swiper-slide {
+    width: 340px !important; height: 240px;
+    position: relative; border-radius: var(--radius);
+    overflow: hidden; cursor: pointer; flex-shrink: 0;
+  }
+  .portfolio-swiper .swiper-slide img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), filter 0.3s;
+    filter: brightness(0.92) saturate(1.1); display: block;
+  }
+  .portfolio-swiper .swiper-slide:hover img { transform: scale(1.05); filter: brightness(1) saturate(1.2); }
+  .slide-actions {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 0.8rem;
+    background: linear-gradient(to top, rgba(8,8,8,0.92), transparent);
+    display: flex; gap: 0.4rem; align-items: center;
+    transform: translateY(8px); opacity: 0; transition: all 0.25s;
+  }
+  .portfolio-swiper .swiper-slide:hover .slide-actions { opacity: 1; transform: translateY(0); }
+  .slide-actions button {
+    background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15); color: var(--text);
+    padding: 0.3rem 0.65rem; border-radius: 100px;
+    font-size: 0.72rem; font-weight: 600; transition: all 0.18s; white-space: nowrap;
+  }
+  .slide-actions button:hover { background: var(--orange); border-color: var(--orange); }
+  .slide-actions .btn-like.liked { background: rgba(255,107,0,0.3); border-color: var(--orange); color: var(--orange); }
+  .portfolio-swiper .swiper-button-prev,
+  .portfolio-swiper .swiper-button-next {
+    width: 40px; height: 40px;
+    background: rgba(8,8,8,0.8); backdrop-filter: blur(8px);
+    border: 1px solid var(--border); border-radius: 50%;
+    color: var(--text) !important; transition: all 0.2s;
+    top: 50%; margin-top: -20px;
+  }
+  .portfolio-swiper .swiper-button-prev:hover,
+  .portfolio-swiper .swiper-button-next:hover { background: var(--orange); border-color: var(--orange); }
+  .portfolio-swiper .swiper-button-prev::after,
+  .portfolio-swiper .swiper-button-next::after { font-size: 0.8rem !important; font-weight: 700; }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 2000;
+    background: rgba(4,4,4,0.97);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(12px);
+  }
+  .lightbox.hidden { display: none; }
+  .lightbox-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    color: var(--text); font-size: 1.4rem; transition: all 0.2s;
+  }
+  .lightbox-close:hover { background: var(--orange); border-color: var(--orange); }
+  #lightbox-img { max-width: min(90vw,1200px); max-height: 80vh; object-fit: contain; border-radius: 8px; }
+  .lb-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    color: var(--text); font-size: 1.3rem; transition: all 0.2s;
+  }
+  .lb-nav:hover { background: var(--orange); border-color: var(--orange); }
+  .lb-prev { left: 1.5rem; } .lb-next { right: 1.5rem; }
+  .lb-actions {
+    position: absolute; bottom: 2rem;
+    display: flex; gap: 0.8rem;
+    background: rgba(17,17,17,0.9); backdrop-filter: blur(16px);
+    border: 1px solid var(--border); border-radius: 100px; padding: 0.6rem 1.2rem;
+  }
+  .lb-actions button {
+    background: none; border: none; color: var(--muted);
+    font-size: 0.85rem; padding: 0.3rem 0.8rem;
+    border-radius: 100px; transition: all 0.2s; font-weight: 600;
+  }
+  .lb-actions button:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+  .lb-actions .btn-like.liked { color: var(--orange); }
+
+  /* ── REACTIES DRAWER ── */
+  .reacties-drawer {
+    position: fixed; right: 0; top: 0; bottom: 0;
+    width: 380px; max-width: 95vw; background: var(--s1);
+    border-left: 1px solid var(--border); z-index: 2100;
+    display: flex; flex-direction: column;
+    transform: translateX(0); transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reacties-drawer.slide-out { transform: translateX(110%); pointer-events: none; }
+  .rd-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border);
+    font-weight: 600; font-size: 0.9rem; flex-shrink: 0;
+  }
+  .rd-header button {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); width: 32px; height: 32px;
+    border-radius: 50%; font-size: 0.9rem; transition: all 0.2s;
+  }
+  .rd-header button:hover { border-color: var(--orange); color: var(--orange); }
+  .rd-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding: 1.2rem 1.5rem; }
+  .rd-lijst { flex: 1; display: flex; flex-direction: column; gap: 0.8rem; }
+  .rd-reactie { background: var(--s2); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; }
+  .rd-r-naam { font-size: 0.78rem; font-weight: 700; color: var(--orange); margin-bottom: 0.3rem; }
+  .rd-r-tekst { font-size: 0.88rem; color: rgba(240,240,240,0.8); line-height: 1.6; }
+  .rd-r-ts { font-size: 0.7rem; color: var(--muted); margin-top: 0.3rem; }
+  .rd-geen { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 2rem 0; }
+  .rd-form { display: flex; flex-direction: column; gap: 0.6rem; border-top: 1px solid var(--border); padding-top: 1rem; flex-shrink: 0; }
+  .rd-form input, .rd-form textarea {
+    background: var(--s2); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); padding: 0.7rem 0.9rem;
+    font-family: var(--font); font-size: 0.85rem; outline: none; transition: border-color 0.2s; resize: none;
+  }
+  .rd-form input:focus, .rd-form textarea:focus { border-color: var(--orange); }
+  .rd-form input::placeholder, .rd-form textarea::placeholder { color: var(--muted); }
+  .rd-form button {
+    background: var(--orange); border: none; color: #fff;
+    padding: 0.7rem 1.5rem; border-radius: 100px;
+    font-weight: 700; font-size: 0.85rem; align-self: flex-end; transition: background 0.2s;
+  }
+  .rd-form button:hover { background: var(--orange2); }
+
+  /* ── PAGE NAV & FOOTER ── */
+  .page-nav { display: flex; gap: 1rem; justify-content: center; padding: 2rem; border-top: 1px solid var(--border); }
+  .btn-terug, .btn-home { padding: 0.65rem 1.5rem; border-radius: 100px; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; }
+  .btn-terug { background: none; border: 1px solid var(--border); color: var(--muted); }
+  .btn-terug:hover { border-color: var(--orange); color: var(--orange); }
+  .btn-home { background: var(--orange); border: 1px solid var(--orange); color: #fff; }
+  .btn-home:hover { background: var(--orange2); }
+  footer { border-top: 1px solid var(--border); padding: 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  footer p { font-size: 0.78rem; color: var(--muted); }
+
+  /* ── MOBIEL ── */
+  .nav-mobile {
+    display: none; position: fixed; inset: 0;
+    background: rgba(8,8,8,0.98); z-index: 1000;
+    flex-direction: column; align-items: center; justify-content: center; gap: 2rem;
+  }
+  .nav-mobile.open { display: flex; }
+  .nav-mobile a { font-size: 2rem; font-weight: 700; transition: color 0.2s; }
+  .nav-mobile a:hover { color: var(--orange); }
+  .nav-mobile-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: none; border: 1px solid var(--border); color: var(--text);
+    width: 44px; height: 44px; border-radius: 50%; font-size: 1.2rem;
+  }
+  @media (max-width: 768px) {
+    nav { display: none; }
+    .menu-toggle { display: block; }
+    .page-hero { grid-template-columns: 1fr; padding-top: 100px; }
+    .hero-meta { text-align: left; }
+    .gallery-container { padding: 2rem 1.2rem 4rem; gap: 4rem; }
+    .portfolio-swiper .swiper-slide { width: 280px !important; height: 200px; }
+    footer { flex-direction: column; }
+  }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="images/logo-oranje.png" alt="Zaans Licht" />
+    <a href="index.html">Zaans<span> Licht</span></a>
+  </div>
+  <nav id="desktop-nav">
+    <a href="index.html">Home</a>
+    <a href="voetbal.html">Voetbal</a>
+    <a href="nosports.html">No Sports</a>
+    <a href="clubs.html">Clubs</a>
+    <a href="index.html#over">Over mij</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <button class="menu-toggle" id="hamburger" aria-label="Menu">&#9776;</button>
+</header>
+
+<div class="nav-mobile" id="nav-mobile">
+  <button class="nav-mobile-close" id="nav-close">&times;</button>
+  <a href="index.html"       onclick="sluitMenu()">Home</a>
+  <a href="voetbal.html"     onclick="sluitMenu()">Voetbal</a>
+  <a href="nosports.html"    onclick="sluitMenu()">No Sports</a>
+  <a href="clubs.html"       onclick="sluitMenu()">Clubs</a>
+  <a href="index.html#over"  onclick="sluitMenu()">Over mij</a>
+  <a href="contact.html"     onclick="sluitMenu()">Contact</a>
+</div>
+
+<div class="page-hero" id="page-hero" data-naam="">
+  <div>
+    <p class="hero-label" id="hero-label">Gastfotograaf</p>
+    <h1 id="hero-naam">Laden…</h1>
+    <p id="hero-sub" style="color:var(--muted);font-size:0.9rem;margin-top:0.6rem">Fotografie op Zaans Licht</p>
+  </div>
+  <div class="hero-meta">
+    <strong id="meta-fotos">—</strong>foto's<br>
+    <strong id="meta-mappen">—</strong>series
+  </div>
+</div>
+
+<div id="gallery-container" class="gallery-container">
+  <div class="loading">Foto's laden<span class="dots"></span></div>
+</div>
+
+<div id="lightbox" class="lightbox hidden">
+  <button class="lightbox-close">&times;</button>
+  <button id="lb-prev" class="lb-nav lb-prev">&#8592;</button>
+  <img id="lightbox-img" src="" alt="" />
+  <button id="lb-next" class="lb-nav lb-next">&#8594;</button>
+  <div class="lb-actions">
+    <button class="btn-like lb-like" id="lb-like" title="Like">
+      <span class="heart">♥</span>
+      <span class="like-count" id="lb-like-count"></span>
+    </button>
+    <button class="btn-download" id="lb-download" title="Download">↓ Download</button>
+    <button class="btn-reacties" id="lb-reacties-btn" title="Reacties">💬 <span id="lb-rc-count"></span></button>
+  </div>
+</div>
+
+<div id="reacties-drawer" class="reacties-drawer slide-out">
+  <div class="rd-header">
+    <span>💬 Reacties <span id="rd-count"></span></span>
+    <button id="rd-close">✕</button>
+  </div>
+  <div class="rd-body">
+    <div class="rd-lijst" id="rd-lijst"><p class="rd-geen">Nog geen reacties</p></div>
+    <form class="rd-form" id="rd-form" autocomplete="off">
+      <input type="text" id="rd-naam" placeholder="Naam (optioneel)" maxlength="50" />
+      <textarea id="rd-tekst" placeholder="Schrijf een reactie..." maxlength="400" rows="3" required></textarea>
+      <button type="submit">Plaatsen →</button>
+    </form>
+  </div>
+</div>
+
+<div class="page-nav">
+  <button class="btn-terug" onclick="history.back()">← Terug</button>
+  <a class="btn-home" href="index.html">⌂ Home</a>
+</div>
+
+<footer>
+  <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel & Co.</p>
+  <p class="disclaimer">Alle foto's zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="nav-fotografen.js"></script>
+<script>
+const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+const params = new URLSearchParams(location.search);
+const FOTOGRAAF_ID = params.get('id');
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
+function photoKey(path) { return path.replace(/\//g,'__').replace(/\./g,'--'); }
+function isLikedLocally(key) {
+  try { return !!JSON.parse(localStorage.getItem('zl_liked')||'{}')[key]; } catch { return false; }
+}
+function setLikedLocally(key, val) {
+  try {
+    const s = JSON.parse(localStorage.getItem('zl_liked')||'{}');
+    if (val) s[key] = true; else delete s[key];
+    localStorage.setItem('zl_liked', JSON.stringify(s));
+  } catch {}
+}
+
+// ── PAGINA LADEN ─────────────────────────────────────────────────────────────
+async function laadPagina() {
+  const container = document.getElementById('gallery-container');
+
+  if (!FOTOGRAAF_ID) {
+    container.innerHTML = '<p style="text-align:center;padding:4rem;color:#666">Geen fotograaf opgegeven.</p>';
+    return;
+  }
+
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/manifest');
+    const data = await res.json();
+    const fg   = (data.fotografen || []).find(f => f.id === FOTOGRAAF_ID);
+
+    if (!fg) {
+      container.innerHTML = '<p style="text-align:center;padding:4rem;color:#666">Fotograaf niet gevonden.</p>';
+      return;
+    }
+
+    // Pas pagina-stijl aan op de kleur van de fotograaf
+    const kleur  = fg.kleur || '#FF6B00';
+    const kleur2 = kleur + 'cc';
+    document.documentElement.style.setProperty('--orange',  kleur);
+    document.documentElement.style.setProperty('--orange2', kleur2);
+    document.title = `${fg.naam} — Zaans Licht`;
+
+    const hero = document.getElementById('page-hero');
+    hero.setAttribute('data-naam', fg.naam);
+    document.getElementById('hero-naam').textContent  = fg.naam;
+    document.getElementById('hero-label').textContent = 'Gastfotograaf · Zaans Licht';
+
+    // Markeer actieve nav-link
+    document.querySelectorAll('nav a[data-fg-id]').forEach(a => {
+      if (a.dataset.fgId === FOTOGRAAF_ID) {
+        a.style.color = kleur;
+        a.classList.add('active');
+      }
+    });
+
+    // Laad alle mappen van deze fotograaf
+    const mappen = fg.mappen || [];
+    if (!mappen.length) {
+      container.innerHTML = '<p style="text-align:center;padding:4rem;color:#666">Nog geen foto\'s geüpload.</p>';
+      document.getElementById('meta-fotos').textContent  = '0';
+      document.getElementById('meta-mappen').textContent = '0';
+      return;
+    }
+
+    container.innerHTML = '';
+    let totaalFotos = 0;
+
+    // Haal likes op uit Firebase
+    let likeCounts = {};
+    try {
+      if (typeof db !== 'undefined') {
+        const snap = await db.ref('likes').once('value');
+        likeCounts = snap.val() || {};
+      }
+    } catch {}
+
+    for (const map of mappen) {
+      const fotosRes  = await fetch(`${WORKER}/fotograaf/fotos?id=${fg.id}&categorie=${encodeURIComponent(map.categorie)}`);
+      const fotosData = await fotosRes.json();
+      const fotos     = (fotosData.fotos || []).filter(f =>
+        f.key.includes(`/${encodeURIComponent(map.map)}/`) || f.key.includes(`/${map.map}/`)
+      );
+      if (!fotos.length) continue;
+
+      totaalFotos += fotos.length;
+
+      const div = document.createElement('div');
+      div.className = 'portfolio-category';
+
+      const catLabel = map.categorie === 'voetbal' ? '⚽ Voetbal'
+                     : map.categorie === 'nosports' ? '🌿 No Sports'
+                     : '📷 Eigen';
+
+      const slides = fotos.map(f => {
+        const src   = `${WORKER}/foto/${f.key}`;
+        const key   = photoKey(`gast/${fg.id}/${f.naam}`);
+        const liked = isLikedLocally(key);
+        const count = likeCounts[key] || 0;
+        return `<div class="swiper-slide">
+          <img src="${src}" alt="${f.naam}" loading="lazy" />
+          <div class="slide-actions">
+            <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" data-path="gast/${fg.id}/${f.naam}">
+              <span class="heart">♥</span>
+              <span class="like-count">${count > 0 ? count : ''}</span>
+            </button>
+            <button class="btn-download" data-src="${src}" data-naam="${f.naam}">↓ Download</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      div.innerHTML = `
+        <h3>${map.map} <span class="categorie-badge">${catLabel}</span></h3>
+        <div class="swiper portfolio-swiper">
+          <div class="swiper-wrapper">${slides}</div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>`;
+
+      container.appendChild(div);
+
+      const swiperEl = div.querySelector('.portfolio-swiper');
+      new Swiper(swiperEl, {
+        loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
+        navigation: {
+          nextEl: swiperEl.querySelector('.swiper-button-next'),
+          prevEl: swiperEl.querySelector('.swiper-button-prev'),
+        },
+      });
+    }
+
+    document.getElementById('meta-fotos').textContent  = totaalFotos;
+    document.getElementById('meta-mappen').textContent = mappen.length;
+
+    initLightbox();
+    initLikes();
+    initComments();
+
+  } catch (e) {
+    container.innerHTML = '<p style="text-align:center;padding:4rem;color:#666">Kon foto\'s niet laden.</p>';
+    console.error(e);
+  }
+}
+
+// ── LIKES ────────────────────────────────────────────────────────────────────
+function initLikes() {
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.btn-download[data-src]');
+    if (!btn) return;
+    e.stopPropagation();
+    downloadAlsJpg(btn.dataset.src, btn.dataset.naam);
+  });
+  document.addEventListener('click', async e => {
+    const btn = e.target.closest('.btn-like');
+    if (!btn) return;
+    e.stopPropagation();
+    const key   = btn.dataset.key;
+    const liked = isLikedLocally(key);
+    if (typeof db === 'undefined') return;
+    const ref = db.ref(`likes/${key}`);
+    try {
+      if (liked) {
+        await ref.transaction(cur => Math.max(0, (cur||1) - 1));
+        setLikedLocally(key, false); btn.classList.remove('liked');
+      } else {
+        await ref.transaction(cur => (cur||0) + 1);
+        setLikedLocally(key, true); btn.classList.add('liked');
+      }
+      const snap = await ref.once('value');
+      const count = snap.val() || 0;
+      btn.querySelector('.like-count').textContent = count > 0 ? count : '';
+    } catch {}
+  });
+}
+
+// ── LIGHTBOX ─────────────────────────────────────────────────────────────────
+function initLightbox() {
+  const lightbox    = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lbLike      = document.getElementById('lb-like');
+  const lbLikeCount = document.getElementById('lb-like-count');
+  const lbDownload  = document.getElementById('lb-download');
+  let allImages = [], allKeys = [], currentIdx = 0;
+
+  function showLightbox(idx) {
+    currentIdx = idx;
+    const img  = allImages[idx];
+    lightboxImg.src = img.src;
+    const key = allKeys[idx];
+    if (key && lbLike) {
+      lbLike.dataset.key = key;
+      lbLike.classList.toggle('liked', isLikedLocally(key));
+      if (typeof db !== 'undefined') {
+        db.ref(`likes/${key}`).once('value').then(s => {
+          lbLikeCount.textContent = (s.val() || 0) > 0 ? s.val() : '';
+        });
+      }
+    }
+    if (lbDownload) {
+      lbDownload.dataset.src  = img.src;
+      lbDownload.dataset.naam = img.src.split('/').pop();
+    }
+    if (window._setCommentPhoto) window._setCommentPhoto(key, img.src);
+  }
+
+  document.addEventListener('click', e => {
+    const img = e.target.closest('.portfolio-swiper img');
+    if (!img) return;
+    const slider = img.closest('.portfolio-swiper');
+    allImages = Array.from(slider.querySelectorAll('img'));
+    allKeys   = Array.from(slider.querySelectorAll('.swiper-slide')).map(s => {
+      const b = s.querySelector('.btn-like'); return b ? b.dataset.key : '';
+    });
+    showLightbox(allImages.indexOf(img));
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  });
+
+  if (lbLike) {
+    lbLike.addEventListener('click', async e => {
+      e.stopPropagation();
+      const key = lbLike.dataset.key;
+      if (!key || typeof db === 'undefined') return;
+      const liked = isLikedLocally(key);
+      const ref   = db.ref(`likes/${key}`);
+      if (liked) {
+        await ref.transaction(cur => Math.max(0,(cur||1)-1));
+        setLikedLocally(key,false); lbLike.classList.remove('liked');
+      } else {
+        await ref.transaction(cur => (cur||0)+1);
+        setLikedLocally(key,true); lbLike.classList.add('liked');
+      }
+      const snap = await ref.once('value');
+      const c = snap.val()||0;
+      lbLikeCount.textContent = c > 0 ? c : '';
+      const smallBtn = document.querySelector(`.btn-like[data-key="${key}"]`);
+      if (smallBtn) { smallBtn.classList.toggle('liked',!liked); smallBtn.querySelector('.like-count').textContent = c>0?c:''; }
+    });
+  }
+
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
+  });
+  document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  if (lbDownload) {
+    lbDownload.addEventListener('click', e => {
+      e.stopPropagation();
+      if (lbDownload.dataset.src) downloadAlsJpg(lbDownload.dataset.src, lbDownload.dataset.naam);
+    });
+  }
+  document.getElementById('lb-prev').addEventListener('click', e => {
+    e.stopPropagation(); if (currentIdx > 0) showLightbox(currentIdx - 1);
+  });
+  document.getElementById('lb-next').addEventListener('click', e => {
+    e.stopPropagation(); if (currentIdx < allImages.length - 1) showLightbox(currentIdx + 1);
+  });
+  document.addEventListener('keydown', e => {
+    if (lightbox.classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft'  && currentIdx > 0)                    showLightbox(currentIdx - 1);
+    if (e.key === 'ArrowRight' && currentIdx < allImages.length - 1) showLightbox(currentIdx + 1);
+  });
+  function closeLightbox() { lightbox.classList.add('hidden'); document.body.style.overflow = ''; }
+}
+
+// ── REACTIES ─────────────────────────────────────────────────────────────────
+function initComments() {
+  const drawer  = document.getElementById('reacties-drawer');
+  const rdClose = document.getElementById('rd-close');
+  const rdLijst = document.getElementById('rd-lijst');
+  const rdForm  = document.getElementById('rd-form');
+  const rdNaam  = document.getElementById('rd-naam');
+  const rdTekst = document.getElementById('rd-tekst');
+  const rdCount = document.getElementById('rd-count');
+  const rcBtn   = document.getElementById('lb-reacties-btn');
+  const rcCount = document.getElementById('lb-rc-count');
+  if (!drawer || !rcBtn) return;
+  drawer.classList.add('slide-out');
+  let curKey = '', curSrc = '';
+  window._setCommentPhoto = function(key, src) {
+    curKey = key||''; curSrc = src||'';
+    updateCount(curKey);
+    if (!drawer.classList.contains('slide-out')) loadComments(curKey);
+  };
+  function updateCount(key) {
+    if (!key || typeof db === 'undefined') { rcCount.textContent=''; return; }
+    db.ref('comments/'+key).once('value').then(snap => {
+      const n = snap.numChildren();
+      rcCount.textContent = n>0?n:'';
+      if (rdCount) rdCount.textContent = n>0?'('+n+')':'';
+    });
+  }
+  function loadComments(key) {
+    rdLijst.innerHTML = '<p class="rd-geen">Laden…</p>';
+    if (!key||typeof db==='undefined') { rdLijst.innerHTML='<p class="rd-geen">Geen verbinding</p>'; return; }
+    db.ref('comments/'+key).orderByChild('ts').once('value').then(snap => {
+      const items = [];
+      snap.forEach(c => items.push({id:c.key,...c.val()}));
+      items.reverse();
+      rdLijst.innerHTML = items.length===0
+        ? '<p class="rd-geen">Nog geen reacties</p>'
+        : items.map(c=>`<div class="rd-reactie"><div class="rd-r-naam">${c.naam||'Anoniem'}</div><div class="rd-r-tekst">${c.tekst}</div><div class="rd-r-ts">${new Date(c.ts).toLocaleDateString('nl-NL')}</div></div>`).join('');
+      updateCount(key);
+    });
+  }
+  rcBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (drawer.classList.contains('slide-out')) { drawer.classList.remove('slide-out'); loadComments(curKey); }
+    else drawer.classList.add('slide-out');
+  });
+  rdClose.addEventListener('click', () => drawer.classList.add('slide-out'));
+  rdForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const tekst = rdTekst.value.trim();
+    if (!tekst||!curKey||typeof db==='undefined') return;
+    const naam = rdNaam.value.trim()||'Anoniem';
+    const btn  = rdForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const ref = await db.ref('comments/'+curKey).push({naam,tekst,ts:Date.now(),pagina:'fotograaf',src:curSrc});
+      await db.ref('recent_comments/'+ref.key).set({naam,tekst,ts:Date.now(),photoKey:curKey,src:curSrc});
+      rdTekst.value = ''; loadComments(curKey);
+    } catch {}
+    btn.disabled = false;
+  });
+}
+
+// ── DOWNLOAD ─────────────────────────────────────────────────────────────────
+function downloadAlsJpg(src, naam) {
+  const img = new Image(); img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+    canvas.getContext('2d').drawImage(img,0,0);
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a   = document.createElement('a');
+      a.href = url; a.download = naam.replace(/\.[^.]+$/,'')+'.jpg'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }, 'image/jpeg', 0.92);
+  };
+  img.src = src;
+}
+
+// ── HAMBURGER ────────────────────────────────────────────────────────────────
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('nav-mobile').classList.add('open');
+});
+document.getElementById('nav-close').addEventListener('click', sluitMenu);
+function sluitMenu() { document.getElementById('nav-mobile').classList.remove('open'); }
+
+laadPagina();
+</script>
+</body>
+</html>
