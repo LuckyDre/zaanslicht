@@ -75,6 +75,7 @@ function createOverzichtModal() {
       padding: 2rem;
     }
     .overzicht-thumb {
+      width: 100%;
       aspect-ratio: 1;
       overflow: hidden;
       cursor: pointer;
@@ -87,6 +88,7 @@ function createOverzichtModal() {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
     .overzicht-thumb:hover img {
       transform: scale(1.08);
