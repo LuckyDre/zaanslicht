@@ -1080,32 +1080,28 @@ window.switchTab = (tabNaam, btn) => {
 
 async function vulMappenSelect() {
   const select = document.getElementById('up-map-select');
-  if (!select) { console.warn('Select element niet gevonden'); return; }
-  if (!sessie) { console.warn('Sessie niet beschikbaar'); return; }
+  if (!select || !sessie) return;
 
-  try {
-    const res = await fetch(WORKER + '/fotograaf/manifest');
-    const data = await res.json();
-    const fg = (data.fotografen || []).find(f => f.id === sessie.id);
-    const mappen = fg?.mappen || [];
-
-    console.log('Mappen geladen:', mappen);
-
-    // Vul select met bestaande mappen
-    select.innerHTML = '<option value="">— Nieuwe map —</option>';
-    if (mappen.length > 0) {
-      mappen.forEach(m => {
-        const optie = document.createElement('option');
-        optie.value = m.map;
-        optie.textContent = m.map;
-        select.appendChild(optie);
-      });
-    } else {
-      console.log('Geen mappen gevonden');
+  // Laad mappen als ze nog niet geladen zijn
+  if (_mappenData.length === 0) {
+    try {
+      const res = await fetch(WORKER + '/fotograaf/manifest');
+      const data = await res.json();
+      const fg = (data.fotografen || []).find(f => f.id === sessie.id);
+      _mappenData = fg?.mappen || [];
+    } catch (e) {
+      return;
     }
-  } catch (e) {
-    console.error('Fout bij laden mappen:', e);
   }
+
+  // Vul select met bestaande mappen
+  select.innerHTML = '<option value="">— Nieuwe map —</option>';
+  _mappenData.forEach(m => {
+    const optie = document.createElement('option');
+    optie.value = m.map;
+    optie.textContent = m.map;
+    select.appendChild(optie);
+  });
 }
 
 // Synchroniseer select met text input
