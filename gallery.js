@@ -1,7 +1,8 @@
 // gallery.js — dynamische slider pagina voor voetbal.html en nosports.html
 // Gebruik: <script src="gallery.js" data-category="voetbal"></script>
 
-const CATEGORY = document.currentScript.getAttribute('data-category');
+const CATEGORY   = document.currentScript.getAttribute('data-category');
+const WORKER_URL = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
 // ── OVERZICHT MODAL ───────────────────────────────────────────────────────
 function createOverzichtModal() {
