@@ -297,11 +297,6 @@ async function laadGastFotos(container) {
           </div>`;
         }).join('');
 
-        const gastSerieFotos = alleFotos.map(f => ({
-          src:  `${WORKER_URL}/foto/${f.key}`,
-          naam: f.naam,
-        }));
-
         div.innerHTML = `
           <h3>${map.map}<span class="serie-fotograaf">${fg.naam}</span>
             <span class="foto-count">${alleFotos.length} foto's</span>
@@ -335,7 +330,7 @@ async function laadGastFotos(container) {
 
         // Grid-overzicht knop
         div.querySelector('.btn-serie-grid').addEventListener('click', () => {
-          openSerieOverlay(map.map, fg.naam, gastSerieFotos);
+          openSerieOverlay(map.map, fg.naam, swiperEl);
         });
 
         // Directe click listeners op imgs — omzeilt Swiper event-interceptie
