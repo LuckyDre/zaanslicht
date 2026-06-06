@@ -1,13 +1,31 @@
-// nav-fotografen.js — voegt dynamisch fotograaf-links toe aan de nav
+// nav-fotografen.js — voegt dynamisch fotograaf-links toe aan de nav en vervangt & Co.
 (async function () {
   const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
   try {
     const res = await fetch(WORKER + '/fotograaf/manifest');
     const { fotografen } = await res.json();
-    if (!fotografen?.length) return;
 
     // Alleen fotografen met minstens één map tonen
-    const actief = fotografen.filter(fg => fg.mappen?.length > 0);
+    const actief = (fotografen || []).filter(fg => fg.mappen?.length > 0);
+
+    // ── Namen string bouwen en "& Co." overal vervangen ──────────────────────
+    const namenStr = actief.length
+      ? 'Andreas Luckfiel & ' + actief.map(fg => fg.naam).join(' & ')
+      : 'Andreas Luckfiel';
+
+    // Vervang alle tekstknopen die "Andreas Luckfiel & Co." bevatten
+    function vervangTekst(rootEl) {
+      const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        if (node.nodeValue.includes('Andreas Luckfiel & Co.')) {
+          node.nodeValue = node.nodeValue.replace(/Andreas Luckfiel & Co\./g, namenStr + '.');
+        }
+      });
+    }
+    vervangTekst(document.body);
+
     if (!actief.length) return;
 
     // Desktop nav: voeg links in vóór Contact
