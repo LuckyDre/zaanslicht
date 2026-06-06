@@ -32,7 +32,7 @@
     const nav = document.querySelector('header nav');
     if (nav) {
       const contactLink = Array.from(nav.querySelectorAll('a'))
-        .find(a => a.textContent.trim() === 'Contact');
+        .find(a => a.textContent.trim() === 'Clubs');
       for (const fg of actief) {
         const a = document.createElement('a');
         a.href = `fotograaf-pagina.html?id=${fg.id}`;
