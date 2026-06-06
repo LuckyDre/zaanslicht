@@ -207,6 +207,33 @@ function bindTegel(id, fn) {
   el.addEventListener('keydown', e => { if (e.key === 'Enter') fn(); });
 }
 
+// Globaal beschikbaar voor gastfotograaf-tegels in index.html
+window.setFotograafKleur = function(kleur) {
+  clearTimeout(themaTimer);
+  document.body.style.setProperty('--oranje', kleur);
+  const hue = hexNaarHueMain(kleur);
+  const logoImg = document.querySelector('.logo-img');
+  if (logoImg) logoImg.style.filter = `hue-rotate(${hue - 25}deg) saturate(1.2) brightness(1.1)`;
+};
+
+window.resetFotograafKleur = function() {
+  document.body.style.removeProperty('--oranje');
+  const logoImg = document.querySelector('.logo-img');
+  if (logoImg) logoImg.style.removeProperty('filter');
+};
+
+function hexNaarHueMain(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255;
+  const g = parseInt(hex.slice(3,5),16)/255;
+  const b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
+  if (d === 0) return 0;
+  let h = max === r ? (g-b)/d + (g<b?6:0)
+        : max === g ? (b-r)/d + 2
+        :             (r-g)/d + 4;
+  return Math.round(h * 60);
+}
+
 loadTegels();
 loadRecentComments();
 laadGastTegels();
