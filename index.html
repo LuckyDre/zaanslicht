@@ -275,48 +275,39 @@
         mediaQ.addEventListener('change', pasAan); pasAan(mediaQ);
 
         const bgStyle = bgUrl ? `background-image:url('${bgUrl}');background-size:cover;background-position:center;` : `background-color:#1a1a1a;`;
-        const borderStyle = `border-color:${kleur}`;
 
         rij.innerHTML = `
-          <!-- Hoofdtegel: eigen pagina -->
-          <a href="fotograaf-pagina.html?id=${fg.id}" class="tegel" style="${borderStyle}">
+          <a href="fotograaf-pagina.html?id=${fg.id}" class="tegel">
             <div class="tegel-bg" style="${bgStyle}"></div>
             <div class="tegel-content">
               <div class="tegel-icon">📷</div>
-              <h2 style="color:#fff">${fg.naam}</h2>
+              <h2>${fg.naam}</h2>
               <p>Fotografie</p>
             </div>
           </a>
-
-          <!-- Voetbal bijdragen -->
-          <a href="voetbal.html" class="tegel" style="${borderStyle}">
-            <div class="tegel-bg" style="${bgStyle}filter:hue-rotate(0deg)brightness(0.6);"></div>
+          <a href="voetbal.html" class="tegel">
+            <div class="tegel-bg" style="${bgStyle}filter:brightness(0.6);"></div>
             <div class="tegel-content">
               <div class="tegel-icon">⚽</div>
-              <h2 style="color:#fff">Voetbal</h2>
+              <h2>Voetbal</h2>
               <p>door ${fg.naam}</p>
             </div>
           </a>
-
-          <!-- Alle foto's -->
-          <a href="fotograaf-pagina.html?id=${fg.id}" class="tegel" style="${borderStyle}">
+          <a href="fotograaf-pagina.html?id=${fg.id}" class="tegel">
             <div class="tegel-bg" style="${bgStyle}filter:brightness(0.5);"></div>
             <div class="tegel-content">
               <div class="tegel-icon">🖼️</div>
-              <h2 style="color:#fff">Portfolio</h2>
+              <h2>Portfolio</h2>
               <p>${fg.mappen.length} serie${fg.mappen.length !== 1 ? 's' : ''}</p>
             </div>
           </a>`;
 
-        // Bij hover: wissel globale accentkleur naar kleur van fotograaf
-        const origOranje = getComputedStyle(document.documentElement).getPropertyValue('--oranje').trim();
-        rij.querySelectorAll('.tegel').forEach(t => {
-          t.addEventListener('mouseenter', () => {
-            document.documentElement.style.setProperty('--oranje', kleur);
-          });
-          t.addEventListener('mouseleave', () => {
-            document.documentElement.style.setProperty('--oranje', origOranje);
-          });
+        // Bij hover op een van de drie tegels: wissel volledige accentkleur van de pagina
+        rij.addEventListener('mouseenter', () => {
+          document.documentElement.style.setProperty('--oranje', kleur);
+        });
+        rij.addEventListener('mouseleave', () => {
+          document.documentElement.style.setProperty('--oranje', '#FF6B00');
         });
 
         wrapper.appendChild(rij);
