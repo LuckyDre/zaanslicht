@@ -552,13 +552,11 @@ async function fgUitnodig() {
 
   const naam  = document.getElementById('fg-naam').value.trim();
   const email = document.getElementById('fg-email').value.trim();
-  const fb    = document.getElementById('fg-uitnodig-feedback');
-  const res_div = document.getElementById('fg-invite-result');
+  const fb = document.getElementById('fg-uitnodig-feedback');
 
   if (!naam || !email) { fb.textContent = 'Vul naam en e-mailadres in.'; fb.style.display=''; fb.style.color='#ef4444'; return; }
 
   fb.style.display = 'none';
-  res_div.style.display = 'none';
 
   try {
     const res  = await fetch(url + '/fotograaf/uitnodigen', {
