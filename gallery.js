@@ -218,11 +218,6 @@ async function loadGallery() { // returns Promise
 
       container.appendChild(div);
 
-      // Grid-overzicht knop
-      const swiperEl = div.querySelector('.swiper');
-      div.querySelector('.btn-serie-grid').addEventListener('click', () => {
-        openSerieOverlay(item.naam, item.fotograaf || 'Zaans Licht', swiperEl);
-      });
     });
 
     // Initialiseer alle Swipers
