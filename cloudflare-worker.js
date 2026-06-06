@@ -949,15 +949,26 @@ async function handleProfielen(request, env) {
 // ── FOTO SERVEREN VIA WORKER (publiek toegankelijk) ───────────────────────
 async function handleFotoServe(request, env) {
   const url = new URL(request.url);
-  const key = url.pathname.replace('/foto/', '');
+  const key = decodeURIComponent(url.pathname.replace('/foto/', ''));
   if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
 
   const object = await env.FOTOS.get(key);
   if (!object) return new Response('Niet gevonden', { status: 404 });
 
+  // Bepaal Content-Type op basis van bestandsextensie
+  const ext = key.split('.').pop().toLowerCase();
+  const contentTypes = {
+    'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+    'webp': 'image/webp', 'png': 'image/png',
+    'gif': 'image/gif', 'heic': 'image/heic',
+  };
+  const contentType = object.httpMetadata?.contentType
+    || contentTypes[ext]
+    || 'image/jpeg';
+
   return new Response(object.body, {
     headers: {
-      'Content-Type': 'image/webp',
+      'Content-Type': contentType,
       'Cache-Control': 'public, max-age=31536000',
       'Access-Control-Allow-Origin': '*',
     },
