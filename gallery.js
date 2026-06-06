@@ -397,7 +397,10 @@ async function laadGastFotos(container) {
 
         div.innerHTML = `
           <h3>${map.map}<span class="serie-fotograaf">${fg.naam}</span>
-            <span class="foto-count">${alleFotos.length} foto's</span>
+            <span class="h3-rechts">
+              <span class="foto-count">${alleFotos.length} foto's</span>
+              <button class="btn-overzicht" title="Overzicht fotos">⊞</button>
+            </span>
           </h3>
           <div class="swiper portfolio-swiper">
             <div class="swiper-wrapper">${slides}</div>
