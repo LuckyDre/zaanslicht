@@ -363,6 +363,30 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
+  /* ── VOLGORDE LIJST ── */
+  .map-item {
+    display: flex; align-items: center; gap: 0.8rem;
+    background: var(--card); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 0.7rem 1rem;
+    margin-bottom: 0.5rem; cursor: default;
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  .map-item:hover { background: #1e1e1e; }
+  .map-item.sortable-ghost { opacity: 0.4; }
+  .map-item.sortable-chosen { box-shadow: 0 4px 16px rgba(0,0,0,0.4); background: #222; }
+  .map-drag-handle {
+    color: var(--muted); font-size: 1.1rem; cursor: grab;
+    padding: 0 0.2rem; user-select: none; flex-shrink: 0;
+  }
+  .map-drag-handle:active { cursor: grabbing; }
+  .map-naam { flex: 1; font-size: 0.9rem; font-weight: 600; }
+  .map-cat-badge {
+    font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase;
+    padding: 0.2rem 0.55rem; border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.1); color: var(--muted);
+    flex-shrink: 0;
+  }
+
   /* ── MAPPEN OVERZICHT ── */
   .mappen-grid {
     display: grid;
