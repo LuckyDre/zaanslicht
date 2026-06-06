@@ -1075,7 +1075,37 @@ window.switchTab = (tabNaam, btn) => {
   document.getElementById('tab-' + tabNaam)?.classList.add('active');
   btn?.classList.add('active');
   if (tabNaam === 'mappen') laadMappenTab();
+  if (tabNaam === 'upload') vulMappenSelect();
 };
+
+async function vulMappenSelect() {
+  const select = document.getElementById('up-map-select');
+  if (!select || !sessie) return;
+
+  try {
+    const res = await fetch(WORKER + '/fotograaf/manifest');
+    const data = await res.json();
+    const fg = (data.fotografen || []).find(f => f.id === sessie.id);
+    const mappen = fg?.mappen || [];
+
+    // Vul select met bestaande mappen
+    select.innerHTML = '<option value="">— Nieuwe map —</option>';
+    mappen.forEach(m => {
+      const optie = document.createElement('option');
+      optie.value = m.map;
+      optie.textContent = m.map;
+      select.appendChild(optie);
+    });
+  } catch (e) {
+    console.error('Fout bij laden mappen:', e);
+  }
+}
+
+// Synchroniseer select met text input
+document.getElementById('up-map-select')?.addEventListener('change', function() {
+  const mapInput = document.getElementById('up-map');
+  if (mapInput) mapInput.value = this.value;
+});
 
 // ══════════════════════════════════════════════════════
 // MAPPEN VOLGORDE
