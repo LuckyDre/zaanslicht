@@ -88,22 +88,24 @@ function openSerieOverlay(titel, fotograaf, swiperEl) {
   document.getElementById('serie-overlay-count').textContent  = `${fotos.length} foto's`;
 
   grid.innerHTML = '';
-  grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(240px, 1fr))';
+  grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+  grid.style.gap = '2px';
 
   fotos.forEach((f, i) => {
     const cel = document.createElement('div');
-    cel.style.cssText = 'aspect-ratio:4/3;overflow:hidden;cursor:pointer;position:relative;background:#111;border-radius:4px';
+    cel.style.cssText = 'aspect-ratio:1/1;overflow:hidden;cursor:pointer;position:relative;background:#111';
     cel.dataset.idx   = i;
 
-    // Kloon de img die al geladen/gecached is
+    // Gebruik originele swiper-img (al geladen), maar klein afbeelden
     const origImg = slides[i];
     const img = document.createElement('img');
     img.src             = origImg.src;
     img.alt             = origImg.alt || '';
     img.loading         = 'lazy';
-    img.style.cssText   = 'width:100%;height:100%;object-fit:cover;transition:transform 0.2s,filter 0.2s;filter:brightness(0.85)';
-    img.onmouseover     = () => { img.style.transform = 'scale(1.08)'; img.style.filter = 'brightness(1)'; };
-    img.onmouseout      = () => { img.style.transform = ''; img.style.filter = 'brightness(0.85)'; };
+    img.decoding        = 'async';
+    img.style.cssText   = 'width:100%;height:100%;object-fit:cover;transition:filter 0.15s;filter:brightness(0.8)';
+    img.onmouseover     = () => { img.style.filter = 'brightness(1) scale(1.05)'; cel.style.zIndex = '10'; };
+    img.onmouseout      = () => { img.style.filter = 'brightness(0.8)'; cel.style.zIndex = '1'; };
 
     cel.appendChild(img);
     cel.addEventListener('click', () => {
