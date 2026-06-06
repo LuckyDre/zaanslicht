@@ -103,7 +103,7 @@ function openSerieOverlay(titel, fotograaf, swiperEl) {
     img.alt             = origImg.alt || '';
     img.loading         = 'lazy';
     img.decoding        = 'async';
-    img.style.cssText   = 'width:100%;height:100%;object-fit:cover;transition:filter 0.15s;filter:brightness(0.8)';
+    img.style.cssText   = 'width:100%;height:100%;object-fit:contain;transition:filter 0.15s;filter:brightness(0.8);background:#0a0a0a';
     img.onmouseover     = () => { img.style.filter = 'brightness(1) scale(1.05)'; cel.style.zIndex = '10'; };
     img.onmouseout      = () => { img.style.filter = 'brightness(0.8)'; cel.style.zIndex = '1'; };
 
