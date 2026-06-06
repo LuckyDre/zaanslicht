@@ -132,6 +132,10 @@ async function handleSend(request, env) {
         to:      sub.email,
         subject: subject,
         html:    html,
+        headers: {
+          'List-Unsubscribe': `<https://zaanslicht.com/afmelden.html?token=${sub.token}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
       }),
     });
 
