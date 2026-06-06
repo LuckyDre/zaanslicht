@@ -225,12 +225,13 @@ function bindTegel(id, fn) {
 }
 
 // Globaal beschikbaar voor gastfotograaf-tegels in index.html
-window.setFotograafKleur = function(kleur) {
+window.setFotograafKleur = function(kleur, fotos, naam) {
   clearTimeout(themaTimer);
   document.body.style.setProperty('--oranje', kleur);
   const hue = hexNaarHueMain(kleur);
   const logoImg = document.querySelector('.logo-img');
   if (logoImg) logoImg.style.filter = `hue-rotate(${hue - 25}deg) saturate(1.2) brightness(1.1)`;
+  if (fotos?.length) window.vulHeroVoorFotograaf(fotos, naam || '');
 };
 
 window.resetFotograafKleur = function() {
