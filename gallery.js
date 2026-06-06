@@ -3,6 +3,181 @@
 
 const CATEGORY = document.currentScript.getAttribute('data-category');
 
+// ── OVERZICHT MODAL ───────────────────────────────────────────────────────
+function createOverzichtModal() {
+  // Injecteer modal HTML en styles eenmalig
+  if (document.getElementById('overzicht-modal')) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'overzicht-modal';
+  modal.innerHTML = `
+    <div class="overzicht-header">
+      <h2 id="overzicht-titel"></h2>
+      <button id="overzicht-close" title="Sluiten">✕</button>
+    </div>
+    <div id="overzicht-grid"></div>
+  `;
+  document.body.appendChild(modal);
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #overzicht-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+    #overzicht-modal.open {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overzicht-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+    .overzicht-header h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      color: #fff;
+    }
+    #overzicht-close {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #888;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    #overzicht-close:hover {
+      border-color: var(--oranje, #FF6B00);
+      color: var(--oranje, #FF6B00);
+    }
+    #overzicht-grid {
+      flex: 1;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      padding: 2rem;
+    }
+    .overzicht-thumb {
+      aspect-ratio: 1;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      background: #111;
+    }
+    .overzicht-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .overzicht-thumb:hover img {
+      transform: scale(1.08);
+      filter: brightness(1.1);
+    }
+    .overzicht-thumb.active {
+      border-color: var(--oranje, #FF6B00);
+      box-shadow: 0 0 12px rgba(255,107,0,0.3);
+    }
+    .btn-overzicht {
+      margin-left: auto;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #666;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      flex-shrink: 0;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-overzicht:hover {
+      border-color: var(--oranje, #FF6B00);
+      color: var(--oranje, #FF6B00);
+      background: rgba(255,107,0,0.08);
+    }
+    h3 .btn-overzicht {
+      vertical-align: middle;
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.getElementById('overzicht-close').addEventListener('click', () => {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+}
+
+function openOverzicht(titel, fotos, swiperEl) {
+  const modal = document.getElementById('overzicht-modal') || createOverzichtModal();
+  const grid = document.getElementById('overzicht-grid');
+  const h2 = document.getElementById('overzicht-titel');
+
+  h2.textContent = titel;
+  grid.innerHTML = '';
+
+  fotos.forEach((f, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'overzicht-thumb';
+    const img = document.createElement('img');
+    img.src = f.src;
+    img.alt = '';
+    img.loading = 'lazy';
+    thumb.appendChild(img);
+
+    thumb.addEventListener('click', () => {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      // Open via bestaande lightbox handler
+      setTimeout(() => {
+        if (window._openLightboxVanImg) {
+          window._openLightboxVanImg(fotos[i]._img);
+        }
+      }, 50);
+    });
+
+    grid.appendChild(thumb);
+  });
+
+  document.getElementById('overzicht-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
 // Zet een foto-pad om naar een Firebase-safe sleutel
 function photoKey(path) {
@@ -112,6 +287,31 @@ async function loadGallery() { // returns Promise
           el: el.querySelector('.swiper-pagination'),
           type: 'fraction',
         },
+      });
+    });
+
+    // Voeg overzicht-buttons toe aan alle h3's
+    createOverzichtModal();
+    document.querySelectorAll('.portfolio-category h3').forEach(h3 => {
+      const div = h3.closest('.portfolio-category');
+      const swiper = div.querySelector('.portfolio-swiper');
+      if (!swiper) return;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-overzicht';
+      btn.title = 'Overzicht fotos';
+      btn.innerHTML = '⊞';
+      h3.appendChild(btn);
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fotos = Array.from(swiper.querySelectorAll('img')).map(img => ({
+          src: img.src,
+          _img: img
+        }));
+        if (fotos.length) {
+          openOverzicht(h3.textContent.split(/\d+ foto/)[0].trim(), fotos, swiper);
+        }
       });
     });
 
