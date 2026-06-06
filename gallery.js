@@ -12,6 +12,7 @@ function createOverzichtModal() {
   modal.id = 'overzicht-modal';
   modal.innerHTML = `
     <div class="overzicht-header">
+      <button id="overzicht-back" class="overzicht-back" title="Terug">← Terug</button>
       <h2 id="overzicht-titel"></h2>
       <button id="overzicht-close" title="Sluiten">✕</button>
     </div>
@@ -143,6 +144,12 @@ function createOverzichtModal() {
     }
   `;
   document.head.appendChild(style);
+
+  document.getElementById('overzicht-back').addEventListener('click', () => {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    window._currentOverzicht = null;
+  });
 
   document.getElementById('overzicht-close').addEventListener('click', () => {
     modal.classList.remove('open');
