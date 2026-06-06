@@ -1083,6 +1083,10 @@ async function laadMappenTab() {
     const fg   = (data.fotografen || []).find(f => f.id === sessie.id);
     _mappenData = fg?.mappen || [];
 
+    // Verberg handleiding als er al mappen zijn
+    const handleiding = document.getElementById('handleiding-intro');
+    if (handleiding) handleiding.style.display = _mappenData.length > 0 ? 'none' : 'block';
+
     if (!_mappenData.length) {
       inhoud.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Je hebt nog geen mappen aangemaakt. Upload foto\'s om een map te starten.</p>';
       return;
