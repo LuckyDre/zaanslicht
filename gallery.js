@@ -230,13 +230,6 @@ function openOverzicht(titel, fotos, swiperEl) {
   document.body.style.overflow = 'hidden';
 }
 
-function terugnaarOverzicht() {
-  const ov = window._currentOverzicht;
-  if (ov) {
-    ov.modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-}
 
 // Zet een foto-pad om naar een Firebase-safe sleutel
 function photoKey(path) {
