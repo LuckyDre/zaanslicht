@@ -445,7 +445,7 @@ function updateManifestFromDOM() {
       const fotos = el.dataset.fotosLoaded === 'true'
         ? Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto)
         : (base.fotos || []);
-      const fotograaf    = el.dataset.fotograaf    || base.fotograaf    || 'Andreas Luckfiel & Co.';
+      const fotograaf    = el.dataset.fotograaf    || base.fotograaf    || 'Andreas Luckfiel';
       const beschrijving = el.dataset.beschrijving !== undefined ? el.dataset.beschrijving : (base.beschrijving || '');
       return { ...base, volgorde: i, fotos, fotograaf, beschrijving };
     });
@@ -475,7 +475,7 @@ function renderCategorie(cat) {
     li.dataset.map        = item.map;
     li.dataset.cat        = cat;
     li.dataset.fotosLoaded  = 'false';
-    li.dataset.fotograaf    = item.fotograaf   || 'Andreas Luckfiel & Co.';
+    li.dataset.fotograaf    = item.fotograaf   || 'Andreas Luckfiel';
     li.dataset.beschrijving = item.beschrijving || '';
 
     li.innerHTML = `
@@ -487,7 +487,7 @@ function renderCategorie(cat) {
       </div>
       <div class="fotograaf-row" style="padding:0.4rem 1rem 0.3rem;display:flex;align-items:center;gap:0.5rem;border-top:1px solid #222;">
         <span style="font-size:0.72rem;color:#555;flex-shrink:0">Fotograaf:</span>
-        <input type="text" class="fotograaf-input" value="${item.fotograaf || 'Andreas Luckfiel & Co.'}"
+        <input type="text" class="fotograaf-input" value="${item.fotograaf || 'Andreas Luckfiel'}"
           style="flex:1;background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none"
           onclick="event.stopPropagation()"
           onchange="this.closest('.slider-item').dataset.fotograaf=this.value;dirty=true;"
