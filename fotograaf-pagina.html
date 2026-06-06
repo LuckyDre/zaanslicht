@@ -183,6 +183,22 @@
   .portfolio-swiper .swiper-button-next:hover { background: var(--orange); border-color: var(--orange); }
   .portfolio-swiper .swiper-button-prev::after,
   .portfolio-swiper .swiper-button-next::after { font-size: 0.8rem !important; font-weight: 700; }
+  .portfolio-swiper .swiper-pagination {
+    position: absolute; bottom: 0.6rem !important;
+    right: 0.8rem; left: auto !important; width: auto !important;
+    background: rgba(0,0,0,0.55); color: #fff;
+    font-size: 0.72rem; font-family: var(--mono);
+    letter-spacing: 1px; padding: 0.2rem 0.6rem;
+    border-radius: 100px; pointer-events: none;
+  }
+  .portfolio-swiper .swiper-pagination-current { color: var(--orange); font-weight: 700; }
+  .portfolio-swiper .swiper-pagination-total   { color: #aaa; }
+  .portfolio-category h3 .foto-count, .foto-count {
+    margin-left: auto; font-size: 0.72rem; font-family: var(--mono);
+    letter-spacing: 2px; color: var(--muted);
+    background: var(--s2); border: 1px solid var(--border);
+    padding: 0.25rem 0.7rem; border-radius: 100px;
+  }
 
   /* ── LIGHTBOX ── */
   .lightbox {
