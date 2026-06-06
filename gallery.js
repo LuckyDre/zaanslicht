@@ -540,10 +540,13 @@ function initLightbox() {
       const btn = slide.querySelector('.btn-like');
       return btn ? btn.dataset.key : '';
     });
-    showLightbox(allImages.indexOf(img));
+    // Zoek op element-referentie, val terug op src als Swiper DOM heeft gewijzigd
+    let idx = allImages.indexOf(img);
+    if (idx === -1) idx = allImages.findIndex(i => i.src === img.src);
+    if (idx === -1) idx = 0;
+    showLightbox(idx);
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    // Toon terug-knop alleen als we vanuit overzicht kwamen
     const fromOverzicht = !!window._currentOverzicht;
     if (lbTerugBtn) lbTerugBtn.style.display = fromOverzicht ? 'block' : 'none';
     if (lbTerugSep) lbTerugSep.style.display = fromOverzicht ? 'block' : 'none';
