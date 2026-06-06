@@ -738,16 +738,19 @@ function initComments() {
   }
   function loadComments(key) {
     rdLijst.innerHTML = '<p class="rd-geen">Laden…</p>';
-    if (!key||typeof db==='undefined') { rdLijst.innerHTML='<p class="rd-geen">Geen verbinding</p>'; return; }
-    db.ref('comments/'+key).orderByChild('ts').once('value').then(snap => {
-      const items = [];
-      snap.forEach(c => items.push({id:c.key,...c.val()}));
-      items.reverse();
-      rdLijst.innerHTML = items.length===0
-        ? '<p class="rd-geen">Nog geen reacties</p>'
-        : items.map(c=>`<div class="rd-reactie"><div class="rd-r-naam">${c.naam||'Anoniem'}</div><div class="rd-r-tekst">${c.tekst}</div><div class="rd-r-ts">${new Date(c.ts).toLocaleDateString('nl-NL')}</div></div>`).join('');
-      updateCount(key);
-    });
+    if (!key) { rdLijst.innerHTML='<p class="rd-geen">Selecteer een foto</p>'; return; }
+
+    fetch(WORKER + '/comments?key=' + encodeURIComponent(key))
+      .then(r => r.json())
+      .then(data => {
+        const items = data.comments || [];
+        rdLijst.innerHTML = items.length===0
+          ? '<p class="rd-geen">Nog geen reacties</p>'
+          : items.map(c=>`<div class="rd-reactie"><div class="rd-r-naam">${c.naam||'Anoniem'}</div><div class="rd-r-tekst">${c.tekst}</div><div class="rd-r-ts">${new Date(c.ts).toLocaleDateString('nl-NL')}</div></div>`).join('');
+        if (rdCount) rdCount.textContent = items.length > 0 ? '('+items.length+')' : '';
+        rcCount.textContent = items.length > 0 ? items.length : '';
+      })
+      .catch(e => { rdLijst.innerHTML='<p class="rd-geen">Fout bij laden</p>'; });
   }
   rcBtn.addEventListener('click', e => {
     e.stopPropagation();
