@@ -12,9 +12,9 @@ function createOverzichtModal() {
   modal.id = 'overzicht-modal';
   modal.innerHTML = `
     <div class="overzicht-header">
-      <button id="overzicht-back" class="overzicht-back" title="Terug">← Terug</button>
+      <button id="overzicht-back" class="overzicht-btn-rond" title="Terug">&#8592;</button>
       <h2 id="overzicht-titel"></h2>
-      <button id="overzicht-close" title="Sluiten">✕</button>
+      <button id="overzicht-close" class="overzicht-btn-rond" title="Sluiten">&#215;</button>
     </div>
     <div id="overzicht-grid"></div>
   `;
