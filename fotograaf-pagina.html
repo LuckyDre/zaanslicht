@@ -621,6 +621,8 @@ function initLightbox() {
     currentIdx = idx;
     const img  = allImages[idx];
     lightboxImg.src = img.src;
+    const teller = document.getElementById('lb-teller');
+    if (teller) teller.textContent = `${idx + 1} / ${allImages.length}`;
     const key = allKeys[idx];
     if (key && lbLike) {
       lbLike.dataset.key = key;
