@@ -751,14 +751,36 @@ async function handleAccountVerwijderen(request, env) {
 
 // ── MAPPEN VOLGORDE OPSLAAN ───────────────────────────────────────────────
 async function handleMappenVolgorde(request, env) {
-  const authToken = request.headers.get('X-Fotograaf-Token');
-  const fotograaf = await getFotograafByToken(authToken, env);
-  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+  const adminSecret = request.headers.get('X-Worker-Secret');
+  const isAdmin = adminSecret && adminSecret === env.WORKER_SECRET;
 
-  const { mappen } = await request.json().catch(() => ({}));
-  if (!Array.isArray(mappen)) return json({ error: 'mappen verplicht' }, 400);
+  let fotograafId;
+  let mappen;
 
-  await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
+  if (isAdmin) {
+    // Admin: stuurt { id, volgorde: [...mapNamen] }
+    const body = await request.json().catch(() => ({}));
+    fotograafId = body.id;
+    const volgorde = body.volgorde;
+    if (!fotograafId || !Array.isArray(volgorde)) return json({ error: 'id en volgorde verplicht' }, 400);
+    // Haal huidige mappen op en hersorteer op basis van volgorde
+    const huidigeRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograafId);
+    const huidigeMappen = huidigeRaw ? JSON.parse(huidigeRaw) : [];
+    mappen = volgorde.map(mapNaam => huidigeMappen.find(m => m.map === mapNaam)).filter(Boolean);
+    // Voeg mappen toe die niet in volgorde staan (aan het einde)
+    huidigeMappen.forEach(m => { if (!mappen.find(x => x.map === m.map)) mappen.push(m); });
+  } else {
+    // Fotograaf: stuurt { mappen: [...] } met X-Fotograaf-Token
+    const authToken = request.headers.get('X-Fotograaf-Token');
+    const fotograaf = await getFotograafByToken(authToken, env);
+    if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+    fotograafId = fotograaf.id;
+    const body = await request.json().catch(() => ({}));
+    mappen = body.mappen;
+    if (!Array.isArray(mappen)) return json({ error: 'mappen verplicht' }, 400);
+  }
+
+  await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograafId, JSON.stringify(mappen));
   return json({ ok: true });
 }
 
