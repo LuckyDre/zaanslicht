@@ -750,6 +750,28 @@ async function handleAccountVerwijderen(request, env) {
 }
 
 // ── MAPPEN VOLGORDE OPSLAAN ───────────────────────────────────────────────
+// ── GECOMBINEERDE GALLERY VOLGORDE ────────────────────────────────────────
+async function handleGalleryVolgorde(request, env) {
+  const secret = request.headers.get('X-Worker-Secret');
+  if (!secret || secret !== env.WORKER_SECRET) return json({ error: 'Niet toegestaan' }, 401);
+
+  const body = await request.json().catch(() => ({}));
+  if (!body.voetbal && !body.nosports) return json({ error: 'voetbal of nosports verplicht' }, 400);
+
+  if (body.voetbal)  await env.SUBSCRIBERS.put('gallery:volgorde:voetbal',  JSON.stringify(body.voetbal));
+  if (body.nosports) await env.SUBSCRIBERS.put('gallery:volgorde:nosports', JSON.stringify(body.nosports));
+  return json({ ok: true });
+}
+
+async function handleGetGalleryVolgorde(request, env) {
+  const voetbal  = await env.SUBSCRIBERS.get('gallery:volgorde:voetbal');
+  const nosports = await env.SUBSCRIBERS.get('gallery:volgorde:nosports');
+  return json({
+    voetbal:  voetbal  ? JSON.parse(voetbal)  : null,
+    nosports: nosports ? JSON.parse(nosports) : null,
+  });
+}
+
 async function handleMappenVolgorde(request, env) {
   const adminSecret = request.headers.get('X-Worker-Secret');
   const isAdmin = adminSecret && adminSecret === env.WORKER_SECRET;
