@@ -315,10 +315,12 @@ async function laadGastTegels() {
       // Haal foto's op
       const fotosRes = await fetch(`${WORKER_URL_MAIN}/fotograaf/fotos?id=${fg.id}`);
       const fotosData = await fotosRes.json();
-      const fotos = (fotosData.fotos || []).map(f => ({
-        src:  `${WORKER_URL_MAIN}/foto/${f.key}`,
-        path: f.key
-      }));
+      const fotos = (fotosData.fotos || [])
+        .filter(f => !f.key.includes('/profiel.'))
+        .map(f => ({
+          src:  `${WORKER_URL_MAIN}/foto/${f.key}`,
+          path: f.key
+        }));
       if (!fotos.length) continue;
 
       const kleur  = fg.kleur || '#3b82f6';
