@@ -3,6 +3,33 @@
 
 const CATEGORY = document.currentScript.getAttribute('data-category');
 
+// ── STIJL INJECTEREN ─────────────────────────────────────────────────────
+(function injectStijl() {
+  const s = document.createElement('style');
+  s.textContent = `
+    .btn-serie-grid {
+      margin-left: 0.5rem;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #666;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      vertical-align: middle;
+    }
+    .btn-serie-grid:hover {
+      border-color: var(--orange, #FF6B00);
+      color: var(--orange, #FF6B00);
+      background: rgba(255,107,0,0.08);
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
 // ── SERIE-OVERZICHT OVERLAY ───────────────────────────────────────────────
 (function injectOverlay() {
   const overlay = document.createElement('div');
