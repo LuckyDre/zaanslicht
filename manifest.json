@@ -133,6 +133,12 @@
       "beschrijving": ""
     },
     {
+      "volgorde": 1,
+      "fotos": [],
+      "fotograaf": "Andreas Luckfiel",
+      "beschrijving": ""
+    },
+    {
       "id": "ijburg-zcfc-1-1-25-26",
       "naam": "Ijburg - ZCFC 1-1 (25-26)",
       "map": "Ijburg - ZCFC 1-1 (25-26)",
@@ -159,43 +165,9 @@
         "_M4A6767.webp",
         "_M4A7140.webp"
       ],
-      "volgorde": 1,
-      "fotograaf": "Andreas Luckfiel",
-      "beschrijving": "Een gelijkspel buitenshuis bij AFC IJburg. ZCFC wist ondanks de uitwedstrijd een punt mee te nemen: 1-1."
-    },
-    {
-      "id": "zcfc-wieringermeer-2-1-25-26",
-      "naam": "ZCFC - Wieringermeer 2-1 (25-26)",
-      "map": "ZCFC - Wieringermeer 2-1 (25-26)",
-      "fotos": [
-        "122151217490902795.webp",
-        "122151217532902795.webp",
-        "122151217556902795.webp",
-        "122151217586902795.webp",
-        "122151217688902795.webp",
-        "122151217712902795.webp",
-        "122151217742902795.webp",
-        "122151217808902795.webp",
-        "122151217844902795.webp",
-        "122151217892902795.webp",
-        "122151217934902795.webp",
-        "122151217970902795.webp",
-        "122151218042902795.webp",
-        "122151218096902795.webp",
-        "122151218114902795.webp",
-        "122151218198902795.webp",
-        "122151218252902795.webp",
-        "122151218282902795.webp",
-        "122151218348902795.webp",
-        "122151218378902795.webp",
-        "122151218414902795.webp",
-        "122151218510902795.webp",
-        "122151218534902795.webp",
-        "122151218558902795.webp"
-      ],
       "volgorde": 2,
       "fotograaf": "Andreas Luckfiel",
-      "beschrijving": "Uitwedstrijd bij CV Wieringermeer in Slootdorp. Matchday met de hoop dat het weer mee zou werken — en dat deed het! ZCFC won met 2-1."
+      "beschrijving": "Een gelijkspel buitenshuis bij AFC IJburg. ZCFC wist ondanks de uitwedstrijd een punt mee te nemen: 1-1."
     },
     {
       "id": "zcfc-alcmaria-victrix-1-1-25-26",
@@ -413,6 +385,46 @@
       "beschrijving": ""
     },
     {
+      "id": "zcfc-wieringermeer-2-1-25-26",
+      "naam": "ZCFC - Wieringermeer 2-1 (25-26)",
+      "map": "ZCFC - Wieringermeer 2-1 (25-26)",
+      "fotos": [
+        "122151217490902795.webp",
+        "122151217532902795.webp",
+        "122151217556902795.webp",
+        "122151217586902795.webp",
+        "122151217688902795.webp",
+        "122151217712902795.webp",
+        "122151217742902795.webp",
+        "122151217808902795.webp",
+        "122151217844902795.webp",
+        "122151217892902795.webp",
+        "122151217934902795.webp",
+        "122151217970902795.webp",
+        "122151218042902795.webp",
+        "122151218096902795.webp",
+        "122151218114902795.webp",
+        "122151218198902795.webp",
+        "122151218252902795.webp",
+        "122151218282902795.webp",
+        "122151218348902795.webp",
+        "122151218378902795.webp",
+        "122151218414902795.webp",
+        "122151218510902795.webp",
+        "122151218534902795.webp",
+        "122151218558902795.webp"
+      ],
+      "volgorde": 8,
+      "fotograaf": "Andreas Luckfiel",
+      "beschrijving": "Uitwedstrijd bij CV Wieringermeer in Slootdorp. Matchday met de hoop dat het weer mee zou werken â en dat deed het! ZCFC won met 2-1."
+    },
+    {
+      "volgorde": 9,
+      "fotos": [],
+      "fotograaf": "Andreas Luckfiel",
+      "beschrijving": ""
+    },
+    {
       "id": "zcfc-fc-velsenoord-3-1-beker",
       "naam": "ZCFC - FC Velsenoord 3-1  (Beker)",
       "map": "ZCFC - FC Velsenoord 3-1  (Beker)",
@@ -475,7 +487,7 @@
         "122127712334902795.webp",
         "122127714104902795.webp"
       ],
-      "volgorde": 8,
+      "volgorde": 10,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -538,9 +550,9 @@
         "122129046518902795.webp",
         "122129046680902795.webp"
       ],
-      "volgorde": 9,
+      "volgorde": 11,
       "fotograaf": "Andreas Luckfiel",
-      "beschrijving": "Bekerwedstrijd om 17:00 uur bij ZCFC in Wijdewormer. Tegen de nummer één van Zaandijk in de bekercompetitie — met een uitgebreide selectie. De mannen lieten zien wat ze kunnen: 6-2!"
+      "beschrijving": "Bekerwedstrijd om 17:00 uur bij ZCFC in Wijdewormer. Tegen de nummer Ã©Ã©n van Zaandijk in de bekercompetitie â met een uitgebreide selectie. De mannen lieten zien wat ze kunnen: 6-2!"
     },
     {
       "id": "fortuna-wormerveer-zcfc-1-0-toernooi",
@@ -580,7 +592,7 @@
         "122110874558902795.webp",
         "122110874594902795.webp"
       ],
-      "volgorde": 10,
+      "volgorde": 12,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd tegen Fortuna Wormerveer. Een nipte uitslag: 0-1 voor Fortuna. Toch mooie momenten om vast te leggen op de camera."
     },
@@ -650,7 +662,7 @@
         "122130357116902795.webp",
         "122130357128902795.webp"
       ],
-      "volgorde": 11,
+      "volgorde": 13,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd ZCFC 1 - Saenden 1. ZCFC won met 1-0."
     },
@@ -714,7 +726,7 @@
         "122111403200902795.webp",
         "122111403254902795.webp"
       ],
-      "volgorde": 12,
+      "volgorde": 14,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd ZCFC 1 - Jisp 1, eindigend in een gelijkspel: 0-0. Beide ploegen hielden elkaar goed in evenwicht."
     },
@@ -779,7 +791,7 @@
         "JKR69085_DxO.webp",
         "JKR69278_DxO.webp"
       ],
-      "volgorde": 13,
+      "volgorde": 15,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -791,7 +803,7 @@
         "122109456800902795.webp",
         "122116855118902795.webp"
       ],
-      "volgorde": 14,
+      "volgorde": 16,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     }
@@ -920,7 +932,7 @@
       ],
       "volgorde": 0,
       "fotograaf": "Andreas Luckfiel",
-      "beschrijving": "Heel Amsterdam bruist! SAIL 2025 bracht een indrukwekkende vloot uit alle hoeken van de wereld naar de kade. Met een perfect plekje op de Hemkade en de camera in de hand — vol bewondering voor de schepen. De absolute favoriet: de U-Boot. Uniek en onvergetelijk. Een dag vol licht, water en geschiedenis."
+      "beschrijving": "Heel Amsterdam bruist! SAIL 2025 bracht een indrukwekkende vloot uit alle hoeken van de wereld naar de kade. Met een perfect plekje op de Hemkade en de camera in de hand â vol bewondering voor de schepen. De absolute favoriet: de U-Boot. Uniek en onvergetelijk. Een dag vol licht, water en geschiedenis."
     },
     {
       "id": "verkade",
