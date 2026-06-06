@@ -629,6 +629,9 @@ function initLightbox() {
     showLightbox(allImages.indexOf(img));
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+    // Toon terug-knop alleen als we vanuit overzicht kwamen
+    const lbHeader = document.getElementById('lb-header');
+    if (lbHeader) lbHeader.style.display = window._currentOverzicht ? 'flex' : 'none';
   }
 
   // Globaal beschikbaar voor gastfotograaf-slides
