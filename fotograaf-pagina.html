@@ -769,19 +769,15 @@ function initComments() {
     const naam = rdNaam.value.trim()||'Anoniem';
     btn.disabled = true;
     try {
-      console.log('Comment verzenden:', { naam, tekst, photoKey: curKey, src: curSrc });
       const res = await fetch(WORKER + '/comment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ naam, tekst, photoKey: curKey, src: curSrc }),
       });
-      console.log('Response status:', res.status);
       const data = await res.json();
-      console.log('Response data:', data);
       if (!data.ok) throw new Error(data.error || 'Fout bij opslaan');
       rdTekst.value = ''; loadComments(curKey);
     } catch (err) {
-      console.error('Error:', err);
       alert('Fout: ' + err.message);
     }
     btn.disabled = false;
