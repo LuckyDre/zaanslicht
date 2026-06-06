@@ -564,12 +564,6 @@ async function laadPagina() {
         },
       });
 
-      // Grid-overzicht knop (van gallery.js)
-      div.querySelector('.btn-serie-grid').addEventListener('click', () => {
-        if (window.openSerieOverlay) {
-          window.openSerieOverlay(map.map, fg.naam, swiperEl);
-        }
-      });
     }
 
     document.getElementById('meta-fotos').textContent  = totaalFotos;
