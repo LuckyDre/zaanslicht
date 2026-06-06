@@ -256,13 +256,15 @@
       for (const fg of actief) {
         const kleur = fg.kleur || '#FF6B00';
 
-        // Haal eerste beschikbare foto op als achtergrond
+        // Haal foto's op voor tegel-achtergrond én hero-preview
         let bgUrl = '';
+        let heroFotos = [];
         try {
           const fotosRes  = await fetch(`${WORKER}/fotograaf/fotos?id=${fg.id}`);
           const fotosData = await fotosRes.json();
           if (fotosData.fotos?.length) {
-            bgUrl = `${WORKER}/foto/${fotosData.fotos[0].key}`;
+            heroFotos = fotosData.fotos.slice(0, 5).map(f => ({ src: `${WORKER}/foto/${f.key}` }));
+            bgUrl = heroFotos[0].src;
           }
         } catch {}
 
