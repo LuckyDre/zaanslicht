@@ -273,19 +273,26 @@ function initLightbox() {
     if (window._setCommentPhoto) window._setCommentPhoto(key, img.src);
   }
 
-  document.addEventListener('click', e => {
-    const img = e.target.closest('.portfolio-swiper img');
-    if (!img) return;
+  function openLightboxVanImg(img) {
     const slider = img.closest('.portfolio-swiper');
-    allImages  = Array.from(slider.querySelectorAll('img'));
-    // Verzamel bijbehorende keys uit de slide-actions knoppen
-    allKeys = Array.from(slider.querySelectorAll('.swiper-slide')).map(slide => {
+    if (!slider) return;
+    allImages = Array.from(slider.querySelectorAll('img'));
+    allKeys   = Array.from(slider.querySelectorAll('.swiper-slide')).map(slide => {
       const btn = slide.querySelector('.btn-like');
       return btn ? btn.dataset.key : '';
     });
     showLightbox(allImages.indexOf(img));
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+  }
+
+  // Globaal beschikbaar voor gastfotograaf-slides
+  window._openLightboxVanImg = openLightboxVanImg;
+
+  document.addEventListener('click', e => {
+    const img = e.target.closest('.portfolio-swiper img');
+    if (!img) return;
+    openLightboxVanImg(img);
   });
 
   // Like in lightbox
