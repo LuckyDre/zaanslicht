@@ -500,8 +500,14 @@ async function handleFotograafLogin(request, env) {
 
   if (!found) return json({ error: 'Onbekend e-mailadres' }, 401);
 
-  const hash = await hashPassword(password);
-  if (hash !== found.passwordHash) return json({ error: 'Onjuist wachtwoord' }, 401);
+  const ok = await verifyPassword(password, found.passwordHash);
+  if (!ok) return json({ error: 'Onjuist wachtwoord' }, 401);
+
+  // Upgrade SHA-256 hash stilletjes naar PBKDF2 bij eerste inlog na de update
+  if (!found.passwordHash.startsWith('pbkdf2:')) {
+    found.passwordHash = await hashPassword(password);
+    await env.SUBSCRIBERS.put('fotograaf:account:' + found.id, JSON.stringify(found));
+  }
 
   // Controleer blokkering
   const geblokkeerd = await env.SUBSCRIBERS.get('fotograaf:geblokkeerd:' + found.id);
