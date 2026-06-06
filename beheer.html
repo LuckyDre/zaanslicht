@@ -550,7 +550,7 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   if (tab === 'reacties')   laadReacties();
   if (tab === 'abonnees')   abLaadConfig();
-  if (tab === 'fotografen') fgLaadLijst();
+  if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); }
 }
 
 // ── FOTOGRAFEN BEHEER ─────────────────────────────────────────────────────
