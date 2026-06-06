@@ -760,7 +760,9 @@ export default {
     if (url.pathname === '/send'        && request.method === 'POST') return handleSend(request, env);
 
     // ── FOTOGRAFEN SYSTEEM ──
-    if (url.pathname === '/fotograaf/uitnodigen'  && request.method === 'POST') return handleFotograafUitnodiging(request, env);
+    if (url.pathname === '/fotograaf/uitnodigen'      && request.method === 'POST') return handleFotograafUitnodiging(request, env);
+    if (url.pathname === '/fotograaf/uitnodigingen'   && request.method === 'GET')  return handleUitnodigingenLijst(request, env);
+    if (url.pathname === '/fotograaf/intrekken'       && request.method === 'POST') return handleUitnodigingIntrekken(request, env);
     if (url.pathname === '/fotograaf/register'    && request.method === 'POST') return handleFotograafRegister(request, env);
     if (url.pathname === '/fotograaf/login'       && request.method === 'POST') return handleFotograafLogin(request, env);
     if (url.pathname === '/fotograaf/upload'      && request.method === 'POST') return handleFotoUpload(request, env);
