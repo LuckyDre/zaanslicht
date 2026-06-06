@@ -318,6 +318,10 @@ async function loadGallery() { // returns Promise
       });
     });
 
+    initLightbox();
+    initLikes();
+    initComments();
+
     // Koppel overzicht-buttons
     createOverzichtModal();
     document.querySelectorAll('.portfolio-category h3').forEach(h3 => {
@@ -331,18 +335,14 @@ async function loadGallery() { // returns Promise
       });
     });
 
-    // Gastfoto click listeners
-    document.querySelectorAll('.gast-fotograaf .portfolio-swiper img').forEach(img => {
+    // Click listeners op ALLE foto's — na Swiper én na initLightbox
+    document.querySelectorAll('.portfolio-swiper img').forEach(img => {
       img.style.cursor = 'pointer';
       img.addEventListener('click', e => {
         e.stopPropagation();
         if (window._openLightboxVanImg) window._openLightboxVanImg(img);
       });
     });
-
-    initLightbox();
-    initLikes();
-    initComments();
 
   } catch (e) {
     container.innerHTML = '<p class="no-content">Kon foto\'s niet laden.</p>';
