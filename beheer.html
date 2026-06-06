@@ -463,6 +463,128 @@ function renderAll() {
   renderCategorie('voetbal');
   renderCategorie('nosports');
   switchTab(activeTab);
+  laadGastSeries();
+}
+
+// ── GAST-FOTOGRAAF SERIES ─────────────────────────────────────────────────
+async function laadGastSeries() {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  if (!url || !secret) return;
+
+  try {
+    const res  = await fetch(url + '/fotograaf/manifest');
+    const data = await res.json();
+    const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
+    if (!fotografen.length) return;
+
+    // Leeg de gast-containers
+    document.getElementById('gast-voetbal').innerHTML = '';
+    document.getElementById('gast-nosports').innerHTML = '';
+
+    for (const fg of fotografen) {
+      // Haal foto's op per fotograaf
+      const fotosRes  = await fetch(`${url}/fotograaf/fotos?id=${fg.id}`, { headers: { 'X-Worker-Secret': secret } });
+      const fotosData = await fotosRes.json();
+      const alleFotos = fotosData.fotos || [];
+
+      // Haal huidige volgorde op
+      let volgorde = [];
+      try {
+        const volRes  = await fetch(`${url}/fotograaf/mappen-volgorde?id=${fg.id}`, { headers: { 'X-Worker-Secret': secret } });
+        const volData = await volRes.json();
+        volgorde = volData.volgorde || [];
+      } catch(e) {}
+
+      // Groepeer fotos per map
+      const mappenMap = {};
+      for (const f of alleFotos) {
+        const delen = f.key.split('/');
+        const cat   = delen[0];
+        const map   = delen[1];
+        if (!map) continue;
+        if (!mappenMap[cat]) mappenMap[cat] = {};
+        if (!mappenMap[cat][map]) mappenMap[cat][map] = [];
+        mappenMap[cat][map].push(f);
+      }
+
+      for (const cat of ['voetbal', 'nosports', 'eigen']) {
+        const mappen = mappenMap[cat];
+        if (!mappen || !Object.keys(mappen).length) continue;
+
+        const targetCat = cat === 'eigen' ? 'voetbal' : cat;
+        const container = document.getElementById('gast-' + targetCat);
+        if (!container) continue;
+
+        // Sectieheader per fotograaf
+        const sectie = document.createElement('div');
+        sectie.style.cssText = 'margin-top:1.5rem';
+
+        const header = document.createElement('div');
+        header.style.cssText = `display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;
+          background:#111;border-radius:6px 6px 0 0;border:1px solid #2a2a2a;border-bottom:none`;
+        header.innerHTML = `
+          <span style="width:12px;height:12px;border-radius:50%;background:${fg.kleur||'#888'};flex-shrink:0"></span>
+          <span style="font-size:0.85rem;font-weight:700;color:#ddd">${escB(fg.naam)}</span>
+          <span style="font-size:0.72rem;color:#555;margin-left:auto">Sleep om volgorde aan te passen</span>`;
+        sectie.appendChild(header);
+
+        const lijst = document.createElement('ul');
+        lijst.className = 'slider-lijst';
+        lijst.style.cssText = 'border:1px solid #2a2a2a;border-radius:0 0 6px 6px;margin:0';
+        lijst.dataset.fgId  = fg.id;
+        lijst.dataset.fgCat = cat;
+        sectie.appendChild(lijst);
+
+        // Sorteer mappen op opgeslagen volgorde
+        const mapNamen = Object.keys(mappen).sort((a, b) => {
+          const ia = volgorde.indexOf(a);
+          const ib = volgorde.indexOf(b);
+          if (ia === -1 && ib === -1) return 0;
+          if (ia === -1) return 1;
+          if (ib === -1) return -1;
+          return ia - ib;
+        });
+
+        for (const mapNaam of mapNamen) {
+          const fotos = mappen[mapNaam];
+          const li = document.createElement('li');
+          li.className = 'slider-item';
+          li.dataset.map = mapNaam;
+          li.innerHTML = `
+            <div class="slider-header" style="cursor:default">
+              <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
+              <span class="slider-naam">${escB(mapNaam)}</span>
+              <span class="slider-count">${fotos.length} foto's</span>
+            </div>`;
+          lijst.appendChild(li);
+        }
+
+        // Sortable drag-and-drop
+        new Sortable(lijst, {
+          animation: 200, handle: '.drag-handle',
+          ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+          onEnd: async () => {
+            const nieuweVolgorde = Array.from(lijst.querySelectorAll('.slider-item')).map(el => el.dataset.map);
+            try {
+              await fetch(url + '/fotograaf/mappen-volgorde', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+                body: JSON.stringify({ id: fg.id, volgorde: nieuweVolgorde })
+              });
+              setLog(`✓ Volgorde van ${fg.naam} opgeslagen`, 'success');
+            } catch(e) {
+              setLog('❌ Volgorde opslaan mislukt', 'error');
+            }
+          }
+        });
+
+        container.appendChild(sectie);
+      }
+    }
+  } catch(e) {
+    console.warn('Gast-series laden mislukt:', e);
+  }
 }
 
 function renderCategorie(cat) {
