@@ -15,6 +15,15 @@ fswatch -o "$SITE" \
       echo "→ Wijzigingen gevonden..."
       echo "→ Laatste versie ophalen van GitHub..."
       git pull --rebase origin main 2>/dev/null || true
+
+      # Alleen manifest bijwerken als er nieuwe fotos zijn in images/
+      NIEUWE_FOTOS=$(git status --porcelain | grep -E "^(\?\?| M|A ) *images/(voetbal|nosports)/" | wc -l | tr -d ' ')
+      if [ "$NIEUWE_FOTOS" -gt "0" ]; then
+        echo "→ $NIEUWE_FOTOS nieuwe foto('s) gevonden — manifest bijwerken..."
+        python3 "$SITE/generate-manifest.py"
+        echo "✓ Manifest bijgewerkt"
+      fi
+
       git add -A
       git commit -m "Auto-sync: $(date '+%d-%m-%Y %H:%M')"
       git push
