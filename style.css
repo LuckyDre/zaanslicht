@@ -28,7 +28,7 @@ body.thema-nosports {
   --oranje-dark: #c9a000;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
 body {
   background: var(--zwart);
