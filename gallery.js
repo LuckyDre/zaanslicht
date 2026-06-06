@@ -313,23 +313,26 @@ async function loadGallery() { // returns Promise
     initLikes();
     initComments();
 
-    // Initialiseer alle Swipers — lightbox via Swiper onClick zodat het altijd werkt
+    // Initialiseer alle Swipers
     document.querySelectorAll('.portfolio-swiper').forEach(el => {
       new Swiper(el, {
         loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
-        preventClicks: false,
-        preventClicksPropagation: false,
         navigation: { nextEl: el.querySelector('.swiper-button-next'), prevEl: el.querySelector('.swiper-button-prev') },
         pagination: { el: el.querySelector('.swiper-pagination'), type: 'fraction' },
-        on: {
-          click(swiper, event) {
-            const img = event.target.closest('img');
-            if (img && window._openLightboxVanImg) window._openLightboxVanImg(img);
-          }
+      });
+      el.querySelectorAll('img').forEach(img => img.style.cursor = 'pointer');
+
+      // Tap-detectie via pointerdown/pointerup — Swiper-onafhankelijk
+      let _px = 0, _py = 0;
+      el.addEventListener('pointerdown', e => { _px = e.clientX; _py = e.clientY; });
+      el.addEventListener('pointerup', e => {
+        const dx = Math.abs(e.clientX - _px);
+        const dy = Math.abs(e.clientY - _py);
+        if (dx < 8 && dy < 8) {
+          const img = e.target.closest('img');
+          if (img && window._openLightboxVanImg) window._openLightboxVanImg(img);
         }
       });
-      // Cursor pointer op alle afbeeldingen
-      el.querySelectorAll('img').forEach(img => img.style.cursor = 'pointer');
     });
 
     // Koppel overzicht-buttons
