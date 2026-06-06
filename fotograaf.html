@@ -905,6 +905,86 @@ async function toonDashboard(nieuwAangemeld = false) {
 }
 
 // ══════════════════════════════════════════════════════
+// PROFIEL
+// ══════════════════════════════════════════════════════
+
+// Teller en bestaand profiel laden zodra tab actief wordt
+document.querySelector('[onclick*="profiel"]')?.addEventListener('click', laadProfiel);
+
+async function laadProfiel() {
+  if (!sessie) return;
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/profielen');
+    const data = await res.json();
+    const mijn = (data.profielen || []).find(p => p.id === sessie.id);
+    if (mijn?.bio) {
+      document.getElementById('profiel-bio').value = mijn.bio;
+      document.getElementById('bio-teller').textContent = mijn.bio.length;
+    }
+    if (mijn?.fotoUrl) {
+      const img = document.getElementById('profiel-foto-img');
+      img.src = WORKER + mijn.fotoUrl;
+      document.getElementById('profiel-foto-preview').style.display = '';
+    }
+  } catch {}
+}
+
+// Teken-teller
+document.getElementById('profiel-bio')?.addEventListener('input', function() {
+  document.getElementById('bio-teller').textContent = this.value.length;
+});
+
+// Foto-preview bij kiezen
+document.getElementById('profiel-foto-input')?.addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  document.getElementById('profiel-foto-naam').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('profiel-foto-img');
+    img.src = e.target.result;
+    document.getElementById('profiel-foto-preview').style.display = '';
+  };
+  reader.readAsDataURL(file);
+});
+
+window.slaProfielOp = async () => {
+  const fb   = document.getElementById('profiel-feedback');
+  const btn  = document.querySelector('[onclick="slaProfielOp()"]');
+  const bio  = document.getElementById('profiel-bio').value.trim();
+  const file = document.getElementById('profiel-foto-input').files[0];
+  fb.className = 'feedback';
+  btn.disabled = true; btn.textContent = 'Opslaan…';
+
+  try {
+    // Bio opslaan
+    const bioRes = await fetch(WORKER + '/fotograaf/bio-opslaan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ bio }),
+    });
+    if (!(await bioRes.json()).ok) throw new Error('Bio opslaan mislukt');
+
+    // Profielfoto uploaden (alleen als er een nieuw bestand is gekozen)
+    if (file) {
+      const form = new FormData();
+      form.append('foto', file);
+      const fotoRes = await fetch(WORKER + '/fotograaf/profielfoto', {
+        method: 'POST',
+        headers: { 'X-Fotograaf-Token': sessie.token },
+        body: form,
+      });
+      if (!(await fotoRes.json()).ok) throw new Error('Foto uploaden mislukt');
+    }
+
+    fb.textContent = '✓ Profiel opgeslagen'; fb.className = 'feedback ok';
+  } catch (e) {
+    fb.textContent = '✕ ' + e.message; fb.className = 'feedback err';
+  }
+  btn.disabled = false; btn.textContent = 'Profiel opslaan';
+};
+
+// ══════════════════════════════════════════════════════
 // INSTELLINGEN
 // ══════════════════════════════════════════════════════
 window.slaKleurOp = async () => {
