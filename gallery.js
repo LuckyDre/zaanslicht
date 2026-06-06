@@ -539,32 +539,33 @@ function initLightbox() {
     const style = document.createElement('style');
     style.textContent = `
       #lb-header {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 2001 !important;
-        padding: 1.5rem 2rem;
-        display: flex;
-        align-items: center;
-        background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
+        position: fixed;
+        top: 1.5rem;
+        left: 1.5rem;
+        z-index: 2001;
         pointer-events: auto;
       }
       .lb-terug {
-        background: var(--oranje, #FF6B00);
-        border: none;
-        color: #000;
-        padding: 0.6rem 1.2rem;
-        border-radius: 6px;
-        font-size: 0.95rem;
-        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(20, 20, 20, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255,255,255,0.85);
+        padding: 0.55rem 1.1rem;
+        border-radius: 100px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
       }
       .lb-terug:hover {
-        background: #FF8C2F;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+        background: rgba(255,107,0,0.15);
+        border-color: rgba(255,107,0,0.5);
+        color: #FF6B00;
       }
     `;
     document.head.appendChild(style);
@@ -574,7 +575,7 @@ function initLightbox() {
     lbHeader.style.display = 'none';
     const btnTerug = document.createElement('button');
     btnTerug.className = 'lb-terug';
-    btnTerug.innerHTML = '← Terug naar overzicht';
+    btnTerug.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Overzicht`;
     btnTerug.addEventListener('click', (e) => {
       e.stopPropagation();
       lbHeader.style.display = 'none';
