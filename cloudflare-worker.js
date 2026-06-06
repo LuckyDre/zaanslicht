@@ -820,6 +820,63 @@ async function handleProfielfotoUpload(request, env) {
   return json({ ok: true, key: r2Key });
 }
 
+// ── REACTIE OPSLAAN ──────────────────────────────────────────────────────────
+async function handleComment(request, env) {
+  try {
+    const { naam, tekst, photoKey, src } = await request.json();
+    if (!tekst || !photoKey) return json({ error: 'Bericht en foto vereist' }, 400);
+
+    const timestamp = Date.now();
+    const commentId = Array.from(crypto.getRandomValues(new Uint8Array(12)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Opslaan in KV
+    const commentKey = `comment:${photoKey}:${commentId}`;
+    await env.SUBSCRIBERS.put(
+      commentKey,
+      JSON.stringify({ naam: naam || 'Anoniem', tekst, ts: timestamp, src, photoKey }),
+      { expirationTtl: 7776000 } // 90 dagen
+    );
+
+    // Voeg toe aan recent list
+    await env.SUBSCRIBERS.put(
+      `recent:${commentId}`,
+      JSON.stringify({ naam: naam || 'Anoniem', tekst, ts: timestamp, photoKey, src }),
+      { expirationTtl: 7776000 }
+    );
+
+    return json({ ok: true, id: commentId });
+  } catch (e) {
+    return json({ error: e.message }, 500);
+  }
+}
+
+// ── REACTIES OPHALEN ─────────────────────────────────────────────────────────
+async function handleComments(request, env) {
+  try {
+    const url = new URL(request.url);
+    const photoKey = url.searchParams.get('key');
+    if (!photoKey) return json({ error: 'Photo key vereist' }, 400);
+
+    const comments = [];
+    let cursor;
+    do {
+      const r = await env.SUBSCRIBERS.list({ prefix: `comment:${photoKey}:`, cursor, limit: 100 });
+      for (const key of r.keys) {
+        const c = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+        comments.push(c);
+      }
+      cursor = r.list_complete ? undefined : r.cursor;
+    } while (cursor);
+
+    // Sorteer op timestamp (nieuwste eerst)
+    comments.sort((a, b) => b.ts - a.ts);
+    return json({ comments });
+  } catch (e) {
+    return json({ error: e.message }, 500);
+  }
+}
+
 // ── PROFIELEN OPHALEN (publiek) ───────────────────────────────────────────
 async function handleProfielen(request, env) {
   const profielen = [];
@@ -895,6 +952,8 @@ export default {
     if (url.pathname === '/fotograaf/blokkeer'        && request.method === 'POST') return handleBlokkeer(request, env);
     if (url.pathname === '/fotograaf/verberg-map'     && request.method === 'POST') return handleVerborgeMap(request, env);
     if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
+    if (url.pathname === '/comment'  && request.method === 'POST') return handleComment(request, env);
+    if (url.pathname === '/comments' && request.method === 'GET')  return handleComments(request, env);
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
     if (url.pathname === '/fotograaf/mappen-volgorde' && request.method === 'POST') return handleMappenVolgorde(request, env);
     if (url.pathname === '/fotograaf/bio-opslaan'    && request.method === 'POST') return handleBioOpslaan(request, env);
