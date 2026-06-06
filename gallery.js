@@ -430,6 +430,15 @@ function renderGastItem(fg, mapNaam, fotos, container) {
         <div class="swiper-pagination"></div>
       </div>`;
     container.appendChild(div);
+
+    // Directe click listeners — omzeilt Swiper event-interceptie
+    div.querySelectorAll('.portfolio-swiper img').forEach(img => {
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', e => {
+        e.stopPropagation();
+        if (window._openLightboxVanImg) window._openLightboxVanImg(img);
+      });
+    });
 }
 
 
