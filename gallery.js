@@ -438,15 +438,10 @@ async function laadGastFotos(container) {
           });
         });
 
-        // Voeg overzicht-button toe aan h3
+        // Koppel overzicht-button in h3
         const h3 = div.querySelector('h3');
-        if (h3) {
-          const btn = document.createElement('button');
-          btn.className = 'btn-overzicht';
-          btn.title = 'Overzicht fotos';
-          btn.innerHTML = '⊞';
-          h3.appendChild(btn);
-
+        const btn = h3 && h3.querySelector('.btn-overzicht');
+        if (btn) {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const fotos = Array.from(swiperEl.querySelectorAll('img')).map(img => ({
@@ -454,7 +449,7 @@ async function laadGastFotos(container) {
               _img: img
             }));
             if (fotos.length) {
-              openOverzicht(h3.textContent.split(/\d+ foto/)[0].trim(), fotos, swiperEl);
+              openOverzicht(h3.childNodes[0].textContent.trim(), fotos, swiperEl);
             }
           });
         }
