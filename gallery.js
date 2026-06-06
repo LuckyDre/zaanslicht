@@ -185,6 +185,15 @@ async function laadGastFotos(container) {
             prevEl: swiperEl.querySelector('.swiper-button-prev'),
           },
         });
+
+        // Directe click listeners op imgs — omzeilt Swiper event-interceptie
+        swiperEl.querySelectorAll('img').forEach(img => {
+          img.style.cursor = 'pointer';
+          img.addEventListener('click', e => {
+            e.stopPropagation();
+            if (window._openLightboxVanImg) window._openLightboxVanImg(img);
+          });
+        });
       }
     }
 
