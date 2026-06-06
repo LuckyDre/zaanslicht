@@ -335,7 +335,7 @@ async function handleFotograafUitnodiging(request, env) {
 
   // Stuur uitnodigingsmail via Resend
   try {
-    await fetch('https://api.resend.com/emails', {
+    const mailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
