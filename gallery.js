@@ -590,8 +590,9 @@ function initLightbox() {
     lightbox.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     // Toon terug-knop alleen als we vanuit overzicht kwamen
-    const lbHeader = document.getElementById('lb-header');
-    if (lbHeader) lbHeader.style.display = window._currentOverzicht ? 'flex' : 'none';
+    const fromOverzicht = !!window._currentOverzicht;
+    if (lbTerugBtn) lbTerugBtn.style.display = fromOverzicht ? 'block' : 'none';
+    if (lbTerugSep) lbTerugSep.style.display = fromOverzicht ? 'block' : 'none';
   }
 
   // Globaal beschikbaar voor gastfotograaf-slides
