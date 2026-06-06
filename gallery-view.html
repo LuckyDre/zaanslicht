@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallerij — Zaans Licht</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #FF6B00;
+      --black: #0d0d0d;
+      --s1: #111;
+      --s2: #181818;
+      --border: rgba(255,255,255,0.07);
+      --text: #F0F0F0;
+      --muted: #666;
+      --font: 'Segoe UI', system-ui, sans-serif;
+      --mono: 'Courier New', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--font);
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(13,13,13,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 2px; }
+    .logo span { color: var(--orange); }
+
+    nav { display: flex; gap: 2rem; }
+    nav a { font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; color: #888; text-decoration: none; transition: color 0.2s; }
+    nav a:hover { color: var(--orange); }
+
+    /* MAIN CONTAINER */
+    main {
+      margin-top: 80px;
+      padding: 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 80px);
+    }
+
+    /* VIEWER */
+    .viewer {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--s1);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .viewer img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .viewer-label {
+      position: absolute; top: 1.5rem; left: 1.5rem;
+      font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+      color: #666; font-family: var(--mono);
+      pointer-events: none;
+    }
+
+    .viewer-nav {
+      position: absolute;
+      width: 50px; height: 50px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .viewer-nav:hover { border-color: var(--orange); color: var(--orange); }
+    .viewer-prev { left: 1.5rem; top: 50%; transform: translateY(-50%); }
+    .viewer-next { right: 1.5rem; top: 50%; transform: translateY(-50%); }
+
+    .viewer-counter {
+      position: absolute; bottom: 1.5rem; right: 1.5rem;
+      font-size: 0.75rem; letter-spacing: 1px; color: #666;
+      font-family: var(--mono);
+      background: rgba(0,0,0,0.5); padding: 0.4rem 0.8rem; border-radius: 4px;
+    }
+
+    /* THUMBNAIL STRIP */
+    .thumb-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      height: 120px;
+      background: var(--s1);
+      border-radius: 8px;
+      padding: 0.8rem;
+    }
+
+    .thumb-scroll {
+      flex: 1;
+      display: flex;
+      gap: 0.8rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      padding: 0.4rem 0;
+    }
+
+    .thumb-scroll::-webkit-scrollbar { height: 6px; }
+    .thumb-scroll::-webkit-scrollbar-track { background: transparent; }
+    .thumb-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    .thumb-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    .thumb {
+      flex-shrink: 0;
+      width: 100px;
+      height: 100px;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      background: var(--s2);
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.2s;
+    }
+
+    .thumb:hover img { transform: scale(1.05); }
+    .thumb.active { border-color: var(--orange); box-shadow: 0 0 12px rgba(255,107,0,0.3); }
+
+    .thumb-btn {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      font-size: 1.2rem;
+    }
+
+    .thumb-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .thumb-btn:disabled { opacity: 0.3; cursor: default; }
+
+    /* LOADING */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.9rem;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      header { padding: 1rem 1.5rem; }
+      nav { gap: 1rem; font-size: 0.8rem; }
+      main { padding: 1rem; }
+      .thumb-container { height: 90px; }
+      .thumb { width: 75px; height: 75px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Zaans<span> Licht</span></div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="voetbal.html">Voetbal</a>
+    <a href="nosports.html">No Sports</a>
+    <a href="gallery-view.html" style="color:var(--orange)">Gallerij</a>
+  </nav>
+</header>
+
+<main>
+  <div class="viewer" id="viewer">
+    <div class="loading">Laden…</div>
+    <div class="viewer-label" id="viewer-label"></div>
+    <button class="viewer-nav viewer-prev" id="btn-prev">❮</button>
+    <button class="viewer-nav viewer-next" id="btn-next">❯</button>
+    <div class="viewer-counter"><span id="counter">0</span> / <span id="total">0</span></div>
+  </div>
+
+  <div class="thumb-container">
+    <button class="thumb-btn" id="btn-thumb-prev" title="Vorige">❮</button>
+    <div class="thumb-scroll" id="thumb-scroll"></div>
+    <button class="thumb-btn" id="btn-thumb-next" title="Volgende">❯</button>
+  </div>
+</main>
+
+<script>
+const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+let fotos = [];
+let currentIdx = 0;
+let fotograafId = null;
+let reeks = null;
+
+// Parse URL parameters
+const params = new URLSearchParams(window.location.search);
+fotograafId = params.get('id');
+reeks = params.get('reeks');
+
+// Load fotos
+async function laadFotos() {
+  try {
+    const viewer = document.getElementById('viewer');
+
+    if (!fotograafId || !reeks) {
+      viewer.innerHTML = '<div class="loading">Selecteer een reeks om weer te geven</div>';
+      return;
+    }
+
+    const res = await fetch(`${WORKER}/fotograaf/fotos?id=${fotograafId}`);
+    const data = await res.json();
+
+    fotos = (data.fotos || []).filter(f =>
+      f.key.includes(`/${encodeURIComponent(reeks)}/`) ||
+      f.key.includes(`/${reeks}/`)
+    );
+
+    if (fotos.length === 0) {
+      viewer.innerHTML = '<div class="loading">Geen foto\'s gevonden</div>';
+      return;
+    }
+
+    currentIdx = 0;
+    toonFoto();
+    vulThumbnails();
+  } catch (e) {
+    document.getElementById('viewer').innerHTML = `<div class="loading" style="color:#ef4444">Fout bij laden</div>`;
+  }
+}
+
+function toonFoto() {
+  const f = fotos[currentIdx];
+  const viewer = document.getElementById('viewer');
+  const img = document.createElement('img');
+  img.src = `${WORKER}/foto/${f.key}`;
+  img.alt = f.naam;
+
+  viewer.innerHTML = '';
+  viewer.appendChild(img);
+  viewer.insertAdjacentHTML('beforeend', `
+    <div class="viewer-label" id="viewer-label">${reeks}</div>
+    <button class="viewer-nav viewer-prev" id="btn-prev">❮</button>
+    <button class="viewer-nav viewer-next" id="btn-next">❯</button>
+    <div class="viewer-counter"><span id="counter">${currentIdx + 1}</span> / <span id="total">${fotos.length}</span></div>
+  `);
+
+  document.getElementById('btn-prev').addEventListener('click', () => { if (currentIdx > 0) { currentIdx--; toonFoto(); scrollThumb(); } });
+  document.getElementById('btn-next').addEventListener('click', () => { if (currentIdx < fotos.length - 1) { currentIdx++; toonFoto(); scrollThumb(); } });
+
+  document.querySelectorAll('.thumb').forEach((t, i) => {
+    t.classList.toggle('active', i === currentIdx);
+  });
+}
+
+function vulThumbnails() {
+  const scroll = document.getElementById('thumb-scroll');
+  scroll.innerHTML = '';
+
+  fotos.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = `thumb ${i === currentIdx ? 'active' : ''}`;
+    div.innerHTML = `<img src="${WORKER}/foto/${f.key}" alt="" />`;
+    div.addEventListener('click', () => {
+      currentIdx = i;
+      toonFoto();
+      scrollThumb();
+    });
+    scroll.appendChild(div);
+  });
+}
+
+function scrollThumb() {
+  const scroll = document.getElementById('thumb-scroll');
+  const thumb = scroll.querySelector('.thumb.active');
+  if (thumb) {
+    thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+}
+
+document.getElementById('btn-thumb-prev').addEventListener('click', () => {
+  document.getElementById('thumb-scroll').scrollBy({ left: -150, behavior: 'smooth' });
+});
+
+document.getElementById('btn-thumb-next').addEventListener('click', () => {
+  document.getElementById('thumb-scroll').scrollBy({ left: 150, behavior: 'smooth' });
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft' && currentIdx > 0) { currentIdx--; toonFoto(); scrollThumb(); }
+  if (e.key === 'ArrowRight' && currentIdx < fotos.length - 1) { currentIdx++; toonFoto(); scrollThumb(); }
+});
+
+laadFotos();
+</script>
+
+</body>
+</html>
