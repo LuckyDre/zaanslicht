@@ -756,6 +756,43 @@ section:not(#hero) {
   margin-top: 1rem;
 }
 
+/* ===== FOTOGRAAF KAART (Over ons) ===== */
+.fotograaf-kaart {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  max-width: 720px;
+  margin: 0 auto 2.5rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.fotograaf-kaart:last-child { border-bottom: none; margin-bottom: 0; }
+
+.fotograaf-kaart-foto {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--oranje);
+  flex-shrink: 0;
+}
+
+.fotograaf-kaart-tekst h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.fotograaf-kaart-tekst p {
+  font-size: 0.88rem;
+  color: var(--tekst-dim);
+  line-height: 1.75;
+}
+
+@media (max-width: 600px) {
+  .fotograaf-kaart { flex-direction: column; align-items: center; text-align: center; }
+}
+
 /* ===== CONTACT ===== */
 .contact-form {
   max-width: 600px;
