@@ -325,10 +325,6 @@ async function laadGastFotos(container) {
           },
         });
 
-        // Grid-overzicht knop
-        div.querySelector('.btn-serie-grid').addEventListener('click', () => {
-          openSerieOverlay(map.map, fg.naam, swiperEl);
-        });
 
         // Directe click listeners op imgs — omzeilt Swiper event-interceptie
         swiperEl.querySelectorAll('img').forEach(img => {
