@@ -225,18 +225,29 @@ async function loadGallery() { // returns Promise
   const container = document.getElementById('gallery-container');
 
   try {
-    const res      = await fetch('manifest.json?v=' + Date.now());
-    const manifest = await res.json();
-    const items    = manifest[CATEGORY] || [];
+    // Laad manifest, gastfotografen en gecombineerde volgorde parallel
+    const [manifestRes, gastRes, volgordeRes] = await Promise.all([
+      fetch('manifest.json?v=' + Date.now()),
+      fetch(WORKER_URL + '/fotograaf/manifest'),
+      fetch(WORKER_URL + '/gallery/volgorde'),
+    ]);
 
-    if (items.length === 0) {
+    const manifest    = await manifestRes.json();
+    const gastData    = await gastRes.json();
+    const volgordeData = await volgordeRes.json();
+
+    const eigenItems  = manifest[CATEGORY] || [];
+    const fotografen  = gastData.fotografen || [];
+    const gecombineerd = volgordeData[CATEGORY] || null;
+
+    if (eigenItems.length === 0 && fotografen.length === 0) {
       container.innerHTML = '<p class="no-content">Nog geen foto\'s toegevoegd — kom snel terug!</p>';
       return;
     }
 
     container.innerHTML = '';
 
-    // Laad alle like-aantallen in één keer uit Firebase
+    // Laad alle like-aantallen uit Firebase
     let likeCounts = {};
     try {
       if (typeof db !== 'undefined') {
@@ -247,6 +258,179 @@ async function loadGallery() { // returns Promise
       console.warn('Firebase niet beschikbaar:', e);
     }
 
+    // Bouw lookup voor gast-fotos (geladen bij eerste gebruik)
+    const gastFotosCache = {};
+    async function getGastFotos(fg, mapNaam) {
+      if (!gastFotosCache[fg.id]) {
+        const r = await fetch(`${WORKER_URL}/fotograaf/fotos?id=${fg.id}&categorie=${encodeURIComponent(CATEGORY)}`);
+        const d = await r.json();
+        gastFotosCache[fg.id] = d.fotos || [];
+      }
+      return gastFotosCache[fg.id].filter(f =>
+        f.key.includes(`/${encodeURIComponent(mapNaam)}/`) || f.key.includes(`/${mapNaam}/`)
+      );
+    }
+
+    // Als er een gecombineerde volgorde is, gebruik die
+    if (gecombineerd && gecombineerd.length > 0) {
+      for (const entry of gecombineerd) {
+        if (entry.type === 'eigen') {
+          const item = eigenItems.find(x => x.map === entry.map);
+          if (item) renderEigenItem(item, likeCounts, container);
+        } else if (entry.type === 'gast') {
+          const fg = fotografen.find(x => x.id === entry.fgId);
+          if (fg) {
+            const fotos = await getGastFotos(fg, entry.map);
+            if (fotos.length) renderGastItem(fg, entry.map, fotos, container);
+          }
+        }
+      }
+      // Eigen items die niet in de volgorde staan, achteraan toevoegen
+      for (const item of eigenItems) {
+        if (!gecombineerd.find(e => e.type === 'eigen' && e.map === item.map)) {
+          renderEigenItem(item, likeCounts, container);
+        }
+      }
+    } else {
+      // Geen gecombineerde volgorde: eigen items eerst, daarna gast
+      eigenItems.forEach(item => renderEigenItem(item, likeCounts, container));
+      for (const fg of fotografen) {
+        const mappen = (fg.mappen || []).filter(m => m.categorie === CATEGORY || m.categorie === 'eigen');
+        for (const map of mappen) {
+          const fotos = await getGastFotos(fg, map.map);
+          if (fotos.length) renderGastItem(fg, map.map, fotos, container);
+        }
+      }
+    }
+
+    // Initialiseer alle Swipers, lightbox, likes
+    document.querySelectorAll('.portfolio-swiper').forEach(el => {
+      new Swiper(el, {
+        loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
+        navigation: { nextEl: el.querySelector('.swiper-button-next'), prevEl: el.querySelector('.swiper-button-prev') },
+        pagination: { el: el.querySelector('.swiper-pagination'), type: 'fraction' },
+      });
+    });
+
+    // Koppel overzicht-buttons
+    createOverzichtModal();
+    document.querySelectorAll('.portfolio-category h3').forEach(h3 => {
+      const swiper = h3.closest('.portfolio-category')?.querySelector('.portfolio-swiper');
+      const btn = h3.querySelector('.btn-overzicht');
+      if (!swiper || !btn) return;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const fotos = Array.from(swiper.querySelectorAll('img')).map(img => ({ src: img.src, _img: img }));
+        if (fotos.length) openOverzicht(h3.childNodes[0].textContent.trim(), fotos, swiper);
+      });
+    });
+
+    // Gastfoto click listeners
+    document.querySelectorAll('.gast-fotograaf .portfolio-swiper img').forEach(img => {
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', e => {
+        e.stopPropagation();
+        if (window._openLightboxVanImg) window._openLightboxVanImg(img);
+      });
+    });
+
+    initLightbox();
+    initLikes();
+    initComments();
+
+  } catch (e) {
+    container.innerHTML = '<p class="no-content">Kon foto\'s niet laden.</p>';
+    console.error(e);
+  }
+}
+
+function renderEigenItem(item, likeCounts, container) {
+    const div = document.createElement('div');
+    div.className = 'portfolio-category';
+    div.id = 'cat-' + item.id;
+
+    const sortedFotos = [...item.fotos].sort((a, b) => {
+      const keyA = photoKey(`${CATEGORY}/${item.map}/${a}`);
+      const keyB = photoKey(`${CATEGORY}/${item.map}/${b}`);
+      return (likeCounts[keyB] || 0) - (likeCounts[keyA] || 0);
+    });
+
+    const slides = sortedFotos.map(f => {
+      const path  = `${CATEGORY}/${item.map}/${f}`;
+      const key   = photoKey(path);
+      const src   = `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`;
+      const liked = isLikedLocally(key);
+      const count = likeCounts[key] || 0;
+      return `<div class="swiper-slide">
+        <img src="${src}" alt="${item.naam}" loading="lazy" />
+        <div class="slide-actions">
+          <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" data-path="${path}" title="Like">
+            <span class="heart">♥</span><span class="like-count">${count > 0 ? count : ''}</span>
+          </button>
+          <button class="btn-download" data-src="${src}" data-naam="${f}" title="Download"><span>&#8681;</span></button>
+        </div>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}
+        <span class="h3-rechts">
+          <span class="foto-count">${sortedFotos.length} foto's</span>
+          <button class="btn-overzicht" title="Overzicht fotos">⊞</button>
+        </span>
+      </h3>
+      ${item.beschrijving ? `<p class="serie-beschrijving">${item.beschrijving}</p>` : ''}
+      <div class="swiper portfolio-swiper">
+        <div class="swiper-wrapper">${slides}</div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-pagination"></div>
+      </div>`;
+    container.appendChild(div);
+}
+
+function renderGastItem(fg, mapNaam, fotos, container) {
+    const div = document.createElement('div');
+    div.className = 'portfolio-category gast-fotograaf';
+    div.style.setProperty('--gast-kleur', fg.kleur || '#3b82f6');
+
+    const slides = fotos.map(f => {
+      const src  = `${WORKER_URL}/foto/${f.key}`;
+      const naam = f.naam;
+      return `<div class="swiper-slide" data-src="${src}" data-naam="${naam}">
+        <img src="${src}" alt="${naam}" loading="lazy" />
+        <div class="slide-actions">
+          <button class="btn-like" data-key="gast__${fg.id}__${naam}" data-path="gast/${naam}">
+            <span class="heart">♥</span><span class="like-count"></span>
+          </button>
+          <button class="btn-download" data-src="${src}" data-naam="${naam}" title="Download">
+            <span>&#8681;</span> Download
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+      <h3>${mapNaam}<span class="serie-fotograaf">${fg.naam}</span>
+        <span class="h3-rechts">
+          <span class="foto-count">${fotos.length} foto's</span>
+          <button class="btn-overzicht" title="Overzicht fotos">⊞</button>
+        </span>
+      </h3>
+      <div class="swiper portfolio-swiper">
+        <div class="swiper-wrapper">${slides}</div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-pagination"></div>
+      </div>`;
+    container.appendChild(div);
+}
+
+// Lege placeholder zodat oude code niet breekt
+async function laadGastFotos(container) { /* vervangen door gecombineerde volgorde in loadGallery */ }
+
+// tijdelijk bewaard voor nosports.html / voetbal.html die nog de oude flow gebruiken
+function _legacyLaadGastFotos_UNUSED() {
     items.forEach(item => {
       const div = document.createElement('div');
       div.className = 'portfolio-category';
