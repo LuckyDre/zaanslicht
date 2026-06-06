@@ -18,6 +18,9 @@ const HERO_TEKSTEN = {
 
 const THEMA_KLEUR = { voetbal: '#FF6B00', nosports: '#F5C000' };
 
+// Maak vulHeroEnStart globaal zodat fotograaf-tegels de hero kunnen vullen
+window.vulHeroEnStartGlobal = null; // wordt ingesteld zodra loadTegels klaar is
+
 let heroSwiper    = null;
 let huidigThema   = 'voetbal';
 let wisselBusy    = false;
