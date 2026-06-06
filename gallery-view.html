@@ -220,41 +220,49 @@
 const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 let fotos = [];
 let currentIdx = 0;
-let fotograafId = null;
-let reeks = null;
-
-// Parse URL parameters
-const params = new URLSearchParams(window.location.search);
-fotograafId = params.get('id');
-reeks = params.get('reeks');
+let reeksen = [];
+let activeReeks = null;
 
 // Load fotos
 async function laadFotos() {
   try {
     const viewer = document.getElementById('viewer');
 
-    if (!fotograafId || !reeks) {
-      viewer.innerHTML = '<div class="loading">Selecteer een reeks om weer te geven</div>';
-      return;
-    }
-
-    const res = await fetch(`${WORKER}/fotograaf/fotos?id=${fotograafId}`);
+    // Laad voetbalfotos (eerste reeks)
+    const res = await fetch(`${WORKER}/fotograaf/fotos?categorie=voetbal`);
     const data = await res.json();
 
-    fotos = (data.fotos || []).filter(f =>
-      f.key.includes(`/${encodeURIComponent(reeks)}/`) ||
-      f.key.includes(`/${reeks}/`)
-    );
-
-    if (fotos.length === 0) {
+    if (!data.fotos || data.fotos.length === 0) {
       viewer.innerHTML = '<div class="loading">Geen foto\'s gevonden</div>';
       return;
     }
+
+    // Groepeer foto's per reeks
+    const reeksMap = {};
+    data.fotos.forEach(f => {
+      const parts = f.key.split('/');
+      const reeks = parts[3]; // fotografie-site/fotografen/id/voetbal/REEKS/bestand
+      if (!reeksMap[reeks]) {
+        reeksMap[reeks] = [];
+      }
+      reeksMap[reeks].push(f);
+    });
+
+    // Neem de eerste reeks
+    const reeksNamen = Object.keys(reeksMap);
+    if (reeksNamen.length === 0) {
+      viewer.innerHTML = '<div class="loading">Geen reeksen gevonden</div>';
+      return;
+    }
+
+    activeReeks = reeksNamen[0];
+    fotos = reeksMap[activeReeks];
 
     currentIdx = 0;
     toonFoto();
     vulThumbnails();
   } catch (e) {
+    console.error(e);
     document.getElementById('viewer').innerHTML = `<div class="loading" style="color:#ef4444">Fout bij laden</div>`;
   }
 }
