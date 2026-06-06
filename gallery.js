@@ -101,7 +101,7 @@ function openSerieOverlay(titel, fotograaf, swiperEl) {
     const img = document.createElement('img');
     img.src             = origImg.src;
     img.alt             = origImg.alt || '';
-    img.loading         = 'lazy';
+    img.loading         = 'eager';
     img.decoding        = 'async';
     img.style.cssText   = 'width:100%;height:100%;object-fit:contain;transition:filter 0.15s;filter:brightness(0.8);background:#0a0a0a';
     img.onmouseover     = () => { img.style.filter = 'brightness(1) scale(1.05)'; cel.style.zIndex = '10'; };
