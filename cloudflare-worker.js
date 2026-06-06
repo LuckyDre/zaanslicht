@@ -749,6 +749,19 @@ async function handleAccountVerwijderen(request, env) {
   return json({ ok: true });
 }
 
+// ── MAPPEN VOLGORDE OPSLAAN ───────────────────────────────────────────────
+async function handleMappenVolgorde(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { mappen } = await request.json().catch(() => ({}));
+  if (!Array.isArray(mappen)) return json({ error: 'mappen verplicht' }, 400);
+
+  await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
+  return json({ ok: true });
+}
+
 // ── KLEUR BIJWERKEN ────────────────────────────────────────────────────────
 async function handleFotograafKleur(request, env) {
   const authToken = request.headers.get('X-Fotograaf-Token');
