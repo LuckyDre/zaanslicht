@@ -162,9 +162,15 @@ async function loadGallery() { // returns Promise
           </div>`;
       }).join('');
 
+      const serieFotos = sortedFotos.map(f => ({
+        src:  `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+        naam: f,
+      }));
+
       div.innerHTML = `
         <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}
           <span class="foto-count">${sortedFotos.length} foto's</span>
+          <button class="btn-serie-grid" title="Overzicht alle foto's">⊞</button>
         </h3>
         ${item.beschrijving ? `<p class="serie-beschrijving">${item.beschrijving}</p>` : ''}
         <div class="swiper portfolio-swiper">
