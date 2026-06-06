@@ -306,15 +306,13 @@
         wrapper.appendChild(rij);
 
         // Direct op de tegels zelf, NADAT ze in de DOM staan
-        // Zet op body (niet html) zodat het de thema-nosports class overschrijft
         rij.querySelectorAll('a.tegel').forEach(t => {
           t.addEventListener('mouseenter', () => {
-            document.body.style.setProperty('--oranje', kleur);
+            if (window.setFotograafKleur) window.setFotograafKleur(kleur);
           });
           t.addEventListener('mouseleave', (e) => {
             if (!rij.contains(e.relatedTarget)) {
-              // Verwijder inline override — CSS class neemt weer over
-              document.body.style.removeProperty('--oranje');
+              if (window.resetFotograafKleur) window.resetFotograafKleur();
             }
           });
         });
