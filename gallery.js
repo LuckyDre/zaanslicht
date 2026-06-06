@@ -72,9 +72,16 @@ const CATEGORY = document.currentScript.getAttribute('data-category');
   document.addEventListener('keydown', e => { if (e.key === 'Escape') sluitSerieOverlay(); });
 })();
 
-function openSerieOverlay(titel, fotograaf, fotos) {
+function openSerieOverlay(titel, fotograaf, swiperEl) {
   const overlay = document.getElementById('serie-overlay');
   const grid    = document.getElementById('serie-overlay-grid');
+
+  // Lees alle img-elementen uit de Swiper (die zijn al geladen/gecached)
+  const slides = swiperEl.querySelectorAll('.swiper-slide img');
+  const fotos = Array.from(slides).map(img => ({
+    src:  img.src,
+    naam: img.alt || '',
+  }));
 
   document.getElementById('serie-overlay-label').textContent  = fotograaf || 'Zaans Licht';
   document.getElementById('serie-overlay-titel').textContent  = titel;
@@ -85,13 +92,17 @@ function openSerieOverlay(titel, fotograaf, fotos) {
     const cel = document.createElement('div');
     cel.style.cssText = 'aspect-ratio:1/1;overflow:hidden;cursor:pointer;position:relative;background:#111';
     cel.dataset.idx   = i;
+
+    // Kloon de img die al geladen/gecached is
+    const origImg = slides[i];
     const img = document.createElement('img');
-    img.src             = f.src;
-    img.alt             = f.naam || '';
+    img.src             = origImg.src;
+    img.alt             = origImg.alt || '';
     img.loading         = 'lazy';
     img.style.cssText   = 'width:100%;height:100%;object-fit:cover;transition:transform 0.3s,filter 0.3s;filter:brightness(0.88)';
     img.onmouseover     = () => { img.style.transform = 'scale(1.05)'; img.style.filter = 'brightness(1)'; };
     img.onmouseout      = () => { img.style.transform = ''; img.style.filter = 'brightness(0.88)'; };
+
     cel.appendChild(img);
     cel.addEventListener('click', () => {
       sluitSerieOverlay();
