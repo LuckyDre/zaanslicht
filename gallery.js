@@ -70,21 +70,24 @@ function createOverzichtModal() {
       flex: 1;
       overflow-y: auto;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 12px;
       padding: 2rem;
+      align-content: start;
     }
     .overzicht-thumb {
-      width: 100%;
-      aspect-ratio: 1;
+      aspect-ratio: 1 / 1;
       overflow: hidden;
       cursor: pointer;
       border-radius: 4px;
       border: 2px solid transparent;
       transition: all 0.2s;
       background: #111;
+      position: relative;
     }
     .overzicht-thumb img {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
