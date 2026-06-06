@@ -194,6 +194,10 @@ async function laadGastFotos(container) {
             nextEl: swiperEl.querySelector('.swiper-button-next'),
             prevEl: swiperEl.querySelector('.swiper-button-prev'),
           },
+          pagination: {
+            el: swiperEl.querySelector('.swiper-pagination'),
+            type: 'fraction',
+          },
         });
 
         // Directe click listeners op imgs — omzeilt Swiper event-interceptie
