@@ -536,42 +536,21 @@ function initLightbox() {
 
   // Voeg lightbox header toe met terug-knop (als die niet al bestaat)
   if (!document.getElementById('lb-header')) {
-    const lbHeader = document.createElement('div');
-    lbHeader.id = 'lb-header';
-    lbHeader.className = 'lb-header';
-    const btnTerug = document.createElement('button');
-    btnTerug.className = 'lb-terug';
-    btnTerug.innerHTML = '← Terug';
-    btnTerug.title = 'Terug naar overzicht';
-    btnTerug.addEventListener('click', (e) => {
-      e.stopPropagation();
-      lightbox.classList.add('hidden');
-      document.body.style.overflow = '';
-      const ov = window._currentOverzicht;
-      if (ov && ov.modal) {
-        ov.modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      }
-    });
-    lbHeader.appendChild(btnTerug);
-    lightbox.insertBefore(lbHeader, lightbox.firstChild);
-
     const style = document.createElement('style');
     style.textContent = `
       #lb-header {
-        position: absolute;
+        position: fixed !important;
         top: 0;
         left: 0;
         right: 0;
-        z-index: 10;
+        z-index: 2001 !important;
         padding: 1.5rem 2rem;
         display: flex;
         align-items: center;
-        background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%);
-        pointer-events: none;
+        background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
+        pointer-events: auto;
       }
       .lb-terug {
-        pointer-events: auto;
         background: var(--oranje, #FF6B00);
         border: none;
         color: #000;
@@ -589,6 +568,25 @@ function initLightbox() {
       }
     `;
     document.head.appendChild(style);
+
+    const lbHeader = document.createElement('div');
+    lbHeader.id = 'lb-header';
+    const btnTerug = document.createElement('button');
+    btnTerug.className = 'lb-terug';
+    btnTerug.innerHTML = '← Terug';
+    btnTerug.title = 'Terug naar overzicht';
+    btnTerug.addEventListener('click', (e) => {
+      e.stopPropagation();
+      lightbox.classList.add('hidden');
+      document.body.style.overflow = '';
+      const ov = window._currentOverzicht;
+      if (ov && ov.modal) {
+        ov.modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+    lbHeader.appendChild(btnTerug);
+    document.body.appendChild(lbHeader);
   }
 
 
