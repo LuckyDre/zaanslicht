@@ -283,7 +283,10 @@ async function loadGallery() { // returns Promise
 
       div.innerHTML = `
         <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}
-          <span class="foto-count">${sortedFotos.length} foto's</span>
+          <span class="h3-rechts">
+            <span class="foto-count">${sortedFotos.length} foto's</span>
+            <button class="btn-overzicht" title="Overzicht fotos">⊞</button>
+          </span>
         </h3>
         ${item.beschrijving ? `<p class="serie-beschrijving">${item.beschrijving}</p>` : ''}
         <div class="swiper portfolio-swiper">
