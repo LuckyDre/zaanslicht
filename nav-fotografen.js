@@ -13,13 +13,13 @@
       ? 'Andreas Luckfiel & ' + actief.map(fg => fg.naam).join(' & ')
       : 'Andreas Luckfiel';
 
-    // Vervang alle tekstknopen die "Andreas Luckfiel & Co." bevatten
+    // Vervang alle tekstknopen die "Andreas Luckfiel" bevatten
     function vervangTekst(rootEl) {
       const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
       const nodes = [];
       while (walker.nextNode()) nodes.push(walker.currentNode);
       nodes.forEach(node => {
-        if (node.nodeValue.includes('Andreas Luckfiel & Co.')) {
+        if (node.nodeValue.includes('Andreas Luckfiel')) {
           node.nodeValue = node.nodeValue.replace(/Andreas Luckfiel & Co\./g, namenStr + '.');
         }
       });
