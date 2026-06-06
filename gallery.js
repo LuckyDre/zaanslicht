@@ -318,18 +318,13 @@ async function loadGallery() { // returns Promise
       });
     });
 
-    // Voeg overzicht-buttons toe aan alle h3's
+    // Koppel overzicht-buttons aan alle h3's
     createOverzichtModal();
     document.querySelectorAll('.portfolio-category h3').forEach(h3 => {
       const div = h3.closest('.portfolio-category');
       const swiper = div.querySelector('.portfolio-swiper');
-      if (!swiper) return;
-
-      const btn = document.createElement('button');
-      btn.className = 'btn-overzicht';
-      btn.title = 'Overzicht fotos';
-      btn.innerHTML = '⊞';
-      h3.appendChild(btn);
+      const btn = h3.querySelector('.btn-overzicht');
+      if (!swiper || !btn) return;
 
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -338,7 +333,7 @@ async function loadGallery() { // returns Promise
           _img: img
         }));
         if (fotos.length) {
-          openOverzicht(h3.textContent.split(/\d+ foto/)[0].trim(), fotos, swiper);
+          openOverzicht(h3.childNodes[0].textContent.trim(), fotos, swiper);
         }
       });
     });
