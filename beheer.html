@@ -497,12 +497,14 @@ async function laadGastSeries() {
       } catch(e) {}
 
       // Groepeer fotos per map
+      // key formaat: fotografen/{id}/{categorie}/{mapnaam}/{bestand}
       const mappenMap = {};
       for (const f of alleFotos) {
         const delen = f.key.split('/');
-        const cat   = delen[0];
-        const map   = delen[1];
-        if (!map) continue;
+        if (delen.length < 4) continue;
+        const cat = delen[2];
+        const map = decodeURIComponent(delen[3]);
+        if (!cat || !map) continue;
         if (!mappenMap[cat]) mappenMap[cat] = {};
         if (!mappenMap[cat][map]) mappenMap[cat][map] = [];
         mappenMap[cat][map].push(f);
