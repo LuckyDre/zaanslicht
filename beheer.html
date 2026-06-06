@@ -747,6 +747,12 @@ async function fgLaadLijst() {
             <div style="font-size:0.75rem;color:#555;margin-top:0.1rem">${escB(fg.email)} &middot; ${fg.aantalMappen} map${fg.aantalMappen !== 1 ? 'pen' : ''} &middot; aangemeld ${fmtTsB(fg.ts)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:0.4rem;flex-shrink:0">
+            <a href="fotograaf-pagina.html?id=${fg.id}" target="_blank"
+              style="background:transparent;border:1px solid #333;color:#888;padding:0.25rem 0.7rem;border-radius:6px;font-size:0.72rem;cursor:pointer;text-decoration:none;transition:all 0.2s"
+              onmouseover="this.style.borderColor='var(--oranje)';this.style.color='var(--oranje)'"
+              onmouseout="this.style.borderColor='#333';this.style.color='#888'">
+              🔗 Pagina
+            </a>
             <button id="fg-blok-${fg.id}" onclick="fgToggleBlokkeer('${fg.id}')"
               style="background:transparent;border:1px solid #444;color:#aaa;padding:0.25rem 0.7rem;border-radius:6px;font-size:0.72rem;cursor:pointer;transition:all 0.2s">
               🔒 Blokkeer
