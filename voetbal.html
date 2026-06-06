@@ -327,19 +327,22 @@
   }
 
   .portfolio-swiper .swiper-pagination {
-    bottom: -1.8rem !important;
+    position: absolute;
+    bottom: 0.6rem !important;
+    right: 0.8rem;
+    left: auto !important;
+    width: auto !important;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 0.72rem;
+    font-family: var(--mono);
+    letter-spacing: 1px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    pointer-events: none;
   }
-
-  .portfolio-swiper .swiper-pagination-bullet {
-    background: var(--muted);
-    opacity: 1;
-    width: 5px; height: 5px;
-  }
-  .portfolio-swiper .swiper-pagination-bullet-active {
-    background: var(--orange);
-    width: 16px;
-    border-radius: 3px;
-  }
+  .portfolio-swiper .swiper-pagination-current { color: var(--orange); font-weight: 700; }
+  .portfolio-swiper .swiper-pagination-total   { color: #aaa; }
 
   /* ═══════════════════════════════════════════════════════
      FOLDER NAV — knop onderaan elke wedstrijd
