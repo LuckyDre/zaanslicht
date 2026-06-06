@@ -1060,6 +1060,100 @@ window.switchTab = (tabNaam, btn) => {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tabNaam)?.classList.add('active');
   btn?.classList.add('active');
+  if (tabNaam === 'mappen') laadMappenTab();
+};
+
+// ══════════════════════════════════════════════════════
+// MAPPEN VOLGORDE
+// ══════════════════════════════════════════════════════
+
+let _mappenData = []; // huidige volgorde
+
+async function laadMappenTab() {
+  if (!sessie) return;
+  const inhoud = document.getElementById('mappen-inhoud');
+  const acties = document.getElementById('mappen-acties');
+  inhoud.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Laden…</p>';
+  acties.style.display = 'none';
+
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/manifest');
+    const data = await res.json();
+    const fg   = (data.fotografen || []).find(f => f.id === sessie.id);
+    _mappenData = fg?.mappen || [];
+
+    if (!_mappenData.length) {
+      inhoud.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Je hebt nog geen mappen aangemaakt. Upload foto\'s om een map te starten.</p>';
+      return;
+    }
+
+    const lijst = document.createElement('div');
+    lijst.id = 'mappen-sorteer-lijst';
+
+    _mappenData.forEach(m => {
+      const catLabel = m.categorie === 'voetbal' ? '⚽ Voetbal'
+                     : m.categorie === 'nosports' ? '🌿 No Sports'
+                     : '📷 Eigen';
+      const li = document.createElement('div');
+      li.className = 'map-item';
+      li.dataset.map = m.map;
+      li.dataset.categorie = m.categorie;
+      li.dataset.ts = m.ts || 0;
+      li.innerHTML = `
+        <span class="map-drag-handle" title="Sleep om te sorteren">⠿</span>
+        <span class="map-naam">${m.map}</span>
+        <span class="map-cat-badge">${catLabel}</span>`;
+      lijst.appendChild(li);
+    });
+
+    inhoud.innerHTML = '';
+    inhoud.appendChild(lijst);
+    acties.style.display = 'flex';
+
+    new Sortable(lijst, {
+      animation: 200,
+      handle: '.map-drag-handle',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd() {
+        document.getElementById('volgorde-feedback').textContent = '';
+      }
+    });
+
+  } catch (e) {
+    inhoud.innerHTML = '<p style="color:#ef4444;font-size:0.85rem">Kon mappen niet laden.</p>';
+  }
+}
+
+window.slaMappenVolgordeOp = async () => {
+  const btn = document.getElementById('btn-volgorde-opslaan');
+  const fb  = document.getElementById('volgorde-feedback');
+  btn.disabled = true; btn.textContent = 'Opslaan…';
+
+  // Lees de huidige DOM-volgorde uit
+  const items = document.querySelectorAll('#mappen-sorteer-lijst .map-item');
+  const nieuweMappen = Array.from(items).map(el => ({
+    map:       el.dataset.map,
+    categorie: el.dataset.categorie,
+    ts:        Number(el.dataset.ts),
+  }));
+
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/mappen-volgorde', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ mappen: nieuweMappen }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Fout');
+    fb.textContent = '✓ Volgorde opgeslagen';
+    fb.style.color = '#22c55e';
+    _mappenData = nieuweMappen;
+  } catch (e) {
+    fb.textContent = '✕ ' + e.message;
+    fb.style.color = '#ef4444';
+  }
+  btn.disabled = false; btn.textContent = 'Volgorde opslaan';
 };
 
 window.uitloggen = () => {
