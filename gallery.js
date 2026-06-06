@@ -147,21 +147,6 @@ function createOverzichtModal() {
     h3 .btn-overzicht {
       vertical-align: middle;
     }
-    .btn-terug-overzicht {
-      background: none;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #888;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.18s;
-    }
-    .btn-terug-overzicht:hover {
-      border-color: var(--oranje, #FF6B00);
-      color: var(--oranje, #FF6B00);
-      background: rgba(255,107,0,0.08);
-    }
   `;
   document.head.appendChild(style);
 
