@@ -157,6 +157,9 @@ function openOverzicht(titel, fotos, swiperEl) {
   h2.textContent = titel;
   grid.innerHTML = '';
 
+  // Sla overzicht op globaal zodat lightbox kan terugkeren
+  window._currentOverzicht = { titel, fotos, swiperEl, modal };
+
   fotos.forEach((f, i) => {
     const thumb = document.createElement('div');
     thumb.className = 'overzicht-thumb';
@@ -164,6 +167,7 @@ function openOverzicht(titel, fotos, swiperEl) {
     img.src = f.src;
     img.alt = '';
     img.loading = 'lazy';
+    img.decoding = 'async';
     thumb.appendChild(img);
 
     thumb.addEventListener('click', () => {
@@ -182,6 +186,14 @@ function openOverzicht(titel, fotos, swiperEl) {
 
   document.getElementById('overzicht-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function terugnaarOverzicht() {
+  const ov = window._currentOverzicht;
+  if (ov) {
+    ov.modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
 }
 
 // Zet een foto-pad om naar een Firebase-safe sleutel
