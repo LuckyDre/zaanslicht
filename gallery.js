@@ -47,22 +47,25 @@ function createOverzichtModal() {
       flex-shrink: 0;
       gap: 1rem;
     }
-    .overzicht-back {
-      background: var(--oranje, #FF6B00);
-      border: none;
-      color: #000;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-weight: 600;
+    .overzicht-btn-rond {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #ccc;
+      font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
-    .overzicht-back:hover {
-      background: #FF8C2F;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+    .overzicht-btn-rond:hover {
+      background: var(--oranje, #FF6B00);
+      border-color: var(--oranje, #FF6B00);
+      color: #fff;
     }
     .overzicht-header h2 {
       font-size: 1.2rem;
@@ -70,22 +73,7 @@ function createOverzichtModal() {
       margin: 0;
       color: #fff;
       flex: 1;
-    }
-    #overzicht-close {
-      background: none;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #888;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      font-size: 1.3rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    #overzicht-close:hover {
-      border-color: var(--oranje, #FF6B00);
-      color: var(--oranje, #FF6B00);
+      text-align: center;
     }
     #overzicht-grid {
       flex: 1;
