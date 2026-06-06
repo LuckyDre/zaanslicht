@@ -308,10 +308,10 @@
         wrapper.appendChild(rij);
 
         // Direct op de tegels zelf, NADAT ze in de DOM staan
-        // Kleur blijft staan totdat voetbal/nosports zone actief wordt (zelfde als wisselThema)
+        // Kleur + hero blijven staan totdat voetbal/nosports zone actief wordt
         rij.querySelectorAll('a.tegel').forEach(t => {
           t.addEventListener('mouseenter', () => {
-            if (window.setFotograafKleur) window.setFotograafKleur(kleur);
+            if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
           });
         });
       }
