@@ -600,8 +600,35 @@ function renderCategorie(cat) {
   new Sortable(lijst, {
     animation: 200, handle: '.drag-handle',
     ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
-    onEnd() { dirty = true; }
+    onEnd() {
+      dirty = true;
+      slaGastVolgordeOp(lijst);
+    }
   });
+}
+
+async function slaGastVolgordeOp(lijst) {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  if (!url || !secret || !window._gastFotografen) return;
+
+  // Groepeer gast-items per fotograaf per categorie
+  const perFotograaf = {};
+  Array.from(lijst.querySelectorAll('.slider-item[data-type="gast"]')).forEach(li => {
+    const key = `${li.dataset.fgId}__${li.dataset.fgCat}`;
+    if (!perFotograaf[key]) perFotograaf[key] = { id: li.dataset.fgId, cat: li.dataset.fgCat, mappen: [] };
+    perFotograaf[key].mappen.push(li.dataset.map);
+  });
+
+  for (const { id, mappen } of Object.values(perFotograaf)) {
+    try {
+      await fetch(url + '/fotograaf/mappen-volgorde', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+        body: JSON.stringify({ id, volgorde: mappen })
+      });
+    } catch(e) {}
+  }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
