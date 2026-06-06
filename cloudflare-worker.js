@@ -349,6 +349,37 @@ async function handleFotograafUitnodiging(request, env) {
   return json({ ok: true, mailVerstuurd: true });
 }
 
+// ── UITNODIGINGEN LIJST (admin) ────────────────────────────────────────────
+async function handleUitnodigingenLijst(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const lijst = [];
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:invite:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      const raw = await env.SUBSCRIBERS.get(key.name);
+      if (raw) {
+        const inv = JSON.parse(raw);
+        const token = key.name.replace('fotograaf:invite:', '');
+        lijst.push({ token, naam: inv.naam, email: inv.email, expires: inv.expires,
+          verlopen: Date.now() > inv.expires });
+      }
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor);
+  lijst.sort((a, b) => b.expires - a.expires);
+  return json({ uitnodigingen: lijst });
+}
+
+// ── UITNODIGING INTREKKEN (admin) ──────────────────────────────────────────
+async function handleUitnodigingIntrekken(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { token } = await request.json().catch(() => ({}));
+  if (!token) return json({ error: 'token verplicht' }, 400);
+  await env.SUBSCRIBERS.delete('fotograaf:invite:' + token);
+  return json({ ok: true });
+}
+
 // ── REGISTREREN ────────────────────────────────────────────────────────────
 async function handleFotograafRegister(request, env) {
   const { inviteToken, password, kleur } = await request.json().catch(() => ({}));
