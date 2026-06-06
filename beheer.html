@@ -484,7 +484,7 @@ async function laadGastSeries() {
       // Haal opgeslagen volgorde op
       let volgorde = [];
       try {
-        const volRes  = await fetch(`${url}/fotograaf/mappen-volgorde?id=${fg.id}`, { headers: { 'X-Worker-Secret': secret } });
+        const volRes  = await fetch(`${WORKER_URL}/fotograaf/mappen-volgorde?id=${fg.id}`, { headers: secret ? { 'X-Worker-Secret': secret } : {} });
         const volData = await volRes.json();
         volgorde = volData.volgorde || [];
       } catch(e) {}
