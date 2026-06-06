@@ -579,7 +579,10 @@ async function fgUitnodig() {
     document.getElementById('fg-naam').value  = '';
     document.getElementById('fg-email').value = '';
     if (data.mailFout) {
-      fb.textContent = `⚠ Uitnodiging aangemaakt maar mail mislukt: ${data.mailFout}. Controleer de Resend API-sleutel in Cloudflare.`;
+      fb.innerHTML = `⚠ Uitnodiging aangemaakt maar mail mislukt: <em>${data.mailFout}</em><br>
+        Controleer de Resend API-sleutel in Cloudflare, of stuur de link handmatig:<br>
+        <input type="text" value="${data.link || ''}" readonly onclick="this.select()"
+          style="width:100%;margin-top:0.4rem;background:#111;border:1px solid #444;border-radius:4px;color:#FF6B00;padding:0.4rem 0.6rem;font-size:0.75rem;cursor:pointer" />`;
       fb.style.display = ''; fb.style.color = '#f59e0b';
     } else {
       fb.textContent = `✓ Uitnodigingsmail verstuurd naar ${email}. De fotograaf ontvangt een persoonlijke link die 7 dagen geldig is.`;
