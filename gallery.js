@@ -416,7 +416,7 @@ function renderGastItem(fg, mapNaam, fotos, container) {
             <span class="heart">♥</span><span class="like-count"></span>
           </button>
           <button class="btn-download" data-src="${src}" data-naam="${naam}" title="Download">
-            <span>&#8681;</span> Download
+            <span>&#8681;</span>
           </button>
         </div>
       </div>`;
