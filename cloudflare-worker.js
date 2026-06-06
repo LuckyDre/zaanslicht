@@ -759,6 +759,71 @@ async function handleFotograafKleur(request, env) {
   return json({ ok: true, kleur });
 }
 
+// ── BIO OPSLAAN ───────────────────────────────────────────────────────────
+async function handleBioOpslaan(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { bio } = await request.json().catch(() => ({}));
+  if (typeof bio !== 'string') return json({ error: 'bio verplicht' }, 400);
+  if (bio.length > 1000) return json({ error: 'Bio mag maximaal 1000 tekens zijn' }, 400);
+
+  await env.SUBSCRIBERS.put('fotograaf:bio:' + fotograaf.id, JSON.stringify({ bio: bio.trim(), ts: Date.now() }));
+  return json({ ok: true });
+}
+
+// ── PROFIELFOTO UPLOADEN ──────────────────────────────────────────────────
+async function handleProfielfotoUpload(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const formData = await request.formData().catch(() => null);
+  if (!formData) return json({ error: 'Geen formData' }, 400);
+
+  const file = formData.get('foto');
+  if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
+  const naam = file.name.toLowerCase();
+  if (!naam.endsWith('.webp') && !naam.endsWith('.jpg') && !naam.endsWith('.jpeg')) {
+    return json({ error: 'Alleen WebP of JPG toegestaan' }, 400);
+  }
+  if (file.size > 5 * 1024 * 1024) return json({ error: 'Max 5MB voor profielfoto' }, 400);
+
+  const contentType = naam.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+  const ext = naam.endsWith('.webp') ? 'webp' : 'jpg';
+  const r2Key = `fotografen/${fotograaf.id}/profiel.${ext}`;
+
+  await env.FOTOS.put(r2Key, file.stream(), {
+    httpMetadata: { contentType },
+    customMetadata: { fotograafId: fotograaf.id },
+  });
+
+  await env.SUBSCRIBERS.put('fotograaf:profielfoto:' + fotograaf.id, r2Key);
+  return json({ ok: true, key: r2Key });
+}
+
+// ── PROFIELEN OPHALEN (publiek) ───────────────────────────────────────────
+async function handleProfielen(request, env) {
+  const profielen = [];
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+      const bioRaw     = await env.SUBSCRIBERS.get('fotograaf:bio:' + a.id);
+      const fotoKey    = await env.SUBSCRIBERS.get('fotograaf:profielfoto:' + a.id);
+      const bio        = bioRaw ? JSON.parse(bioRaw).bio : '';
+      const fotoUrl    = fotoKey ? `/foto/${fotoKey}` : null;
+      if (bio || fotoUrl) {
+        profielen.push({ id: a.id, naam: a.naam, kleur: a.kleur, bio, fotoUrl });
+      }
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor);
+  return json({ profielen });
+}
+
 // ── FOTO SERVEREN VIA WORKER (publiek toegankelijk) ───────────────────────
 async function handleFotoServe(request, env) {
   const url = new URL(request.url);
