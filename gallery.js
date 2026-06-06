@@ -571,12 +571,13 @@ function initLightbox() {
 
     const lbHeader = document.createElement('div');
     lbHeader.id = 'lb-header';
+    lbHeader.style.display = 'none';
     const btnTerug = document.createElement('button');
     btnTerug.className = 'lb-terug';
-    btnTerug.innerHTML = '← Terug';
-    btnTerug.title = 'Terug naar overzicht';
+    btnTerug.innerHTML = '← Terug naar overzicht';
     btnTerug.addEventListener('click', (e) => {
       e.stopPropagation();
+      lbHeader.style.display = 'none';
       lightbox.classList.add('hidden');
       document.body.style.overflow = '';
       const ov = window._currentOverzicht;
