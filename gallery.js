@@ -511,7 +511,25 @@ function initLightbox() {
   const lbLike      = document.getElementById('lb-like');
   const lbLikeCount = document.getElementById('lb-like-count');
   const lbDownload  = document.getElementById('lb-download');
+  const lbActions   = document.querySelector('.lb-actions');
   let allImages = [], allKeys = [], currentIdx = 0;
+
+  // Voeg "Terug naar overzicht" knop toe
+  if (lbActions && !document.getElementById('lb-terug-overzicht')) {
+    const btnTerug = document.createElement('button');
+    btnTerug.id = 'lb-terug-overzicht';
+    btnTerug.className = 'btn-terug-overzicht';
+    btnTerug.title = 'Terug naar overzicht';
+    btnTerug.innerHTML = '← Overzicht';
+    btnTerug.style.display = 'none';
+    btnTerug.addEventListener('click', (e) => {
+      e.stopPropagation();
+      lightbox.classList.add('hidden');
+      document.body.style.overflow = '';
+      terugnaarOverzicht();
+    });
+    lbActions.appendChild(btnTerug);
+  }
 
   function showLightbox(idx) {
     currentIdx      = idx;
