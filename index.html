@@ -239,6 +239,42 @@
   <script src="main.js"></script>
   <script src="nav-fotografen.js"></script>
 
+  <!-- Fotografen-profielen in Over ons sectie -->
+  <script>
+  (async function() {
+    const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+    try {
+      const res  = await fetch(WORKER + '/fotograaf/profielen');
+      const { profielen } = await res.json();
+      if (!profielen?.length) return;
+
+      const wrapper = document.getElementById('fotograaf-profielen');
+      wrapper.style.cssText = 'margin-top:3rem;border-top:1px solid rgba(255,255,255,0.07);padding-top:2.5rem;display:flex;flex-direction:column;gap:2.5rem';
+
+      for (const p of profielen) {
+        const kleur   = p.kleur || '#FF6B00';
+        const fotoUrl = p.fotoUrl ? WORKER + p.fotoUrl : null;
+
+        const kaart = document.createElement('div');
+        kaart.style.cssText = 'display:flex;gap:1.8rem;align-items:flex-start';
+
+        const fotoHtml = fotoUrl
+          ? `<img src="${fotoUrl}" alt="${p.naam}" style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:2px solid ${kleur};flex-shrink:0" />`
+          : `<div style="width:90px;height:90px;border-radius:50%;background:#1a1a1a;border:2px solid ${kleur};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:2rem">📷</div>`;
+
+        kaart.innerHTML = `
+          ${fotoHtml}
+          <div>
+            <h3 style="font-size:1.1rem;font-weight:700;color:${kleur};margin-bottom:0.4rem">${p.naam}</h3>
+            <p style="font-size:0.88rem;color:#ccc;line-height:1.7">${p.bio.replace(/\n/g,'<br>')}</p>
+          </div>`;
+
+        wrapper.appendChild(kaart);
+      }
+    } catch {}
+  })();
+  </script>
+
   <!-- Gastfotograaf tegels -->
   <script>
   (async function() {
