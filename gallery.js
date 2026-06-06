@@ -328,8 +328,10 @@ async function loadGallery() { // returns Promise
       el.addEventListener('pointerup', e => {
         const dx = Math.abs(e.clientX - _px);
         const dy = Math.abs(e.clientY - _py);
-        if (dx < 8 && dy < 8) {
-          const img = e.target.closest('img');
+        if (dx < 8 && dy < 8 && !e.target.closest('.slide-actions')) {
+          // Zoek de img via de slide — werkt ook als je op de rand klikt
+          const slide = e.target.closest('.swiper-slide');
+          const img = slide ? slide.querySelector('img') : null;
           if (img && window._openLightboxVanImg) window._openLightboxVanImg(img);
         }
       });
