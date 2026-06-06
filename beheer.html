@@ -608,26 +608,30 @@ function renderCategorie(cat) {
 }
 
 async function slaGastVolgordeOp(lijst) {
-  const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
-  if (!url || !secret || !window._gastFotografen) return;
+  if (!secret) return;
 
-  // Groepeer gast-items per fotograaf per categorie
-  const perFotograaf = {};
-  Array.from(lijst.querySelectorAll('.slider-item[data-type="gast"]')).forEach(li => {
-    const key = `${li.dataset.fgId}__${li.dataset.fgCat}`;
-    if (!perFotograaf[key]) perFotograaf[key] = { id: li.dataset.fgId, cat: li.dataset.fgCat, mappen: [] };
-    perFotograaf[key].mappen.push(li.dataset.map);
+  // Bepaal categorie van deze lijst
+  const cat = lijst.id === 'lijst-voetbal' ? 'voetbal' : 'nosports';
+
+  // Bouw gecombineerde volgorde: elk item is eigen of gast
+  const gecombineerd = Array.from(lijst.querySelectorAll('.slider-item')).map(li => {
+    if (li.dataset.type === 'gast') {
+      return { type: 'gast', fgId: li.dataset.fgId, fgCat: li.dataset.fgCat, map: li.dataset.map };
+    } else {
+      return { type: 'eigen', map: li.dataset.map };
+    }
   });
 
-  for (const { id, mappen } of Object.values(perFotograaf)) {
-    try {
-      await fetch(url + '/fotograaf/mappen-volgorde', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
-        body: JSON.stringify({ id, volgorde: mappen })
-      });
-    } catch(e) {}
+  try {
+    await fetch(WORKER_URL + '/gallery/volgorde', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ [cat]: gecombineerd })
+    });
+    setLog(`✓ Volgorde opgeslagen`, 'success');
+  } catch(e) {
+    setLog('❌ Volgorde opslaan mislukt', 'error');
   }
 }
 
