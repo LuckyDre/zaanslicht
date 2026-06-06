@@ -45,12 +45,31 @@ function createOverzichtModal() {
       padding: 1.5rem 2rem;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
+      gap: 1rem;
+    }
+    .overzicht-back {
+      background: var(--oranje, #FF6B00);
+      border: none;
+      color: #000;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .overzicht-back:hover {
+      background: #FF8C2F;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,107,0,0.3);
     }
     .overzicht-header h2 {
       font-size: 1.2rem;
       font-weight: 700;
       margin: 0;
       color: #fff;
+      flex: 1;
     }
     #overzicht-close {
       background: none;
@@ -62,6 +81,7 @@ function createOverzichtModal() {
       font-size: 1.3rem;
       cursor: pointer;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
     #overzicht-close:hover {
       border-color: var(--oranje, #FF6B00);
