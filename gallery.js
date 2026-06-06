@@ -207,7 +207,6 @@ async function loadGallery() { // returns Promise
       div.innerHTML = `
         <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}
           <span class="foto-count">${sortedFotos.length} foto's</span>
-          <button class="btn-serie-grid" title="Overzicht alle foto's">⊞</button>
         </h3>
         ${item.beschrijving ? `<p class="serie-beschrijving">${item.beschrijving}</p>` : ''}
         <div class="swiper portfolio-swiper">
@@ -304,7 +303,6 @@ async function laadGastFotos(container) {
         div.innerHTML = `
           <h3>${map.map}<span class="serie-fotograaf">${fg.naam}</span>
             <span class="foto-count">${alleFotos.length} foto's</span>
-            <button class="btn-serie-grid" title="Overzicht alle foto's">⊞</button>
           </h3>
           <div class="swiper portfolio-swiper">
             <div class="swiper-wrapper">${slides}</div>
