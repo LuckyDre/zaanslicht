@@ -534,6 +534,63 @@ function initLightbox() {
   const lbActions   = document.querySelector('.lb-actions');
   let allImages = [], allKeys = [], currentIdx = 0;
 
+  // Voeg lightbox header toe met terug-knop (als die niet al bestaat)
+  if (!document.getElementById('lb-header')) {
+    const lbHeader = document.createElement('div');
+    lbHeader.id = 'lb-header';
+    lbHeader.className = 'lb-header';
+    const btnTerug = document.createElement('button');
+    btnTerug.className = 'lb-terug';
+    btnTerug.innerHTML = '← Terug';
+    btnTerug.title = 'Terug naar overzicht';
+    btnTerug.addEventListener('click', (e) => {
+      e.stopPropagation();
+      lightbox.classList.add('hidden');
+      document.body.style.overflow = '';
+      const ov = window._currentOverzicht;
+      if (ov && ov.modal) {
+        ov.modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+    lbHeader.appendChild(btnTerug);
+    lightbox.insertBefore(lbHeader, lightbox.firstChild);
+
+    const style = document.createElement('style');
+    style.textContent = `
+      #lb-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        padding: 1.5rem 2rem;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 100%);
+        pointer-events: none;
+      }
+      .lb-terug {
+        pointer-events: auto;
+        background: var(--oranje, #FF6B00);
+        border: none;
+        color: #000;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .lb-terug:hover {
+        background: #FF8C2F;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255,107,0,0.3);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
 
   function showLightbox(idx) {
     currentIdx      = idx;
