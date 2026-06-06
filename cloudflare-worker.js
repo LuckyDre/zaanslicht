@@ -372,12 +372,16 @@ async function handleFotograafUitnodiging(request, env) {
 </table></td></tr></table></body></html>`,
       }),
     });
+
+    if (!mailRes.ok) {
+      const fout = await mailRes.text().catch(() => `HTTP ${mailRes.status}`);
+      return json({ ok: true, mailFout: fout, link });
+    }
   } catch(mailErr) {
-    // Mail mislukt — maar uitnodiging is wel aangemaakt
-    return json({ ok: true, mailFout: String(mailErr) });
+    return json({ ok: true, mailFout: String(mailErr), link });
   }
 
-  return json({ ok: true, mailVerstuurd: true });
+  return json({ ok: true, mailVerstuurd: true, link });
 }
 
 // ── UITNODIGINGEN LIJST (admin) ────────────────────────────────────────────
