@@ -534,51 +534,12 @@ function initLightbox() {
   const lbActions   = document.querySelector('.lb-actions');
   let allImages = [], allKeys = [], currentIdx = 0;
 
-  // Voeg lightbox header toe met terug-knop (als die niet al bestaat)
-  if (!document.getElementById('lb-header')) {
-    const style = document.createElement('style');
-    style.textContent = `
-      #lb-header {
-        position: fixed;
-        top: 1.5rem;
-        left: 1.5rem;
-        z-index: 2001;
-        pointer-events: auto;
-      }
-      .lb-terug {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(20, 20, 20, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255,255,255,0.85);
-        padding: 0.55rem 1.1rem;
-        border-radius: 100px;
-        font-size: 0.82rem;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .lb-terug:hover {
-        background: rgba(255,107,0,0.15);
-        border-color: rgba(255,107,0,0.5);
-        color: #FF6B00;
-      }
-    `;
-    document.head.appendChild(style);
-
-    const lbHeader = document.createElement('div');
-    lbHeader.id = 'lb-header';
-    lbHeader.style.display = 'none';
-    const btnTerug = document.createElement('button');
-    btnTerug.className = 'lb-terug';
-    btnTerug.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg> Overzicht`;
-    btnTerug.addEventListener('click', (e) => {
+  // Terug naar overzicht knop (staat in HTML, wired hier)
+  const lbTerugBtn = document.getElementById('lb-terug-overzicht');
+  const lbTerugSep = document.getElementById('lb-terug-sep');
+  if (lbTerugBtn) {
+    lbTerugBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      lbHeader.style.display = 'none';
       lightbox.classList.add('hidden');
       document.body.style.overflow = '';
       const ov = window._currentOverzicht;
@@ -587,8 +548,6 @@ function initLightbox() {
         document.body.style.overflow = 'hidden';
       }
     });
-    lbHeader.appendChild(btnTerug);
-    document.body.appendChild(lbHeader);
   }
 
 
