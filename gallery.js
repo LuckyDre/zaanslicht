@@ -263,9 +263,15 @@ async function laadGastFotos(container) {
           </div>`;
         }).join('');
 
+        const gastSerieFotos = alleFotos.map(f => ({
+          src:  `${WORKER_URL}/foto/${f.key}`,
+          naam: f.naam,
+        }));
+
         div.innerHTML = `
           <h3>${map.map}<span class="serie-fotograaf">${fg.naam}</span>
             <span class="foto-count">${alleFotos.length} foto's</span>
+            <button class="btn-serie-grid" title="Overzicht alle foto's">⊞</button>
           </h3>
           <div class="swiper portfolio-swiper">
             <div class="swiper-wrapper">${slides}</div>
