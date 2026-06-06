@@ -228,35 +228,25 @@ async function laadFotos() {
   try {
     const viewer = document.getElementById('viewer');
 
-    // Laad voetbalfotos (eerste reeks)
-    const res = await fetch(`${WORKER}/fotograaf/fotos?categorie=voetbal`);
-    const data = await res.json();
+    // Laad manifest.json (voetbal categorie)
+    const res = await fetch('manifest.json?v=' + Date.now());
+    const manifest = await res.json();
+    const items = manifest.voetbal || [];
 
-    if (!data.fotos || data.fotos.length === 0) {
+    if (items.length === 0) {
       viewer.innerHTML = '<div class="loading">Geen foto\'s gevonden</div>';
       return;
     }
 
-    // Groepeer foto's per reeks
-    const reeksMap = {};
-    data.fotos.forEach(f => {
-      const parts = f.key.split('/');
-      const reeks = parts[3]; // fotografie-site/fotografen/id/voetbal/REEKS/bestand
-      if (!reeksMap[reeks]) {
-        reeksMap[reeks] = [];
-      }
-      reeksMap[reeks].push(f);
-    });
-
     // Neem de eerste reeks
-    const reeksNamen = Object.keys(reeksMap);
-    if (reeksNamen.length === 0) {
-      viewer.innerHTML = '<div class="loading">Geen reeksen gevonden</div>';
-      return;
-    }
+    const item = items[0];
+    activeReeks = item.map;
 
-    activeReeks = reeksNamen[0];
-    fotos = reeksMap[activeReeks];
+    // Bouw foto-array
+    fotos = item.fotos.map(f => ({
+      naam: f,
+      src: `images/voetbal/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`
+    }));
 
     currentIdx = 0;
     toonFoto();
@@ -271,7 +261,7 @@ function toonFoto() {
   const f = fotos[currentIdx];
   const viewer = document.getElementById('viewer');
   const img = document.createElement('img');
-  img.src = `${WORKER}/foto/${f.key}`;
+  img.src = f.src;
   img.alt = f.naam;
 
   viewer.innerHTML = '';
