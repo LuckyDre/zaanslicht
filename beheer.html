@@ -651,6 +651,61 @@ async function fgLaadLijst() {
   }
 }
 
+async function fgLaadUitnodigingen() {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const cont   = document.getElementById('fg-uitnodigingen');
+  if (!url || !secret) { cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Stel eerst Worker URL en Secret in.</p>'; return; }
+
+  cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Laden…</p>';
+  try {
+    const res  = await fetch(url + '/fotograaf/uitnodigingen', { headers: { 'X-Worker-Secret': secret } });
+    const data = await res.json();
+    const lijst = data.uitnodigingen || [];
+
+    if (!lijst.length) {
+      cont.innerHTML = '<p style="color:#555;font-size:0.82rem;font-style:italic">Geen openstaande uitnodigingen.</p>';
+      return;
+    }
+
+    cont.innerHTML = lijst.map(inv => {
+      const verlopen = inv.verlopen;
+      const dagenRest = Math.max(0, Math.ceil((inv.expires - Date.now()) / 86400000));
+      const statusKleur = verlopen ? '#555' : '#22c55e';
+      const statusTekst = verlopen ? 'Verlopen' : `Geldig nog ${dagenRest} dag${dagenRest !== 1 ? 'en' : ''}`;
+      return `<div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.8rem">
+        <div style="width:8px;height:8px;border-radius:50%;background:${statusKleur};flex-shrink:0"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.85rem;font-weight:700;color:#ddd">${escB(inv.naam)}</div>
+          <div style="font-size:0.72rem;color:#555">${escB(inv.email)} &middot; <span style="color:${statusKleur}">${statusTekst}</span></div>
+        </div>
+        <button onclick="fgIntrekken('${inv.token}','${escB(inv.naam)}')"
+          style="background:transparent;border:1px solid #333;color:#888;padding:0.2rem 0.6rem;border-radius:5px;font-size:0.72rem;cursor:pointer;transition:all 0.2s"
+          onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'"
+          onmouseout="this.style.borderColor='#333';this.style.color='#888'">
+          ✕ Intrekken
+        </button>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    cont.innerHTML = `<p style="color:#ef4444;font-size:0.82rem">Fout: ${e.message}</p>`;
+  }
+}
+
+async function fgIntrekken(token, naam) {
+  if (!confirm(`Uitnodiging voor "${naam}" intrekken? De link wordt ongeldig.`)) return;
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  try {
+    await fetch(url + '/fotograaf/intrekken', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ token }),
+    });
+    fgLaadUitnodigingen();
+  } catch(e) { alert('Fout: ' + e.message); }
+}
+
 async function fgLaadStatus(id) {
   const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
