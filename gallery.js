@@ -309,18 +309,28 @@ async function loadGallery() { // returns Promise
       }
     }
 
-    // Initialiseer alle Swipers, lightbox, likes
-    document.querySelectorAll('.portfolio-swiper').forEach(el => {
-      new Swiper(el, {
-        loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
-        navigation: { nextEl: el.querySelector('.swiper-button-next'), prevEl: el.querySelector('.swiper-button-prev') },
-        pagination: { el: el.querySelector('.swiper-pagination'), type: 'fraction' },
-      });
-    });
-
     initLightbox();
     initLikes();
     initComments();
+
+    // Initialiseer alle Swipers — lightbox via Swiper onClick zodat het altijd werkt
+    document.querySelectorAll('.portfolio-swiper').forEach(el => {
+      new Swiper(el, {
+        loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
+        preventClicks: false,
+        preventClicksPropagation: false,
+        navigation: { nextEl: el.querySelector('.swiper-button-next'), prevEl: el.querySelector('.swiper-button-prev') },
+        pagination: { el: el.querySelector('.swiper-pagination'), type: 'fraction' },
+        on: {
+          click(swiper, event) {
+            const img = event.target.closest('img');
+            if (img && window._openLightboxVanImg) window._openLightboxVanImg(img);
+          }
+        }
+      });
+      // Cursor pointer op alle afbeeldingen
+      el.querySelectorAll('img').forEach(img => img.style.cursor = 'pointer');
+    });
 
     // Koppel overzicht-buttons
     createOverzichtModal();
@@ -332,15 +342,6 @@ async function loadGallery() { // returns Promise
         e.stopPropagation();
         const fotos = Array.from(swiper.querySelectorAll('img')).map(img => ({ src: img.src, _img: img }));
         if (fotos.length) openOverzicht(h3.childNodes[0].textContent.trim(), fotos, swiper);
-      });
-    });
-
-    // Click listeners op ALLE foto's — na Swiper én na initLightbox
-    document.querySelectorAll('.portfolio-swiper img').forEach(img => {
-      img.style.cursor = 'pointer';
-      img.addEventListener('click', e => {
-        e.stopPropagation();
-        if (window._openLightboxVanImg) window._openLightboxVanImg(img);
       });
     });
 
