@@ -957,7 +957,9 @@ async function laadProfiel() {
     if (mijn?.fotoUrl) {
       const img = document.getElementById('profiel-foto-img');
       img.src = WORKER + mijn.fotoUrl;
-      document.getElementById('profiel-foto-preview').style.display = '';
+      document.getElementById('profiel-foto-preview').style.display = 'block';
+    } else {
+      document.getElementById('profiel-foto-preview').style.display = 'none';
     }
   } catch {}
 }
