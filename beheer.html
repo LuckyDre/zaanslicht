@@ -467,18 +467,17 @@ function renderAll() {
 
 // ── GAST-FOTOGRAAF SERIES ─────────────────────────────────────────────────
 async function laadGastSeries() {
-  const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
-  if (!url || !secret) return;
 
   try {
-    const res  = await fetch(url + '/fotograaf/manifest');
+    const res  = await fetch(WORKER_URL + '/fotograaf/manifest');
     const data = await res.json();
     const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
     if (!fotografen.length) return;
 
     for (const fg of fotografen) {
-      const fotosRes  = await fetch(`${url}/fotograaf/fotos?id=${fg.id}`, { headers: { 'X-Worker-Secret': secret } });
+      const headers = secret ? { 'X-Worker-Secret': secret } : {};
+      const fotosRes  = await fetch(`${WORKER_URL}/fotograaf/fotos?id=${fg.id}`, { headers });
       const fotosData = await fotosRes.json();
       const alleFotos = fotosData.fotos || [];
 
