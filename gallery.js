@@ -81,12 +81,15 @@ async function loadGallery() { // returns Promise
       }).join('');
 
       div.innerHTML = `
-        <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}</h3>
+        <h3>${item.naam}${item.fotograaf ? `<span class="serie-fotograaf">${item.fotograaf}</span>` : ''}
+          <span class="foto-count">${sortedFotos.length} foto's</span>
+        </h3>
         ${item.beschrijving ? `<p class="serie-beschrijving">${item.beschrijving}</p>` : ''}
         <div class="swiper portfolio-swiper">
           <div class="swiper-wrapper">${slides}</div>
           <div class="swiper-button-prev"></div>
           <div class="swiper-button-next"></div>
+          <div class="swiper-pagination"></div>
         </div>`;
 
       container.appendChild(div);
@@ -102,6 +105,10 @@ async function loadGallery() { // returns Promise
         navigation: {
           nextEl: el.querySelector('.swiper-button-next'),
           prevEl: el.querySelector('.swiper-button-prev'),
+        },
+        pagination: {
+          el: el.querySelector('.swiper-pagination'),
+          type: 'fraction',
         },
       });
     });
