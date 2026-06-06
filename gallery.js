@@ -99,7 +99,7 @@ function openSerieOverlay(titel, fotograaf, swiperEl) {
     img.src             = origImg.src;
     img.alt             = origImg.alt || '';
     img.loading         = 'lazy';
-    img.style.cssText   = 'width:100%;height:100%;object-fit:cover;transition:transform 0.3s,filter 0.3s;filter:brightness(0.88)';
+    img.style.cssText   = 'width:100%;height:100%;object-fit:contain;transition:transform 0.3s,filter 0.3s;filter:brightness(0.88);background:#0a0a0a';
     img.onmouseover     = () => { img.style.transform = 'scale(1.05)'; img.style.filter = 'brightness(1)'; };
     img.onmouseout      = () => { img.style.transform = ''; img.style.filter = 'brightness(0.88)'; };
 
