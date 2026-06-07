@@ -277,7 +277,11 @@ async function laadGallery() {
         renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item) });
       }
       for (const fg of fotografen) {
-        const mappen = (fg.mappen || []).filter(m => m.categorie === CATEGORY || m.categorie === 'eigen');
+        // 'eigen' categorie telt als voetbal; toon alleen op de juiste pagina
+        const mappen = (fg.mappen || []).filter(m =>
+          m.categorie === CATEGORY ||
+          (m.categorie === 'eigen' && CATEGORY === 'voetbal')
+        );
         for (const map of mappen) {
           const fotos = await gastNaarFotos(fg.id, map.map);
           if (fotos.length) renderSerie(container, {
