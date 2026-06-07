@@ -543,6 +543,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sessie?.token) {
     toonDashboard();
     checkPositieBeheer();
+    laadLabels();
   } else if (inviteToken) {
     toonRegistreren();
   } else {
