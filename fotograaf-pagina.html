@@ -675,13 +675,13 @@ function initLightbox() {
   // Navigatie
   document.getElementById('lb-prev').addEventListener('click', e => { e.stopPropagation(); _lbToon(_lbIdx - 1); });
   document.getElementById('lb-next').addEventListener('click', e => { e.stopPropagation(); _lbToon(_lbIdx + 1); });
-  document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  document.querySelector('.lightbox-close').addEventListener('click', () => closeLightbox());
   lightbox.addEventListener('click', e => { if (e.target === lightbox || e.target.id === 'lightbox-img') closeLightbox(); });
   document.addEventListener('keydown', e => {
     if (lightbox.classList.contains('hidden')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft')  _lbToon(_lbIdx - 1);
-    if (e.key === 'ArrowRight') _lbToon(_lbIdx + 1);
+    if (e.key === 'Escape')      closeLightbox();
+    if (e.key === 'ArrowLeft')   _lbToon(_lbIdx - 1);
+    if (e.key === 'ArrowRight')  _lbToon(_lbIdx + 1);
   });
 
   // Download
