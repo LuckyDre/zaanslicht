@@ -172,20 +172,18 @@ function initActies() {
 }
 
 // ── DOWNLOAD ──────────────────────────────────────────────────────────────
-async function downloadFoto(src, naam) {
+function downloadFoto(src, naam) {
   if (!src) return;
-  try {
-    const res  = await fetch(src);
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = naam || 'foto.jpg';
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch {
-    window.open(src, '_blank');
-  }
+  // Voeg ?download=1 toe voor Worker-foto's — server stuurt dan Content-Disposition: attachment
+  const downloadUrl = src.includes(WORKER_URL)
+    ? src + (src.includes('?') ? '&' : '?') + 'download=1'
+    : src;
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = naam || 'foto.jpg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // ── LADEN ─────────────────────────────────────────────────────────────────
