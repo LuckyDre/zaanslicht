@@ -262,12 +262,6 @@ section:not(#hero) {
   gap: 1.5rem;
 }
 
-#gast-tegels {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
 
 .tegel-scheiding {
   grid-column: 1 / -1;
