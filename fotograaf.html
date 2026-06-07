@@ -1417,18 +1417,31 @@ async function verwijderMap(mapNaam, aantalFotos) {
   }
 }
 
+function actualiseerTellers() {
+  document.querySelectorAll('.map-groep').forEach(groep => {
+    const aantal = groep.querySelectorAll('.map-item').length;
+    const teller = groep.querySelector('.map-groep-teller');
+    if (teller) teller.textContent = `${aantal} map${aantal !== 1 ? 'pen' : ''}`;
+  });
+}
+
 window.slaMappenVolgordeOp = async () => {
   const btn = document.getElementById('btn-volgorde-opslaan');
   const fb  = document.getElementById('volgorde-feedback');
   btn.disabled = true; btn.textContent = 'Opslaan…';
 
-  // Lees de huidige DOM-volgorde uit
-  const items = document.querySelectorAll('#mappen-sorteer-lijst .map-item');
-  const nieuweMappen = Array.from(items).map(el => ({
-    map:       el.dataset.map,
-    categorie: el.dataset.categorie,
-    ts:        Number(el.dataset.ts),
-  }));
+  // Lees per groep de volgorde uit — categorie staat op de groep-lijst
+  const nieuweMappen = [];
+  document.querySelectorAll('.map-groep-lijst').forEach(lijst => {
+    const categorie = lijst.dataset.categorie;
+    lijst.querySelectorAll('.map-item').forEach(el => {
+      nieuweMappen.push({
+        map:       el.dataset.map,
+        categorie: categorie,
+        ts:        Number(el.dataset.ts),
+      });
+    });
+  });
 
   try {
     const res  = await fetch(WORKER + '/fotograaf/mappen-volgorde', {
