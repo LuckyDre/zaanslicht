@@ -782,18 +782,17 @@ async function handleFotograafGalleryVolgorde(request, env) {
 
   // Laad huidige volgorde
   const huidigRaw = await env.SUBSCRIBERS.get('gallery:volgorde:' + categorie);
-  const huidig = huidigRaw ? JSON.parse(huidigRaw) : [];
+  const huidig = huidigRaw ? JSON.parse(huidigRaw) : null;
 
-  // Verifieer dat de nieuwe volgorde alleen eigen mappen verplaatst
-  // Alle eigen mappen van deze fotograaf in de nieuwe volgorde
-  const eigenInNieuw = volgorde.filter(e => e.type === 'gast' && e.fgId === fotograaf.id);
-  const andermansInNieuw = volgorde.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
-
-  // Andermans items moeten exact overeenkomen met de huidige volgorde (zelfde volgorde, niks verwijderd)
-  const andermansInHuidig = huidig.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
-  if (JSON.stringify(andermansInNieuw.map(e => e.type + e.map + (e.fgId||'')))
-    !== JSON.stringify(andermansInHuidig.map(e => e.type + e.map + (e.fgId||'')))) {
-    return json({ error: 'Andere mappen mogen niet worden gewijzigd' }, 403);
+  // Als er nog geen volgorde bestaat, mag de fotograaf alles instellen
+  if (huidig !== null) {
+    // Verifieer dat andermans items niet zijn gewijzigd of verwijderd
+    const andermansInNieuw  = volgorde.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
+    const andermansInHuidig = huidig.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
+    if (JSON.stringify(andermansInNieuw.map(e => e.type + e.map + (e.fgId||'')))
+      !== JSON.stringify(andermansInHuidig.map(e => e.type + e.map + (e.fgId||'')))) {
+      return json({ error: 'Andere mappen mogen niet worden gewijzigd' }, 403);
+    }
   }
 
   await env.SUBSCRIBERS.put('gallery:volgorde:' + categorie, JSON.stringify(volgorde));
