@@ -1045,27 +1045,38 @@ let _geselecteerdeLabels = [];
 function renderLabelChips() {
   const container = document.getElementById('labels-chips');
   if (!container) return;
-  container.innerHTML = '';
-  for (const label of _alleLabels) {
-    const chip = document.createElement('span');
+  container.innerHTML = _alleLabels.map(label => {
     const actief = _geselecteerdeLabels.includes(label);
-    chip.className = 'label-chip' + (actief ? ' actief' : '');
-    chip.textContent = label;
-    chip.addEventListener('click', function() {
-      const idx = _geselecteerdeLabels.indexOf(label);
-      if (idx === -1) { _geselecteerdeLabels.push(label); this.classList.add('actief'); }
-      else { _geselecteerdeLabels.splice(idx, 1); this.classList.remove('actief'); }
-      const st = document.getElementById('labels-geselecteerd');
-      if (st) {
-        st.textContent = _geselecteerdeLabels.length
-          ? 'Geselecteerd: ' + _geselecteerdeLabels.join(', ')
-          : 'Geen labels geselecteerd';
-        st.style.color = _geselecteerdeLabels.length ? 'var(--accent)' : 'var(--muted)';
-      }
-    });
-    container.appendChild(chip);
-  }
+    const stijl  = actief
+      ? 'background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600'
+      : '';
+    return `<span class="label-chip" style="${stijl}" onclick="window.klikLabel(this,'${label.replace(/'/g,"\\'")}')">${label}</span>`;
+  }).join('');
 }
+
+window.klikLabel = function(chip, label) {
+  const idx = _geselecteerdeLabels.indexOf(label);
+  if (idx === -1) {
+    _geselecteerdeLabels.push(label);
+    chip.style.background    = 'var(--accent)';
+    chip.style.borderColor   = 'var(--accent)';
+    chip.style.color         = '#fff';
+    chip.style.fontWeight    = '600';
+  } else {
+    _geselecteerdeLabels.splice(idx, 1);
+    chip.style.background    = '';
+    chip.style.borderColor   = '';
+    chip.style.color         = '';
+    chip.style.fontWeight    = '';
+  }
+  const st = document.getElementById('labels-geselecteerd');
+  if (st) {
+    st.textContent = _geselecteerdeLabels.length
+      ? '✓ Geselecteerd: ' + _geselecteerdeLabels.join(', ')
+      : 'Geen labels geselecteerd';
+    st.style.color = _geselecteerdeLabels.length ? 'var(--accent)' : 'var(--muted)';
+  }
+};
 
 async function laadLabels() {
   const container = document.getElementById('labels-chips');
