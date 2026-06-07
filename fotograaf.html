@@ -1511,6 +1511,150 @@ window.slaMappenVolgordeOp = async () => {
   btn.disabled = false; btn.textContent = 'Volgorde opslaan';
 };
 
+// ══════════════════════════════════════════════════════
+// POSITIE OP PAGINA
+// ══════════════════════════════════════════════════════
+
+async function laadPositieTab() {
+  if (!sessie) return;
+  const inhoud = document.getElementById('positie-inhoud');
+  const acties = document.getElementById('positie-acties');
+  inhoud.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Laden…</p>';
+  acties.style.display = 'none';
+
+  try {
+    const [volRes, manifestRes] = await Promise.all([
+      fetch(WORKER + '/gallery/volgorde'),
+      fetch(WORKER + '/fotograaf/manifest'),
+    ]);
+    const volData      = await volRes.json();
+    const manifestData = await manifestRes.json();
+
+    // Bouw een naam-lookup voor alle fotografen
+    const fgById = {};
+    for (const fg of (manifestData.fotografen || [])) {
+      fgById[fg.id] = fg;
+    }
+
+    const wrapper = document.createElement('div');
+
+    for (const cat of ['voetbal', 'nosports']) {
+      const catLabel = cat === 'voetbal' ? '⚽ Voetbal' : '🌿 No Sports';
+      const volgorde = volData[cat] || [];
+
+      const sectie = document.createElement('div');
+      sectie.className = 'positie-groep';
+      sectie.innerHTML = `<div class="positie-groep-header">${catLabel}</div>`;
+
+      const lijst = document.createElement('div');
+      lijst.className = 'positie-lijst';
+      lijst.dataset.categorie = cat;
+
+      for (const entry of volgorde) {
+        const isEigen = entry.type === 'gast' && entry.fgId === sessie.id;
+        const isAnder = !isEigen;
+
+        let naam, meta, ts;
+        if (entry.type === 'eigen') {
+          naam = entry.map;
+          meta = 'Andreas Luckfiel';
+        } else {
+          const fg = fgById[entry.fgId];
+          naam = entry.map;
+          meta = fg ? fg.naam : 'Fotograaf';
+          // Zoek ts van deze map
+          const mapMeta = (fg?.mappen || []).find(m => m.map === entry.map);
+          ts = mapMeta?.ts;
+        }
+
+        const item = document.createElement('div');
+        item.className = 'positie-item ' + (isEigen ? 'eigen' : 'ander');
+        item.dataset.type  = entry.type;
+        item.dataset.map   = entry.map;
+        item.dataset.fgId  = entry.fgId || '';
+        item.dataset.fgCat = entry.fgCat || cat;
+        item.innerHTML = `
+          ${isEigen ? '<span class="drag-handle">⠿</span>' : '<span style="width:1.3rem;flex-shrink:0"></span>'}
+          <span class="positie-naam" title="${naam}">${naam}</span>
+          <span class="positie-meta">${meta}${ts ? ' · ' + fmtDatum(ts) : ''}</span>`;
+        lijst.appendChild(item);
+      }
+
+      // Eigen mappen die nog niet in de volgorde staan → achteraan
+      const eigenInVolgorde = new Set(volgorde.filter(e => e.type === 'gast' && e.fgId === sessie.id).map(e => e.map));
+      const eigenMappen = (_mappenData || []).filter(m => (m.categorie === cat || (cat === 'voetbal' && m.categorie === 'eigen')) && !eigenInVolgorde.has(m.map));
+      for (const m of eigenMappen) {
+        const item = document.createElement('div');
+        item.className = 'positie-item eigen';
+        item.dataset.type  = 'gast';
+        item.dataset.map   = m.map;
+        item.dataset.fgId  = sessie.id;
+        item.dataset.fgCat = m.categorie;
+        item.innerHTML = `
+          <span class="drag-handle">⠿</span>
+          <span class="positie-naam" title="${m.map}">${m.map}</span>
+          <span class="positie-meta">${sessie.naam}${m.ts ? ' · ' + fmtDatum(m.ts) : ''}</span>`;
+        lijst.appendChild(item);
+      }
+
+      new Sortable(lijst, {
+        animation: 200,
+        handle: '.drag-handle',
+        filter: '.ander',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd() { document.getElementById('positie-feedback').textContent = ''; }
+      });
+
+      sectie.appendChild(lijst);
+      wrapper.appendChild(sectie);
+    }
+
+    inhoud.innerHTML = '';
+    inhoud.appendChild(wrapper);
+    acties.style.display = 'flex';
+  } catch(e) {
+    inhoud.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>';
+  }
+}
+
+function fmtDatum(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+window.slaPositieOp = async () => {
+  const btn = document.getElementById('btn-positie-opslaan');
+  const fb  = document.getElementById('positie-feedback');
+  btn.disabled = true; btn.textContent = 'Opslaan…';
+
+  try {
+    for (const cat of ['voetbal', 'nosports']) {
+      const lijst = document.querySelector(`.positie-lijst[data-categorie="${cat}"]`);
+      if (!lijst) continue;
+
+      const volgorde = Array.from(lijst.querySelectorAll('.positie-item')).map(el => {
+        if (el.dataset.type === 'eigen') return { type: 'eigen', map: el.dataset.map };
+        return { type: 'gast', fgId: el.dataset.fgId, fgCat: el.dataset.fgCat, map: el.dataset.map };
+      });
+
+      const res = await fetch(WORKER + '/fotograaf/gallery-volgorde', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+        body: JSON.stringify({ categorie: cat, volgorde }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Fout');
+    }
+    fb.textContent = '✓ Positie opgeslagen';
+    fb.style.color = '#22c55e';
+  } catch(e) {
+    fb.textContent = '✕ ' + e.message;
+    fb.style.color = '#ef4444';
+  }
+  btn.disabled = false; btn.textContent = 'Positie opslaan';
+};
+
 window.uitloggen = () => {
   localStorage.removeItem('zl_fotograaf');
   sessie = null;
