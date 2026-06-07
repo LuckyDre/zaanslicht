@@ -367,14 +367,13 @@ async function laadGastTegels() {
         <p>Alle foto's van ${fg.naam}</p>`);
       t3.addEventListener('click', () => startSlideshow(fotos));
 
-      // Achtergronden instellen
+      // Achtergronden instellen — willekeurig uit de gallerij-fotos
       if (fotos.length > 0) {
-        const pick = (arr, n) => shuffle(arr).slice(0, n);
+        const geshuffled = shuffle([...fotos]);
         [t1, t2, t3].forEach((t, i) => {
-          const bg = t.querySelector('.tegel-bg');
-          if (bg && fotos[i % fotos.length]) {
-            bg.style.backgroundImage = `url('${fotos[i % fotos.length].src}')`;
-          }
+          const bg  = t.querySelector('.tegel-bg');
+          const src = geshuffled[i % geshuffled.length]?.src;
+          if (bg && src) bg.style.backgroundImage = `url('${src}')`;
         });
       }
 
