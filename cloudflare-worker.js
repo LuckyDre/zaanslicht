@@ -517,6 +517,10 @@ async function handleFotograafLogin(request, env) {
   const geblokkeerd = await env.SUBSCRIBERS.get('fotograaf:geblokkeerd:' + found.id);
   if (geblokkeerd === '1') return json({ error: 'Je account is tijdelijk geblokkeerd. Neem contact op met de beheerder.' }, 403);
 
+  // Sla login-tijdstip op
+  found.last_login = Date.now();
+  await env.SUBSCRIBERS.put('fotograaf:account:' + found.id, JSON.stringify(found));
+
   const sessieToken = randomToken();
   await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, found.id, { expirationTtl: 30 * 24 * 3600 });
 
