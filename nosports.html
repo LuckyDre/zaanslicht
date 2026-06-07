@@ -296,7 +296,25 @@
   <img id="lb2-img" src="" alt="" />
   <button id="lb2-next" class="lb2-rond">&#8594;</button>
   <div class="lb2-acties">
+    <button id="lb2-like" title="Like"><span>♥</span> <span id="lb2-like-count"></span></button>
     <button id="lb2-download" title="Download">&#8681; Download</button>
+    <button id="lb2-reacties" title="Reacties">💬 <span id="lb2-rc-count"></span></button>
+  </div>
+</div>
+
+<!-- REACTIES DRAWER -->
+<div id="reacties-drawer" class="reacties-drawer slide-out">
+  <div class="rd-header">
+    <span>💬 Reacties <span id="rd-count"></span></span>
+    <button id="rd-close">✕</button>
+  </div>
+  <div class="rd-body">
+    <div class="rd-lijst" id="rd-lijst"><p class="rd-geen">Nog geen reacties</p></div>
+    <form class="rd-form" id="rd-form" autocomplete="off">
+      <input type="text" id="rd-naam" placeholder="Naam (optioneel)" maxlength="50" />
+      <textarea id="rd-tekst" placeholder="Schrijf een reactie..." maxlength="400" rows="3" required></textarea>
+      <button type="submit">Plaatsen →</button>
+    </form>
   </div>
 </div>
 
