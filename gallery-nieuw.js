@@ -37,13 +37,23 @@ function initLightbox() {
   document.getElementById('lb2-prev').addEventListener('click', e => { e.stopPropagation(); lbToon(_lb_idx - 1); });
   document.getElementById('lb2-next').addEventListener('click', e => { e.stopPropagation(); lbToon(_lb_idx + 1); });
   document.getElementById('lb2').addEventListener('click', e => { if (e.target === document.getElementById('lb2')) lbSluit(); });
-  document.getElementById('lb2-download').addEventListener('click', e => {
+  document.getElementById('lb2-download').addEventListener('click', async e => {
     e.stopPropagation();
     const { src, naam } = e.currentTarget.dataset;
     if (!src) return;
-    const a = document.createElement('a');
-    a.href = src; a.download = naam || 'foto.jpg'; a.target = '_blank';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    try {
+      const res  = await fetch(src);
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = naam || 'foto.jpg';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {
+      // Fallback: open in nieuw tabblad
+      window.open(src, '_blank');
+    }
   });
   document.addEventListener('keydown', e => {
     if (document.getElementById('lb2').classList.contains('lb2-hidden')) return;
