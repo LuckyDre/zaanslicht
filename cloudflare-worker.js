@@ -632,7 +632,7 @@ async function handleFotograafLijst(request, env) {
     for (const key of r.keys) {
       const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
       const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
-      lijst.push({ id: a.id, naam: a.naam, email: a.email, kleur: a.kleur, ts: a.ts, aantalMappen: mappenRaw ? JSON.parse(mappenRaw).length : 0 });
+      lijst.push({ id: a.id, naam: a.naam, email: a.email, kleur: a.kleur, ts: a.ts, last_login: a.last_login || null, aantalMappen: mappenRaw ? JSON.parse(mappenRaw).length : 0 });
     }
     cursor = r.list_complete ? undefined : r.cursor;
   } while (cursor);
