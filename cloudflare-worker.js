@@ -904,6 +904,23 @@ async function handleComment(request, env) {
 }
 
 // ── REACTIES OPHALEN ─────────────────────────────────────────────────────────
+async function handleAlleComments(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const comments = [];
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'comment:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      const c = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+      const delen = key.name.split(':');
+      comments.push({ ...c, id: delen[delen.length - 1] });
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor);
+  comments.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  return json({ comments });
+}
+
 async function handleComments(request, env) {
   try {
     const url = new URL(request.url);
@@ -1070,7 +1087,8 @@ export default {
     if (url.pathname === '/fotograaf/verberg-map'     && request.method === 'POST') return handleVerborgeMap(request, env);
     if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
     if (url.pathname === '/comment'  && request.method === 'POST') return handleComment(request, env);
-    if (url.pathname === '/comments' && request.method === 'GET')  return handleComments(request, env);
+    if (url.pathname === '/comments'     && request.method === 'GET')  return handleComments(request, env);
+    if (url.pathname === '/alle-comments' && request.method === 'GET')  return handleAlleComments(request, env);
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
     if (url.pathname === '/fotograaf/mappen-volgorde' && request.method === 'POST') return handleMappenVolgorde(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
