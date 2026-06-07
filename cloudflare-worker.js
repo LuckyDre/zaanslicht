@@ -755,6 +755,51 @@ async function handleAccountVerwijderen(request, env) {
 
 // ── MAPPEN VOLGORDE OPSLAAN ───────────────────────────────────────────────
 // ── GECOMBINEERDE GALLERY VOLGORDE ────────────────────────────────────────
+async function handlePositieBeheer(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, mag } = await request.json().catch(() => ({}));
+  if (!id) return json({ error: 'id verplicht' }, 400);
+  if (mag) {
+    await env.SUBSCRIBERS.put('fotograaf:positiebeheer:' + id, '1');
+  } else {
+    await env.SUBSCRIBERS.delete('fotograaf:positiebeheer:' + id);
+  }
+  return json({ ok: true, mag: !!mag });
+}
+
+async function handleFotograafGalleryVolgorde(request, env) {
+  // Fotograaf mag alleen zijn eigen mappen verplaatsen in de gecombineerde volgorde
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  // Check of deze fotograaf positiebeheer mag
+  const mag = await env.SUBSCRIBERS.get('fotograaf:positiebeheer:' + fotograaf.id);
+  if (!mag) return json({ error: 'Geen toestemming om positie te bepalen' }, 403);
+
+  const { categorie, volgorde } = await request.json().catch(() => ({}));
+  if (!categorie || !volgorde) return json({ error: 'categorie en volgorde verplicht' }, 400);
+
+  // Laad huidige volgorde
+  const huidigRaw = await env.SUBSCRIBERS.get('gallery:volgorde:' + categorie);
+  const huidig = huidigRaw ? JSON.parse(huidigRaw) : [];
+
+  // Verifieer dat de nieuwe volgorde alleen eigen mappen verplaatst
+  // Alle eigen mappen van deze fotograaf in de nieuwe volgorde
+  const eigenInNieuw = volgorde.filter(e => e.type === 'gast' && e.fgId === fotograaf.id);
+  const andermansInNieuw = volgorde.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
+
+  // Andermans items moeten exact overeenkomen met de huidige volgorde (zelfde volgorde, niks verwijderd)
+  const andermansInHuidig = huidig.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
+  if (JSON.stringify(andermansInNieuw.map(e => e.type + e.map + (e.fgId||'')))
+    !== JSON.stringify(andermansInHuidig.map(e => e.type + e.map + (e.fgId||'')))) {
+    return json({ error: 'Andere mappen mogen niet worden gewijzigd' }, 403);
+  }
+
+  await env.SUBSCRIBERS.put('gallery:volgorde:' + categorie, JSON.stringify(volgorde));
+  return json({ ok: true });
+}
+
 async function handleGalleryVolgorde(request, env) {
   const secret = request.headers.get('X-Worker-Secret');
   if (!secret || secret !== env.WORKER_SECRET) return json({ error: 'Niet toegestaan' }, 401);
