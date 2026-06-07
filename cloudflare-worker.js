@@ -1159,7 +1159,14 @@ export default {
       const mag = await env.SUBSCRIBERS.get('fotograaf:positiebeheer:' + id);
       return json({ mag: mag === '1' });
     }
-    if (url.pathname === '/fotograaf/gallery-volgorde' && request.method === 'POST') return handleFotograafGalleryVolgorde(request, env);
+    if (url.pathname === '/fotograaf/gallery-volgorde'   && request.method === 'POST') return handleFotograafGalleryVolgorde(request, env);
+    if (url.pathname === '/fotograaf/positiebeheer-check' && request.method === 'GET') {
+      const authToken = request.headers.get('X-Fotograaf-Token');
+      const fotograaf = await getFotograafByToken(authToken, env);
+      if (!fotograaf) return json({ mag: false });
+      const mag = await env.SUBSCRIBERS.get('fotograaf:positiebeheer:' + fotograaf.id);
+      return json({ mag: mag === '1' });
+    }
     if (url.pathname === '/fotograaf/bio-opslaan'    && request.method === 'POST') return handleBioOpslaan(request, env);
     if (url.pathname === '/fotograaf/profielfoto'    && request.method === 'POST') return handleProfielfotoUpload(request, env);
     if (url.pathname === '/fotograaf/profielen'      && request.method === 'GET')  return handleProfielen(request, env);
