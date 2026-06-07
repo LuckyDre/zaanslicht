@@ -289,12 +289,12 @@ function hexNaarHueMain(hex) {
   return Math.round(h * 60);
 }
 
+// ── GASTFOTOGRAAF TEGELS ──────────────────────────────────────────────────
+const WORKER_URL_MAIN = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
 loadTegels();
 loadRecentComments();
 laadGastTegels();
-
-// ── GASTFOTOGRAAF TEGELS ──────────────────────────────────────────────────
-const WORKER_URL_MAIN = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
 async function laadGastTegels() {
   try {
