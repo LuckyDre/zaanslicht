@@ -753,6 +753,12 @@ async function fgLaadLijst() {
               onmouseout="this.style.borderColor='#333';this.style.color='#888'">
               🔗 Pagina
             </a>
+            <button onclick="fgBekijkDashboard('${fg.id}','${escB(fg.naam)}')"
+              style="background:transparent;border:1px solid #333;color:#888;padding:0.25rem 0.7rem;border-radius:6px;font-size:0.72rem;cursor:pointer;transition:all 0.2s"
+              onmouseover="this.style.borderColor='var(--oranje)';this.style.color='var(--oranje)'"
+              onmouseout="this.style.borderColor='#333';this.style.color='#888'">
+              👁️ Dashboard
+            </button>
             <button id="fg-blok-${fg.id}" onclick="fgToggleBlokkeer('${fg.id}')"
               style="background:transparent;border:1px solid #444;color:#aaa;padding:0.25rem 0.7rem;border-radius:6px;font-size:0.72rem;cursor:pointer;transition:all 0.2s">
               🔒 Blokkeer
