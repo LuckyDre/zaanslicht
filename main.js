@@ -381,21 +381,23 @@ async function laadGastTegels() {
         if (bg && src) bg.style.backgroundImage = `url('${src}')`;
       });
 
-      // Hero-preview bij hover; reset bij mouseleave zodat voetbal/nosports weer werken
+      // Wrapper om de 3 tegels — hover blijft actief zolang je binnen de rij bent
+      const rij = document.createElement('div');
+      rij.style.cssText = 'display:contents';
+      rij.appendChild(t1);
+      rij.appendChild(t2);
+      rij.appendChild(t3);
+
       const heroFotos = bgFotos.slice(0, 5);
-      [t1, t2, t3].forEach(t => {
-        t.addEventListener('mouseenter', () => {
-          if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
-        });
-        t.addEventListener('mouseleave', () => {
-          window._fotograafActief = false;
-          if (window.resetFotograafKleur) window.resetFotograafKleur();
-        });
+      rij.addEventListener('mouseenter', () => {
+        if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
+      });
+      rij.addEventListener('mouseleave', () => {
+        window._fotograafActief = false;
+        if (window.resetFotograafKleur) window.resetFotograafKleur();
       });
 
-      container.appendChild(t1);
-      container.appendChild(t2);
-      container.appendChild(t3);
+      container.appendChild(rij);
     }
   } catch(e) {
     console.warn('Gast-tegels niet geladen:', e);
