@@ -390,18 +390,15 @@ Promise.all([
   const eigenFotos  = eigenMappen.reduce((s, x) => s + (x.fotos||[]).length, 0);
   const eigenSeries = eigenMappen.length;
 
-  // Tel gast-mappen die bij voetbal horen
-  let gastFotos = 0, gastSeries = 0;
+  // Tel gast-series die bij voetbal horen
+  let gastSeries = 0;
   for (const fg of (gastData.fotografen || [])) {
     for (const map of (fg.mappen || [])) {
-      if (map.categorie === 'voetbal' || map.categorie === 'eigen') {
-        gastSeries++;
-        gastFotos += map.aantalFotos || 0;
-      }
+      if (map.categorie === 'voetbal' || map.categorie === 'eigen') gastSeries++;
     }
   }
 
-  document.getElementById('meta-fotos').textContent  = (eigenFotos + gastFotos).toLocaleString('nl-NL');
+  document.getElementById('meta-fotos').textContent  = eigenFotos.toLocaleString('nl-NL');
   document.getElementById('meta-mappen').textContent = eigenSeries + gastSeries;
 });
 </script>
