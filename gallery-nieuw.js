@@ -25,6 +25,9 @@ function lbToon(idx) {
   document.getElementById('lb2-next').style.opacity = _lb_idx === _lb_fotos.length - 1 ? '0.2' : '1';
   document.getElementById('lb2-download').dataset.src  = f.src;
   document.getElementById('lb2-download').dataset.naam = f.src.split('/').pop().split('?')[0];
+  // Stel key in voor like/reacties script
+  const likeEl = document.getElementById('lb2-like');
+  if (likeEl) likeEl.dataset.key = f.key || '';
 }
 
 function lbSluit() {
