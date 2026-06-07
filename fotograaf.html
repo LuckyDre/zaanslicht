@@ -965,6 +965,9 @@ async function toonDashboard(nieuwAangemeld = false) {
       </div>
     </div>`;
 
+  // DOM is nu klaar — laad labels direct
+  laadLabels();
+
   // Stijl accentkleur dynamisch
   document.documentElement.style.setProperty('--accent', sessie.kleur || '#FF6B00');
 
