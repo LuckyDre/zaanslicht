@@ -948,6 +948,40 @@ async function handleComment(request, env) {
 }
 
 // ── REACTIES OPHALEN ─────────────────────────────────────────────────────────
+// ── LABELS ────────────────────────────────────────────────────────────────────
+const STANDAARD_LABELS = [
+  'Alcmaria Victrix','VV Assendelft','De Blokkers','SV DTS','Fortuna Wormerveer',
+  'AFC IJburg','KFC','SV Koedijk','OFC Oostzaan','VV Opperdoes','SC Purmerland',
+  'VV Saenden','Sporting Krommenie','TOS Actief','United Davo','ASC De Volewijckers',
+  'WSV 1930','ZVV Zaandijk','ZCFC'
+];
+
+async function handleGetLabels(request, env) {
+  const raw = await env.SUBSCRIBERS.get('labels:lijst');
+  const opgeslagen = raw ? JSON.parse(raw) : [];
+  // Combineer standaard + aangepast, uniek en gesorteerd
+  const alle = [...new Set([...STANDAARD_LABELS, ...opgeslagen])].sort((a, b) => a.localeCompare(b, 'nl'));
+  return json({ labels: alle });
+}
+
+async function handleAddLabel(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { label } = await request.json().catch(() => ({}));
+  if (!label || label.trim().length < 2) return json({ error: 'Label te kort' }, 400);
+  const schoon = label.trim().substring(0, 50);
+
+  const raw = await env.SUBSCRIBERS.get('labels:lijst');
+  const lijst = raw ? JSON.parse(raw) : [];
+  if (!lijst.includes(schoon) && !STANDAARD_LABELS.includes(schoon)) {
+    lijst.push(schoon);
+    await env.SUBSCRIBERS.put('labels:lijst', JSON.stringify(lijst));
+  }
+  return json({ ok: true, label: schoon });
+}
+
 async function handleDeleteComment(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
   const { id, photoKey } = await request.json().catch(() => ({}));
