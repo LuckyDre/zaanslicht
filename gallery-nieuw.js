@@ -64,23 +64,54 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur }) {
   const h3 = document.createElement('h3');
   h3.className = 'pc-titel';
   h3.innerHTML = `${naam}${fotograaf ? `<span class="pc-sub">${fotograaf}</span>` : ''}
-    <span class="pc-rechts"><span class="pc-count">${fotos.length} foto's</span></span>`;
-  if (kleur) { const sub = h3.querySelector('.pc-sub'); if (sub) sub.style.color = kleur; }
+    <span class="pc-rechts">
+      <span class="pc-count">${fotos.length} foto's</span>
+      <button class="pc-overzicht" title="Overzicht">⊞</button>
+    </span>`;
+  if (kleur) h3.querySelector('.pc-sub') && (h3.querySelector('.pc-sub').style.color = kleur);
   div.appendChild(h3);
 
-  // Foto-grid — geen Swiper, gewoon scrollen
-  const grid = document.createElement('div');
-  grid.className = 'foto-grid';
-  fotos.forEach((f, i) => {
-    const cel = document.createElement('div');
-    cel.className = 'foto-cel';
-    cel.innerHTML = `<img src="${f.src}" alt="${naam}" loading="lazy" />`;
-    cel.addEventListener('click', () => lbOpen(fotos, i));
-    grid.appendChild(cel);
+  // Swiper
+  const swiperEl = document.createElement('div');
+  swiperEl.className = 'swiper pc-swiper';
+  swiperEl.innerHTML = `
+    <div class="swiper-wrapper">
+      ${fotos.map((f, i) => `
+        <div class="swiper-slide">
+          <img src="${f.src}" alt="${naam}" loading="lazy" />
+          <button class="foto-open" data-idx="${i}" aria-label="Foto openen"></button>
+          <div class="slide-acties">
+            <button class="btn-like" data-key="${f.key}" title="Like"><span class="hart">♥</span></button>
+            <button class="btn-dl" data-src="${f.src}" data-naam="${f.src.split('/').pop().split('?')[0]}" title="Download">&#8681;</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+    <div class="swiper-pagination"></div>`;
+  div.appendChild(swiperEl);
+  container.appendChild(div);
+
+  // Swiper init
+  const sw = new Swiper(swiperEl, {
+    loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
+    navigation: { nextEl: swiperEl.querySelector('.swiper-button-next'), prevEl: swiperEl.querySelector('.swiper-button-prev') },
+    pagination: { el: swiperEl.querySelector('.swiper-pagination'), type: 'fraction' },
   });
 
-  div.appendChild(grid);
-  container.appendChild(div);
+  // Foto openen via transparante knop — 100% betrouwbaar
+  swiperEl.querySelectorAll('.foto-open').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      lbOpen(fotos, parseInt(btn.dataset.idx));
+    });
+  });
+
+  // Overzicht knop
+  h3.querySelector('.pc-overzicht').addEventListener('click', e => {
+    e.stopPropagation();
+    toonOverzicht(naam, fotos);
+  });
 }
 
 // ── OVERZICHT GRID ─────────────────────────────────────────────────────────
