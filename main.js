@@ -303,7 +303,7 @@ async function laadGastTegels() {
     const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
     if (!fotografen.length) return;
 
-    const container = document.getElementById('gast-tegels');
+    const container = document.querySelector('.tegel-grid');
     if (!container) return;
 
     for (const fg of fotografen) {
