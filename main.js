@@ -328,7 +328,11 @@ async function laadGastTegels() {
 
       const fotos = alleFotos
         .filter(f => {
+          // Profielfoto nooit tonen — staat direct in de id-map zonder categorie/map
           if (f.key.includes('/profiel.')) return false;
+          // Galerij-fotos hebben altijd minimaal 4 segmenten: fotografen/{id}/{categorie}/{map}/{bestand}
+          const delen = f.key.split('/');
+          if (delen.length < 5) return false;
           try {
             const decoded = decodeURIComponent(f.key);
             return [...mappenMetFotos].some(m => decoded.includes(`/${m}/`));
