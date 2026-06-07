@@ -1169,12 +1169,16 @@ async function laadMappenTab() {
   acties.style.display = 'none';
 
   try {
-    const res  = await fetch(WORKER + '/fotograaf/manifest');
-    const data = await res.json();
-    const fg   = (data.fotografen || []).find(f => f.id === sessie.id);
+    const [manifestRes, fotosRes] = await Promise.all([
+      fetch(WORKER + '/fotograaf/manifest'),
+      fetch(WORKER + '/fotograaf/fotos?id=' + sessie.id, { headers: { 'X-Fotograaf-Token': sessie.token } }),
+    ]);
+    const manifestData = await manifestRes.json();
+    const fotosData    = await fotosRes.json();
+
+    const fg = (manifestData.fotografen || []).find(f => f.id === sessie.id);
     _mappenData = fg?.mappen || [];
 
-    // Verberg handleiding als er al mappen zijn
     const handleiding = document.getElementById('handleiding-intro');
     if (handleiding) handleiding.style.display = _mappenData.length > 0 ? 'none' : 'block';
 
@@ -1183,24 +1187,73 @@ async function laadMappenTab() {
       return;
     }
 
+    // Groepeer fotos per mapnaam
+    const alleFotos = fotosData.fotos || [];
+    const fotoPerMap = {};
+    for (const f of alleFotos) {
+      if (f.key.includes('/profiel.')) continue;
+      const delen = decodeURIComponent(f.key).split('/');
+      if (delen.length < 5) continue;
+      const mapNaam = delen[3];
+      if (!fotoPerMap[mapNaam]) fotoPerMap[mapNaam] = [];
+      fotoPerMap[mapNaam].push(f);
+    }
+
     const lijst = document.createElement('div');
     lijst.id = 'mappen-sorteer-lijst';
 
-    _mappenData.forEach(m => {
+    for (const m of _mappenData) {
       const catLabel = m.categorie === 'voetbal' ? '⚽ Voetbal'
                      : m.categorie === 'nosports' ? '🌿 No Sports'
                      : '📷 Eigen';
+      const fotos    = fotoPerMap[m.map] || [];
+      const isLeeg   = fotos.length === 0;
+      const thumbSrc = fotos.length > 0 ? `${WORKER}/foto/${fotos[0].key}` : null;
+
       const li = document.createElement('div');
-      li.className = 'map-item';
+      li.className = 'map-item' + (isLeeg ? ' leeg' : '');
       li.dataset.map = m.map;
       li.dataset.categorie = m.categorie;
       li.dataset.ts = m.ts || 0;
+
       li.innerHTML = `
-        <span class="map-drag-handle" title="Sleep om te sorteren">⠿</span>
-        <span class="map-naam">${m.map}</span>
-        <span class="map-cat-badge">${catLabel}</span>`;
+        <div class="map-header">
+          <span class="map-drag-handle" title="Sleep om te sorteren">⠿</span>
+          ${thumbSrc
+            ? `<img class="map-thumb" src="${thumbSrc}" alt="" />`
+            : `<div class="map-thumb-leeg">📁</div>`}
+          <div class="map-info">
+            <div class="map-naam" title="${m.map}">${m.map}</div>
+            <div class="map-meta">${isLeeg
+              ? '<span style="color:#ef4444">⚠ Geen foto\'s — niet zichtbaar op de site</span>'
+              : `${fotos.length} foto${fotos.length !== 1 ? '\'s' : ''}`}
+            </div>
+          </div>
+          <span class="map-cat-badge">${catLabel}</span>
+          <button class="map-expand-btn" title="Foto's bekijken" onclick="toggleMapFotos(this, '${m.map.replace(/'/g,"\\'")}')">▾</button>
+        </div>
+        <div class="map-fotos-paneel">
+          <div class="map-fotos-grid"></div>
+          <button class="map-verwijder-btn" onclick="verwijderMap('${m.map.replace(/'/g,"\\'")}', ${fotos.length})">
+            🗑 ${isLeeg ? 'Lege map verwijderen' : 'Hele map verwijderen'}
+          </button>
+        </div>`;
+
+      // Vul de foto-thumbnails in
+      const grid = li.querySelector('.map-fotos-grid');
+      for (const f of fotos) {
+        const naam = decodeURIComponent(f.key.split('/').pop());
+        const chip = document.createElement('div');
+        chip.className = 'foto-chip';
+        chip.title = naam;
+        chip.innerHTML = `
+          <img src="${WORKER}/foto/${f.key}" loading="lazy" alt="${naam}" />
+          <div class="foto-chip-del" onclick="verwijderFoto('${f.key.replace(/'/g,"\\'")}', this)" title="Verwijder ${naam}">🗑</div>`;
+        grid.appendChild(chip);
+      }
+
       lijst.appendChild(li);
-    });
+    }
 
     inhoud.innerHTML = '';
     inhoud.appendChild(lijst);
@@ -1211,13 +1264,88 @@ async function laadMappenTab() {
       handle: '.map-drag-handle',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
-      onEnd() {
-        document.getElementById('volgorde-feedback').textContent = '';
-      }
+      onEnd() { document.getElementById('volgorde-feedback').textContent = ''; }
     });
 
   } catch (e) {
-    inhoud.innerHTML = '<p style="color:#ef4444;font-size:0.85rem">Kon mappen niet laden.</p>';
+    inhoud.innerHTML = '<p style="color:#ef4444;font-size:0.85rem">Kon mappen niet laden: ' + e.message + '</p>';
+  }
+}
+
+function toggleMapFotos(btn, mapNaam) {
+  const paneel = btn.closest('.map-item').querySelector('.map-fotos-paneel');
+  const open   = paneel.style.display === 'block';
+  paneel.style.display = open ? 'none' : 'block';
+  btn.classList.toggle('open', !open);
+}
+
+async function verwijderFoto(key, delBtn) {
+  const chip = delBtn.closest('.foto-chip');
+  if (!confirm('Deze foto van de site verwijderen?')) return;
+  delBtn.innerHTML = '…';
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/foto-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Fout');
+    chip.remove();
+    // Update teller
+    const mapItem = document.querySelector(`[data-map="${decodeURIComponent(key).split('/')[3]}"]`);
+    if (mapItem) {
+      const grid  = mapItem.querySelector('.map-fotos-grid');
+      const count = grid.querySelectorAll('.foto-chip').length;
+      const meta  = mapItem.querySelector('.map-meta');
+      if (count === 0) {
+        meta.innerHTML = '<span style="color:#ef4444">⚠ Geen foto\'s — niet zichtbaar op de site</span>';
+        mapItem.classList.add('leeg');
+        mapItem.querySelector('.map-verwijder-btn').textContent = '🗑 Lege map verwijderen';
+      } else {
+        meta.textContent = `${count} foto${count !== 1 ? "'s" : ""}`;
+      }
+    }
+  } catch (e) {
+    alert('Verwijderen mislukt: ' + e.message);
+    delBtn.innerHTML = '🗑';
+  }
+}
+
+async function verwijderMap(mapNaam, aantalFotos) {
+  const vraag = aantalFotos > 0
+    ? `Weet je zeker dat je "${mapNaam}" wilt verwijderen?\n\nAlle ${aantalFotos} foto's worden permanent van de site verwijderd.`
+    : `Lege map "${mapNaam}" verwijderen?`;
+  if (!confirm(vraag)) return;
+
+  try {
+    // Haal alle foto-keys van deze map op en verwijder ze één voor één
+    const res   = await fetch(WORKER + '/fotograaf/fotos?id=' + sessie.id, { headers: { 'X-Fotograaf-Token': sessie.token } });
+    const data  = await res.json();
+    const fotos = (data.fotos || []).filter(f => {
+      try { return decodeURIComponent(f.key).split('/')[3] === mapNaam; } catch { return false; }
+    });
+
+    for (const f of fotos) {
+      await fetch(WORKER + '/fotograaf/foto-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+        body: JSON.stringify({ key: f.key }),
+      });
+    }
+
+    // Verwijder map uit de mappen-lijst in KV
+    const nieuweMappen = _mappenData.filter(m => m.map !== mapNaam);
+    await fetch(WORKER + '/fotograaf/mappen-volgorde', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ mappen: nieuweMappen }),
+    });
+
+    // Herlaad de tab
+    await laadMappenTab();
+  } catch (e) {
+    alert('Verwijderen mislukt: ' + e.message);
   }
 }
 
