@@ -904,6 +904,17 @@ async function handleComment(request, env) {
 }
 
 // ── REACTIES OPHALEN ─────────────────────────────────────────────────────────
+async function handleDeleteComment(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, photoKey } = await request.json().catch(() => ({}));
+  if (!id || !photoKey) return json({ error: 'id en photoKey verplicht' }, 400);
+  await Promise.all([
+    env.SUBSCRIBERS.delete(`comment:${photoKey}:${id}`),
+    env.SUBSCRIBERS.delete(`recent:${id}`),
+  ]);
+  return json({ ok: true });
+}
+
 async function handleAlleComments(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
   const comments = [];
