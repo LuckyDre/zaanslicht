@@ -541,8 +541,9 @@ let sessie = JSON.parse(localStorage.getItem('zl_fotograaf') || 'null');
 
 window.addEventListener('DOMContentLoaded', () => {
   if (sessie?.token) {
-    toonDashboard().then(() => laadLabels());
+    toonDashboard();
     checkPositieBeheer();
+    setTimeout(laadLabels, 50);
   } else if (inviteToken) {
     toonRegistreren();
   } else {
