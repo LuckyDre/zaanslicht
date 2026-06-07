@@ -349,7 +349,8 @@ async function laadGastTegels() {
         <h2>${fg.naam}</h2>
         <p>Foto's van ${fg.naam}</p>`);
       t1.addEventListener('click', () => {
-        window.location.href = `fotograaf-pagina.html?id=${fg.id}`;
+        const cat = fg.mappen[0]?.categorie || 'voetbal';
+        window.location.href = cat === 'nosports' ? 'nosports.html' : 'voetbal.html';
       });
 
       // Tegel 2: verrassing (random 10)
