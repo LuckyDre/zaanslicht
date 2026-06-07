@@ -1040,17 +1040,17 @@ let _alleLabels = [];
 let _geselecteerdeLabels = [];
 
 async function laadLabels() {
+  const container = document.getElementById('labels-chips');
   try {
     const res  = await fetch(WORKER + '/labels');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     _alleLabels = data.labels || [];
-    // Wacht tot de DOM er is als het tabblad nog niet zichtbaar is
-    const wacht = (n = 0) => {
-      if (document.getElementById('labels-chips')) { renderLabelChips(); }
-      else if (n < 20) { setTimeout(() => wacht(n + 1), 100); }
-    };
-    wacht();
-  } catch(e) { console.error('Labels laden mislukt:', e); }
+    renderLabelChips();
+  } catch(e) {
+    console.error('Labels laden mislukt:', e);
+    if (container) container.innerHTML = '<span style="color:#ef4444;font-size:0.8rem">Labels konden niet worden geladen.</span>';
+  }
 }
 
 function renderLabelChips() {
