@@ -263,12 +263,6 @@ section:not(#hero) {
 }
 
 
-.tegel-scheiding {
-  grid-column: 1 / -1;
-  border-top: 1px solid rgba(255,255,255,0.07);
-  margin: 0;
-  height: 0;
-}
 
 .tegel {
   position: relative;

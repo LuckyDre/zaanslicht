@@ -340,10 +340,6 @@ async function laadGastTegels() {
       const kleur  = fg.kleur || '#3b82f6';
       const prefix = `gast-${fg.id}`;
 
-      // Scheidingslijn boven de rij van deze fotograaf
-      const sep = document.createElement('div');
-      sep.className = 'tegel-scheiding';
-      container.appendChild(sep);
 
       // Tegel 1: naar pagina van fotograaf
       const t1 = maakGastTegel(`${prefix}-main`, kleur, `
