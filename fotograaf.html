@@ -1086,7 +1086,7 @@ function updateLabelStatus() {
   }
 }
 
-async function voegLabelToe() {
+window.voegLabelToe = async function() {
   const input = document.getElementById('label-nieuw');
   const label = input?.value.trim();
   if (!label || label.length < 2) return;
