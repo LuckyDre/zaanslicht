@@ -808,10 +808,11 @@ async function toonDashboard(nieuwAangemeld = false) {
             <span style="color:var(--muted);font-size:0.82rem;font-style:italic">Labels laden…</span>
           </div>
           <div style="display:flex;gap:0.5rem">
-            <input type="text" id="label-nieuw" placeholder="Nieuw label aanmaken…" maxlength="50"
-              style="flex:1;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:0.6rem 0.8rem;font-family:var(--font);font-size:0.88rem;outline:none"
+            <input type="text" id="label-nieuw" placeholder="Typ een nieuw label…" maxlength="50"
+              style="flex:1;background:var(--s2);border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius);color:var(--text);padding:0.6rem 0.8rem;font-family:var(--font);font-size:0.88rem;outline:none"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.25)'"
               onkeydown="if(event.key==='Enter'){event.preventDefault();voegLabelToe()}" />
-            <button type="button" class="btn btn-secondary" onclick="voegLabelToe()" style="padding:0.6rem 1rem;font-size:0.85rem">+ Toevoegen</button>
+            <button type="button" class="btn btn-secondary" onclick="voegLabelToe()" style="padding:0.6rem 1rem;font-size:0.85rem;white-space:nowrap">+ Toevoegen</button>
           </div>
           <div id="labels-geselecteerd" style="margin-top:0.5rem;font-size:0.78rem;color:var(--muted)">Geen labels geselecteerd</div>
         </div>
