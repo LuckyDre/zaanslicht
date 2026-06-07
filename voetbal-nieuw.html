@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voetbalfoto's Zaanstreek — Zaans Licht</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+  <style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --or: #FF6B00; --or2: #FF9A3C;
+    --zwart: #0d0d0d; --s1: #111; --s2: #181818;
+    --rand: rgba(255,255,255,0.07);
+    --tekst: #F0F0F0; --dim: #666;
+    --font: 'Segoe UI', system-ui, sans-serif;
+    --mono: 'Courier New', monospace;
+    --r: 14px;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body { background: var(--zwart); color: var(--tekst); font-family: var(--font); overflow-x: hidden; animation: fade .22s ease; }
+  @keyframes fade { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: var(--font); cursor: pointer; }
+
+  /* NAV */
+  header {
+    position: fixed; top:0; left:0; right:0; z-index:500;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(13,13,13,0.85); backdrop-filter:blur(10px);
+    border-bottom: 1px solid rgba(255,107,0,0.15); transition:background .3s;
+  }
+  .logo { display:flex; align-items:center; gap:.6rem; font-size:3.2rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
+  .logo img { width:80px; height:80px; object-fit:contain; }
+  .logo span { color: var(--or); }
+  nav a { color:#aaa; font-size:.9rem; letter-spacing:1px; text-transform:uppercase; margin-left:2rem; transition:color .2s; }
+  nav a:hover, nav a.active { color: var(--or); }
+  .menu-toggle { display:none; }
+
+  /* HERO */
+  .page-hero {
+    padding: 120px 2.5rem 3rem;
+    display:grid; grid-template-columns:1fr auto; align-items:end; gap:2rem;
+    border-bottom: 1px solid var(--rand); position:relative; overflow:hidden;
+  }
+  .page-hero::before {
+    content:'VOETBAL'; position:absolute; right:-.05em; bottom:-.1em;
+    font-size:clamp(8rem,20vw,18rem); font-weight:700; color:rgba(255,107,0,0.04);
+    pointer-events:none; letter-spacing:-4px; font-family:var(--mono); user-select:none;
+  }
+  .hero-label { font-family:var(--mono); font-size:.72rem; letter-spacing:4px; text-transform:uppercase; color:var(--or); margin-bottom:.8rem; display:flex; align-items:center; gap:.6rem; }
+  .hero-label::before { content:''; display:block; width:24px; height:1px; background:var(--or); }
+  .page-hero h1 { font-size:clamp(3rem,7vw,6rem); font-weight:700; letter-spacing:-2px; line-height:.95; }
+  .hero-meta { text-align:right; color:var(--dim); font-size:.82rem; font-family:var(--mono); line-height:1.8; }
+  .hero-meta strong { color:var(--tekst); font-size:1.4rem; display:block; }
+
+  /* GALLERY */
+  .gallery-container { padding:3rem 2.5rem 6rem; display:flex; flex-direction:column; gap:5rem; }
+  .laden { text-align:center; padding:6rem 2rem; color:var(--dim); font-family:var(--mono); font-size:.85rem; letter-spacing:2px; }
+  .leeg  { text-align:center; padding:6rem 2rem; color:var(--dim); font-size:.9rem; }
+  .puntjes::after { content:''; animation:pnt 1.4s infinite; }
+  @keyframes pnt { 0%,20%{content:'.'} 40%,60%{content:'..'} 80%,100%{content:'...'} }
+
+  /* SERIE */
+  .pc { display:flex; flex-direction:column; gap:0; }
+
+  .pc-titel {
+    font-size:clamp(1.2rem,2.5vw,1.9rem); font-weight:700; letter-spacing:-.5px;
+    padding-bottom:1rem; display:flex; align-items:center; gap:1rem;
+    border-bottom:1px solid var(--rand); margin-bottom:1.2rem; flex-wrap:wrap;
+  }
+  .pc-titel::before { content:''; display:block; width:4px; height:1.4em; background:var(--or); border-radius:2px; flex-shrink:0; }
+  .pc-sub { font-size:.72rem; font-weight:400; letter-spacing:1px; color:#aaa; margin-left:.8rem; font-style:italic; opacity:.8; }
+  .pc-rechts { margin-left:auto; display:flex; align-items:center; gap:.5rem; flex-shrink:0; }
+  .pc-count { font-size:.72rem; font-family:var(--mono); letter-spacing:2px; color:var(--dim); background:var(--s2); border:1px solid var(--rand); padding:.25rem .7rem; border-radius:100px; }
+  .pc-overzicht { background:none; border:1px solid rgba(255,255,255,.12); color:#666; width:28px; height:28px; border-radius:4px; font-size:.9rem; cursor:pointer; transition:all .18s; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+  .pc-overzicht:hover { border-color:var(--or); color:var(--or); background:rgba(255,107,0,.08); }
+
+  /* SWIPER */
+  .pc-swiper { width:100%; overflow:hidden; border-radius:var(--r); }
+  .pc-swiper .swiper-wrapper { align-items:stretch; }
+  .pc-swiper .swiper-slide {
+    width:340px !important; height:240px;
+    position:relative; border-radius:var(--r); overflow:hidden; flex-shrink:0;
+  }
+  .pc-swiper .swiper-slide img {
+    width:100%; height:100%; object-fit:contain; display:block;
+    filter:brightness(.92) saturate(1.1);
+    transition:transform .4s cubic-bezier(.16,1,.3,1), filter .3s;
+    pointer-events:none; /* img vangt geen clicks, .foto-open doet dat */
+  }
+  .pc-swiper .swiper-slide:hover img { transform:scale(1.05); filter:brightness(1) saturate(1.2); }
+
+  /* Transparante klikknop over de foto — dit is de sleutel */
+  .foto-open {
+    position:absolute; inset:0; z-index:1;
+    background:transparent; border:none; cursor:pointer;
+  }
+
+  /* Acties onderaan — boven de klikknop */
+  .slide-acties {
+    position:absolute; bottom:0; left:0; right:0; z-index:2;
+    padding:.8rem;
+    background:linear-gradient(to top, rgba(8,8,8,.92), transparent);
+    display:flex; gap:.4rem; align-items:center;
+    opacity:0; transform:translateY(8px); transition:all .25s;
+  }
+  .pc-swiper .swiper-slide:hover .slide-acties { opacity:1; transform:translateY(0); }
+  .slide-acties button {
+    background:rgba(255,255,255,.1); backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.15); color:var(--tekst);
+    padding:.3rem .65rem; border-radius:100px;
+    font-size:.72rem; font-weight:600; white-space:nowrap; transition:all .18s;
+  }
+  .slide-acties button:hover { background:var(--or); border-color:var(--or); }
+  .slide-acties .geliked { background:rgba(255,107,0,.3); border-color:var(--or); color:var(--or); }
+
+  /* Swiper nav */
+  .pc-swiper .swiper-button-prev,
+  .pc-swiper .swiper-button-next {
+    width:40px; height:40px; background:rgba(8,8,8,.8); backdrop-filter:blur(8px);
+    border:1px solid var(--rand); border-radius:50%; color:var(--tekst)!important;
+    transition:all .2s; top:50%; margin-top:-20px;
+  }
+  .pc-swiper .swiper-button-prev:hover,
+  .pc-swiper .swiper-button-next:hover { background:var(--or); border-color:var(--or); }
+  .pc-swiper .swiper-button-prev::after,
+  .pc-swiper .swiper-button-next::after { font-size:.8rem!important; font-weight:700; }
+  .pc-swiper .swiper-pagination {
+    position:absolute; bottom:.6rem!important; right:.8rem; left:auto!important; width:auto!important;
+    background:rgba(0,0,0,.55); color:#fff; font-size:.72rem; font-family:var(--mono);
+    letter-spacing:1px; padding:.2rem .6rem; border-radius:100px; pointer-events:none;
+  }
+  .pc-swiper .swiper-pagination-current { color:var(--or); font-weight:700; }
+  .pc-swiper .swiper-pagination-total   { color:#aaa; }
+
+  /* LIGHTBOX */
+  .lb2 {
+    position:fixed; inset:0; z-index:2000;
+    background:rgba(4,4,4,.97); backdrop-filter:blur(12px);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lb2-hidden { display:none !important; }
+
+  .lb2-rond {
+    position:absolute; width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.06); border:1px solid var(--rand);
+    color:var(--tekst); font-size:1.3rem; transition:all .2s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lb2-rond:hover { background:var(--or); border-color:var(--or); color:#fff; }
+  #lb2-sluit { top:1.5rem; right:1.5rem; font-size:1.4rem; }
+  #lb2-prev  { top:50%; transform:translateY(-50%); left:1.5rem; width:52px; height:52px; }
+  #lb2-next  { top:50%; transform:translateY(-50%); right:1.5rem; width:52px; height:52px; }
+
+  #lb2-teller {
+    position:absolute; top:1.5rem; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,.6); color:#fff; font-size:.75rem;
+    font-family:var(--mono); letter-spacing:1px; padding:.3rem .8rem;
+    border-radius:100px; pointer-events:none;
+  }
+
+  #lb2-img {
+    max-width:min(90vw,1200px); max-height:80vh;
+    object-fit:contain; border-radius:8px;
+    box-shadow:0 30px 80px rgba(0,0,0,.8);
+  }
+
+  .lb2-acties {
+    position:absolute; bottom:2rem;
+    display:flex; gap:.8rem;
+    background:rgba(17,17,17,.9); backdrop-filter:blur(16px);
+    border:1px solid var(--rand); border-radius:100px;
+    padding:.6rem 1.2rem;
+  }
+  .lb2-acties button {
+    background:none; border:none; color:var(--dim); font-size:.85rem;
+    padding:.3rem .8rem; border-radius:100px; transition:all .2s; font-weight:600;
+  }
+  .lb2-acties button:hover { color:var(--tekst); background:rgba(255,255,255,.08); }
+
+  /* OVERZICHT MODAL */
+  #ov {
+    position:fixed; inset:0; z-index:2000;
+    background:rgba(0,0,0,.95); display:none;
+    flex-direction:column; opacity:0; pointer-events:none; transition:opacity .22s;
+  }
+  #ov.ov-open { display:flex; opacity:1; pointer-events:auto; }
+  .ov-header {
+    display:flex; align-items:center; gap:1rem; padding:1.5rem 2rem;
+    border-bottom:1px solid rgba(255,255,255,.08); flex-shrink:0;
+  }
+  .ov-rond {
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+    color:#ccc; font-size:1.2rem; cursor:pointer; transition:all .2s;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .ov-rond:hover { background:var(--or); border-color:var(--or); color:#fff; }
+  #ov-titel { font-size:1.2rem; font-weight:700; margin:0; flex:1; text-align:center; }
+  #ov-grid {
+    flex:1; overflow-y:auto; display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
+    gap:12px; padding:2rem; align-content:start;
+  }
+  .ov-thumb { aspect-ratio:1; overflow:hidden; cursor:pointer; border-radius:4px; border:2px solid transparent; transition:all .2s; background:#111; position:relative; }
+  .ov-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .ov-thumb:hover img { transform:scale(1.08); filter:brightness(1.1); }
+
+  /* NAV ONDERAAN */
+  .page-nav { display:flex; gap:1rem; justify-content:center; padding:2rem; border-top:1px solid var(--rand); }
+  .btn-terug { background:none; border:1px solid var(--rand); color:var(--dim); padding:.65rem 1.5rem; border-radius:100px; font-size:.85rem; font-weight:600; transition:all .2s; }
+  .btn-terug:hover { border-color:var(--or); color:var(--or); }
+  .btn-home { background:var(--or); border:1px solid var(--or); color:#fff; padding:.65rem 1.5rem; border-radius:100px; font-size:.85rem; font-weight:600; transition:all .2s; }
+  .btn-home:hover { background:var(--or2); }
+
+  /* FOOTER */
+  footer { border-top:1px solid var(--rand); padding:2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+  footer p { font-size:.78rem; color:var(--dim); }
+  footer .disc { max-width:500px; font-size:.72rem; color:#333; }
+
+  /* MOBIEL */
+  .nav-mobile { display:none; position:fixed; inset:0; background:rgba(8,8,8,.98); z-index:1000; flex-direction:column; align-items:center; justify-content:center; gap:2rem; }
+  .nav-mobile.open { display:flex; }
+  .nav-mobile a { font-size:2rem; font-weight:700; transition:color .2s; }
+  .nav-mobile a:hover { color:var(--or); }
+  .nav-mobile-close { position:absolute; top:1.5rem; right:1.5rem; background:none; border:1px solid var(--rand); color:var(--tekst); width:44px; height:44px; border-radius:50%; font-size:1.2rem; }
+
+  @media (max-width:768px) {
+    nav { display:none; }
+    .menu-toggle { display:block; margin-left:auto; background:none; border:1px solid var(--rand); color:var(--tekst); width:40px; height:40px; border-radius:8px; font-size:1rem; }
+    .page-hero { grid-template-columns:1fr; padding-top:100px; }
+    .hero-meta { text-align:left; }
+    .gallery-container { padding:2rem 1.2rem 4rem; gap:4rem; }
+    .pc-swiper .swiper-slide { width:280px!important; height:200px; }
+    .pc-titel { font-size:1.1rem; }
+    footer { flex-direction:column; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+  <div class="logo">
+    <img src="images/logo-oranje.png" alt="Zaans Licht" />
+    <a href="index.html">Zaans<span> Licht</span></a>
+  </div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="voetbal.html" class="active">Voetbal</a>
+    <a href="nosports.html">No Sports</a>
+    <a href="clubs.html">Clubs</a>
+    <a href="index.html#over">Over ons</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <button class="menu-toggle" id="hamburger" aria-label="Menu">&#9776;</button>
+</header>
+
+<!-- MOBIEL MENU -->
+<div class="nav-mobile" id="nav-mobile">
+  <button class="nav-mobile-close" id="nav-close">&times;</button>
+  <a href="index.html"     onclick="sluitMenu()">Home</a>
+  <a href="voetbal.html"   onclick="sluitMenu()">Voetbal</a>
+  <a href="nosports.html"  onclick="sluitMenu()">No Sports</a>
+  <a href="clubs.html"     onclick="sluitMenu()">Clubs</a>
+  <a href="index.html#over" onclick="sluitMenu()">Over ons</a>
+  <a href="contact.html"   onclick="sluitMenu()">Contact</a>
+</div>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div>
+    <p class="hero-label">Zaans Licht</p>
+    <h1>Voetbal</h1>
+  </div>
+  <div class="hero-meta">
+    <strong id="meta-fotos">—</strong>foto's
+    <br>
+    <strong id="meta-mappen">—</strong>wedstrijden
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div id="gallery-container" class="gallery-container">
+  <div class="laden">Laden<span class="puntjes"></span></div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lb2" class="lb2 lb2-hidden">
+  <button id="lb2-sluit" class="lb2-rond">&times;</button>
+  <span id="lb2-teller"></span>
+  <button id="lb2-prev" class="lb2-rond">&#8592;</button>
+  <img id="lb2-img" src="" alt="" />
+  <button id="lb2-next" class="lb2-rond">&#8594;</button>
+  <div class="lb2-acties">
+    <button id="lb2-download" title="Download">&#8681; Download</button>
+  </div>
+</div>
+
+<!-- OVERZICHT MODAL -->
+<div id="ov">
+  <div class="ov-header">
+    <button id="ov-terug" class="ov-rond" title="Terug">&#8592;</button>
+    <h2 id="ov-titel"></h2>
+    <button id="ov-sluit" class="ov-rond" title="Sluiten">&#215;</button>
+  </div>
+  <div id="ov-grid"></div>
+</div>
+
+<!-- NAV ONDERAAN -->
+<div class="page-nav">
+  <button class="btn-terug" onclick="history.back()">&#8592; Terug</button>
+  <a class="btn-home" href="index.html">&#8962; Home</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+  <p class="disc">Alle foto's zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan.</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="gallery-nieuw.js" data-category="voetbal"></script>
+<script src="nav-fotografen.js"></script>
+
+<script>
+document.getElementById('hamburger').addEventListener('click', () => document.getElementById('nav-mobile').classList.add('open'));
+document.getElementById('nav-close').addEventListener('click', sluitMenu);
+function sluitMenu() { document.getElementById('nav-mobile').classList.remove('open'); }
+window.addEventListener('scroll', () => {
+  document.getElementById('site-header').style.background = window.scrollY > 40 ? 'rgba(8,8,8,0.97)' : 'rgba(8,8,8,0.88)';
+}, { passive: true });
+fetch('manifest.json?v=' + Date.now()).then(r => r.json()).then(m => {
+  const mappen = m.voetbal || [];
+  document.getElementById('meta-fotos').textContent  = mappen.reduce((s,x) => s + (x.fotos||[]).length, 0).toLocaleString('nl-NL');
+  document.getElementById('meta-mappen').textContent = mappen.length;
+}).catch(() => {});
+</script>
+
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
+</body>
+</html>
