@@ -1043,9 +1043,9 @@ document.getElementById('profiel-foto-input')?.addEventListener('change', functi
   document.getElementById('profiel-foto-naam').textContent = file.name;
   const reader = new FileReader();
   reader.onload = e => {
-    const img = document.getElementById('profiel-foto-img');
-    img.src = e.target.result;
-    document.getElementById('profiel-foto-preview').style.display = '';
+    document.getElementById('profiel-foto-img').src = e.target.result;
+    document.getElementById('profiel-foto-preview').style.display = 'block';
+    document.getElementById('profiel-foto-placeholder').style.display = 'none';
   };
   reader.readAsDataURL(file);
 });
