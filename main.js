@@ -440,6 +440,8 @@ async function loadRecentComments() {
           </div>`).join('')}
       </div>`;
     widget.style.display = 'block';
+    widget.style.maxWidth = '420px';
+    widget.style.margin = '5rem auto';
   } catch(e) {
     console.warn('Reacties widget mislukt:', e);
   }
