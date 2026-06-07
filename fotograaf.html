@@ -1107,10 +1107,9 @@ window.voegLabelToe = async function() {
     renderLabelChips();
     input.value = '';
   } catch(e) { alert('Fout: ' + e.message); }
-}
+};
 
-// Laad labels zodra de upload-tab actief wordt
-  window.startUpload = async () => {
+window.startUpload = async () => {
     const btn  = document.getElementById('upload-btn');
     const map  = document.getElementById('up-map').value.trim();
     const cat  = document.getElementById('up-categorie').value;
