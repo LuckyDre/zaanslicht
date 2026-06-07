@@ -1153,6 +1153,12 @@ export default {
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'GET')  return handleGetGalleryVolgorde(request, env);
     if (url.pathname === '/fotograaf/positiebeheer'   && request.method === 'POST') return handlePositieBeheer(request, env);
+    if (url.pathname === '/fotograaf/positiebeheer'   && request.method === 'GET')  {
+      if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+      const id = new URL(request.url).searchParams.get('id');
+      const mag = await env.SUBSCRIBERS.get('fotograaf:positiebeheer:' + id);
+      return json({ mag: mag === '1' });
+    }
     if (url.pathname === '/fotograaf/gallery-volgorde' && request.method === 'POST') return handleFotograafGalleryVolgorde(request, env);
     if (url.pathname === '/fotograaf/bio-opslaan'    && request.method === 'POST') return handleBioOpslaan(request, env);
     if (url.pathname === '/fotograaf/profielfoto'    && request.method === 'POST') return handleProfielfotoUpload(request, env);
