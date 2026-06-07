@@ -1187,8 +1187,17 @@ export default {
     if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
     if (url.pathname === '/comment'  && request.method === 'POST') return handleComment(request, env);
     if (url.pathname === '/comments'     && request.method === 'GET')  return handleComments(request, env);
-    if (url.pathname === '/labels'       && request.method === 'GET')  return handleGetLabels(request, env);
-    if (url.pathname === '/labels'       && request.method === 'POST') return handleAddLabel(request, env);
+    if (url.pathname === '/labels'       && request.method === 'GET')    return handleGetLabels(request, env);
+    if (url.pathname === '/labels'       && request.method === 'POST')   return handleAddLabel(request, env);
+    if (url.pathname === '/labels'       && request.method === 'DELETE') {
+      if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+      const { label } = await request.json().catch(() => ({}));
+      const raw = await env.SUBSCRIBERS.get('labels:lijst');
+      const lijst = raw ? JSON.parse(raw) : [];
+      const nieuw = lijst.filter(l => l !== label);
+      await env.SUBSCRIBERS.put('labels:lijst', JSON.stringify(nieuw));
+      return json({ ok: true });
+    }
     if (url.pathname === '/alle-comments'  && request.method === 'GET')    return handleAlleComments(request, env);
     if (url.pathname === '/delete-comment' && request.method === 'POST')   return handleDeleteComment(request, env);
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
