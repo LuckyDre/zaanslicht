@@ -174,16 +174,39 @@ function initActies() {
 // ── DOWNLOAD ──────────────────────────────────────────────────────────────
 function downloadFoto(src, naam) {
   if (!src) return;
-  // Voeg ?download=1 toe voor Worker-foto's — server stuurt dan Content-Disposition: attachment
-  const downloadUrl = src.includes(WORKER_URL)
-    ? src + (src.includes('?') ? '&' : '?') + 'download=1'
-    : src;
-  const a = document.createElement('a');
-  a.href = downloadUrl;
-  a.download = naam || 'foto.jpg';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const isWebp = src.toLowerCase().includes('.webp');
+  if (isWebp) {
+    // WebP → JPG via canvas
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      canvas.toBlob(blob => {
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        const base = naam ? naam.replace(/\.webp$/i, '') : 'foto';
+        a.href = url; a.download = base + '.jpg';
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/jpeg', 0.92);
+    };
+    img.onerror = () => window.open(src, '_blank');
+    img.src = src;
+  } else {
+    // JPG/etc: Worker stuurt Content-Disposition: attachment bij ?download=1
+    const downloadUrl = src.includes(WORKER_URL)
+      ? src + (src.includes('?') ? '&' : '?') + 'download=1'
+      : src;
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = naam || 'foto.jpg';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+  }
 }
 
 // ── LADEN ─────────────────────────────────────────────────────────────────
