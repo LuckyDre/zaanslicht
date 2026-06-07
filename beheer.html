@@ -538,7 +538,8 @@ async function laadGastSeries() {
           const fg = fgById[entry.fgId];
           if (fg) {
             const aantalFotos = fotoTellingen[fg.id]?.[entry.map] || 0;
-            const li = maakGastLijstItem(fg, entry.map, entry.fgCat || 'voetbal', aantalFotos);
+            const mapMeta = (fg.mappen || []).find(m => m.map === entry.map);
+            const li = maakGastLijstItem(fg, entry.map, entry.fgCat || 'voetbal', aantalFotos, mapMeta?.ts);
             lijst.appendChild(li);
             toegevoegd.add(entry.fgId + '::' + entry.map);
             inVolgorde[cat].add(entry.fgId + '::' + entry.map);
