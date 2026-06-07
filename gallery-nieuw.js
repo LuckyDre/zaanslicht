@@ -256,10 +256,15 @@ async function laadGallery() {
       });
     }
 
+    // Zelfde key-transformatie als de oude gallery.js: / → __ en . → --
+    function photoKey(path) {
+      return path.replace(/\//g, '__').replace(/\./g, '--');
+    }
+
     function eigenNaarFotos(item) {
       return item.fotos.map(f => ({
         src: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
-        key: `${CATEGORY}__${item.map}__${f}`,
+        key: photoKey(`${CATEGORY}/${item.map}/${f}`),
       }));
     }
 
@@ -267,7 +272,7 @@ async function laadGallery() {
       const fotos = await getGastFotos(fgId, mapNaam);
       return fotos.map(f => ({
         src: `${WORKER_URL}/foto/${f.key}`,
-        key: `gast__${fgId}__${f.naam}`,
+        key: photoKey(`gast/${fgId}/${f.naam}`),
       }));
     }
 
