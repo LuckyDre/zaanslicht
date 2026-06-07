@@ -950,6 +950,53 @@ async function handleProfielen(request, env) {
   return json({ profielen });
 }
 
+// ── ADMIN: VIEW DASHBOARD VAN FOTOGRAAF ───────────────────────────────────────
+async function handleViewDashboard(request, env, id) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+
+  // Haal account op
+  const account = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
+  if (!account) return json({ error: 'Fotograaf niet gevonden' }, 404);
+
+  const a = JSON.parse(account);
+  const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + id);
+  const mappen = mappenRaw ? JSON.parse(mappenRaw) : [];
+
+  const bioRaw = await env.SUBSCRIBERS.get('fotograaf:bio:' + id);
+  const bio = bioRaw ? JSON.parse(bioRaw).bio : '';
+
+  const fotoKey = await env.SUBSCRIBERS.get('fotograaf:profielfoto:' + id);
+  const fotoUrl = fotoKey ? `/foto/${fotoKey}` : null;
+
+  // Laad galerij-data
+  const voetbalRaw = await env.SUBSCRIBERS.get('voetbal');
+  const voetbal = voetbalRaw ? JSON.parse(voetbalRaw) : [];
+
+  const nosportsRaw = await env.SUBSCRIBERS.get('nosports');
+  const nosports = nosportsRaw ? JSON.parse(nosportsRaw) : [];
+
+  // Filter galerij naar foto's van deze fotograaf
+  const filterByFotograaf = (items) => items.filter(item => item.fotos?.some(f => f.fotograaf === id));
+
+  return json({
+    account: {
+      id: a.id,
+      naam: a.naam,
+      email: a.email,
+      kleur: a.kleur,
+      ts: a.ts,
+      last_login: a.last_login,
+    },
+    mappen,
+    bio,
+    fotoUrl,
+    galerij: {
+      voetbal: filterByFotograaf(voetbal),
+      nosports: filterByFotograaf(nosports),
+    },
+  });
+}
+
 // ── FOTO SERVEREN VIA WORKER (publiek toegankelijk) ───────────────────────
 async function handleFotoServe(request, env) {
   const url = new URL(request.url);
