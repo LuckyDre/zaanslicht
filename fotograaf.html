@@ -1094,8 +1094,11 @@ async function laadLabels() {
 
 window.voegLabelToe = async function() {
   const input = document.getElementById('label-nieuw');
+  const btn   = document.querySelector('[onclick="voegLabelToe()"]');
   const label = input?.value.trim();
   if (!label || label.length < 2) { input?.focus(); return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
   try {
     const res  = await fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/labels', {
       method: 'POST',
@@ -1103,13 +1106,17 @@ window.voegLabelToe = async function() {
       body: JSON.stringify({ label }),
     });
     const data = await res.json();
-    if (!data.ok) { alert(data.error || 'Fout'); return; }
+    if (!data.ok) { alert('Fout: ' + (data.error || 'onbekend')); return; }
     if (!_alleLabels.includes(data.label)) _alleLabels.push(data.label);
     _alleLabels.sort((a, b) => a.localeCompare(b, 'nl'));
     if (!_geselecteerdeLabels.includes(data.label)) _geselecteerdeLabels.push(data.label);
     renderLabelChips();
     input.value = '';
-  } catch(e) { alert('Fout: ' + e.message); }
+  } catch(e) {
+    alert('Verbindingsfout: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '+ Toevoegen'; }
+  }
 };
 
 window.startUpload = async () => {
