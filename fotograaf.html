@@ -1067,6 +1067,7 @@ async function toonDashboard(nieuwAangemeld = false) {
       form.append('foto', uploadBestand);
       form.append('map', map);
       form.append('categorie', cat);
+      form.append('labels', JSON.stringify(_geselecteerdeLabels));
 
       try {
         const res  = await fetch(WORKER + '/fotograaf/upload', {
