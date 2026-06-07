@@ -1383,17 +1383,25 @@ async function laadReacties() {
   }
 }
 
-async function verwijderReactie(pushId, photoKey) {
+async function verwijderReactie(pushId, photoKey, bron = 'kv') {
   if (!confirm('Reactie verwijderen?')) return;
   const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
   try {
-    await fetch(url + '/delete-comment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
-      body: JSON.stringify({ id: pushId, photoKey })
-    });
-    const el = document.getElementById('rc-' + pushId);
+    if (bron === 'firebase') {
+      const db = window._fbdb;
+      if (db) await Promise.all([
+        db.ref('recent_comments/' + pushId).remove(),
+        photoKey ? db.ref('comments/' + photoKey + '/' + pushId).remove() : Promise.resolve()
+      ]);
+    } else {
+      await fetch(url + '/delete-comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+        body: JSON.stringify({ id: pushId, photoKey })
+      });
+    }
+    const el = document.getElementById(`rc-${pushId}-${bron}`);
     if (el) el.remove();
   } catch(e) {
     alert('Verwijderen mislukt: ' + e.message);
