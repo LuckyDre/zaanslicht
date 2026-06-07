@@ -373,11 +373,20 @@ function sluitMenu() { document.getElementById('nav-mobile').classList.remove('o
 window.addEventListener('scroll', () => {
   document.getElementById('site-header').style.background = window.scrollY > 40 ? 'rgba(8,8,8,0.97)' : 'rgba(8,8,8,0.88)';
 }, { passive: true });
-fetch('manifest.json?v=' + Date.now()).then(r => r.json()).then(m => {
-  const mappen = m.nosports || [];
-  document.getElementById('meta-fotos').textContent  = mappen.reduce((s,x) => s + (x.fotos||[]).length, 0).toLocaleString('nl-NL');
-  document.getElementById('meta-mappen').textContent = mappen.length;
-}).catch(() => {});
+Promise.all([
+  fetch('manifest.json?v=' + Date.now()).then(r => r.json()).catch(() => ({})),
+  fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/fotograaf/manifest').then(r => r.json()).catch(() => ({})),
+]).then(([manifest, gastData]) => {
+  const eigenMappen = manifest.nosports || [];
+  const eigenFotos  = eigenMappen.reduce((s, x) => s + (x.fotos||[]).length, 0);
+  const eigenSeries = eigenMappen.length;
+  let gastSeries = 0;
+  for (const fg of (gastData.fotografen || []))
+    for (const map of (fg.mappen || []))
+      if (map.categorie === 'nosports') gastSeries++;
+  document.getElementById('meta-fotos').textContent  = eigenFotos.toLocaleString('nl-NL');
+  document.getElementById('meta-mappen').textContent = eigenSeries + gastSeries;
+});
 </script>
 
 <!-- LIKES + REACTIES IN LIGHTBOX -->
