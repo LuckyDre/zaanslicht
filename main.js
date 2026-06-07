@@ -312,11 +312,28 @@ async function laadGastTegels() {
     grid.appendChild(sep);
 
     for (const fg of fotografen) {
-      // Haal foto's op
+      // Haal alleen fotos op uit echte galerij-mappen (niet profiel, niet lege mappen)
       const fotosRes = await fetch(`${WORKER_URL_MAIN}/fotograaf/fotos?id=${fg.id}`);
       const fotosData = await fotosRes.json();
-      const fotos = (fotosData.fotos || [])
-        .filter(f => !f.key.includes('/profiel.'))
+      const alleFotos = fotosData.fotos || [];
+
+      // Bepaal welke mappen foto's hebben (zelfde logica als fotograaf-pagina)
+      const mappenMetFotos = new Set();
+      for (const m of (fg.mappen || [])) {
+        const heeftFotos = alleFotos.some(f => {
+          try { return decodeURIComponent(f.key).includes(`/${m.map}/`); } catch { return false; }
+        });
+        if (heeftFotos) mappenMetFotos.add(m.map);
+      }
+
+      const fotos = alleFotos
+        .filter(f => {
+          if (f.key.includes('/profiel.')) return false;
+          try {
+            const decoded = decodeURIComponent(f.key);
+            return [...mappenMetFotos].some(m => decoded.includes(`/${m}/`));
+          } catch { return false; }
+        })
         .map(f => ({
           src:  `${WORKER_URL_MAIN}/foto/${f.key}`,
           path: f.key
