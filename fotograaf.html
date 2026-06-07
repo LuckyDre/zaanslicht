@@ -1040,72 +1040,57 @@ async function toonDashboard(nieuwAangemeld = false) {
 let _alleLabels = [];
 let _geselecteerdeLabels = [];
 
-async function laadLabels() {
-  const container = document.getElementById('labels-chips');
-  try {
-    const res  = await fetch(WORKER + '/labels');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    _alleLabels = data.labels || [];
-    renderLabelChips();
-  } catch(e) {
-    console.error('Labels laden mislukt:', e);
-    if (container) container.innerHTML = '<span style="color:#ef4444;font-size:0.8rem">Labels konden niet worden geladen.</span>';
-  }
-}
-
 function renderLabelChips() {
   const container = document.getElementById('labels-chips');
   if (!container) return;
   container.innerHTML = '';
   for (const label of _alleLabels) {
     const chip = document.createElement('span');
-    chip.className = 'label-chip' + (_geselecteerdeLabels.includes(label) ? ' actief' : '');
+    const actief = _geselecteerdeLabels.includes(label);
+    chip.className = 'label-chip' + (actief ? ' actief' : '');
     chip.textContent = label;
-    chip.onclick = () => toggleLabel(label, chip);
+    chip.addEventListener('click', function() {
+      const idx = _geselecteerdeLabels.indexOf(label);
+      if (idx === -1) { _geselecteerdeLabels.push(label); this.classList.add('actief'); }
+      else { _geselecteerdeLabels.splice(idx, 1); this.classList.remove('actief'); }
+      const st = document.getElementById('labels-geselecteerd');
+      if (st) {
+        st.textContent = _geselecteerdeLabels.length
+          ? 'Geselecteerd: ' + _geselecteerdeLabels.join(', ')
+          : 'Geen labels geselecteerd';
+        st.style.color = _geselecteerdeLabels.length ? 'var(--accent)' : 'var(--muted)';
+      }
+    });
     container.appendChild(chip);
   }
-  updateLabelStatus();
 }
 
-function toggleLabel(label, chip) {
-  const idx = _geselecteerdeLabels.indexOf(label);
-  if (idx === -1) {
-    _geselecteerdeLabels.push(label);
-    chip?.classList.add('actief');
-  } else {
-    _geselecteerdeLabels.splice(idx, 1);
-    chip?.classList.remove('actief');
-  }
-  updateLabelStatus();
-}
-
-function updateLabelStatus() {
-  const el = document.getElementById('labels-geselecteerd');
-  if (!el) return;
-  if (_geselecteerdeLabels.length === 0) {
-    el.textContent = 'Geen labels geselecteerd';
-  } else {
-    el.textContent = 'Geselecteerd: ' + _geselecteerdeLabels.join(', ');
-    el.style.color = 'var(--accent)';
+async function laadLabels() {
+  const container = document.getElementById('labels-chips');
+  if (!container) return;
+  container.innerHTML = '<span style="color:var(--muted);font-size:0.8rem">Laden…</span>';
+  try {
+    const res = await fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/labels');
+    const data = await res.json();
+    _alleLabels = data.labels || [];
+    renderLabelChips();
+  } catch(e) {
+    container.innerHTML = '<span style="color:#ef4444;font-size:0.8rem">Kon labels niet laden.</span>';
   }
 }
 
 window.voegLabelToe = async function() {
   const input = document.getElementById('label-nieuw');
   const label = input?.value.trim();
-  if (!label || label.length < 2) return;
-
+  if (!label || label.length < 2) { input?.focus(); return; }
   try {
-    const res  = await fetch(WORKER + '/labels', {
+    const res  = await fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/labels', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie?.token || '' },
       body: JSON.stringify({ label }),
     });
     const data = await res.json();
     if (!data.ok) { alert(data.error || 'Fout'); return; }
-
-    // Voeg toe aan lokale lijst en selecteer direct
     if (!_alleLabels.includes(data.label)) _alleLabels.push(data.label);
     _alleLabels.sort((a, b) => a.localeCompare(b, 'nl'));
     if (!_geselecteerdeLabels.includes(data.label)) _geselecteerdeLabels.push(data.label);
