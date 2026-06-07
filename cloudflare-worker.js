@@ -539,9 +539,12 @@ async function handleFotoUpload(request, env) {
   const formData = await request.formData().catch(() => null);
   if (!formData) return json({ error: 'Geen formData' }, 400);
 
-  const file     = formData.get('foto');
+  const file      = formData.get('foto');
   const categorie = (formData.get('categorie') || 'eigen').toLowerCase().replace(/[^a-z0-9]/g, '-');
-  const map      = (formData.get('map') || 'Mijn foto\'s').substring(0, 80);
+  const map       = (formData.get('map') || 'Mijn foto\'s').substring(0, 80);
+  const labelsRaw = formData.get('labels') || '[]';
+  let labels = [];
+  try { labels = JSON.parse(labelsRaw).slice(0, 10); } catch {}
 
   if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
   const naam_lower = file.name.toLowerCase();
