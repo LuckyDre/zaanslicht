@@ -1550,9 +1550,28 @@ async function laadPositieTab() {
 
     const wrapper = document.createElement('div');
 
+    // Laad ook manifest.json voor eigen (Andreas) series
+    let eigenManifest = {};
+    try {
+      const mr = await fetch('manifest.json?v=' + Date.now());
+      eigenManifest = await mr.json();
+    } catch {}
+
     for (const cat of ['voetbal', 'nosports']) {
       const catLabel = cat === 'voetbal' ? '⚽ Voetbal' : '🌿 No Sports';
-      const volgorde = volData[cat] || [];
+
+      // Als er geen opgeslagen volgorde is, bouw een standaard op uit manifest + gast-mappen
+      let volgorde = volData[cat];
+      if (!volgorde?.length) {
+        volgorde = [
+          ...(eigenManifest[cat] || []).map(item => ({ type: 'eigen', map: item.map })),
+          ...(Object.values(fgById)).flatMap(fg =>
+            (fg.mappen || [])
+              .filter(m => m.categorie === cat || (cat === 'voetbal' && m.categorie === 'eigen'))
+              .map(m => ({ type: 'gast', fgId: fg.id, fgCat: m.categorie, map: m.map }))
+          )
+        ];
+      }
 
       const sectie = document.createElement('div');
       sectie.className = 'positie-groep';
