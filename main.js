@@ -381,11 +381,15 @@ async function laadGastTegels() {
         if (bg && src) bg.style.backgroundImage = `url('${src}')`;
       });
 
-      // Hero-preview bij hover
+      // Hero-preview bij hover; reset bij mouseleave zodat voetbal/nosports weer werken
       const heroFotos = bgFotos.slice(0, 5);
       [t1, t2, t3].forEach(t => {
         t.addEventListener('mouseenter', () => {
           if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
+        });
+        t.addEventListener('mouseleave', () => {
+          window._fotograafActief = false;
+          if (window.resetFotograafKleur) window.resetFotograafKleur();
         });
       });
 
