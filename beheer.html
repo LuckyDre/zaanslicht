@@ -476,82 +476,79 @@ async function laadGastSeries() {
   const secret = localStorage.getItem('zl_worker_secret');
 
   try {
-    const res  = await fetch(WORKER_URL + '/fotograaf/manifest');
-    const data = await res.json();
-    const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
+    // Laad manifest + gecombineerde volgorde parallel
+    const [manifestRes, volgordeRes] = await Promise.all([
+      fetch(WORKER_URL + '/fotograaf/manifest'),
+      fetch(WORKER_URL + '/gallery/volgorde').catch(() => ({ json: () => ({}) })),
+    ]);
+    const manifestData  = await manifestRes.json();
+    const volgordeData  = await volgordeRes.json().catch(() => ({}));
+    const fotografen    = (manifestData.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
     if (!fotografen.length) return;
 
-    for (const fg of fotografen) {
-      const headers = secret ? { 'X-Worker-Secret': secret } : {};
-      const fotosRes  = await fetch(`${WORKER_URL}/fotograaf/fotos?id=${fg.id}`, { headers });
-      const fotosData = await fotosRes.json();
-      const alleFotos = fotosData.fotos || [];
-
-      // Haal opgeslagen volgorde op
-      let volgorde = [];
-      try {
-        const volRes  = await fetch(`${WORKER_URL}/fotograaf/mappen-volgorde?id=${fg.id}`, { headers: secret ? { 'X-Worker-Secret': secret } : {} });
-        const volData = await volRes.json();
-        volgorde = volData.volgorde || [];
-      } catch(e) {}
-
-      // Groepeer fotos per categorie → map
-      // key: fotografen/{id}/{categorie}/{mapnaam}/{bestand}
-      const mappenMap = {};
-      for (const f of alleFotos) {
-        const delen = f.key.split('/');
-        if (delen.length < 4) continue;
-        const cat = delen[2];
-        const map = decodeURIComponent(delen[3]);
-        if (!cat || !map || cat === 'profiel.jpg') continue;
-        if (!mappenMap[cat]) mappenMap[cat] = {};
-        if (!mappenMap[cat][map]) mappenMap[cat][map] = [];
-        mappenMap[cat][map].push(f);
-      }
-
-      for (const cat of ['voetbal', 'nosports', 'eigen']) {
-        const mappen = mappenMap[cat];
-        if (!mappen || !Object.keys(mappen).length) continue;
-
-        const targetCat = cat === 'eigen' ? 'voetbal' : cat;
-        const lijst = document.getElementById('lijst-' + targetCat);
-        if (!lijst) continue;
-
-        // Sorteer op opgeslagen volgorde
-        const mapNamen = Object.keys(mappen).sort((a, b) => {
-          const ia = volgorde.indexOf(a), ib = volgorde.indexOf(b);
-          if (ia === -1 && ib === -1) return 0;
-          if (ia === -1) return 1; if (ib === -1) return -1;
-          return ia - ib;
-        });
-
-        for (const mapNaam of mapNamen) {
-          const aantalFotos = mappen[mapNaam].length;
-          const li = document.createElement('li');
-          li.className = 'slider-item';
-          li.dataset.type  = 'gast';
-          li.dataset.fgId  = fg.id;
-          li.dataset.fgCat = cat;
-          li.dataset.map   = mapNaam;
-          li.style.borderLeft = `3px solid ${fg.kleur || '#3b82f6'}`;
-          li.innerHTML = `
-            <div class="slider-header">
-              <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
-              <span class="slider-naam">${escB(mapNaam)}</span>
-              <span class="slider-count" style="color:${fg.kleur||'#3b82f6'}">${escB(fg.naam)}</span>
-              <span class="slider-count">${aantalFotos} foto's</span>
-            </div>`;
-          lijst.appendChild(li);
-        }
+    // Bouw een snelle lookup: welke mappen staan al in de opgeslagen volgorde?
+    const inVolgorde = { voetbal: new Set(), nosports: new Set() };
+    for (const cat of ['voetbal', 'nosports']) {
+      for (const e of (volgordeData[cat] || [])) {
+        if (e.type === 'gast') inVolgorde[cat].add(e.fgId + '::' + e.map);
       }
     }
 
-    // Sla gast-volgorde op bij elke drag (hergebruik onEnd van bestaande Sortables)
+    // Laad foto-tellingen voor alle fotografen parallel
+    const fotoTellingen = {};
+    await Promise.all(fotografen.map(async fg => {
+      try {
+        const r = await fetch(`${WORKER_URL}/fotograaf/fotos?id=${fg.id}`);
+        const d = await r.json();
+        fotoTellingen[fg.id] = {};
+        for (const f of (d.fotos || [])) {
+          const delen = decodeURIComponent(f.key).split('/');
+          if (delen.length < 5) continue;
+          const mapNaam = delen[3];
+          fotoTellingen[fg.id][mapNaam] = (fotoTellingen[fg.id][mapNaam] || 0) + 1;
+        }
+      } catch {}
+    }));
+
+    // Voeg mappen toe die nog NIET in de opgeslagen volgorde staan (komen achteraan)
+    for (const fg of fotografen) {
+      for (const m of (fg.mappen || [])) {
+        const cat = m.categorie === 'eigen' ? 'voetbal' : m.categorie;
+        const key = fg.id + '::' + m.map;
+        if (inVolgorde[cat]?.has(key)) continue; // al in volgorde, niet dubbel toevoegen
+
+        const lijst = document.getElementById('lijst-' + cat);
+        if (!lijst) continue;
+
+        const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
+        const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos);
+        lijst.appendChild(li);
+      }
+    }
+
     window._gastFotografen = fotografen;
 
   } catch(e) {
     console.warn('Gast-series laden mislukt:', e);
   }
+}
+
+function maakGastLijstItem(fg, mapNaam, cat, aantalFotos) {
+  const li = document.createElement('li');
+  li.className = 'slider-item';
+  li.dataset.type  = 'gast';
+  li.dataset.fgId  = fg.id;
+  li.dataset.fgCat = cat;
+  li.dataset.map   = mapNaam;
+  li.style.borderLeft = `3px solid ${fg.kleur || '#3b82f6'}`;
+  li.innerHTML = `
+    <div class="slider-header">
+      <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
+      <span class="slider-naam">${escB(mapNaam)}</span>
+      <span class="slider-count" style="color:${fg.kleur||'#3b82f6'}">${escB(fg.naam)}</span>
+      <span class="slider-count">${aantalFotos} foto${aantalFotos !== 1 ? "'s" : ""}</span>
+    </div>`;
+  return li;
 }
 
 function renderCategorie(cat) {
