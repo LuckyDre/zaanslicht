@@ -1078,6 +1078,10 @@ export default {
     if (url.pathname === '/fotograaf/bio-opslaan'    && request.method === 'POST') return handleBioOpslaan(request, env);
     if (url.pathname === '/fotograaf/profielfoto'    && request.method === 'POST') return handleProfielfotoUpload(request, env);
     if (url.pathname === '/fotograaf/profielen'      && request.method === 'GET')  return handleProfielen(request, env);
+    if (url.pathname.startsWith('/fotograaf/view-dashboard/') && request.method === 'GET') {
+      const id = url.pathname.replace('/fotograaf/view-dashboard/', '');
+      return handleViewDashboard(request, env, id);
+    }
     if (url.pathname.startsWith('/foto/fotografen/'))                              return handleFotoServe(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
