@@ -543,8 +543,6 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sessie?.token) {
     toonDashboard();
     checkPositieBeheer();
-    // Labels laden na korte delay zodat toonDashboard de DOM eerst opbouwt
-    setTimeout(laadLabels, 200);
   } else if (inviteToken) {
     toonRegistreren();
   } else {
