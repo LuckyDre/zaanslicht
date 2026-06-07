@@ -296,9 +296,9 @@ async function laadGallery() {
           }
         }
       }
-      // Eigen items die ontbreken in volgorde → achteraan
+      // Eigen items die ontbreken in volgorde → achteraan (.trim() voor veiligheid)
       for (const item of eigenItems) {
-        if (!gecombineerd.find(e => e.type === 'eigen' && e.map === item.map)) {
+        if (!gecombineerd.find(e => e.type === 'eigen' && e.map.trim() === item.map.trim())) {
           renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item) });
         }
       }
