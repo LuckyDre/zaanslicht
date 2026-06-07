@@ -966,13 +966,20 @@ async function handleFotoServe(request, env) {
     || contentTypes[ext]
     || 'image/jpeg';
 
-  return new Response(object.body, {
-    headers: {
-      'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=31536000',
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
+  const headers = {
+    'Content-Type': contentType,
+    'Cache-Control': 'public, max-age=31536000',
+    'Access-Control-Allow-Origin': '*',
+  };
+
+  // Bij ?download=1: forceer download via Content-Disposition
+  if (url.searchParams.get('download') === '1') {
+    const bestandsnaam = decodeURIComponent(key.split('/').pop());
+    headers['Content-Disposition'] = `attachment; filename="${bestandsnaam}"`;
+    headers['Cache-Control'] = 'no-cache';
+  }
+
+  return new Response(object.body, { headers });
 }
 
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
