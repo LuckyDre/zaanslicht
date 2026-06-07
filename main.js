@@ -326,8 +326,7 @@ async function laadGastTegels() {
         if (heeftFotos) mappenMetFotos.add(m.map);
       }
 
-      // Filter galerij-fotos (zonder profiel)
-      const galerij = alleFotos
+      const fotos = alleFotos
         .filter(f => {
           if (f.key.includes('/profiel.')) return false;
           try {
@@ -339,16 +338,10 @@ async function laadGastTegels() {
           src:  `${WORKER_URL_MAIN}/foto/${f.key}`,
           path: f.key
         }));
-      if (!galerij.length) continue;
+      if (!fotos.length) continue;
 
       const kleur  = fg.kleur || '#3b82f6';
       const prefix = `gast-${fg.id}`;
-
-      // Like-logica: foto's met likes (minimaal 1)
-      const likes = galerij.filter(f => {
-        const reactions = window.REACTIONS?.[f.path] || {};
-        return Object.values(reactions).reduce((a, b) => a + b, 0) > 0;
-      });
 
       // Tegel 1: hoofd-tegel fotograaf → naar zijn pagina
       const t1 = maakGastTegel(`${prefix}-main`, kleur, `
@@ -364,22 +357,18 @@ async function laadGastTegels() {
         <div class="tegel-icon">&#127922;</div>
         <h2>Verrassing</h2>
         <p>10 willekeurige foto's van ${fg.naam}</p>`);
-      t2.addEventListener('click', () => {
-        startSlideshow(shuffle([...galerij]).slice(0, 10));
-      });
+      t2.addEventListener('click', () => startSlideshow(shuffle(fotos).slice(0, 10)));
 
-      // Tegel 3: meest gelikete foto's slideshow
-      const t3 = maakGastTegel(`${prefix}-likes`, kleur, `
-        <div class="tegel-icon">&#10084;</div>
-        <h2>Favoriet</h2>
-        <p>Meest gelikete foto's van ${fg.naam}</p>`);
-      t3.addEventListener('click', () => {
-        startSlideshow(likes.length > 0 ? likes : galerij);
-      });
+      // Tegel 3: alle foto's slideshow
+      const t3 = maakGastTegel(`${prefix}-alle`, kleur, `
+        <div class="tegel-icon">&#128247;</div>
+        <h2>Alles</h2>
+        <p>Alle foto's van ${fg.naam}</p>`);
+      t3.addEventListener('click', () => startSlideshow(fotos));
 
       // Achtergronden instellen — willekeurig uit de gallerij-fotos
-      if (galerij.length > 0) {
-        const geshuffled = shuffle([...galerij]);
+      if (fotos.length > 0) {
+        const geshuffled = shuffle([...fotos]);
         [t1, t2, t3].forEach((t, i) => {
           const bg  = t.querySelector('.tegel-bg');
           const src = geshuffled[i % geshuffled.length]?.src;
