@@ -322,6 +322,14 @@ async function laadGallery() {
       container.innerHTML = '<p class="leeg">Nog geen foto\'s — kom snel terug!</p>';
     }
 
+    // Update totaaltelller bovenaan met alle foto's (eigen + gast)
+    const totaalFotos = Array.from(container.querySelectorAll('.pc-swiper .swiper-slide')).length;
+    const totaalSeries = container.querySelectorAll('.pc').length;
+    const fotoEl   = document.getElementById('meta-fotos');
+    const mappenEl = document.getElementById('meta-mappen');
+    if (fotoEl)   fotoEl.textContent   = totaalFotos.toLocaleString('nl-NL');
+    if (mappenEl) mappenEl.textContent = totaalSeries;
+
   } catch (err) {
     console.error('Gallery laden mislukt:', err);
     container.innerHTML = '<p class="leeg">Kon foto\'s niet laden.</p>';
