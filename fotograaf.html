@@ -1211,17 +1211,10 @@ async function laadMappenTab() {
       fotoPerMap[mapNaam].push(f);
     }
 
-    const lijst = document.createElement('div');
-    lijst.id = 'mappen-sorteer-lijst';
-
-    for (const m of _mappenData) {
-      const catLabel = m.categorie === 'voetbal' ? '⚽ Voetbal'
-                     : m.categorie === 'nosports' ? '🌿 No Sports'
-                     : '📷 Eigen';
-      const fotos    = fotoPerMap[m.map] || [];
+    // Bouw een map-item element
+    function maakMapItem(m, fotos) {
       const isLeeg   = fotos.length === 0;
       const thumbSrc = fotos.length > 0 ? `${WORKER}/foto/${fotos[0].key}` : null;
-
       const li = document.createElement('div');
       li.className = 'map-item' + (isLeeg ? ' leeg' : '');
       li.dataset.map = m.map;
@@ -1241,8 +1234,12 @@ async function laadMappenTab() {
               : `${fotos.length} foto${fotos.length !== 1 ? '\'s' : ''}`}
             </div>
           </div>
-          <span class="map-cat-badge">${catLabel}</span>
-          <button class="map-expand-btn" title="Foto's bekijken" onclick="toggleMapFotos(this, '${m.map.replace(/'/g,"\\'")}')">▾</button>
+          <select class="map-cat-select" onchange="wisselCategorie(this)">
+            <option value="voetbal"  ${m.categorie === 'voetbal'  ? 'selected' : ''}>⚽ Voetbal</option>
+            <option value="nosports" ${m.categorie === 'nosports' ? 'selected' : ''}>🌿 No Sports</option>
+            <option value="eigen"    ${m.categorie === 'eigen'    ? 'selected' : ''}>📷 Eigen pagina</option>
+          </select>
+          <button class="map-expand-btn" title="Foto's bekijken" onclick="toggleMapFotos(this)">▾</button>
         </div>
         <div class="map-fotos-paneel">
           <div class="map-fotos-grid"></div>
@@ -1251,7 +1248,6 @@ async function laadMappenTab() {
           </button>
         </div>`;
 
-      // Vul de foto-thumbnails in
       const grid = li.querySelector('.map-fotos-grid');
       for (const f of fotos) {
         const naam = decodeURIComponent(f.key.split('/').pop());
@@ -1263,21 +1259,55 @@ async function laadMappenTab() {
           <div class="foto-chip-del" onclick="verwijderFoto('${f.key.replace(/'/g,"\\'")}', this)" title="Verwijder ${naam}">🗑</div>`;
         grid.appendChild(chip);
       }
+      return li;
+    }
 
-      lijst.appendChild(li);
+    // Drie groepen
+    const groepen = [
+      { id: 'voetbal',  label: '⚽ Voetbal',      categorie: 'voetbal'  },
+      { id: 'nosports', label: '🌿 No Sports',     categorie: 'nosports' },
+      { id: 'eigen',    label: '📷 Eigen pagina',  categorie: 'eigen'    },
+    ];
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'mappen-sorteer-lijst';
+
+    for (const groep of groepen) {
+      const mappen = _mappenData.filter(m => m.categorie === groep.categorie);
+
+      const sectie = document.createElement('div');
+      sectie.className = 'map-groep';
+      sectie.dataset.categorie = groep.categorie;
+      sectie.innerHTML = `
+        <div class="map-groep-header">
+          <span>${groep.label}</span>
+          <span class="map-groep-teller">${mappen.length} map${mappen.length !== 1 ? 'pen' : ''}</span>
+        </div>
+        <div class="map-groep-lijst" data-categorie="${groep.categorie}"></div>`;
+
+      const lijst = sectie.querySelector('.map-groep-lijst');
+      for (const m of mappen) {
+        lijst.appendChild(maakMapItem(m, fotoPerMap[m.map] || []));
+      }
+
+      if (mappen.length === 0) {
+        lijst.innerHTML = '<p style="color:var(--muted);font-size:0.8rem;padding:0.5rem 0;font-style:italic">Geen mappen in deze categorie</p>';
+      }
+
+      new Sortable(lijst, {
+        animation: 200,
+        handle: '.map-drag-handle',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd() { document.getElementById('volgorde-feedback').textContent = ''; }
+      });
+
+      wrapper.appendChild(sectie);
     }
 
     inhoud.innerHTML = '';
-    inhoud.appendChild(lijst);
+    inhoud.appendChild(wrapper);
     acties.style.display = 'flex';
-
-    new Sortable(lijst, {
-      animation: 200,
-      handle: '.map-drag-handle',
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      onEnd() { document.getElementById('volgorde-feedback').textContent = ''; }
-    });
 
   } catch (e) {
     inhoud.innerHTML = '<p style="color:#ef4444;font-size:0.85rem">Kon mappen niet laden: ' + e.message + '</p>';
