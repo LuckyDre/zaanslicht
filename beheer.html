@@ -901,22 +901,54 @@ async function fgLaadStatus(id) {
   const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
   try {
-    const res  = await fetch(url + '/fotograaf/verborgen?id=' + id, { headers: { 'X-Worker-Secret': secret } });
-    const data = await res.json();
-    const btn  = document.getElementById('fg-blok-' + id);
-    if (!btn) return;
-    if (data.geblokkeerd) {
-      btn.textContent = '🔓 Deblokkeer';
-      btn.style.borderColor = '#ef4444';
-      btn.style.color = '#ef4444';
-    } else {
-      btn.textContent = '🔒 Blokkeer';
-      btn.style.borderColor = '#444';
-      btn.style.color = '#aaa';
+    const [statusRes, posRes] = await Promise.all([
+      fetch(url + '/fotograaf/verborgen?id=' + id, { headers: { 'X-Worker-Secret': secret } }),
+      fetch(url + '/fotograaf/positiebeheer?id=' + id, { headers: { 'X-Worker-Secret': secret } }).catch(() => null),
+    ]);
+    const data = await statusRes.json();
+    const posData = posRes ? await posRes.json().catch(() => ({})) : {};
+
+    const btn = document.getElementById('fg-blok-' + id);
+    if (btn) {
+      if (data.geblokkeerd) {
+        btn.textContent = '🔓 Deblokkeer';
+        btn.style.borderColor = '#ef4444'; btn.style.color = '#ef4444';
+      } else {
+        btn.textContent = '🔒 Blokkeer';
+        btn.style.borderColor = '#444'; btn.style.color = '#aaa';
+      }
+      btn.dataset.geblokkeerd = data.geblokkeerd ? '1' : '0';
+      btn.dataset.verborgenMappen = JSON.stringify(data.verborgenMappen || []);
     }
-    btn.dataset.geblokkeerd = data.geblokkeerd ? '1' : '0';
-    btn.dataset.verborgenMappen = JSON.stringify(data.verborgenMappen || []);
+
+    const posBtn = document.getElementById('fg-pos-' + id);
+    if (posBtn) {
+      const magPositie = posData.mag === true;
+      posBtn.dataset.mag = magPositie ? '1' : '0';
+      if (magPositie) {
+        posBtn.textContent = '📍 Positie ✓';
+        posBtn.style.borderColor = '#22c55e'; posBtn.style.color = '#22c55e';
+      } else {
+        posBtn.textContent = '📍 Positie';
+        posBtn.style.borderColor = '#444'; posBtn.style.color = '#aaa';
+      }
+    }
   } catch {}
+}
+
+async function fgTogglePositie(id) {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const btn    = document.getElementById('fg-pos-' + id);
+  const huidig = btn?.dataset.mag === '1';
+  try {
+    await fetch(url + '/fotograaf/positiebeheer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id, mag: !huidig }),
+    });
+    fgLaadStatus(id);
+  } catch(e) { alert('Fout: ' + e.message); }
 }
 
 async function fgToggleBlokkeer(id) {
