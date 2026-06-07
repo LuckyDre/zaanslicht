@@ -667,6 +667,17 @@ function toonRegistreren() {
 // ══════════════════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════════════════
+async function checkPositieBeheer() {
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/positiebeheer-check', {
+      headers: { 'X-Fotograaf-Token': sessie.token }
+    });
+    const data = await res.json();
+    const btn = document.getElementById('tab-btn-positie');
+    if (btn) btn.style.display = data.mag ? '' : 'none';
+  } catch {}
+}
+
 async function toonDashboard(nieuwAangemeld = false) {
   document.getElementById('main-content').innerHTML = `
     <div class="card" style="max-width:680px">
