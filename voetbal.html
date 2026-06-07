@@ -389,6 +389,129 @@ fetch('manifest.json?v=' + Date.now()).then(r => r.json()).then(m => {
 }).catch(() => {});
 </script>
 
+<!-- LIKES + REACTIES IN LIGHTBOX -->
+<script>
+(function() {
+  const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+  function isLiked(key) {
+    try { return !!JSON.parse(localStorage.getItem('zl_liked')||'{}')[key]; } catch { return false; }
+  }
+  function setLiked(key, val) {
+    try {
+      const s = JSON.parse(localStorage.getItem('zl_liked')||'{}');
+      if (val) s[key] = true; else delete s[key];
+      localStorage.setItem('zl_liked', JSON.stringify(s));
+    } catch {}
+  }
+
+  // Wacht tot lightbox element beschikbaar is
+  function init() {
+    const likeBtn = document.getElementById('lb2-like');
+    const rcBtn   = document.getElementById('lb2-reacties');
+    const drawer  = document.getElementById('reacties-drawer');
+    if (!likeBtn || !rcBtn || !drawer) return;
+
+    // ── LIKE ──────────────────────────────────────────────────────────
+    likeBtn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const key = likeBtn.dataset.key;
+      if (!key || typeof db === 'undefined') return;
+      const liked = isLiked(key);
+      const ref   = db.ref('likes/' + key);
+      if (liked) {
+        await ref.transaction(c => Math.max(0,(c||1)-1));
+        setLiked(key, false); likeBtn.classList.remove('geliked');
+      } else {
+        await ref.transaction(c => (c||0)+1);
+        setLiked(key, true); likeBtn.classList.add('geliked');
+      }
+      const snap = await ref.once('value');
+      const n = snap.val() || 0;
+      document.getElementById('lb2-like-count').textContent = n > 0 ? n : '';
+    });
+
+    // ── REACTIES DRAWER ───────────────────────────────────────────────
+    rcBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      drawer.classList.toggle('slide-out');
+      if (!drawer.classList.contains('slide-out')) laadReacties();
+    });
+    document.getElementById('rd-close').addEventListener('click', () => drawer.classList.add('slide-out'));
+    document.getElementById('rd-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const key   = likeBtn.dataset.key || '';
+      const tekst = document.getElementById('rd-tekst').value.trim();
+      const naam  = document.getElementById('rd-naam').value.trim() || 'Anoniem';
+      if (!tekst || !key) return;
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      try {
+        const res  = await fetch(WORKER + '/comment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ naam, tekst, photoKey: key, src: document.getElementById('lb2-img').src }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Fout');
+        document.getElementById('rd-tekst').value = '';
+        laadReacties();
+      } catch(err) { alert('Fout: ' + err.message); }
+      btn.disabled = false;
+    });
+
+    function laadReacties() {
+      const key   = likeBtn.dataset.key || '';
+      const lijst = document.getElementById('rd-lijst');
+      if (!key || !lijst) return;
+      lijst.innerHTML = '<p class="rd-geen">Laden…</p>';
+      fetch(WORKER + '/comments?key=' + encodeURIComponent(key))
+        .then(r => r.json())
+        .then(d => {
+          const items = d.comments || [];
+          lijst.innerHTML = items.length === 0
+            ? '<p class="rd-geen">Nog geen reacties</p>'
+            : items.map(c => `<div class="rd-reactie">
+                <div class="rd-r-naam">${c.naam||'Anoniem'}</div>
+                <div class="rd-r-tekst">${c.tekst}</div>
+                <div class="rd-r-ts">${new Date(c.ts).toLocaleDateString('nl-NL')}</div>
+              </div>`).join('');
+          const n = items.length;
+          document.getElementById('lb2-rc-count').textContent = n > 0 ? n : '';
+        }).catch(() => { lijst.innerHTML = '<p class="rd-geen">Kon reacties niet laden</p>'; });
+    }
+
+    // ── UPDATE BIJ FOTO WISSEL ─────────────────────────────────────────
+    // Luister naar src-wijzigingen op het lightbox img om like-staat bij te werken
+    const lbImg = document.getElementById('lb2-img');
+    new MutationObserver(() => {
+      const key = likeBtn.dataset.key;
+      if (!key) return;
+      likeBtn.classList.toggle('geliked', isLiked(key));
+      if (typeof db !== 'undefined') {
+        db.ref('likes/' + key).once('value').then(s => {
+          const n = s.val() || 0;
+          document.getElementById('lb2-like-count').textContent = n > 0 ? n : '';
+        });
+      }
+      fetch(WORKER + '/comments?key=' + encodeURIComponent(key))
+        .then(r => r.json())
+        .then(d => {
+          const n = (d.comments||[]).length;
+          document.getElementById('lb2-rc-count').textContent = n > 0 ? n : '';
+        }).catch(() => {});
+    }).observe(lbImg, { attributes: true, attributeFilter: ['src'] });
+  }
+
+  // Start na laden van de pagina
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 <!-- Cloudflare Web Analytics -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
 </body>
