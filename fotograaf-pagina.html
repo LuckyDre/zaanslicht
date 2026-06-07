@@ -718,12 +718,14 @@ function initComments() {
     if (!drawer.classList.contains('slide-out')) loadComments(curKey);
   };
   function updateCount(key) {
-    if (!key || typeof db === 'undefined') { rcCount.textContent=''; return; }
-    db.ref('comments/'+key).once('value').then(snap => {
-      const n = snap.numChildren();
-      rcCount.textContent = n>0?n:'';
-      if (rdCount) rdCount.textContent = n>0?'('+n+')':'';
-    });
+    if (!key) { rcCount.textContent=''; return; }
+    fetch(WORKER + '/comments?key=' + encodeURIComponent(key))
+      .then(r => r.json())
+      .then(data => {
+        const n = (data.comments || []).length;
+        rcCount.textContent = n > 0 ? n : '';
+        if (rdCount) rdCount.textContent = n > 0 ? '('+n+')' : '';
+      }).catch(() => {});
   }
   function loadComments(key) {
     rdLijst.innerHTML = '<p class="rd-geen">Laden…</p>';
