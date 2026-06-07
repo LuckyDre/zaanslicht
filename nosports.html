@@ -79,17 +79,29 @@
   .pc-overzicht:hover { border-color:var(--or); color:var(--or); background:rgba(240,192,64,.08); }
 
   /* FOTO GRID */
+  /* FOTO SLIDER — HORIZONTAAL SCROLL */
   .foto-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 8px;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
   }
+  .foto-grid::-webkit-scrollbar { height: 6px; }
+  .foto-grid::-webkit-scrollbar-track { background: rgba(255,255,255,.04); border-radius: 3px; }
+  .foto-grid::-webkit-scrollbar-thumb { background: rgba(255,107,0,.3); border-radius: 3px; }
+  .foto-grid::-webkit-scrollbar-thumb:hover { background: rgba(255,107,0,.6); }
+
   .foto-cel {
+    flex: 0 0 280px;
     aspect-ratio: 3/2;
     overflow: hidden;
     border-radius: 6px;
     cursor: pointer;
     background: var(--s1);
+    scroll-snap-align: start;
   }
   .foto-cel img {
     width: 100%; height: 100%;
