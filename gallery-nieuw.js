@@ -54,7 +54,7 @@ function initLightbox() {
 }
 
 // ── RENDER SERIE ──────────────────────────────────────────────────────────
-function renderSerie(container, { naam, fotograaf, fotos, kleur }) {
+function renderSerie(container, { naam, fotograaf, fotos, kleur, labels }) {
   if (!fotos.length) return;
 
   const div = document.createElement('div');
@@ -68,7 +68,7 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur }) {
   if (kleur) { const sub = h3.querySelector('.pc-sub'); if (sub) sub.style.color = kleur; }
   div.appendChild(h3);
 
-  // Foto-grid — geen Swiper, gewoon scrollen
+  // Foto-grid
   const grid = document.createElement('div');
   grid.className = 'foto-grid';
   fotos.forEach((f, i) => {
@@ -78,8 +78,18 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur }) {
     cel.addEventListener('click', () => lbOpen(fotos, i));
     grid.appendChild(cel);
   });
-
   div.appendChild(grid);
+
+  // Labels onderaan de slider
+  if (labels?.length) {
+    const labelBar = document.createElement('div');
+    labelBar.className = 'serie-labels';
+    labelBar.innerHTML = labels.map(l =>
+      `<span class="serie-label-chip">${l}</span>`
+    ).join('');
+    div.appendChild(labelBar);
+  }
+
   container.appendChild(div);
 }
 
