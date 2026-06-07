@@ -674,7 +674,12 @@ function switchTab(tab) {
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'reacties')   laadReacties();
+  if (tab === 'reacties') {
+    laadReacties();
+  } else if (_reactiesListener && window._fbdb) {
+    window._fbdb.ref('comments').off('value', _reactiesListener);
+    _reactiesListener = null;
+  }
   if (tab === 'abonnees')   abLaadConfig();
   if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); }
 }
