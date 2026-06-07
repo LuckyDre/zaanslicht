@@ -309,7 +309,12 @@
 
     <div id="tab-reacties" class="tab-panel">
       <div style="padding:1.5rem 2rem">
-        <p style="color:#888;font-size:0.85rem;margin-bottom:1.2rem">Klik op 🗑 om een reactie te verwijderen. Verwijdering is onomkeerbaar.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
+          <p style="color:#888;font-size:0.85rem;margin:0">Klik op 🗑 om een reactie te verwijderen. Verwijdering is onomkeerbaar.</p>
+          <button onclick="laadReacties()" style="background:none;border:1px solid #333;color:#666;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.75rem;cursor:pointer;transition:all 0.2s"
+            onmouseover="this.style.borderColor='var(--oranje)';this.style.color='var(--oranje)'"
+            onmouseout="this.style.borderColor='#333';this.style.color='#666'">↺ Vernieuwen</button>
+        </div>
         <div id="reacties-beheer-lijst" style="display:flex;flex-direction:column;gap:0.8rem">
           <p style="color:#555">Laden…</p>
         </div>
