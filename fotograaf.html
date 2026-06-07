@@ -1332,6 +1332,18 @@ async function vulMappenSelect() {
 document.getElementById('up-map-select')?.addEventListener('change', function() {
   const mapInput = document.getElementById('up-map');
   if (mapInput) mapInput.value = this.value;
+
+  // Laad bestaande labels van deze map
+  if (this.value && _mappenData.length) {
+    const map = _mappenData.find(m => m.map === this.value);
+    if (map?.labels?.length) {
+      _geselecteerdeLabels = [...map.labels];
+      renderLabelChips();
+    } else {
+      _geselecteerdeLabels = [];
+      renderLabelChips();
+    }
+  }
 });
 
 // ══════════════════════════════════════════════════════
