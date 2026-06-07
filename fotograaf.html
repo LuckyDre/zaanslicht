@@ -1121,6 +1121,7 @@ window.switchTab = (tabNaam, btn) => {
   btn?.classList.add('active');
   if (tabNaam === 'mappen') laadMappenTab();
   if (tabNaam === 'upload') vulMappenSelect();
+  if (tabNaam === 'profiel') laadProfiel();
 };
 
 async function vulMappenSelect() {
