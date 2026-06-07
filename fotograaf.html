@@ -1044,8 +1044,13 @@ async function laadLabels() {
     const res  = await fetch(WORKER + '/labels');
     const data = await res.json();
     _alleLabels = data.labels || [];
-    renderLabelChips();
-  } catch {}
+    // Wacht tot de DOM er is als het tabblad nog niet zichtbaar is
+    const wacht = (n = 0) => {
+      if (document.getElementById('labels-chips')) { renderLabelChips(); }
+      else if (n < 20) { setTimeout(() => wacht(n + 1), 100); }
+    };
+    wacht();
+  } catch(e) { console.error('Labels laden mislukt:', e); }
 }
 
 function renderLabelChips() {
