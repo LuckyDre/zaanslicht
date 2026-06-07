@@ -25,50 +25,11 @@ function lbToon(idx) {
   document.getElementById('lb2-next').style.opacity = _lb_idx === _lb_fotos.length - 1 ? '0.2' : '1';
   document.getElementById('lb2-download').dataset.src  = f.src;
   document.getElementById('lb2-download').dataset.naam = f.src.split('/').pop().split('?')[0];
-
-  // Like bijwerken
-  const likeBtn = document.getElementById('lb2-like');
-  if (likeBtn && f.key) {
-    likeBtn.dataset.key = f.key;
-    likeBtn.classList.toggle('geliked', isLikedLocally(f.key));
-    const countEl = document.getElementById('lb2-like-count');
-    if (typeof db !== 'undefined') {
-      db.ref(`likes/${f.key}`).once('value').then(s => {
-        const c = s.val() || 0;
-        if (countEl) countEl.textContent = c > 0 ? c : '';
-      });
-    }
-  }
-
-  // Reacties teller bijwerken
-  if (f.key) {
-    fetch(WORKER_URL + '/comments?key=' + encodeURIComponent(f.key))
-      .then(r => r.json())
-      .then(d => {
-        const n = (d.comments || []).length;
-        const rcEl = document.getElementById('lb2-rc-count');
-        if (rcEl) rcEl.textContent = n > 0 ? n : '';
-      }).catch(() => {});
-  }
 }
 
 function lbSluit() {
   document.getElementById('lb2').classList.add('lb2-hidden');
   document.body.style.overflow = '';
-  const drawer = document.getElementById('reacties-drawer');
-  if (drawer) drawer.classList.add('slide-out');
-}
-
-// Lokale like opslag
-function isLikedLocally(key) {
-  try { return !!JSON.parse(localStorage.getItem('zl_liked') || '{}')[key]; } catch { return false; }
-}
-function setLikedLocally(key, val) {
-  try {
-    const s = JSON.parse(localStorage.getItem('zl_liked') || '{}');
-    if (val) s[key] = true; else delete s[key];
-    localStorage.setItem('zl_liked', JSON.stringify(s));
-  } catch {}
 }
 
 function initLightbox() {
@@ -87,84 +48,6 @@ function initLightbox() {
     if (e.key === 'ArrowLeft')   lbToon(_lb_idx - 1);
     if (e.key === 'ArrowRight')  lbToon(_lb_idx + 1);
   });
-
-  // Like knop
-  const likeBtn = document.getElementById('lb2-like');
-  if (likeBtn) {
-    likeBtn.addEventListener('click', async e => {
-      e.stopPropagation();
-      const key = likeBtn.dataset.key;
-      if (!key || typeof db === 'undefined') return;
-      const liked = isLikedLocally(key);
-      const ref   = db.ref(`likes/${key}`);
-      if (liked) {
-        await ref.transaction(cur => Math.max(0, (cur || 1) - 1));
-        setLikedLocally(key, false); likeBtn.classList.remove('geliked');
-      } else {
-        await ref.transaction(cur => (cur || 0) + 1);
-        setLikedLocally(key, true); likeBtn.classList.add('geliked');
-      }
-      const snap = await ref.once('value');
-      const c = snap.val() || 0;
-      const countEl = document.getElementById('lb2-like-count');
-      if (countEl) countEl.textContent = c > 0 ? c : '';
-    });
-  }
-
-  // Reacties knop
-  const rcBtn = document.getElementById('lb2-reacties');
-  const drawer = document.getElementById('reacties-drawer');
-  if (rcBtn && drawer) {
-    rcBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      drawer.classList.toggle('slide-out');
-      if (!drawer.classList.contains('slide-out')) laadReacties();
-    });
-    document.getElementById('rd-close').addEventListener('click', () => drawer.classList.add('slide-out'));
-    document.getElementById('rd-form').addEventListener('submit', async e => {
-      e.preventDefault();
-      const tekst = document.getElementById('rd-tekst').value.trim();
-      const naam  = document.getElementById('rd-naam').value.trim() || 'Anoniem';
-      const key   = document.getElementById('lb2-like')?.dataset.key || '';
-      if (!tekst || !key) return;
-      const btn = e.target.querySelector('button[type="submit"]');
-      btn.disabled = true;
-      try {
-        const res = await fetch(WORKER_URL + '/comment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ naam, tekst, photoKey: key, src: document.getElementById('lb2-img').src }),
-        });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'Fout');
-        document.getElementById('rd-tekst').value = '';
-        laadReacties();
-      } catch (err) { alert('Fout: ' + err.message); }
-      btn.disabled = false;
-    });
-  }
-
-  function laadReacties() {
-    const key = document.getElementById('lb2-like')?.dataset.key || '';
-    const lijst = document.getElementById('rd-lijst');
-    if (!lijst || !key) return;
-    lijst.innerHTML = '<p class="rd-geen">Laden…</p>';
-    fetch(WORKER_URL + '/comments?key=' + encodeURIComponent(key))
-      .then(r => r.json())
-      .then(d => {
-        const items = d.comments || [];
-        lijst.innerHTML = items.length === 0
-          ? '<p class="rd-geen">Nog geen reacties</p>'
-          : items.map(c => `<div class="rd-reactie">
-              <div class="rd-r-naam">${c.naam || 'Anoniem'}</div>
-              <div class="rd-r-tekst">${c.tekst}</div>
-              <div class="rd-r-ts">${new Date(c.ts).toLocaleDateString('nl-NL')}</div>
-            </div>`).join('');
-        const n = items.length;
-        const rcEl = document.getElementById('lb2-rc-count');
-        if (rcEl) rcEl.textContent = n > 0 ? n : '';
-      }).catch(() => { lijst.innerHTML = '<p class="rd-geen">Fout bij laden</p>'; });
-  }
 }
 
 // ── RENDER SERIE ──────────────────────────────────────────────────────────
