@@ -343,14 +343,13 @@ async function laadGastTegels() {
       const kleur  = fg.kleur || '#3b82f6';
       const prefix = `gast-${fg.id}`;
 
-      // Tegel 1: hoofd-tegel fotograaf
+      // Tegel 1: hoofd-tegel fotograaf → naar zijn pagina
       const t1 = maakGastTegel(`${prefix}-main`, kleur, `
         <div class="tegel-icon">📸</div>
         <h2>${fg.naam}</h2>
-        <p>Foto's van ${fg.naam}</p>`);
+        <p>Naar pagina van ${fg.naam}</p>`);
       t1.addEventListener('click', () => {
-        const cat = fg.mappen[0]?.categorie || 'voetbal';
-        window.location.href = cat === 'nosports' ? 'nosports.html' : 'voetbal.html';
+        window.location.href = `fotograaf-pagina.html?id=${fg.id}`;
       });
 
       // Tegel 2: verrassing (random 10)
