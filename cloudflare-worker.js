@@ -923,8 +923,10 @@ async function handleAlleComments(request, env) {
     const r = await env.SUBSCRIBERS.list({ prefix: 'comment:', cursor, limit: 100 });
     for (const key of r.keys) {
       const c = JSON.parse(await env.SUBSCRIBERS.get(key.name));
-      const delen = key.name.split(':');
-      comments.push({ ...c, id: delen[delen.length - 1] });
+      // Formaat: comment:{photoKey}:{id} — id is het laatste deel na de laatste :
+      const lastColon = key.name.lastIndexOf(':');
+      const id = key.name.substring(lastColon + 1);
+      comments.push({ ...c, id });
     }
     cursor = r.list_complete ? undefined : r.cursor;
   } while (cursor);
