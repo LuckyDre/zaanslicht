@@ -1309,6 +1309,8 @@ function fmtTsB(ts) {
        + ' ' + d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
 }
 
+let _reactiesListener = null;
+
 async function laadReacties() {
   const container = document.getElementById('reacties-beheer-lijst');
   container.innerHTML = '<p style="color:#555">Laden…</p>';
@@ -1316,31 +1318,50 @@ async function laadReacties() {
     await laadFirebase();
     const db = window._fbdb;
     if (!db) { container.innerHTML = '<p style="color:#ef4444">Firebase niet beschikbaar</p>'; return; }
-    // Laad alle reacties uit het volledige comments-node
-    const snap = await db.ref('comments').once('value');
-    const items = [];
-    snap.forEach(fotoSnap => {
-      fotoSnap.forEach(c => {
-        const val = c.val();
-        if (val && val.tekst) items.push({ id: c.key, photoKey: fotoSnap.key, ...val });
-      });
-    });
-    items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-    if (items.length === 0) {
-      container.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen reacties geplaatst.</p>';
-      return;
+
+    // Verwijder eventuele bestaande listener
+    if (_reactiesListener) {
+      db.ref('comments').off('value', _reactiesListener);
+      _reactiesListener = null;
     }
-    container.innerHTML = items.map(c => `
-      <div id="rc-${c.id}" style="background:#1a1a1a;border-radius:8px;padding:1rem 1.2rem;border:1px solid #2a2a2a;display:flex;align-items:flex-start;gap:1rem">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:0.76rem;font-weight:700;color:#FF6B00;margin-bottom:0.3rem">${escB(c.naam||'Anoniem')} &mdash; <span style="color:#555;font-weight:400">${fmtTsB(c.ts)}</span></div>
-          <div style="font-size:0.85rem;color:#ccc;line-height:1.5">${escB(c.tekst)}</div>
-          <div style="font-size:0.72rem;color:#444;margin-top:0.4rem">📸 ${c.pagina||''} &middot; sleutel: <code style="color:#555;font-size:0.7rem">${escB(c.photoKey||'')}</code></div>
-        </div>
-        <button onclick="verwijderReactie('${c.id}','${escB(c.photoKey||'')}')"
-          style="background:#ef4444;border:none;border-radius:4px;color:#fff;padding:0.4rem 0.7rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;transition:opacity 0.2s"
-          onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">🗑</button>
-      </div>`).join('');
+
+    // Realtime listener — vuurt bij elke wijziging automatisch
+    _reactiesListener = db.ref('comments').on('value', snap => {
+      const items = [];
+      snap.forEach(fotoSnap => {
+        fotoSnap.forEach(c => {
+          const val = c.val();
+          if (val && val.tekst) items.push({ id: c.key, photoKey: fotoSnap.key, ...val });
+        });
+      });
+      items.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+      if (items.length === 0) {
+        container.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen reacties geplaatst.</p>';
+        return;
+      }
+
+      // Bewaar welke items al zichtbaar zijn om nieuwe te markeren
+      const bestaande = new Set([...container.querySelectorAll('[id^="rc-"]')].map(el => el.id));
+
+      container.innerHTML = items.map(c => {
+        const isNieuw = bestaande.size > 0 && !bestaande.has('rc-' + c.id);
+        return `
+        <div id="rc-${c.id}" style="background:#1a1a1a;border-radius:8px;padding:1rem 1.2rem;border:1px solid ${isNieuw ? '#FF6B00' : '#2a2a2a'};display:flex;align-items:flex-start;gap:1rem;${isNieuw ? 'animation:rcFlash 2s ease forwards' : ''}">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:0.76rem;font-weight:700;color:#FF6B00;margin-bottom:0.3rem">
+              ${isNieuw ? '<span style="background:#FF6B00;color:#000;font-size:0.65rem;padding:0.1rem 0.4rem;border-radius:3px;margin-right:0.4rem;font-weight:700">NIEUW</span>' : ''}
+              ${escB(c.naam||'Anoniem')} &mdash; <span style="color:#555;font-weight:400">${fmtTsB(c.ts)}</span>
+            </div>
+            <div style="font-size:0.85rem;color:#ccc;line-height:1.5">${escB(c.tekst)}</div>
+            <div style="font-size:0.72rem;color:#444;margin-top:0.4rem">📸 ${c.pagina||''} &middot; sleutel: <code style="color:#555;font-size:0.7rem">${escB(c.photoKey||'')}</code></div>
+          </div>
+          <button onclick="verwijderReactie('${c.id}','${escB(c.photoKey||'')}')"
+            style="background:#ef4444;border:none;border-radius:4px;color:#fff;padding:0.4rem 0.7rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;transition:opacity 0.2s"
+            onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">🗑</button>
+        </div>`;
+      }).join('');
+    });
   } catch(e) {
     container.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>';
   }
