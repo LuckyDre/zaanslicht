@@ -617,6 +617,7 @@ function renderCategorie(cat) {
         <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
         <span class="slider-naam">${item.naam}</span>
         <span class="slider-count">${item.fotos.length} foto's</span>
+        ${item.ts ? `<span class="slider-count" style="font-size:0.72rem">${fmtTsB(item.ts)}</span>` : ''}
         <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
       </div>
       <div class="fotograaf-row" style="padding:0.4rem 1rem 0.3rem;display:flex;align-items:center;gap:0.5rem;border-top:1px solid #222;">
