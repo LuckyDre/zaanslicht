@@ -520,13 +520,14 @@ async function laadPagina() {
                      : map.categorie === 'nosports' ? '🌿 No Sports'
                      : '📷 Eigen';
 
-      const slides = fotos.map(f => {
+      const slides = fotos.map((f, idx) => {
         const src   = `${WORKER}/foto/${f.key}`;
         const key   = photoKey(`gast/${fg.id}/${f.naam}`);
         const liked = isLikedLocally(key);
         const count = likeCounts[key] || 0;
         return `<div class="swiper-slide">
           <img src="${src}" alt="${f.naam}" loading="lazy" />
+          <button class="foto-open-btn" data-idx="${idx}" aria-label="Foto openen"></button>
           <div class="slide-actions">
             <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" data-path="gast/${fg.id}/${f.naam}">
               <span class="heart">♥</span>
