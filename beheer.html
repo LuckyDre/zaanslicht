@@ -510,12 +510,54 @@ async function laadGastSeries() {
       } catch {}
     }));
 
-    // Voeg mappen toe die nog NIET in de opgeslagen volgorde staan (komen achteraan)
+    // Maak een snelle lookup fotograaf op id
+    const fgById = Object.fromEntries(fotografen.map(fg => [fg.id, fg]));
+
+    // Voeg eerst de gast-items toe op hun opgeslagen positie
+    for (const cat of ['voetbal', 'nosports']) {
+      const lijst = document.getElementById('lijst-' + cat);
+      if (!lijst) continue;
+
+      // Bouw een geordende lijst van alle items (eigen + gast) op basis van opgeslagen volgorde
+      const eigenItems = Array.from(lijst.querySelectorAll('.slider-item[data-cat]'));
+      const eigenByMap = Object.fromEntries(eigenItems.map(el => [el.dataset.map, el]));
+
+      // Rebuild lijst in de gecombineerde volgorde
+      const gecombVolgorde = volgordeData[cat] || [];
+      if (!gecombVolgorde.length) continue;
+
+      // Leeg de lijst en vul opnieuw in opgeslagen volgorde
+      lijst.innerHTML = '';
+      const toegevoegd = new Set();
+
+      for (const entry of gecombVolgorde) {
+        if (entry.type === 'eigen') {
+          const el = eigenByMap[entry.map];
+          if (el) { lijst.appendChild(el); toegevoegd.add('eigen::' + entry.map); }
+        } else if (entry.type === 'gast') {
+          const fg = fgById[entry.fgId];
+          if (fg) {
+            const aantalFotos = fotoTellingen[fg.id]?.[entry.map] || 0;
+            const li = maakGastLijstItem(fg, entry.map, entry.fgCat || 'voetbal', aantalFotos);
+            lijst.appendChild(li);
+            toegevoegd.add(entry.fgId + '::' + entry.map);
+            inVolgorde[cat].add(entry.fgId + '::' + entry.map);
+          }
+        }
+      }
+
+      // Eigen items die niet in de volgorde staan → achteraan
+      for (const [map, el] of Object.entries(eigenByMap)) {
+        if (!toegevoegd.has('eigen::' + map)) lijst.appendChild(el);
+      }
+    }
+
+    // Voeg gast-mappen toe die nog NIET in de opgeslagen volgorde staan
     for (const fg of fotografen) {
       for (const m of (fg.mappen || [])) {
         const cat = m.categorie === 'eigen' ? 'voetbal' : m.categorie;
         const key = fg.id + '::' + m.map;
-        if (inVolgorde[cat]?.has(key)) continue; // al in volgorde, niet dubbel toevoegen
+        if (inVolgorde[cat]?.has(key)) continue;
 
         const lijst = document.getElementById('lijst-' + cat);
         if (!lijst) continue;
