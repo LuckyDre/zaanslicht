@@ -1068,19 +1068,8 @@ function renderLabelChips() {
 }
 
 async function laadLabels() {
-  // Zoek container — probeer tot 3 seconden
-  let container = document.getElementById('labels-chips');
-  if (!container) {
-    for (let i = 0; i < 30; i++) {
-      await new Promise(r => setTimeout(r, 100));
-      container = document.getElementById('labels-chips');
-      if (container) break;
-    }
-  }
-  if (!container) {
-    console.warn('labels-chips niet gevonden na 3s');
-    return;
-  }
+  const container = document.getElementById('labels-chips');
+  if (!container) return;
   container.innerHTML = '<span style="color:var(--muted);font-size:0.8rem">Laden…</span>';
   try {
     const res = await fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/labels');
