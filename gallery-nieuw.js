@@ -179,10 +179,7 @@ function initActies() {
     const dlBtn = e.target.closest('.btn-dl');
     if (dlBtn) {
       e.stopPropagation();
-      const { src, naam } = dlBtn.dataset;
-      const a = document.createElement('a');
-      a.href = src; a.download = naam || 'foto.jpg'; a.target = '_blank';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      downloadFoto(dlBtn.dataset.src, dlBtn.dataset.naam);
     }
   });
 }
