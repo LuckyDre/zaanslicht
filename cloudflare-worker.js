@@ -564,8 +564,13 @@ async function handleFotoUpload(request, env) {
   // Bijhouden welke mappen de fotograaf heeft
   const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograaf.id);
   const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
-  if (!mappen.find(m => m.map === map && m.categorie === categorie)) {
-    mappen.push({ map, categorie, ts: Date.now() });
+  const bestaand = mappen.find(m => m.map === map && m.categorie === categorie);
+  if (!bestaand) {
+    mappen.push({ map, categorie, ts: Date.now(), labels });
+    await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
+  } else if (labels.length && JSON.stringify(bestaand.labels) !== JSON.stringify(labels)) {
+    // Update labels als ze zijn veranderd
+    bestaand.labels = labels;
     await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
   }
 
