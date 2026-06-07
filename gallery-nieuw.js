@@ -262,15 +262,16 @@ async function laadGallery() {
           const item = eigenItems.find(x => x.map === entry.map);
           if (item) renderSerie(container, {
             naam: item.naam, fotograaf: item.fotograaf,
-            fotos: eigenNaarFotos(item),
+            fotos: eigenNaarFotos(item), labels: item.labels,
           });
         } else if (entry.type === 'gast') {
           const fg = fotografen.find(x => x.id === entry.fgId);
           if (fg) {
             const fotos = await gastNaarFotos(fg.id, entry.map);
+            const mapMeta = (fg.mappen || []).find(m => m.map === entry.map);
             if (fotos.length) renderSerie(container, {
               naam: entry.map, fotograaf: fg.naam,
-              fotos, kleur: fg.kleur,
+              fotos, kleur: fg.kleur, labels: mapMeta?.labels,
             });
           }
         }
