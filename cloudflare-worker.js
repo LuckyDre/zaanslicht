@@ -1187,6 +1187,8 @@ export default {
     if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
     if (url.pathname === '/comment'  && request.method === 'POST') return handleComment(request, env);
     if (url.pathname === '/comments'     && request.method === 'GET')  return handleComments(request, env);
+    if (url.pathname === '/labels'       && request.method === 'GET')  return handleGetLabels(request, env);
+    if (url.pathname === '/labels'       && request.method === 'POST') return handleAddLabel(request, env);
     if (url.pathname === '/alle-comments'  && request.method === 'GET')    return handleAlleComments(request, env);
     if (url.pathname === '/delete-comment' && request.method === 'POST')   return handleDeleteComment(request, env);
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
