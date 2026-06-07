@@ -696,29 +696,6 @@ function initLightbox() {
     });
   }
 
-  lightbox.addEventListener('click', e => {
-    if (e.target === lightbox || e.target === lightboxImg) closeLightbox();
-  });
-  document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
-  if (lbDownload) {
-    lbDownload.addEventListener('click', e => {
-      e.stopPropagation();
-      if (lbDownload.dataset.src) downloadAlsJpg(lbDownload.dataset.src, lbDownload.dataset.naam);
-    });
-  }
-  document.getElementById('lb-prev').addEventListener('click', e => {
-    e.stopPropagation(); if (currentIdx > 0) showLightbox(currentIdx - 1);
-  });
-  document.getElementById('lb-next').addEventListener('click', e => {
-    e.stopPropagation(); if (currentIdx < allImages.length - 1) showLightbox(currentIdx + 1);
-  });
-  document.addEventListener('keydown', e => {
-    if (lightbox.classList.contains('hidden')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft'  && currentIdx > 0)                    showLightbox(currentIdx - 1);
-    if (e.key === 'ArrowRight' && currentIdx < allImages.length - 1) showLightbox(currentIdx + 1);
-  });
-  function closeLightbox() { lightbox.classList.add('hidden'); document.body.style.overflow = ''; }
 }
 
 // ── REACTIES ─────────────────────────────────────────────────────────────────
