@@ -629,10 +629,10 @@ function initLikes() {
 // ── LIGHTBOX ─────────────────────────────────────────────────────────────────
 let _lbFotos = [], _lbIdx = 0;
 
-function _openLightboxFotograaf(fotos, idx, swiperEl) {
+function _openLightboxFotograaf(fotos, idx) {
   _lbFotos = fotos;
   _lbIdx   = Math.max(0, Math.min(idx, fotos.length - 1));
-  _lbToon(_lbIdx, swiperEl);
+  _lbToon(_lbIdx);
   document.getElementById('lightbox').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
