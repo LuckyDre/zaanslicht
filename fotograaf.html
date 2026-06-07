@@ -794,14 +794,22 @@ async function toonDashboard(nieuwAangemeld = false) {
               <div class="help-tip">Kies een foto van jezelf. Max 5MB, WebP of JPG. Verschijnt op de "Over ons" pagina.</div>
             </div>
           </div>
-          <div id="profiel-foto-preview" style="margin-bottom:0.8rem;display:none">
-            <img id="profiel-foto-img" src="" alt="Profielfoto" style="width:100px;height:100px;object-fit:cover;border-radius:50%;border:2px solid var(--accent)" />
+          <div style="display:flex;align-items:center;gap:1.2rem;margin-bottom:0.5rem">
+            <div id="profiel-foto-preview" style="flex-shrink:0">
+              <img id="profiel-foto-img" src="" alt="Profielfoto"
+                style="width:90px;height:90px;object-fit:cover;border-radius:50%;border:2px solid var(--accent);display:block" />
+            </div>
+            <div id="profiel-foto-placeholder" style="flex-shrink:0;width:90px;height:90px;border-radius:50%;border:2px dashed rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.8rem">
+              👤
+            </div>
+            <div>
+              <input type="file" id="profiel-foto-input" accept=".webp,.jpg,.jpeg" style="display:none" />
+              <button class="btn btn-secondary" onclick="document.getElementById('profiel-foto-input').click()">
+                📷 Foto wijzigen
+              </button>
+              <div id="profiel-foto-naam" style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem"></div>
+            </div>
           </div>
-          <input type="file" id="profiel-foto-input" accept=".webp,.jpg,.jpeg" style="display:none" />
-          <button class="btn btn-secondary" onclick="document.getElementById('profiel-foto-input').click()" style="margin-bottom:0.5rem">
-            📷 Foto kiezen
-          </button>
-          <span id="profiel-foto-naam" style="font-size:0.8rem;color:var(--muted);margin-left:0.5rem"></span>
         </div>
 
         <div class="form-group" style="margin-top:1.2rem">
