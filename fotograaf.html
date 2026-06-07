@@ -1018,12 +1018,15 @@ async function laadProfiel() {
       document.getElementById('profiel-bio').value = mijn.bio;
       document.getElementById('bio-teller').textContent = mijn.bio.length;
     }
+    const preview     = document.getElementById('profiel-foto-preview');
+    const placeholder = document.getElementById('profiel-foto-placeholder');
     if (mijn?.fotoUrl) {
-      const img = document.getElementById('profiel-foto-img');
-      img.src = WORKER + mijn.fotoUrl;
-      document.getElementById('profiel-foto-preview').style.display = 'block';
+      document.getElementById('profiel-foto-img').src = WORKER + mijn.fotoUrl;
+      preview.style.display     = 'block';
+      placeholder.style.display = 'none';
     } else {
-      document.getElementById('profiel-foto-preview').style.display = 'none';
+      preview.style.display     = 'none';
+      placeholder.style.display = 'flex';
     }
   } catch {}
 }
