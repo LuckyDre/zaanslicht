@@ -495,7 +495,7 @@ async function laadPagina() {
     }
 
     container.innerHTML = '';
-    let totaalFotos = 0;
+    let totaalFotos = 0, totaalSeries = 0;
 
     // Haal likes op uit Firebase
     let likeCounts = {};
@@ -515,6 +515,7 @@ async function laadPagina() {
       if (!fotos.length) continue;
 
       totaalFotos += fotos.length;
+      totaalSeries++;
 
       const div = document.createElement('div');
       div.className = 'portfolio-category';
