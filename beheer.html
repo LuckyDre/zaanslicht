@@ -1315,6 +1315,33 @@ function fmtTsB(ts) {
        + ' ' + d.toLocaleTimeString('nl-NL',{hour:'2-digit',minute:'2-digit'});
 }
 
+function renderReacties(items, container) {
+  if (items.length === 0) {
+    container.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen reacties geplaatst.</p>';
+    return;
+  }
+  // Maak leesbare naam van photoKey
+  function leesbaar(photoKey) {
+    if (!photoKey) return '';
+    return decodeURIComponent(photoKey)
+      .replace(/__/g, ' › ').replace(/--/g, '.').replace(/^[^›]+›\s*/, '');
+  }
+  container.innerHTML = items.map(c => `
+    <div id="rc-${c.id}-${c.bron||'kv'}" style="background:#1a1a1a;border-radius:8px;padding:1rem 1.2rem;border:1px solid #2a2a2a;display:flex;align-items:flex-start;gap:1rem">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.76rem;font-weight:700;color:#FF6B00;margin-bottom:0.3rem">
+          ${escB(c.naam||'Anoniem')} &mdash; <span style="color:#555;font-weight:400">${fmtTsB(c.ts)}</span>
+          <span style="color:#333;font-weight:400;margin-left:0.4rem">${c.bron === 'firebase' ? '· Firebase' : ''}</span>
+        </div>
+        <div style="font-size:0.88rem;color:#ccc;line-height:1.5">${escB(c.tekst)}</div>
+        <div style="font-size:0.72rem;color:#555;margin-top:0.4rem">📸 ${escB(leesbaar(c.photoKey||c.pagina||''))}</div>
+      </div>
+      <button onclick="verwijderReactie('${c.id}','${escB(c.photoKey||'')}','${c.bron||'kv'}')"
+        style="background:#ef4444;border:none;border-radius:4px;color:#fff;padding:0.4rem 0.7rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;transition:opacity 0.2s"
+        onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">🗑</button>
+    </div>`).join('');
+}
+
 async function laadReacties() {
   const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
@@ -1323,28 +1350,34 @@ async function laadReacties() {
 
   container.innerHTML = '<p style="color:#555">Laden…</p>';
   try {
-    const res  = await fetch(url + '/alle-comments', { headers: { 'X-Worker-Secret': secret } });
-    const data = await res.json();
-    const items = data.comments || [];
+    // Laad uit KV (worker) én Firebase tegelijk
+    const [workerRes, fbItems] = await Promise.all([
+      fetch(url + '/alle-comments', { headers: { 'X-Worker-Secret': secret } }).then(r => r.json()).catch(() => ({ comments: [] })),
+      new Promise(resolve => {
+        laadFirebase().then(() => {
+          const db = window._fbdb;
+          if (!db) return resolve([]);
+          db.ref('comments').once('value').then(snap => {
+            const items = [];
+            snap.forEach(fotoSnap => {
+              fotoSnap.forEach(c => {
+                const val = c.val();
+                if (val && val.tekst) items.push({ id: c.key, photoKey: fotoSnap.key, bron: 'firebase', ...val });
+              });
+            });
+            resolve(items);
+          }).catch(() => resolve([]));
+        }).catch(() => resolve([]));
+      })
+    ]);
 
-    if (items.length === 0) {
-      container.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen reacties geplaatst.</p>';
-      return;
-    }
+    const kvItems = (workerRes.comments || []).map(c => ({ ...c, bron: 'kv' }));
 
-    container.innerHTML = items.map(c => `
-      <div id="rc-${c.id}" style="background:#1a1a1a;border-radius:8px;padding:1rem 1.2rem;border:1px solid #2a2a2a;display:flex;align-items:flex-start;gap:1rem">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:0.76rem;font-weight:700;color:#FF6B00;margin-bottom:0.3rem">
-            ${escB(c.naam||'Anoniem')} &mdash; <span style="color:#555;font-weight:400">${fmtTsB(c.ts)}</span>
-          </div>
-          <div style="font-size:0.85rem;color:#ccc;line-height:1.5">${escB(c.tekst)}</div>
-          <div style="font-size:0.72rem;color:#444;margin-top:0.4rem">📸 sleutel: <code style="color:#555;font-size:0.7rem">${escB(c.photoKey||'')}</code></div>
-        </div>
-        <button onclick="verwijderReactie('${c.id}','${escB(c.photoKey||'')}')"
-          style="background:#ef4444;border:none;border-radius:4px;color:#fff;padding:0.4rem 0.7rem;cursor:pointer;font-size:0.8rem;flex-shrink:0;transition:opacity 0.2s"
-          onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">🗑</button>
-      </div>`).join('');
+    // Combineer en dedupliceer op tekst+naam+ts
+    const alles = [...kvItems, ...fbItems];
+    alles.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    renderReacties(alles, container);
   } catch(e) {
     container.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>';
   }
