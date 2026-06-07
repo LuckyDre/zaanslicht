@@ -432,6 +432,23 @@
   }
   .map-verwijder-btn:hover { background: rgba(239,68,68,0.1); border-color: #ef4444; }
 
+  /* GROEPEN */
+  .map-groep { margin-bottom: 1.5rem; }
+  .map-groep-header {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); padding: 0 0.2rem 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 0.6rem;
+  }
+  .map-groep-teller { font-weight: 400; }
+  .map-groep-lijst { min-height: 2rem; }
+  .map-cat-select {
+    background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); color: var(--text);
+    border-radius: 6px; padding: 0.25rem 0.5rem; font-size: 0.75rem; cursor: pointer;
+    flex-shrink: 0; transition: border-color 0.15s; font-family: var(--font);
+  }
+  .map-cat-select:focus { outline: none; border-color: var(--accent); }
+
   /* ── MAPPEN OVERZICHT ── */
   .mappen-grid {
     display: grid;
