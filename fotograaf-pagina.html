@@ -637,16 +637,33 @@ function _openLightboxFotograaf(fotos, idx, swiperEl) {
   document.body.style.overflow = 'hidden';
 }
 
-function _lbToon(idx, swiperEl) {
+function _lbToon(idx) {
   _lbIdx = Math.max(0, Math.min(idx, _lbFotos.length - 1));
   const f = _lbFotos[_lbIdx];
+
   document.getElementById('lightbox-img').src = f.src;
+
   const teller = document.getElementById('lb-teller');
   if (teller) teller.textContent = `${_lbIdx + 1} / ${_lbFotos.length}`;
+
   const lbDownload = document.getElementById('lb-download');
   if (lbDownload) { lbDownload.dataset.src = f.src; lbDownload.dataset.naam = f.naam; }
-  const key = photoKey(`gast/${f.src}`);
-  if (window._setCommentPhoto) window._setCommentPhoto(key, f.src);
+
+  // Like knop bijwerken
+  const lbLike = document.getElementById('lb-like');
+  if (lbLike && f.key) {
+    lbLike.dataset.key = f.key;
+    lbLike.classList.toggle('liked', isLikedLocally(f.key));
+    if (typeof db !== 'undefined') {
+      db.ref(`likes/${f.key}`).once('value').then(s => {
+        const c = s.val() || 0;
+        document.getElementById('lb-like-count').textContent = c > 0 ? c : '';
+      });
+    }
+  }
+
+  // Reacties teller bijwerken
+  if (window._setCommentPhoto) window._setCommentPhoto(f.key, f.src);
 }
 
 function initLightbox() {
