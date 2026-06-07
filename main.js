@@ -303,21 +303,15 @@ async function laadGastTegels() {
     const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
     if (!fotografen.length) return;
 
-    const grid = document.querySelector('.tegel-grid');
-    if (!grid) return;
-
-    // Scheidingslijn vóór de gast-tegels
-    const sep = document.createElement('div');
-    sep.style.cssText = 'grid-column:1/-1;border-top:1px solid rgba(255,255,255,0.07);margin:0.5rem 0;';
-    grid.appendChild(sep);
+    const container = document.getElementById('gast-tegels');
+    if (!container) return;
 
     for (const fg of fotografen) {
-      // Haal alleen fotos op uit echte galerij-mappen (niet profiel, niet lege mappen)
-      const fotosRes = await fetch(`${WORKER_URL_MAIN}/fotograaf/fotos?id=${fg.id}`);
+      const fotosRes  = await fetch(`${WORKER_URL_MAIN}/fotograaf/fotos?id=${fg.id}`);
       const fotosData = await fotosRes.json();
       const alleFotos = fotosData.fotos || [];
 
-      // Bepaal welke mappen foto's hebben (zelfde logica als fotograaf-pagina)
+      // Galerij-foto's: alleen echte mappen, nooit profielfoto
       const mappenMetFotos = new Set();
       for (const m of (fg.mappen || [])) {
         const heeftFotos = alleFotos.some(f => {
@@ -326,11 +320,9 @@ async function laadGastTegels() {
         if (heeftFotos) mappenMetFotos.add(m.map);
       }
 
-      const fotos = alleFotos
+      const galerij = alleFotos
         .filter(f => {
-          // Profielfoto nooit tonen — staat direct in de id-map zonder categorie/map
           if (f.key.includes('/profiel.')) return false;
-          // Galerij-fotos hebben altijd minimaal 4 segmenten: fotografen/{id}/{categorie}/{map}/{bestand}
           const delen = f.key.split('/');
           if (delen.length < 5) return false;
           try {
@@ -338,51 +330,68 @@ async function laadGastTegels() {
             return [...mappenMetFotos].some(m => decoded.includes(`/${m}/`));
           } catch { return false; }
         })
-        .map(f => ({
-          src:  `${WORKER_URL_MAIN}/foto/${f.key}`,
-          path: f.key
-        }));
-      if (!fotos.length) continue;
+        .map(f => ({ src: `${WORKER_URL_MAIN}/foto/${f.key}`, path: f.key }));
+
+      // Achtergrond: galerij-foto's bij voorkeur, anders profielfoto
+      const profielfoto = alleFotos.find(f => f.key.includes('/profiel.'));
+      const bgFotos = galerij.length > 0 ? galerij : (profielfoto ? [{ src: `${WORKER_URL_MAIN}/foto/${profielfoto.key}`, path: profielfoto.key }] : []);
+      if (!bgFotos.length) continue;
 
       const kleur  = fg.kleur || '#3b82f6';
       const prefix = `gast-${fg.id}`;
 
-      // Tegel 1: hoofd-tegel fotograaf → naar zijn pagina
+      // Scheidingslijn boven de rij van deze fotograaf
+      const sep = document.createElement('div');
+      sep.className = 'tegel-scheiding';
+      container.appendChild(sep);
+
+      // Tegel 1: naar pagina van fotograaf
       const t1 = maakGastTegel(`${prefix}-main`, kleur, `
         <div class="tegel-icon">📸</div>
         <h2>${fg.naam}</h2>
         <p>Naar pagina van ${fg.naam}</p>`);
-      t1.addEventListener('click', () => {
-        window.location.href = `fotograaf-pagina.html?id=${fg.id}`;
-      });
+      t1.addEventListener('click', () => { window.location.href = `fotograaf-pagina.html?id=${fg.id}`; });
 
-      // Tegel 2: verrassing (random 10)
+      // Tegel 2: verrassing — alleen als er galerij-foto's zijn
       const t2 = maakGastTegel(`${prefix}-random`, kleur, `
         <div class="tegel-icon">&#127922;</div>
         <h2>Verrassing</h2>
         <p>10 willekeurige foto's van ${fg.naam}</p>`);
-      t2.addEventListener('click', () => startSlideshow(shuffle(fotos).slice(0, 10)));
+      t2.addEventListener('click', () => {
+        if (galerij.length) startSlideshow(shuffle([...galerij]).slice(0, 10));
+        else window.location.href = `fotograaf-pagina.html?id=${fg.id}`;
+      });
 
-      // Tegel 3: alle foto's slideshow
-      const t3 = maakGastTegel(`${prefix}-alle`, kleur, `
-        <div class="tegel-icon">&#128247;</div>
-        <h2>Alles</h2>
-        <p>Alle foto's van ${fg.naam}</p>`);
-      t3.addEventListener('click', () => startSlideshow(fotos));
+      // Tegel 3: favoriet (meest gelikt)
+      const t3 = maakGastTegel(`${prefix}-likes`, kleur, `
+        <div class="tegel-icon">&#10084;</div>
+        <h2>Favoriet</h2>
+        <p>Meest gelikete foto's van ${fg.naam}</p>`);
+      t3.addEventListener('click', async () => {
+        const top = galerij.length ? await getTopLiked(galerij, galerij.length) : [];
+        if (top.length) startSlideshow(top);
+        else window.location.href = `fotograaf-pagina.html?id=${fg.id}`;
+      });
 
-      // Achtergronden instellen — willekeurig uit de gallerij-fotos
-      if (fotos.length > 0) {
-        const geshuffled = shuffle([...fotos]);
-        [t1, t2, t3].forEach((t, i) => {
-          const bg  = t.querySelector('.tegel-bg');
-          const src = geshuffled[i % geshuffled.length]?.src;
-          if (bg && src) bg.style.backgroundImage = `url('${src}')`;
+      // Achtergronden: willekeurig uit beschikbare fotos
+      const geshuffled = shuffle([...bgFotos]);
+      [t1, t2, t3].forEach((t, i) => {
+        const bg  = t.querySelector('.tegel-bg');
+        const src = geshuffled[i % geshuffled.length]?.src;
+        if (bg && src) bg.style.backgroundImage = `url('${src}')`;
+      });
+
+      // Hero-preview bij hover
+      const heroFotos = bgFotos.slice(0, 5);
+      [t1, t2, t3].forEach(t => {
+        t.addEventListener('mouseenter', () => {
+          if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
         });
-      }
+      });
 
-      grid.appendChild(t1);
-      grid.appendChild(t2);
-      grid.appendChild(t3);
+      container.appendChild(t1);
+      container.appendChild(t2);
+      container.appendChild(t3);
     }
   } catch(e) {
     console.warn('Gast-tegels niet geladen:', e);
