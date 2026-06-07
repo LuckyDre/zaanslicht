@@ -776,20 +776,37 @@ function initComments() {
 }
 
 // ── DOWNLOAD ─────────────────────────────────────────────────────────────────
-function downloadAlsJpg(src, naam) {
-  const img = new Image(); img.crossOrigin = 'anonymous';
-  img.onload = function() {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
-    canvas.getContext('2d').drawImage(img,0,0);
-    canvas.toBlob(blob => {
-      const url = URL.createObjectURL(blob);
-      const a   = document.createElement('a');
-      a.href = url; a.download = naam.replace(/\.[^.]+$/,'')+'.jpg'; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    }, 'image/jpeg', 0.92);
-  };
-  img.src = src;
+function downloadFoto(src, naam) {
+  if (!src) return;
+  const isWebp = src.toLowerCase().includes('.webp');
+  if (isWebp) {
+    // WebP → JPG via canvas
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      canvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const a   = document.createElement('a');
+        a.href = url; a.download = (naam||'foto').replace(/\.webp$/i,'')+'.jpg';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/jpeg', 0.92);
+    };
+    img.onerror = () => window.open(src, '_blank');
+    img.src = src;
+  } else {
+    // JPG: Worker stuurt Content-Disposition: attachment bij ?download=1
+    const WORKER_URL = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+    const downloadUrl = src.includes(WORKER_URL)
+      ? src + (src.includes('?') ? '&' : '?') + 'download=1'
+      : src;
+    const a = document.createElement('a');
+    a.href = downloadUrl; a.download = naam || 'foto.jpg';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
 }
 
 // ── HAMBURGER ────────────────────────────────────────────────────────────────
