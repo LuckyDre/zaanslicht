@@ -54,7 +54,7 @@ function initLightbox() {
 }
 
 // ── RENDER SERIE ──────────────────────────────────────────────────────────
-function renderSerie(container, { naam, fotograaf, fotos, kleur, labels }) {
+function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschrijving }) {
   if (!fotos.length) return;
 
   const div = document.createElement('div');
@@ -67,6 +67,14 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels }) {
     <span class="pc-rechts"><span class="pc-count">${fotos.length} foto's</span></span>`;
   if (kleur) { const sub = h3.querySelector('.pc-sub'); if (sub) sub.style.color = kleur; }
   div.appendChild(h3);
+
+  // Verhaal/beschrijving boven de slider
+  if (beschrijving?.trim()) {
+    const p = document.createElement('p');
+    p.className = 'serie-beschrijving';
+    p.textContent = beschrijving.trim();
+    div.appendChild(p);
+  }
 
   // Foto-grid
   const grid = document.createElement('div');
