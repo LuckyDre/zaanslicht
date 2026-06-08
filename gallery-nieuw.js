@@ -293,7 +293,7 @@ async function laadGallery() {
     } else {
       // Geen opgeslagen volgorde: eigen eerst, daarna gast
       for (const item of eigenItems) {
-        renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels });
+        renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving });
       }
       for (const fg of fotografen) {
         const mappen = (fg.mappen || []).filter(m =>
