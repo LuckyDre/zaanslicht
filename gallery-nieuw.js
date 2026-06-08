@@ -270,7 +270,7 @@ async function laadGallery() {
           const item = eigenItems.find(x => x.map === entry.map);
           if (item) renderSerie(container, {
             naam: item.naam, fotograaf: item.fotograaf,
-            fotos: eigenNaarFotos(item), labels: item.labels,
+            fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving,
           });
         } else if (entry.type === 'gast') {
           const fg = fotografen.find(x => x.id === entry.fgId);
@@ -287,7 +287,7 @@ async function laadGallery() {
       // Eigen items die ontbreken in volgorde → achteraan (.trim() voor veiligheid)
       for (const item of eigenItems) {
         if (!gecombineerd.find(e => e.type === 'eigen' && e.map.trim() === item.map.trim())) {
-          renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels });
+          renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving });
         }
       }
     } else {
