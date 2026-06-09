@@ -108,10 +108,8 @@ function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
     // Fotograaf-modus uitzetten
     window._fotograafActief = false;
 
-    // Ruim eventuele inline fotograaf-kleur op
+    // Ruim inline fotograaf-kleur op (CSS mask pikt --oranje automatisch op)
     document.body.style.removeProperty('--oranje');
-    const logoImg = document.querySelector('.logo-img');
-    if (logoImg) logoImg.style.removeProperty('filter');
 
     // Body-klasse wisselen — CSS doet de rest via body.thema-nosports variabelen
     document.body.classList.toggle('thema-nosports', thema === 'nosports');
