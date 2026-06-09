@@ -62,6 +62,7 @@
       font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
       transition: color 0.2s;
       white-space: nowrap; overflow: hidden;
+      margin-left: 1.5rem;
     }
     .nav-fg-link .fg-achternaam {
       display: inline-block;
