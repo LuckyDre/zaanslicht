@@ -541,3 +541,65 @@ if (contactForm) {
     btn.disabled = false;
   });
 }
+
+// ── NIEUWSTE SERIE ────────────────────────────────────────────────────────
+async function laadNieuwsteSerie() {
+  const el = document.getElementById('nieuwste-serie');
+  if (!el) return;
+  try {
+    const res  = await fetch(WORKER_URL_MAIN + '/fotograaf/manifest');
+    const data = await res.json();
+
+    // Verzamel alle mappen van alle fotografen (eigen + gast)
+    let kandidaten = [];
+
+    // Eigen mappen via gallery-volgorde manifest
+    try {
+      const eigenRes  = await fetch(WORKER_URL_MAIN + '/gallery/volgorde');
+      const eigenData = await eigenRes.json();
+      for (const item of (eigenData.volgorde || [])) {
+        if (item.naam && item.ts) {
+          kandidaten.push({
+            naam: item.naam,
+            fotograaf: 'Andreas Luckfiel',
+            categorie: item.categorie || 'voetbal',
+            ts: item.ts,
+          });
+        }
+      }
+    } catch {}
+
+    // Gastfotograaf mappen
+    for (const fg of (data.fotografen || [])) {
+      for (const m of (fg.mappen || [])) {
+        if (m.ts) {
+          kandidaten.push({
+            naam: m.naam || m.map,
+            fotograaf: fg.naam,
+            categorie: m.categorie || 'voetbal',
+            ts: m.ts,
+          });
+        }
+      }
+    }
+
+    if (!kandidaten.length) return;
+
+    // Sorteer op meest recent
+    kandidaten.sort((a, b) => b.ts - a.ts);
+    const nieuwste = kandidaten[0];
+
+    const pagina = nieuwste.categorie === 'nosports' ? 'nosports.html' : 'voetbal.html';
+    const datum  = new Date(nieuwste.ts).toLocaleDateString('nl-NL', { day:'numeric', month:'long' });
+
+    el.innerHTML = `
+      <a class="nieuwste-balk" href="${pagina}">
+        <span class="nieuwste-dot"></span>
+        <span class="nieuwste-label">Nieuw</span>
+        <span class="nieuwste-naam">${nieuwste.naam}</span>
+        <span class="nieuwste-sub">${nieuwste.fotograaf} · ${datum}</span>
+        <span class="nieuwste-pijl">→</span>
+      </a>`;
+    el.style.display = 'block';
+  } catch {}
+}
