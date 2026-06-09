@@ -322,7 +322,14 @@ async function laadGastTegels() {
       }
 
       if (bgUrls.length) {
-        const kleur = '#FF6B00';
+        // Kleur ophalen uit worker (valt terug op oranje)
+        let kleur = '#FF6B00';
+        try {
+          const pr = await fetch(WORKER_URL_MAIN + '/profiel/andreas');
+          const pd = await pr.json();
+          if (pd.kleur) kleur = pd.kleur;
+        } catch {}
+
         const shuffled = shuffle([...bgUrls]);
         const t1 = maakGastTegel('andreas-main', kleur, `
           <div class="tegel-icon">📸</div>
