@@ -297,10 +297,76 @@ async function laadGastTegels() {
   try {
     const data = await _manifestPromise;
     const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
-    if (!fotografen.length) return;
 
     const container = document.querySelector('.tegel-grid');
     if (!container) return;
+
+    // Andreas Luckfiel — eigen tegels uit manifest.json
+    try {
+      const manifest = await fetch('manifest.json?v=' + Date.now()).then(r => r.json());
+      const eigenFotos = [
+        ...(manifest.voetbal || []),
+        ...(manifest.nosports || []),
+      ].flatMap(item => (item.fotos || []).map(f => ({
+        src: `images/${item.map ? ('voetbal/' + encodeURIComponent(item.map) + '/' + encodeURIComponent(f)) : f}`,
+      })));
+
+      // Bouw achtergrond-urls uit manifest
+      const bgUrls = [];
+      for (const cat of ['voetbal', 'nosports']) {
+        for (const item of (manifest[cat] || [])) {
+          for (const f of (item.fotos || [])) {
+            bgUrls.push(`images/${cat}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`);
+          }
+        }
+      }
+
+      if (bgUrls.length) {
+        const kleur = '#FF6B00';
+        const shuffled = shuffle([...bgUrls]);
+        const t1 = maakGastTegel('andreas-main', kleur, `
+          <div class="tegel-icon">📸</div>
+          <h2>Andreas Luckfiel</h2>
+          <p>Oprichter · Bekijk portfolio</p>`);
+        t1.addEventListener('click', () => { window.location.href = 'fotograaf-pagina.html?id=andreas'; });
+
+        const t2 = maakGastTegel('andreas-random', kleur, `
+          <div class="tegel-icon">&#127922;</div>
+          <h2>Verrassing</h2>
+          <p>10 willekeurige foto's van Andreas</p>`);
+        t2.addEventListener('click', () => {
+          const fotos = shuffled.slice(0, 10).map(src => ({ src }));
+          startSlideshow(fotos);
+        });
+
+        const t3 = maakGastTegel('andreas-likes', kleur, `
+          <div class="tegel-icon">&#10084;</div>
+          <h2>Favoriet</h2>
+          <p>Meest gelikete foto's van Andreas</p>`);
+        t3.addEventListener('click', async () => {
+          const fotos = bgUrls.map(src => ({ src }));
+          const top = fotos.length ? await getTopLiked(fotos, fotos.length) : [];
+          if (top.length) startSlideshow(top);
+          else window.location.href = 'fotograaf-pagina.html?id=andreas';
+        });
+
+        [t1, t2, t3].forEach((t, i) => {
+          const bg = t.querySelector('.tegel-bg');
+          if (bg && shuffled[i]) bg.style.backgroundImage = `url('${shuffled[i]}')`;
+        });
+
+        const rij = document.createElement('div');
+        rij.style.cssText = 'display:contents';
+        rij.appendChild(t1); rij.appendChild(t2); rij.appendChild(t3);
+        const heroFotos = shuffled.slice(0, 5).map(src => ({ src }));
+        [t1, t2, t3].forEach(t => {
+          t.addEventListener('mouseenter', () => {
+            if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, 'Andreas Luckfiel');
+          });
+        });
+        container.appendChild(rij);
+      }
+    } catch(e) { console.warn('Andreas tegels:', e); }
 
     for (const fg of fotografen) {
       const fotosRes  = await fetch(`${WORKER_URL_MAIN}/fotograaf/fotos?id=${fg.id}`);
