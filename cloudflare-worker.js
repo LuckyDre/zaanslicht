@@ -964,6 +964,23 @@ const STANDAARD_LABELS = [
   'WSV 1930','ZVV Zaandijk','ZCFC'
 ];
 
+async function handleGetAndreasProfile(request, env) {
+  const raw  = await env.SUBSCRIBERS.get('profiel:andreas');
+  const data = raw ? JSON.parse(raw) : {};
+  return json({ kleur: data.kleur || '#FF6B00' });
+}
+
+async function handleSetAndreasProfile(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { kleur } = await request.json().catch(() => ({}));
+  if (!kleur || !/^#[0-9a-fA-F]{6}$/.test(kleur)) return json({ error: 'Ongeldige kleur' }, 400);
+  const raw  = await env.SUBSCRIBERS.get('profiel:andreas');
+  const data = raw ? JSON.parse(raw) : {};
+  data.kleur = kleur;
+  await env.SUBSCRIBERS.put('profiel:andreas', JSON.stringify(data));
+  return json({ ok: true });
+}
+
 async function handleGetLabels(request, env) {
   const raw = await env.SUBSCRIBERS.get('labels:lijst');
   const opgeslagen = raw ? JSON.parse(raw) : [];
