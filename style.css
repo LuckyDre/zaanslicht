@@ -275,11 +275,11 @@ section:not(#hero) {
   aspect-ratio: 4/3;
   display: block;
   outline: none;
-  border: 2px solid var(--oranje);
+  border: 2px solid transparent;
   transition: border-color 0.3s;
 }
 .tegel:hover {
-  border-color: #ff9040;
+  border-color: var(--oranje);
 }
 
 .tegel-bg {
@@ -309,21 +309,6 @@ section:not(#hero) {
   background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.15) 100%);
 }
 
-/* Oranje rand bij hover */
-.tegel::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 3px solid transparent;
-  border-radius: 8px;
-  transition: border-color 0.3s;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.tegel:hover::after {
-  border-color: var(--oranje);
-}
 
 .tegel-content {
   position: absolute;
