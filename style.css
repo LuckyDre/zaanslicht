@@ -1133,3 +1133,63 @@ footer {
 @media (max-width: 500px) {
   .updates-form { flex-direction: column; }
 }
+
+/* NIEUWSTE SERIE BALK */
+#nieuwste-serie {
+  max-width: 720px;
+  margin: 3rem auto 0;
+  padding: 0 2rem;
+}
+.nieuwste-balk {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.4rem;
+  background: rgba(255,107,0,0.06);
+  border: 1px solid rgba(255,107,0,0.2);
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s, border-color 0.2s;
+}
+.nieuwste-balk:hover {
+  background: rgba(255,107,0,0.12);
+  border-color: rgba(255,107,0,0.45);
+}
+.nieuwste-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--oranje);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px var(--oranje);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+.nieuwste-label {
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--oranje);
+  flex-shrink: 0;
+}
+.nieuwste-naam {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #f0f0f0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nieuwste-sub {
+  font-size: 0.78rem;
+  color: #666;
+  flex-shrink: 0;
+}
+.nieuwste-pijl {
+  color: var(--oranje);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
