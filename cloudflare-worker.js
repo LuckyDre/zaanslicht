@@ -1187,6 +1187,8 @@ export default {
     if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
     if (url.pathname === '/comment'  && request.method === 'POST') return handleComment(request, env);
     if (url.pathname === '/comments'     && request.method === 'GET')  return handleComments(request, env);
+    if (url.pathname === '/profiel/andreas' && request.method === 'GET')  return handleGetAndreasProfile(request, env);
+    if (url.pathname === '/profiel/andreas' && request.method === 'POST') return handleSetAndreasProfile(request, env);
     if (url.pathname === '/labels'       && request.method === 'GET')    return handleGetLabels(request, env);
     if (url.pathname === '/labels'       && request.method === 'POST')   return handleAddLabel(request, env);
     if (url.pathname === '/labels'       && request.method === 'DELETE') {
