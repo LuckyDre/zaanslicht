@@ -28,11 +28,31 @@
 
     if (!actief.length) return;
 
-    // Desktop nav: voeg links in vóór Contact
+    // Desktop nav: voeg links in vóór Clubs
     const nav = document.querySelector('header nav');
     if (nav) {
       const contactLink = Array.from(nav.querySelectorAll('a'))
         .find(a => a.textContent.trim() === 'Clubs');
+
+      // Andreas altijd als eerste
+      const aAndreas = document.createElement('a');
+      aAndreas.href = 'fotograaf-pagina.html?id=andreas';
+      aAndreas.textContent = 'Andreas';
+      aAndreas.style.color = '#aaaaaa';
+      aAndreas.addEventListener('mouseover', () => { aAndreas.style.color = '#FF6B00'; });
+      aAndreas.addEventListener('mouseout',  () => {
+        aAndreas.style.color = aAndreas.classList.contains('active') ? '#FF6B00' : '#aaaaaa';
+      });
+      if (location.pathname.endsWith('fotograaf-pagina.html')) {
+        const params = new URLSearchParams(location.search);
+        if (params.get('id') === 'andreas') {
+          aAndreas.style.color = '#FF6B00';
+          aAndreas.classList.add('active');
+        }
+      }
+      if (contactLink) nav.insertBefore(aAndreas, contactLink);
+      else nav.appendChild(aAndreas);
+
       for (const fg of actief) {
         const a = document.createElement('a');
         a.href = `fotograaf-pagina.html?id=${fg.id}`;
