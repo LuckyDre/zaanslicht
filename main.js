@@ -548,29 +548,10 @@ async function laadNieuwsteSerie() {
   const el = document.getElementById('nieuwste-serie');
   if (!el) return;
   try {
-    const res  = await fetch(WORKER_URL_MAIN + '/fotograaf/manifest');
-    const data = await res.json();
+    const data = await _manifestPromise;
 
-    // Verzamel alle mappen van alle fotografen (eigen + gast)
+    // Verzamel mappen van alle fotografen (eigen via manifest + gast)
     let kandidaten = [];
-
-    // Eigen mappen via gallery-volgorde manifest
-    try {
-      const eigenRes  = await fetch(WORKER_URL_MAIN + '/gallery/volgorde');
-      const eigenData = await eigenRes.json();
-      for (const item of (eigenData.volgorde || [])) {
-        if (item.naam && item.ts) {
-          kandidaten.push({
-            naam: item.naam,
-            fotograaf: 'Andreas Luckfiel',
-            categorie: item.categorie || 'voetbal',
-            ts: item.ts,
-          });
-        }
-      }
-    } catch {}
-
-    // Gastfotograaf mappen
     for (const fg of (data.fotografen || [])) {
       for (const m of (fg.mappen || [])) {
         if (m.ts) {
@@ -581,6 +562,17 @@ async function laadNieuwsteSerie() {
             ts: m.ts,
           });
         }
+      }
+    }
+    // Eigen mappen van Andreas (als die in manifest.eigen staan)
+    for (const item of (data.eigen || [])) {
+      if (item.ts) {
+        kandidaten.push({
+          naam: item.naam || item.map,
+          fotograaf: 'Andreas Luckfiel',
+          categorie: item.categorie || 'voetbal',
+          ts: item.ts,
+        });
       }
     }
 
