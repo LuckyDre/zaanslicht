@@ -253,7 +253,7 @@ section:not(#hero) {
 
 /* ===== DRIE TEGELS ===== */
 #tegels {
-  padding: 5rem 3rem;
+  padding: 1.5rem 3rem 5rem;
   max-width: 1400px;
   margin: 0 auto;
 }
