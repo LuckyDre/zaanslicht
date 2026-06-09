@@ -84,6 +84,15 @@
       const target = mobileLinks || mobileNav;
       const mobileContact = Array.from(target.querySelectorAll('a'))
         .find(a => a.textContent.trim() === 'Contact');
+
+      // Andreas altijd als eerste in mobiel menu
+      const mAndreas = document.createElement('a');
+      mAndreas.href = 'fotograaf-pagina.html?id=andreas';
+      mAndreas.textContent = 'Andreas';
+      mAndreas.style.color = '#FF6B00';
+      if (mobileContact) target.insertBefore(mAndreas, mobileContact);
+      else target.appendChild(mAndreas);
+
       for (const fg of actief) {
         const a = document.createElement('a');
         a.href = `fotograaf-pagina.html?id=${fg.id}`;
