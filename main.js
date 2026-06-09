@@ -289,6 +289,7 @@ const WORKER_URL_MAIN = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 loadTegels();
 loadRecentComments();
 laadGastTegels();
+laadNieuwsteSerie();
 
 async function laadGastTegels() {
   try {
