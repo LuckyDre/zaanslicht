@@ -938,10 +938,7 @@ async function laadAndreasPagina(container) {
             _openLightboxFotograaf(fotoUrls, parseInt(btn.dataset.idx));
           });
         });
-        // Like-knoppen
-        swiperEl.querySelectorAll('.btn-like').forEach(btn => {
-          btn.addEventListener('click', e => { e.stopPropagation(); toggleLike(btn); });
-        });
+        // Like-knoppen via event delegation in initLikes()
       }
     }
 
