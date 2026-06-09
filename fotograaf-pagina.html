@@ -848,7 +848,13 @@ laadPagina();
 
 // ── ANDREAS — laadt uit manifest.json (statische eigen foto's) ────────────
 async function laadAndreasPagina(container) {
-  const kleur = '#FF6B00';
+  // Kleur ophalen uit worker
+  let kleur = '#FF6B00';
+  try {
+    const pr = await fetch(WORKER + '/profiel/andreas');
+    const pd = await pr.json();
+    if (pd.kleur) kleur = pd.kleur;
+  } catch {}
   document.documentElement.style.setProperty('--orange',  kleur);
   document.documentElement.style.setProperty('--orange2', kleur + 'cc');
   document.title = 'Andreas Luckfiel — Zaans Licht';
