@@ -288,6 +288,8 @@ const WORKER_URL_MAIN = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
 loadTegels();
 loadRecentComments();
+// Manifest één keer ophalen, delen tussen tegels en nieuwste-serie
+const _manifestPromise = fetch(WORKER_URL_MAIN + '/fotograaf/manifest').then(r => r.json()).catch(() => ({}));
 laadGastTegels();
 laadNieuwsteSerie();
 
