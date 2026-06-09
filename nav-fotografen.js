@@ -13,11 +13,14 @@
     }
     .nav-meer-trigger {
       color: #aaaaaa;
-      font-size: 0.9rem; letter-spacing: 3px;
+      font-size: 0.9rem;
       cursor: default;
       padding: 0 0.2rem;
       transition: color 0.2s;
       user-select: none;
+      display: inline-block;
+      transform: scaleX(2);
+      transform-origin: center;
     }
     .nav-meer:hover .nav-meer-trigger { color: var(--oranje, #FF6B00); }
     .nav-meer-dropdown {
