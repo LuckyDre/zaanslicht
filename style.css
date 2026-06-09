@@ -322,8 +322,7 @@ section:not(#hero) {
   pointer-events: none;
 }
 
-.tegel:hover::after,
-.tegel:focus::after {
+.tegel:hover::after {
   border-color: var(--oranje);
 }
 
