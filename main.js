@@ -476,7 +476,6 @@ function maakGastTegel(id, kleur, inhoud) {
   div.role = 'button';
   div.tabIndex = 0;
   div.style.setProperty('--gast-kleur', kleur);
-  div.style.setProperty('--oranje', kleur);
   div.innerHTML = `
     <div class="tegel-bg" style="background-size:cover;background-position:center"></div>
     <div class="tegel-content">${inhoud}</div>`;
