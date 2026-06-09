@@ -132,7 +132,7 @@
       if (teGroeperen.length) {
         dropdown_wrapper = document.createElement('div');
         dropdown_wrapper.className = 'nav-meer';
-        dropdown_wrapper.innerHTML = `<span class="nav-meer-trigger">···</span><div class="nav-meer-dropdown"><div class="nav-meer-dropdown-inner"></div></div>`;
+        dropdown_wrapper.innerHTML = `<span class="nav-meer-trigger">&#9776;</span><div class="nav-meer-dropdown"><div class="nav-meer-dropdown-inner"></div></div>`;
         const dropdown = dropdown_wrapper.querySelector('.nav-meer-dropdown-inner');
         teGroeperen[0].parentNode.insertBefore(dropdown_wrapper, teGroeperen[0]);
         teGroeperen.forEach(a => dropdown.appendChild(a));
