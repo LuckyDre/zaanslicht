@@ -291,8 +291,7 @@ section:not(#hero) {
   transition: transform 0.5s ease;
 }
 
-.tegel:hover .tegel-bg,
-.tegel:focus .tegel-bg {
+.tegel:hover .tegel-bg {
   transform: scale(1.06);
 }
 
