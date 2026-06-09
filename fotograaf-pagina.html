@@ -455,7 +455,8 @@ async function laadPagina() {
 
   // Andreas Luckfiel — eigen pagina via manifest.json
   if (FOTOGRAAF_ID === 'andreas') {
-    await laadAndreasPageina(container);
+    initLightbox();
+    await laadAndreasPagina(container);
     return;
   }
 
