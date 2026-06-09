@@ -988,10 +988,9 @@ async function fgTogglePositie(id) {
 
 // ── ANDREAS PROFIELKLEUR ─────────────────────────────────────────────────
 async function laadAndreasKleur() {
-  const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
   try {
-    const res  = await fetch(`${url}/profiel/andreas`, { headers: { 'x-secret': secret } });
+    const res  = await fetch(`${WORKER_URL}/profiel/andreas`, { headers: { 'x-secret': secret } });
     const data = await res.json();
     const kleur = data.kleur || '#FF6B00';
     document.getElementById('andreas-kleur-picker').value = kleur;
