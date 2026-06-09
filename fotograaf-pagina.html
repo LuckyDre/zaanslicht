@@ -935,10 +935,13 @@ async function laadAndreasPagina(container) {
         swiperEl.querySelectorAll('.foto-open-btn').forEach(btn => {
           btn.addEventListener('click', e => {
             e.stopPropagation();
-            openLightbox(fotoUrls, parseInt(btn.dataset.idx));
+            _openLightboxFotograaf(fotoUrls, parseInt(btn.dataset.idx));
           });
         });
-        initLikeButtons(swiperEl);
+        // Like-knoppen
+        swiperEl.querySelectorAll('.btn-like').forEach(btn => {
+          btn.addEventListener('click', e => { e.stopPropagation(); toggleLike(btn); });
+        });
       }
     }
 
