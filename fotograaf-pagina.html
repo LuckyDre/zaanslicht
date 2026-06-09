@@ -844,6 +844,114 @@ document.getElementById('nav-close').addEventListener('click', sluitMenu);
 function sluitMenu() { document.getElementById('nav-mobile').classList.remove('open'); }
 
 laadPagina();
+
+// ── ANDREAS — laadt uit manifest.json (statische eigen foto's) ────────────
+async function laadAndreasPagina(container) {
+  const kleur = '#FF6B00';
+  document.documentElement.style.setProperty('--orange',  kleur);
+  document.documentElement.style.setProperty('--orange2', kleur + 'cc');
+  document.title = 'Andreas Luckfiel — Zaans Licht';
+  document.getElementById('hero-naam').textContent  = 'Andreas Luckfiel';
+  document.getElementById('hero-label').textContent = 'Oprichter · Zaans Licht';
+
+  try {
+    const manifest = await fetch('manifest.json?v=' + Date.now()).then(r => r.json());
+
+    // Verzamel alle series uit voetbal + nosports
+    const categorieën = [
+      { key: 'voetbal',  label: '⚽ Voetbal' },
+      { key: 'nosports', label: '🌿 No Sports' },
+    ];
+
+    let totaalFotos = 0, totaalSeries = 0;
+    container.innerHTML = '';
+
+    // Likes ophalen
+    let likeCounts = {};
+    try {
+      if (typeof db !== 'undefined') {
+        const snap = await db.ref('likes').once('value');
+        likeCounts = snap.val() || {};
+      }
+    } catch {}
+
+    for (const cat of categorieën) {
+      const items = manifest[cat.key] || [];
+      for (const item of items) {
+        if (!item.fotos?.length) continue;
+
+        totaalFotos += item.fotos.length;
+        totaalSeries++;
+
+        const div = document.createElement('div');
+        div.className = 'portfolio-category';
+
+        const slides = item.fotos.map((f, idx) => {
+          const src  = `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`;
+          const key  = `${cat.key}/${item.map}/${f}`.replace(/\//g,'__').replace(/\./g,'--');
+          const liked = isLikedLocally(key);
+          const count = likeCounts[key] || 0;
+          return `<div class="swiper-slide">
+            <img src="${src}" alt="${f}" loading="lazy" />
+            <button class="foto-open-btn" data-idx="${idx}" aria-label="Foto openen"></button>
+            <div class="slide-actions">
+              <button class="btn-like ${liked?'liked':''}" data-key="${key}" data-path="${cat.key}/${item.map}/${f}">
+                <span class="heart">♥</span>
+                <span class="like-count">${count > 0 ? count : ''}</span>
+              </button>
+            </div>
+          </div>`;
+        }).join('');
+
+        div.innerHTML = `
+          <h3>${item.naam || item.map} <span class="categorie-badge">${cat.label}</span>
+            <span class="foto-count">${item.fotos.length} foto's</span>
+          </h3>
+          <div class="swiper portfolio-swiper">
+            <div class="swiper-wrapper">${slides}</div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-pagination"></div>
+          </div>`;
+
+        container.appendChild(div);
+
+        const swiperEl = div.querySelector('.portfolio-swiper');
+        new Swiper(swiperEl, {
+          loop: false, slidesPerView: 'auto', spaceBetween: 16, grabCursor: true,
+          navigation: {
+            nextEl: swiperEl.querySelector('.swiper-button-next'),
+            prevEl: swiperEl.querySelector('.swiper-button-prev'),
+          },
+          pagination: { el: swiperEl.querySelector('.swiper-pagination'), type: 'fraction' },
+        });
+
+        // Lightbox koppelen
+        const fotoUrls = item.fotos.map((f, i) => ({
+          src: `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+          naam: f,
+          key: `${cat.key}/${item.map}/${f}`.replace(/\//g,'__').replace(/\./g,'--'),
+        }));
+        swiperEl.querySelectorAll('.foto-open-btn').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            openLightbox(fotoUrls, parseInt(btn.dataset.idx));
+          });
+        });
+        initLikeButtons(swiperEl);
+      }
+    }
+
+    document.getElementById('meta-fotos').textContent  = totaalFotos;
+    document.getElementById('meta-mappen').textContent = totaalSeries;
+
+    if (!totaalSeries) {
+      container.innerHTML = '<p style="text-align:center;padding:4rem;color:#666">Nog geen foto\'s.</p>';
+    }
+  } catch(e) {
+    container.innerHTML = `<p style="text-align:center;padding:4rem;color:#666">Fout bij laden: ${e.message}</p>`;
+  }
+}
 </script>
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
 </body>
