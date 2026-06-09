@@ -1007,13 +1007,12 @@ async function laadAndreasKleur() {
 }
 
 async function slaAndreasKleurOp() {
-  const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
   const kleur  = document.getElementById('andreas-kleur-hex').value.trim();
   const fb     = document.getElementById('andreas-kleur-feedback');
   if (!/^#[0-9a-fA-F]{6}$/.test(kleur)) { fb.style.color='#ef4444'; fb.textContent='Ongeldige kleur (gebruik bijv. #FF6B00)'; return; }
   try {
-    const res = await fetch(`${url}/profiel/andreas`, {
+    const res = await fetch(`${WORKER_URL}/profiel/andreas`, {
       method: 'POST',
       headers: { 'x-secret': secret, 'Content-Type': 'application/json' },
       body: JSON.stringify({ kleur }),
