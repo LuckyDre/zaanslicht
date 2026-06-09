@@ -134,20 +134,20 @@
       // Fotografen-links invoegen vóór de "..." wrapper
       const invoegpunt = dropdown_wrapper;
 
-      // Andreas altijd als eerste
+      // Andreas altijd als eerste (vóór de "..." wrapper)
       const aAndreas = maakNavLink('Andreas', 'Luckfiel', 'fotograaf-pagina.html?id=andreas', '#FF6B00', isActiefPagina('andreas'));
-      if (vórClubs) nav.insertBefore(aAndreas, vórClubs);
+      if (invoegpunt) nav.insertBefore(aAndreas, invoegpunt);
       else nav.appendChild(aAndreas);
 
-      // Gastfotografen
+      // Gastfotografen (ook vóór de "..." wrapper)
       for (const fg of actief) {
         const [voornaam, ...rest] = fg.naam.split(' ');
         const achternaam = rest.join(' ');
         const kleur = fg.kleur || '#FF6B00';
         const a = maakNavLink(voornaam, achternaam, `fotograaf-pagina.html?id=${fg.id}`, kleur, isActiefPagina(fg.id));
-        a.dataset.fgId   = fg.id;
+        a.dataset.fgId    = fg.id;
         a.dataset.fgKleur = kleur;
-        if (vórClubs) nav.insertBefore(a, vórClubs);
+        if (invoegpunt) nav.insertBefore(a, invoegpunt);
         else nav.appendChild(a);
       }
     }
