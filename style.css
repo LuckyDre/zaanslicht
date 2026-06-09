@@ -70,15 +70,17 @@ header {
 }
 .logo span, .accent-kleur { color: var(--oranje); }
 .logo-img {
+  display: inline-block;
   width: 80px;
   height: 80px;
-  object-fit: contain;
-  transition: filter 0.4s ease;
+  background-color: var(--oranje, #FF6B00);
+  -webkit-mask: url('images/logo-oranje.png') center / contain no-repeat;
+  mask: url('images/logo-oranje.png') center / contain no-repeat;
+  transition: background-color 0.4s ease;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
-/* Logo-icoontje mee naar geel bij nosports thema */
-.thema-nosports .logo-img {
-  filter: hue-rotate(30deg) saturate(1.2) brightness(1.15);
-}
+/* Nosports: --oranje wordt al geel via CSS variabele, mask pikt dat automatisch op */
 /* Vloeiende thema-overgang — alles wat var(--oranje) gebruikt gaat mee */
 .logo span, .logo-img,
 nav a, nav a.nav-active,
