@@ -1,19 +1,61 @@
 // nav-fotografen.js — voegt dynamisch fotograaf-links toe aan de nav en vervangt & Co.
 (async function () {
   const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+  // ── CSS voor schuif-animatie ──────────────────────────────────────────────
+  const style = document.createElement('style');
+  style.textContent = `
+    .nav-fg-link {
+      display: inline-flex; align-items: center;
+      color: #aaaaaa; text-decoration: none;
+      font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
+      transition: color 0.2s;
+      white-space: nowrap; overflow: hidden;
+    }
+    .nav-fg-link .fg-achternaam {
+      display: inline-block;
+      max-width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-width 0.35s ease, opacity 0.25s ease;
+    }
+    .nav-fg-link:hover .fg-achternaam,
+    .nav-fg-link.active .fg-achternaam {
+      max-width: 120px;
+      opacity: 1;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function maakNavLink(voornaam, achternaam, href, kleur, isActief) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.className = 'nav-fg-link';
+    a.innerHTML = `${voornaam}<span class="fg-achternaam">&nbsp;${achternaam}</span>`;
+    a.style.color = isActief ? kleur : '#aaaaaa';
+    if (isActief) a.classList.add('active');
+    a.addEventListener('mouseover', () => { a.style.color = kleur; });
+    a.addEventListener('mouseout',  () => {
+      a.style.color = a.classList.contains('active') ? kleur : '#aaaaaa';
+    });
+    return a;
+  }
+
+  function isActiefPagina(id) {
+    if (!location.pathname.endsWith('fotograaf-pagina.html')) return false;
+    return new URLSearchParams(location.search).get('id') === id;
+  }
+
   try {
     const res = await fetch(WORKER + '/fotograaf/manifest');
     const { fotografen } = await res.json();
 
-    // Alleen fotografen met minstens één map tonen
     const actief = (fotografen || []).filter(fg => fg.mappen?.length > 0);
 
-    // ── Namen string bouwen en "& Co." overal vervangen ──────────────────────
+    // ── Namen string bouwen en "& Co." overal vervangen ──────────────────
     const namenStr = actief.length
       ? 'Andreas Luckfiel & ' + actief.map(fg => fg.naam).join(' & ')
       : 'Andreas Luckfiel';
-
-    // Vervang alle tekstknopen die "Andreas Luckfiel" bevatten
     function vervangTekst(rootEl) {
       const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
       const nodes = [];
@@ -26,69 +68,40 @@
     }
     vervangTekst(document.body);
 
-    if (!actief.length) return;
-
-    // Desktop nav: voeg links in vóór Clubs
+    // ── Desktop nav ───────────────────────────────────────────────────────
     const nav = document.querySelector('header nav');
     if (nav) {
-      const contactLink = Array.from(nav.querySelectorAll('a'))
+      const vórClubs = Array.from(nav.querySelectorAll('a'))
         .find(a => a.textContent.trim() === 'Clubs');
 
       // Andreas altijd als eerste
-      const aAndreas = document.createElement('a');
-      aAndreas.href = 'fotograaf-pagina.html?id=andreas';
-      aAndreas.textContent = 'Andreas';
-      aAndreas.style.color = '#aaaaaa';
-      aAndreas.addEventListener('mouseover', () => { aAndreas.style.color = '#FF6B00'; });
-      aAndreas.addEventListener('mouseout',  () => {
-        aAndreas.style.color = aAndreas.classList.contains('active') ? '#FF6B00' : '#aaaaaa';
-      });
-      if (location.pathname.endsWith('fotograaf-pagina.html')) {
-        const params = new URLSearchParams(location.search);
-        if (params.get('id') === 'andreas') {
-          aAndreas.style.color = '#FF6B00';
-          aAndreas.classList.add('active');
-        }
-      }
-      if (contactLink) nav.insertBefore(aAndreas, contactLink);
+      const aAndreas = maakNavLink('Andreas', 'Luckfiel', 'fotograaf-pagina.html?id=andreas', '#FF6B00', isActiefPagina('andreas'));
+      if (vórClubs) nav.insertBefore(aAndreas, vórClubs);
       else nav.appendChild(aAndreas);
 
+      // Gastfotografen
       for (const fg of actief) {
-        const a = document.createElement('a');
-        a.href = `fotograaf-pagina.html?id=${fg.id}`;
-        a.textContent = fg.naam;
-        a.style.color = '#aaaaaa';
-        a.dataset.fgId = fg.id;
-        a.dataset.fgKleur = fg.kleur || '#FF6B00';
-        a.addEventListener('mouseover', () => { a.style.color = fg.kleur || '#FF6B00'; });
-        a.addEventListener('mouseout',  () => {
-          a.style.color = a.classList.contains('active') ? (fg.kleur || '#FF6B00') : '#aaaaaa';
-        });
-        // Markeer als actief als we op hun pagina zijn
-        if (location.pathname.endsWith('fotograaf-pagina.html')) {
-          const params = new URLSearchParams(location.search);
-          if (params.get('id') === fg.id) {
-            a.style.color = fg.kleur || '#FF6B00';
-            a.classList.add('active');
-          }
-        }
-        if (contactLink) nav.insertBefore(a, contactLink);
+        const [voornaam, ...rest] = fg.naam.split(' ');
+        const achternaam = rest.join(' ');
+        const kleur = fg.kleur || '#FF6B00';
+        const a = maakNavLink(voornaam, achternaam, `fotograaf-pagina.html?id=${fg.id}`, kleur, isActiefPagina(fg.id));
+        a.dataset.fgId   = fg.id;
+        a.dataset.fgKleur = kleur;
+        if (vórClubs) nav.insertBefore(a, vórClubs);
         else nav.appendChild(a);
       }
     }
 
-    // Mobiel nav: zelfde links toevoegen
+    // ── Mobiel nav ────────────────────────────────────────────────────────
     const mobileNav = document.getElementById('nav-mobile');
     if (mobileNav) {
-      const mobileLinks = mobileNav.querySelector('.mobile-links');
-      const target = mobileLinks || mobileNav;
+      const target = mobileNav.querySelector('.mobile-links') || mobileNav;
       const mobileContact = Array.from(target.querySelectorAll('a'))
         .find(a => a.textContent.trim() === 'Contact');
 
-      // Andreas altijd als eerste in mobiel menu
       const mAndreas = document.createElement('a');
       mAndreas.href = 'fotograaf-pagina.html?id=andreas';
-      mAndreas.textContent = 'Andreas';
+      mAndreas.textContent = 'Andreas Luckfiel';
       mAndreas.style.color = '#FF6B00';
       if (mobileContact) target.insertBefore(mAndreas, mobileContact);
       else target.appendChild(mAndreas);
