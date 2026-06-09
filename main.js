@@ -295,8 +295,7 @@ laadNieuwsteSerie();
 
 async function laadGastTegels() {
   try {
-    const res  = await fetch(WORKER_URL_MAIN + '/fotograaf/manifest');
-    const data = await res.json();
+    const data = await _manifestPromise;
     const fotografen = (data.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
     if (!fotografen.length) return;
 
