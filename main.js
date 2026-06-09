@@ -377,7 +377,7 @@ async function laadGastTegels() {
         if (bg && src) bg.style.backgroundImage = `url('${src}')`;
       });
 
-      // Wrapper om de 3 tegels — hover blijft actief zolang je binnen de rij bent
+      // Wrapper om de 3 tegels (display:contents = grid-transparant)
       const rij = document.createElement('div');
       rij.style.cssText = 'display:contents';
       rij.appendChild(t1);
@@ -385,12 +385,21 @@ async function laadGastTegels() {
       rij.appendChild(t3);
 
       const heroFotos = bgFotos.slice(0, 5);
-      rij.addEventListener('mouseenter', () => {
-        if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
-      });
-      rij.addEventListener('mouseleave', () => {
-        window._fotograafActief = false;
-        if (window.resetFotograafKleur) window.resetFotograafKleur();
+      const rijTegels = [t1, t2, t3];
+
+      // Mouseenter op elke tegel → kleur activeren
+      rijTegels.forEach(t => {
+        t.addEventListener('mouseenter', () => {
+          if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
+        });
+        // Mouseleave alleen resetten als de muis naar buiten de rij gaat
+        t.addEventListener('mouseleave', (e) => {
+          const naar = e.relatedTarget;
+          if (!naar || !rijTegels.some(rt => rt === naar || rt.contains(naar))) {
+            window._fotograafActief = false;
+            if (window.resetFotograafKleur) window.resetFotograafKleur();
+          }
+        });
       });
 
       container.appendChild(rij);
