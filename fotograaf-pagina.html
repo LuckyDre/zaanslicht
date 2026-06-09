@@ -51,7 +51,13 @@
     font-size: 3.2rem; font-weight: 800;
     letter-spacing: 2px; text-transform: uppercase; color: var(--text); flex-shrink: 0;
   }
-  .logo img { width: 80px; height: 80px; object-fit: contain; }
+  .logo-img {
+    display: inline-block; width: 80px; height: 80px; flex-shrink: 0;
+    background-color: var(--orange, #FF6B00);
+    -webkit-mask: url('images/logo-oranje.png') center / contain no-repeat;
+    mask: url('images/logo-oranje.png') center / contain no-repeat;
+    transition: background-color 0.4s ease;
+  }
   .logo span { color: var(--orange); }
   nav { display: flex; }
   nav a {
