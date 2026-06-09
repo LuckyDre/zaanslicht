@@ -266,6 +266,24 @@
     </div>
 
     <!-- ═══ LABELS TAB ═══ -->
+    <div id="tab-mijn-profiel" class="tab-panel">
+      <div style="padding:1.5rem 2rem;max-width:500px">
+        <h3 style="color:var(--oranje);margin-bottom:1rem">Mijn profielkleur</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:1.5rem">Deze kleur wordt gebruikt op jouw tegels op de index, jouw fotograafpagina en het logo bij hover.</p>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+          <input type="color" id="andreas-kleur-picker" value="#FF6B00"
+            style="width:56px;height:40px;border:none;background:none;cursor:pointer;padding:0" />
+          <input type="text" id="andreas-kleur-hex" value="#FF6B00"
+            style="background:#1a1a1a;border:1px solid #333;color:#f0f0f0;padding:0.5rem 0.8rem;border-radius:6px;font-family:monospace;width:100px" />
+          <button onclick="slaAndreasKleurOp()"
+            style="background:var(--oranje);color:#fff;border:none;padding:0.55rem 1.2rem;border-radius:6px;cursor:pointer;font-size:0.9rem">
+            Opslaan
+          </button>
+        </div>
+        <div id="andreas-kleur-feedback" style="font-size:0.85rem;min-height:1.2rem"></div>
+      </div>
+    </div>
+
     <div id="tab-labels" class="tab-panel">
       <div style="padding:1.5rem 2rem;max-width:700px">
         <p style="color:#888;font-size:0.85rem;margin-bottom:1.2rem">Labels die fotografen kunnen kiezen bij het uploaden. Klik op 🗑 om een zelf aangemaakt label te verwijderen. Standaard clubnamen kunnen niet worden verwijderd.</p>
