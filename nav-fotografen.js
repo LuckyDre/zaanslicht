@@ -114,11 +114,25 @@
     }
     vervangTekst(document.body);
 
-    // ── Desktop nav ───────────────────────────────────────────────────────
+    // ── Clubs / Over ons / Contact groeperen in "..." dropdown ───────────
     const nav = document.querySelector('header nav');
     if (nav) {
-      const vórClubs = Array.from(nav.querySelectorAll('a'))
-        .find(a => a.textContent.trim() === 'Clubs');
+      const groepeernamen = ['Clubs', 'Over ons', 'Contact'];
+      const teGroeperen = Array.from(nav.querySelectorAll('a')).filter(a =>
+        groepeernamen.includes(a.textContent.trim())
+      );
+      let dropdown_wrapper = null;
+      if (teGroeperen.length) {
+        dropdown_wrapper = document.createElement('div');
+        dropdown_wrapper.className = 'nav-meer';
+        dropdown_wrapper.innerHTML = `<span class="nav-meer-trigger">···</span><div class="nav-meer-dropdown"></div>`;
+        const dropdown = dropdown_wrapper.querySelector('.nav-meer-dropdown');
+        teGroeperen[0].parentNode.insertBefore(dropdown_wrapper, teGroeperen[0]);
+        teGroeperen.forEach(a => dropdown.appendChild(a));
+      }
+
+      // Fotografen-links invoegen vóór de "..." wrapper
+      const invoegpunt = dropdown_wrapper;
 
       // Andreas altijd als eerste
       const aAndreas = maakNavLink('Andreas', 'Luckfiel', 'fotograaf-pagina.html?id=andreas', '#FF6B00', isActiefPagina('andreas'));
