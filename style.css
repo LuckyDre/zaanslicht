@@ -1136,9 +1136,9 @@ footer {
 
 /* NIEUWSTE SERIE BALK */
 #nieuwste-serie {
-  max-width: 720px;
-  margin: 2rem auto 1.5rem;
-  padding: 0 2rem;
+  max-width: 1400px;
+  margin: 2rem auto 0;
+  padding: 0 3rem;
 }
 .nieuwste-balk {
   display: flex;
