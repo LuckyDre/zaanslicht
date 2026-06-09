@@ -21,18 +21,23 @@
     .nav-meer:hover .nav-meer-trigger { color: var(--oranje, #FF6B00); }
     .nav-meer-dropdown {
       position: absolute;
-      top: calc(100% + 10px);
+      top: 100%;
       right: 0;
+      /* Padding-top zorgt voor visuele ruimte zonder hover-gat */
+      padding-top: 10px;
+      background: transparent;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      transform: translateY(-4px);
+      z-index: 600;
+    }
+    .nav-meer-dropdown-inner {
       background: rgba(13,13,13,0.97);
       border: 1px solid rgba(255,107,0,0.18);
       border-radius: 10px;
       padding: 0.4rem 0;
       min-width: 150px;
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(-6px);
-      transition: opacity 0.22s ease, transform 0.22s ease;
-      z-index: 600;
       backdrop-filter: blur(10px);
     }
     .nav-meer:hover .nav-meer-dropdown {
