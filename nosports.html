@@ -33,7 +33,7 @@
     border-bottom: 1px solid rgba(240,192,64,0.15); transition:background .3s;
   }
   .logo { display:flex; align-items:center; gap:.6rem; font-size:3.2rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; }
-  .logo img { width:80px; height:80px; object-fit:contain; }
+  .logo-img { display:inline-block; width:80px; height:80px; flex-shrink:0; background-color:var(--or,#FF6B00); -webkit-mask:url('images/logo-oranje.png') center/contain no-repeat; mask:url('images/logo-oranje.png') center/contain no-repeat; transition:background-color .4s ease; vertical-align:middle; }
   .logo span { color: var(--or); }
   nav a { color:#aaa; font-size:.9rem; letter-spacing:1px; text-transform:uppercase; margin-left:2rem; transition:color .2s; }
   nav a:hover, nav a.active { color: var(--or); }
