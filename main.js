@@ -265,16 +265,12 @@ function bindTegel(id, fn) {
 window.setFotograafKleur = function(kleur, fotos, naam) {
   clearTimeout(themaTimer);
   document.body.style.setProperty('--oranje', kleur);
-  const hue = hexNaarHueMain(kleur);
-  const logoImg = document.querySelector('.logo-img');
-  if (logoImg) logoImg.style.filter = `hue-rotate(${hue - 25}deg) saturate(1.2) brightness(1.1)`;
+  // Logo-kleur via CSS mask + --oranje variabele (exact match, geen filter nodig)
   if (fotos?.length) window.vulHeroVoorFotograaf(fotos, naam || '');
 };
 
 window.resetFotograafKleur = function() {
   document.body.style.removeProperty('--oranje');
-  const logoImg = document.querySelector('.logo-img');
-  if (logoImg) logoImg.style.removeProperty('filter');
 };
 
 function hexNaarHueMain(hex) {
