@@ -2,9 +2,55 @@
 (async function () {
   const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
-  // ── CSS voor schuif-animatie ──────────────────────────────────────────────
+  // ── CSS voor schuif-animatie + dropdown ─────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
+    /* Dropdown "..." */
+    .nav-meer {
+      position: relative;
+      display: inline-flex; align-items: center;
+    }
+    .nav-meer-trigger {
+      color: #aaaaaa;
+      font-size: 0.9rem; letter-spacing: 3px;
+      cursor: default;
+      padding: 0 0.2rem;
+      transition: color 0.2s;
+      user-select: none;
+    }
+    .nav-meer:hover .nav-meer-trigger { color: var(--oranje, #FF6B00); }
+    .nav-meer-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: rgba(13,13,13,0.97);
+      border: 1px solid rgba(255,107,0,0.18);
+      border-radius: 10px;
+      padding: 0.4rem 0;
+      min-width: 150px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      z-index: 600;
+      backdrop-filter: blur(10px);
+    }
+    .nav-meer:hover .nav-meer-dropdown {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+    .nav-meer-dropdown a {
+      display: block;
+      padding: 0.55rem 1.2rem;
+      color: #aaaaaa !important;
+      font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase;
+      text-decoration: none;
+      transition: color 0.18s;
+      white-space: nowrap;
+    }
+    .nav-meer-dropdown a:hover { color: var(--oranje, #FF6B00) !important; }
+
     .nav-fg-link {
       display: inline-flex; align-items: center;
       color: #aaaaaa; text-decoration: none;
