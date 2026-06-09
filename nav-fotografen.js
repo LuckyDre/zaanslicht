@@ -9,6 +9,7 @@
     .nav-meer {
       position: relative;
       display: inline-flex; align-items: center;
+      margin-left: 1.5rem;
     }
     .nav-meer-trigger {
       color: #aaaaaa;
