@@ -469,13 +469,7 @@ async function laadPagina() {
     document.documentElement.style.setProperty('--orange',  kleur);
     document.documentElement.style.setProperty('--orange2', kleur2);
 
-    // Pas logo-afbeelding kleur aan via hue-rotate
-    const logoImg = document.querySelector('.logo img');
-    if (logoImg) {
-      const targetHue = hexNaarHue(kleur);
-      const basisHue  = 25; // oranje logo
-      logoImg.style.filter = `hue-rotate(${targetHue - basisHue}deg) saturate(1.2) brightness(1.1)`;
-    }
+    // Logo-kleur via CSS mask + --orange variabele (exact match, geen filter nodig)
     document.title = `${fg.naam} — Zaans Licht`;
 
     const hero = document.getElementById('page-hero');
