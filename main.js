@@ -385,21 +385,11 @@ async function laadGastTegels() {
       rij.appendChild(t3);
 
       const heroFotos = bgFotos.slice(0, 5);
-      const rijTegels = [t1, t2, t3];
-      let resetTimer = null;
 
-      rijTegels.forEach(t => {
+      // Kleur blijft zitten na contact — geen reset op mouseleave
+      [t1, t2, t3].forEach(t => {
         t.addEventListener('mouseenter', () => {
-          // Annuleer eventuele lopende reset (muis door gap tussen tegels)
-          clearTimeout(resetTimer);
           if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, fg.naam);
-        });
-        t.addEventListener('mouseleave', () => {
-          // Debounce: wacht 80ms — als muis naar andere tegel in rij gaat, cancelt mouseenter
-          resetTimer = setTimeout(() => {
-            window._fotograafActief = false;
-            if (window.resetFotograafKleur) window.resetFotograafKleur();
-          }, 80);
         });
       });
 
