@@ -453,6 +453,12 @@ async function laadPagina() {
     return;
   }
 
+  // Andreas Luckfiel — eigen pagina via manifest.json
+  if (FOTOGRAAF_ID === 'andreas') {
+    await laadAndreasPageina(container);
+    return;
+  }
+
   try {
     const res  = await fetch(WORKER + '/fotograaf/manifest');
     const data = await res.json();
