@@ -986,6 +986,45 @@ async function fgTogglePositie(id) {
   } catch(e) { alert('Fout: ' + e.message); }
 }
 
+// ── ANDREAS PROFIELKLEUR ─────────────────────────────────────────────────
+async function laadAndreasKleur() {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  try {
+    const res  = await fetch(`${url}/profiel/andreas`, { headers: { 'x-secret': secret } });
+    const data = await res.json();
+    const kleur = data.kleur || '#FF6B00';
+    document.getElementById('andreas-kleur-picker').value = kleur;
+    document.getElementById('andreas-kleur-hex').value    = kleur;
+    // Sync picker ↔ tekstveld
+    document.getElementById('andreas-kleur-picker').oninput = e => {
+      document.getElementById('andreas-kleur-hex').value = e.target.value;
+    };
+    document.getElementById('andreas-kleur-hex').oninput = e => {
+      const v = e.target.value;
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById('andreas-kleur-picker').value = v;
+    };
+  } catch {}
+}
+
+async function slaAndreasKleurOp() {
+  const url    = localStorage.getItem('zl_worker_url');
+  const secret = localStorage.getItem('zl_worker_secret');
+  const kleur  = document.getElementById('andreas-kleur-hex').value.trim();
+  const fb     = document.getElementById('andreas-kleur-feedback');
+  if (!/^#[0-9a-fA-F]{6}$/.test(kleur)) { fb.style.color='#ef4444'; fb.textContent='Ongeldige kleur (gebruik bijv. #FF6B00)'; return; }
+  try {
+    const res = await fetch(`${url}/profiel/andreas`, {
+      method: 'POST',
+      headers: { 'x-secret': secret, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kleur }),
+    });
+    const data = await res.json();
+    if (data.ok) { fb.style.color='#22c55e'; fb.textContent='✓ Kleur opgeslagen'; }
+    else         { fb.style.color='#ef4444'; fb.textContent='Fout bij opslaan'; }
+  } catch { fb.style.color='#ef4444'; fb.textContent='Geen verbinding'; }
+}
+
 const STANDAARD_LABELS = ['AFC IJburg','Alcmaria Victrix','ASC De Volewijckers','De Blokkers','Fortuna Wormerveer','KFC','OFC Oostzaan','SC Purmerland','Sporting Krommenie','SV DTS','SV Koedijk','TOS Actief','United Davo','VV Assendelft','VV Opperdoes','VV Saenden','WSV 1930','ZCFC','ZVV Zaandijk'];
 
 async function laadLabelsBeheer() {
