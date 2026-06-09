@@ -478,7 +478,7 @@ function maakGastTegel(id, kleur, inhoud) {
   div.style.setProperty('--gast-kleur', kleur);
   div.innerHTML = `
     <div class="tegel-bg" style="background-size:cover;background-position:center"></div>
-    <div class="tegel-content" style="--oranje:${kleur}">${inhoud}</div>`;
+    <div class="tegel-content">${inhoud}</div>`;
   div.addEventListener('keydown', e => { if (e.key === 'Enter') div.click(); });
   return div;
 }
