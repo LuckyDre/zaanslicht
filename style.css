@@ -492,7 +492,7 @@ section:not(#hero) {
   color: var(--tekst-dim);
   line-height: 1.65;
   margin: 0.4rem 0 1rem;
-  max-width: 720px;
+  max-width: 100%;
 }
 
 .serie-fotograaf {
