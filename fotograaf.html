@@ -1476,13 +1476,20 @@ async function laadMappenTab() {
       const grid = li.querySelector('.map-fotos-grid');
       for (const f of fotos) {
         const naam = decodeURIComponent(f.key.split('/').pop());
+        const escapedKey = f.key.replace(/'/g,"\\'");
         const chip = document.createElement('div');
         chip.className = 'foto-chip';
         chip.title = naam;
+        chip.dataset.fotoKey = f.key;
         chip.innerHTML = `
-          <img src="${WORKER}/foto/${f.key}" loading="lazy" alt="${naam}" />
-          <div class="foto-chip-del" onclick="verwijderFoto('${f.key.replace(/'/g,"\\'")}', this)" title="Verwijder ${naam}">🗑</div>`;
+          <div class="foto-chip-img">
+            <img src="${WORKER}/foto/${f.key}" loading="lazy" alt="${naam}" />
+          </div>
+          <div class="foto-chip-del" onclick="verwijderFoto('${escapedKey}', this)" title="Verwijder ${naam}">🗑</div>
+          <div class="foto-chip-lbl" onclick="openFotoLabelPopup('${escapedKey}', this)" title="Labels">🏷</div>`;
         grid.appendChild(chip);
+        // Laad bestaande labels asynchroon
+        laadFotoLabelBadge(chip, f.key);
       }
       return li;
     }
