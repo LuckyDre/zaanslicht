@@ -184,6 +184,28 @@
     @media (max-width: 600px) {
       .clubs-grid { grid-template-columns: 1fr; padding: 1.5rem; }
     }
+
+    .club-fotos-btn {
+      margin-top: 0.6rem; padding: 0.25rem 0.7rem; font-size: 0.75rem;
+      background: none; border: 1px solid rgba(255,107,0,0.4); color: var(--oranje);
+      border-radius: 4px; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .club-fotos-btn:hover { background: rgba(255,107,0,0.1); border-color: var(--oranje); }
+    .club-fotos-paneel {
+      display: none; margin-top: 0.8rem; grid-column: 1 / -1;
+    }
+    .club-fotos-paneel.open { display: block; }
+    .club-fotos-paneel-grid {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem;
+    }
+    .club-foto-item {
+      width: 90px; height: 66px; border-radius: 4px; overflow: hidden;
+      cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s;
+    }
+    .club-foto-item:hover { border-color: var(--oranje); }
+    .club-foto-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .club-fotos-naam { font-size: 0.7rem; color: var(--dim); margin-bottom: 0.4rem; }
+    .club-fotos-leeg { font-size: 0.8rem; color: var(--dim); font-style: italic; }
   </style>
 </head>
 <body>
