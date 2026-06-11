@@ -312,11 +312,28 @@
     </div>
 
     <div id="tab-labels" class="tab-panel">
-      <div style="padding:1.5rem 2rem;max-width:700px">
-        <p style="color:#888;font-size:0.85rem;margin-bottom:1.2rem">Labels die fotografen kunnen kiezen bij het uploaden. Klik op 🗑 om een zelf aangemaakt label te verwijderen. Standaard clubnamen kunnen niet worden verwijderd.</p>
-        <div id="labels-beheer-lijst" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem">
+      <div style="padding:1.5rem 2rem;max-width:800px">
+
+        <!-- Beschikbare labels -->
+        <h3 style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:0.8rem">Beschikbare labels</h3>
+        <p style="color:#666;font-size:0.82rem;margin-bottom:0.8rem">Klik op 🗑 om een zelf aangemaakt label te verwijderen. Standaard clubnamen kunnen niet worden verwijderd.</p>
+        <div id="labels-beheer-lijst" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem">
           <p style="color:#555">Laden…</p>
         </div>
+
+        <hr style="border:none;border-top:1px solid #2a2a2a;margin-bottom:1.5rem">
+
+        <!-- Map-labeling -->
+        <h3 style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:0.5rem">Mijn mappen koppelen aan labels</h3>
+        <p style="color:#666;font-size:0.82rem;margin-bottom:1rem">Klik een label aan om een map aan dat label te koppelen. Zo verschijnen die foto's straks op de clubpagina.</p>
+        <div style="display:flex;gap:0.5rem;margin-bottom:1.2rem">
+          <button class="bh-cat-btn actief" id="bh-cat-voetbal" onclick="bhFilterCat('voetbal')">⚽ Voetbal</button>
+          <button class="bh-cat-btn" id="bh-cat-nosports" onclick="bhFilterCat('nosports')">🌿 No Sports</button>
+        </div>
+        <div id="bh-map-label-lijst">
+          <p style="color:#555;font-size:0.85rem">Laad eerst het tabblad ⚽ Voetbal of 🌄 No Sports zodat de mappen beschikbaar zijn.</p>
+        </div>
+
       </div>
     </div>
 
