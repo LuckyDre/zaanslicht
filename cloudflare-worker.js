@@ -1023,8 +1023,9 @@ async function handleGetLabels(request, env) {
 }
 
 async function handleAddLabel(request, env) {
+  const isAdmin   = requireSecret(request, env);
   const authToken = request.headers.get('X-Fotograaf-Token');
-  const fotograaf = await getFotograafByToken(authToken, env);
+  const fotograaf = isAdmin ? true : await getFotograafByToken(authToken, env);
   if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
 
   const { label } = await request.json().catch(() => ({}));
