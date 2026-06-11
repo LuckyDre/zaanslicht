@@ -279,7 +279,7 @@ section:not(#hero) {
   transition: border-color 0.3s;
 }
 .tegel:hover {
-  border-color: var(--oranje);
+  border-color: var(--gast-kleur, var(--oranje));
 }
 
 .tegel-bg {
