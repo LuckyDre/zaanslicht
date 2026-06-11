@@ -1235,11 +1235,12 @@ async function fgBekijkDashboard(id, naam) {
     const acc   = data.account;
     const fotos = fotosData.fotos || [];
 
-    // Groepeer foto's per mapnaam (decoded)
+    // Groepeer foto's per mapnaam (decoded), sla profiel/losse bestanden over
     const mapGroepen = {};
     fotos.forEach(f => {
-      const delen  = f.key.split('/');
-      const mapNaam = decodeURIComponent(delen[3] || 'Overig');
+      const delen = f.key.split('/');
+      if (delen.length < 5) return; // geen mapstructuur (bijv. profiel.jpg)
+      const mapNaam = decodeURIComponent(delen[3]);
       if (!mapGroepen[mapNaam]) mapGroepen[mapNaam] = [];
       mapGroepen[mapNaam].push(f);
     });
