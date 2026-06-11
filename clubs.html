@@ -621,7 +621,72 @@
       shirtDiv.style.fontSize = 'unset';
       shirtDiv.style.lineHeight = 'unset';
     });
+
+    // Foto-knoppen dynamisch toevoegen aan alle club-cards
+    document.querySelectorAll('.club-card').forEach(function(card) {
+      if (card.querySelector('.club-fotos-paneel')) return; // al handmatig toegevoegd
+      var naam = card.querySelector('.club-naam')?.textContent.trim();
+      if (!naam) return;
+      card.dataset.club = naam;
+      card.querySelector('.club-contact').insertAdjacentHTML('beforeend',
+        '<button class="club-fotos-btn" onclick="toggleClubFotos(this)">📷 Foto\'s</button>'
+      );
+      card.insertAdjacentHTML('beforeend', '<div class="club-fotos-paneel"></div>');
+    });
   })();
+
+  var WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+  window.toggleClubFotos = async function(btn) {
+    var card   = btn.closest('.club-card');
+    var paneel = card.querySelector('.club-fotos-paneel');
+    var club   = card.dataset.club;
+
+    if (paneel.classList.contains('open')) {
+      paneel.classList.remove('open');
+      btn.textContent = '📷 Foto\'s';
+      return;
+    }
+
+    paneel.classList.add('open');
+    btn.textContent = '▲ Sluiten';
+
+    if (paneel.dataset.geladen) return; // al geladen
+    paneel.dataset.geladen = '1';
+    paneel.innerHTML = '<p class="club-fotos-leeg">Laden…</p>';
+
+    try {
+      var res  = await fetch(WORKER + '/fotos-bij-label?label=' + encodeURIComponent(club));
+      var data = await res.json();
+      var fotos = data.fotos || [];
+
+      if (fotos.length === 0) {
+        paneel.innerHTML = '<p class="club-fotos-leeg">Nog geen foto\'s gekoppeld aan ' + club + '.</p>';
+        return;
+      }
+
+      var html = '<p class="club-fotos-naam">📷 ' + fotos.length + ' foto' + (fotos.length !== 1 ? '\'s' : '') + ' door ' +
+        [...new Set(fotos.map(function(f){ return f.naam; }))].join(', ') + '</p>';
+      html += '<div class="club-fotos-paneel-grid">';
+      fotos.forEach(function(f) {
+        html += '<div class="club-foto-item" onclick="openClubFoto(\'' + WORKER + '/foto/' + f.key + '\')" title="Foto van ' + f.naam + '">' +
+          '<img src="' + WORKER + '/foto/' + f.key + '" loading="lazy" />' +
+          '</div>';
+      });
+      html += '</div>';
+      paneel.innerHTML = html;
+    } catch(e) {
+      paneel.innerHTML = '<p class="club-fotos-leeg" style="color:#ef4444">Fout: ' + e.message + '</p>';
+    }
+  };
+
+  window.openClubFoto = function(src) {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
+    overlay.innerHTML = '<img src="' + src + '" style="max-width:90vw;max-height:90vh;border-radius:4px;object-fit:contain" />';
+    overlay.addEventListener('click', function(){ overlay.remove(); });
+    document.body.appendChild(overlay);
+  };
   </script>
   <script src="nav-fotografen.js"></script>
 </body>
