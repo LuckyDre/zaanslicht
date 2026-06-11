@@ -415,16 +415,51 @@
   }
   .foto-chip {
     position: relative; width: 72px; height: 52px; border-radius: 4px;
-    overflow: hidden; cursor: pointer; flex-shrink: 0;
+    overflow: visible; cursor: pointer; flex-shrink: 0;
     border: 2px solid transparent; transition: border-color 0.15s;
   }
+  .foto-chip-img { position: absolute; inset: 0; overflow: hidden; border-radius: 2px; }
   .foto-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .foto-chip:hover .foto-chip-del { opacity: 1; }
   .foto-chip-del {
     position: absolute; inset: 0; background: rgba(239,68,68,0.85);
     display: flex; align-items: center; justify-content: center;
     font-size: 1.1rem; opacity: 0; transition: opacity 0.15s;
+    border-radius: 2px; z-index: 5;
   }
+  .foto-chip-lbl {
+    position: absolute; top: -6px; right: -6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(30,30,30,0.9); border: 1.5px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; cursor: pointer; z-index: 20; opacity: 0;
+    transition: opacity 0.15s; color: var(--muted); line-height: 1;
+  }
+  .foto-chip-lbl.heeft-labels { background: var(--accent); color: #fff; opacity: 1; border-color: var(--bg); }
+  .foto-chip:hover .foto-chip-lbl { opacity: 1; }
+  .foto-label-popup {
+    position: fixed; z-index: 200; background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+    padding: 0.7rem; min-width: 220px; max-width: 280px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+  }
+  .foto-label-popup-titel {
+    font-size: 0.72rem; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.05em; margin-bottom: 0.5rem;
+  }
+  .foto-label-popup-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .foto-label-popup-chip {
+    font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15); color: var(--muted);
+    cursor: pointer; transition: all 0.12s; background: transparent;
+  }
+  .foto-label-popup-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .foto-label-popup-chip.actief { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .foto-label-popup-sluiten {
+    margin-top: 0.5rem; font-size: 0.7rem; color: var(--muted);
+    text-align: right; cursor: pointer;
+  }
+  .foto-label-popup-sluiten:hover { color: var(--text); }
   .map-verwijder-btn {
     background: none; border: 1px solid rgba(239,68,68,0.4); color: #ef4444;
     border-radius: 6px; padding: 0.3rem 0.8rem; font-size: 0.75rem; cursor: pointer;
