@@ -669,8 +669,9 @@
         [...new Set(fotos.map(function(f){ return f.naam; }))].join(', ') + '</p>';
       html += '<div class="club-fotos-paneel-grid">';
       fotos.forEach(function(f) {
-        html += '<div class="club-foto-item" onclick="openClubFoto(\'' + WORKER + '/foto/' + f.key + '\')" title="Foto van ' + f.naam + '">' +
-          '<img src="' + WORKER + '/foto/' + f.key + '" loading="lazy" />' +
+        var src = f.url || (WORKER + '/foto/' + f.key);
+        html += '<div class="club-foto-item" onclick="openClubFoto(\'' + src + '\')" title="Foto van ' + f.naam + '">' +
+          '<img src="' + src + '" loading="lazy" />' +
           '</div>';
       });
       html += '</div>';
