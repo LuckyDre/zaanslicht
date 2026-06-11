@@ -1050,7 +1050,6 @@ async function handleSetFotoLabels(request, env) {
 
   let entry;
   if (isAdmin) {
-    const { mapNaam, type: entryType, cat } = await request.clone().json().catch(() => ({}));
     entry = { key, url: url || '', fotograafId: 'andreas', naam: naam || 'Andreas Luckfiel', kleur: kleur || '#FF6B00', ts: Date.now() };
     if (mapNaam) { entry.mapNaam = mapNaam; entry.type = entryType || 'map'; entry.cat = cat || ''; }
   } else {
