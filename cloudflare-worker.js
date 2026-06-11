@@ -982,10 +982,15 @@ async function handleSetAndreasProfile(request, env) {
 }
 
 async function handleGetLabels(request, env) {
-  const raw = await env.SUBSCRIBERS.get('labels:lijst');
+  const [raw, verwijderdRaw] = await Promise.all([
+    env.SUBSCRIBERS.get('labels:lijst'),
+    env.SUBSCRIBERS.get('labels:verwijderd'),
+  ]);
   const opgeslagen = raw ? JSON.parse(raw) : [];
-  // Combineer standaard + aangepast, uniek en gesorteerd
-  const alle = [...new Set([...STANDAARD_LABELS, ...opgeslagen])].sort((a, b) => a.localeCompare(b, 'nl'));
+  const verwijderd = verwijderdRaw ? JSON.parse(verwijderdRaw) : [];
+  const alle = [...new Set([...STANDAARD_LABELS, ...opgeslagen])]
+    .filter(l => !verwijderd.includes(l))
+    .sort((a, b) => a.localeCompare(b, 'nl'));
   return json({ labels: alle });
 }
 
