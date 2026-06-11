@@ -1077,6 +1077,7 @@ async function laadAndreasPagina(container) {
             _openLightboxFotograaf(fotoUrls, parseInt(btn.dataset.idx));
           });
         });
+        addOverzichtBtn(div.querySelector('h3'), item.naam || item.map, fotoUrls);
         // Like-knoppen via event delegation in initLikes()
       }
     }
