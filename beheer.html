@@ -1719,7 +1719,7 @@ window.bhFilterCat = function(cat) {
 async function bhRenderMapLabelLijst() {
   const cont = document.getElementById('bh-map-label-lijst');
   if (!manifest) {
-    cont.innerHTML = '<p style="color:#666;font-size:0.85rem">Laad eerst het tabblad ⚽ Voetbal of 🌄 No Sports zodat de mappen beschikbaar zijn.</p>';
+    cont.innerHTML = '<p style="color:#666;font-size:0.85rem">Mappen nog niet geladen. <button onclick="bhLaadManifestEnRender()" style="background:none;border:1px solid #444;color:#aaa;padding:0.2rem 0.6rem;border-radius:4px;font-size:0.8rem;cursor:pointer;margin-left:0.4rem">↺ Laden</button></p>';
     return;
   }
   await bhLaadAlleLabels();
