@@ -680,6 +680,34 @@ async function handleFotoVerwijderen(request, env) {
   return json({ ok: true });
 }
 
+async function handleAdminMapVerwijderen(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, map } = await request.json().catch(() => ({}));
+  if (!id || !map) return json({ error: 'id en map verplicht' }, 400);
+
+  // Verwijder alle R2 foto's in deze map
+  const lijst = await env.FOTOS.list({ prefix: `fotografen/${id}/`, limit: 1000 });
+  const enc   = encodeURIComponent(map);
+  const targets = lijst.objects.filter(o => o.key.includes(`/${map}/`) || o.key.includes(`/${enc}/`));
+  await Promise.all(targets.map(o => env.FOTOS.delete(o.key)));
+
+  // Verwijder map uit KV-index
+  const raw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + id);
+  if (raw) {
+    const mappen = JSON.parse(raw).filter(m => m.map !== map);
+    await env.SUBSCRIBERS.put('fotograaf:mappen:' + id, JSON.stringify(mappen));
+  }
+  return json({ ok: true, verwijderd: targets.length });
+}
+
+async function handleAdminFotoVerwijderen(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { key } = await request.json().catch(() => ({}));
+  if (!key || !key.startsWith('fotografen/')) return json({ error: 'Ongeldige key' }, 400);
+  await env.FOTOS.delete(key);
+  return json({ ok: true });
+}
+
 // ── ACCOUNT BLOKKEREN / DEBLOKKEREN (admin) ───────────────────────────────
 async function handleBlokkeer(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
@@ -1274,6 +1302,8 @@ export default {
     if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
     if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return handleFotograafManifest(request, env);
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
+    if (url.pathname === '/admin/map-verwijderen'  && request.method === 'POST') return handleAdminMapVerwijderen(request, env);
+    if (url.pathname === '/admin/foto-verwijderen' && request.method === 'POST') return handleAdminFotoVerwijderen(request, env);
     if (url.pathname === '/fotograaf/verwijderen' && request.method === 'POST') return handleFotograafVerwijderen(request, env);
     if (url.pathname === '/fotograaf/foto-delete' && request.method === 'POST') return handleFotoVerwijderen(request, env);
     if (url.pathname === '/fotograaf/kleur'          && request.method === 'POST') return handleFotograafKleur(request, env);
