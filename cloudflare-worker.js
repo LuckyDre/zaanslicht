@@ -1007,30 +1007,7 @@ async function handleAddLabel(request, env) {
   return json({ ok: true, label: schoon });
 }
 
-async function handleGetFotoLabels(request, env) {
-  const authToken = request.headers.get('X-Fotograaf-Token');
-  const fotograaf = await getFotograafByToken(authToken, env);
-  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
-  const key = new URL(request.url).searchParams.get('key');
-  if (!key) return json({ error: 'key verplicht' }, 400);
-  if (!key.startsWith('fotografen/' + fotograaf.id + '/')) return json({ error: 'Geen toegang' }, 403);
-  const raw = await env.SUBSCRIBERS.get('foto:labels:' + key);
-  return json({ labels: raw ? JSON.parse(raw) : [] });
-}
-
-async function handleSetFotoLabels(request, env) {
-  const authToken = request.headers.get('X-Fotograaf-Token');
-  const fotograaf = await getFotograafByToken(authToken, env);
-  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
-  const { key, labels } = await request.json().catch(() => ({}));
-  if (!key) return json({ error: 'key verplicht' }, 400);
-  if (!key.startsWith('fotografen/' + fotograaf.id + '/')) return json({ error: 'Geen toegang' }, 403);
-  const schoneLabels = Array.isArray(labels) ? labels.slice(0, 10) : [];
-
-  const oudRaw = await env.SUBSCRIBERS.get('foto:labels:' + key);
-  const oudeLabels = oudRaw ? JSON.parse(oudRaw) : [];
-
-  // Reverse index bijwerken
+async function updateReverseIndex(key, oudeLabels, schoneLabels, entry, env) {
   for (const label of oudeLabels) {
     if (!schoneLabels.includes(label)) {
       const idxRaw = await env.SUBSCRIBERS.get('label:fotos:' + label);
@@ -1043,11 +1020,51 @@ async function handleSetFotoLabels(request, env) {
       const idxRaw = await env.SUBSCRIBERS.get('label:fotos:' + label);
       const idx = idxRaw ? JSON.parse(idxRaw) : [];
       if (!idx.find(f => f.key === key)) {
-        idx.push({ key, fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() });
+        idx.push(entry);
         await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(idx));
       }
     }
   }
+}
+
+async function handleGetFotoLabels(request, env) {
+  const isAdmin = requireSecret(request, env);
+  const key = new URL(request.url).searchParams.get('key');
+  if (!key) return json({ error: 'key verplicht' }, 400);
+
+  if (!isAdmin) {
+    const authToken = request.headers.get('X-Fotograaf-Token');
+    const fotograaf = await getFotograafByToken(authToken, env);
+    if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+    if (!key.startsWith('fotografen/' + fotograaf.id + '/')) return json({ error: 'Geen toegang' }, 403);
+  }
+
+  const raw = await env.SUBSCRIBERS.get('foto:labels:' + key);
+  return json({ labels: raw ? JSON.parse(raw) : [] });
+}
+
+async function handleSetFotoLabels(request, env) {
+  const isAdmin = requireSecret(request, env);
+  const { key, labels, url, naam, kleur } = await request.json().catch(() => ({}));
+  if (!key) return json({ error: 'key verplicht' }, 400);
+
+  let entry;
+  if (isAdmin) {
+    // Admin labelt eigen fotos — url, naam en kleur worden meegestuurd
+    entry = { key, url: url || '', fotograafId: 'andreas', naam: naam || 'Andreas Luckfiel', kleur: kleur || '#FF6B00', ts: Date.now() };
+  } else {
+    const authToken = request.headers.get('X-Fotograaf-Token');
+    const fotograaf = await getFotograafByToken(authToken, env);
+    if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+    if (!key.startsWith('fotografen/' + fotograaf.id + '/')) return json({ error: 'Geen toegang' }, 403);
+    entry = { key, url: url || '', fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() };
+  }
+
+  const schoneLabels = Array.isArray(labels) ? labels.slice(0, 10) : [];
+  const oudRaw = await env.SUBSCRIBERS.get('foto:labels:' + key);
+  const oudeLabels = oudRaw ? JSON.parse(oudRaw) : [];
+
+  await updateReverseIndex(key, oudeLabels, schoneLabels, entry, env);
 
   if (schoneLabels.length === 0) {
     await env.SUBSCRIBERS.delete('foto:labels:' + key);
