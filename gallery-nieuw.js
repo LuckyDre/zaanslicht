@@ -113,7 +113,7 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
 }
 
 // ── OVERZICHT GRID (lazy-load: 20 thumbnails, meer bij scrollen) ───────────
-const OV_PAGE = 20;
+const OV_PAGE = 30;
 
 function toonOverzicht(titel, fotos) {
   const modal = document.getElementById('ov');
