@@ -1223,52 +1223,66 @@ async function fgBekijkDashboard(id, naam) {
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 
   try {
-    const res = await fetch(url + '/fotograaf/view-dashboard/' + id, { headers: { 'X-Worker-Secret': secret } });
-    const data = await res.json();
+    const [dashRes, fotosRes] = await Promise.all([
+      fetch(url + '/fotograaf/view-dashboard/' + id, { headers: { 'X-Worker-Secret': secret } }),
+      fetch(url + '/fotograaf/fotos?id=' + id, { headers: { 'X-Worker-Secret': secret } }),
+    ]);
+    const data      = await dashRes.json();
+    const fotosData = await fotosRes.json();
 
-    if (!res.ok) { modal.innerHTML = `<p style="color:#ef4444">Fout: ${data.error || 'Onbekend'}</p>`; return; }
+    if (!dashRes.ok) { modal.querySelector('div').innerHTML = `<p style="color:#ef4444">Fout: ${data.error || 'Onbekend'}</p>`; return; }
 
-    const acc = data.account;
-    const content = `
+    const acc   = data.account;
+    const fotos = fotosData.fotos || [];
+
+    // Groepeer foto's per mapnaam (decoded)
+    const mapGroepen = {};
+    fotos.forEach(f => {
+      const delen  = f.key.split('/');
+      const mapNaam = decodeURIComponent(delen[3] || 'Overig');
+      if (!mapGroepen[mapNaam]) mapGroepen[mapNaam] = [];
+      mapGroepen[mapNaam].push(f);
+    });
+
+    const workerBase = url;
+    const fotoGridHTML = Object.entries(mapGroepen).map(([mapNaam, mFotos]) => `
+      <div style="margin-bottom:1.2rem">
+        <div style="font-size:0.8rem;font-weight:700;color:#aaa;margin-bottom:0.4rem">
+          📁 ${escB(mapNaam)} <span style="color:#555;font-weight:400">(${mFotos.length} foto's)</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${mFotos.slice(0, 30).map(f => `<img src="${workerBase}/foto/${f.key}" loading="lazy"
+            style="width:80px;height:60px;object-fit:cover;border-radius:4px;cursor:pointer"
+            onclick="window.open('${workerBase}/foto/${f.key}','_blank')" title="${escB(f.naam)}">`).join('')}
+          ${mFotos.length > 30 ? `<span style="font-size:0.75rem;color:#555;align-self:center;padding-left:0.3rem">+${mFotos.length - 30} meer</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    modal.querySelector('div').innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <h2 style="font-size:1.3rem;margin-bottom:0.3rem">Dashboard van ${escB(naam)}</h2>
+          <p style="font-size:0.8rem;color:#666">${fotos.length} foto's in ${Object.keys(mapGroepen).length} mappen</p>
+        </div>
+        <button onclick="document.getElementById('fg-dashboard-modal').remove()" style="background:transparent;border:none;font-size:1.2rem;color:#666;cursor:pointer">✕</button>
+      </div>
+
       <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.5rem;padding:1rem;background:#151515;border-radius:8px">
         <div style="width:40px;height:40px;border-radius:50%;background:${acc.kleur || '#888'}"></div>
         <div>
           <div style="font-weight:700;color:#eee">${escB(acc.naam)}</div>
           <div style="font-size:0.8rem;color:#555">${escB(acc.email)}</div>
         </div>
+        ${data.fotoUrl ? `<img src="${escB(data.fotoUrl)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;margin-left:auto">` : ''}
       </div>
 
-      <h3 style="margin:1.5rem 0 0.8rem;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;color:#aaa">📁 Mappen</h3>
-      ${data.mappen.length ? data.mappen.map(m => `
-        <div style="padding:0.6rem 0.8rem;background:#151515;border-radius:6px;margin-bottom:0.4rem;font-size:0.85rem">
-          <strong>${escB(m.map)}</strong> — ${escB(m.categorie)} ${m.verborgen ? '<span style="color:#ef4444">[verborgen]</span>' : ''}
-        </div>
-      `).join('') : '<p style="color:#555;font-size:0.8rem">Geen mappen.</p>'}
-
-      <h3 style="margin:1.5rem 0 0.8rem;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;color:#aaa">👤 Profiel</h3>
-      ${data.bio ? `<div style="padding:0.8rem;background:#151515;border-radius:6px;font-size:0.85rem;line-height:1.6;margin-bottom:0.8rem;color:#ccc">${escB(data.bio)}</div>` : '<p style="color:#555;font-size:0.8rem">Geen bio ingevuld.</p>'}
-      ${data.fotoUrl ? `<div style="margin-bottom:1rem"><img src="${escB(data.fotoUrl)}" style="max-width:200px;height:auto;border-radius:8px"></div>` : ''}
-
-      <h3 style="margin:1.5rem 0 0.8rem;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;color:#aaa">🖼️ Foto's in galerij</h3>
-      ${data.galerij.voetbal.length || data.galerij.nosports.length ? `
-        ${data.galerij.voetbal.length ? `<p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem"><strong>${data.galerij.voetbal.length} foto's</strong> in Voetbal</p>` : ''}
-        ${data.galerij.nosports.length ? `<p style="font-size:0.8rem;color:#555;margin-bottom:0.4rem"><strong>${data.galerij.nosports.length} foto's</strong> in No Sports</p>` : ''}
-      ` : '<p style="color:#555;font-size:0.8rem">Geen foto\'s in galerij.</p>'}
-    `;
-
-    modal.querySelector('div').innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
-        <div>
-          <h2 style="font-size:1.3rem;margin-bottom:0.3rem">Dashboard van ${escB(naam)}</h2>
-          <p style="font-size:0.8rem;color:#666">Bekijk wat deze fotograaf ziet</p>
-        </div>
-        <button onclick="document.getElementById('fg-dashboard-modal').remove()" style="background:transparent;border:none;font-size:1.2rem;color:#666;cursor:pointer">✕</button>
-      </div>
-      ${content}
+      <h3 style="margin:0 0 0.8rem;font-size:0.95rem;letter-spacing:1px;text-transform:uppercase;color:#aaa">🖼️ Foto's</h3>
+      ${fotoGridHTML || '<p style="color:#555;font-size:0.8rem">Geen foto\'s geüpload.</p>'}
     `;
   } catch(e) {
     const content = modal.querySelector('div');
-    content.innerHTML = `<p style="color:#ef4444">Fout: ${e.message}</p>`;
+    if (content) content.innerHTML = `<p style="color:#ef4444">Fout: ${e.message}</p>`;
   }
 }
 
