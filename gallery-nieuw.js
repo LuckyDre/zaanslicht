@@ -68,6 +68,15 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   h3.innerHTML = `${naam}${fotograaf ? `<span class="pc-sub">${fotograaf}</span>` : ''}
     <span class="pc-rechts"><span class="pc-count">${fotos.length} foto's</span></span>`;
   if (kleur) { const sub = h3.querySelector('.pc-sub'); if (sub) sub.style.color = kleur; }
+
+  // Overzicht-knop naast de teller
+  const ovBtn = document.createElement('button');
+  ovBtn.className = 'pc-overzicht';
+  ovBtn.title = 'Alle foto\'s als thumbnail';
+  ovBtn.textContent = '⊞';
+  ovBtn.addEventListener('click', e => { e.stopPropagation(); toonOverzicht(naam, fotos); });
+  h3.querySelector('.pc-rechts').appendChild(ovBtn);
+
   div.appendChild(h3);
 
   // Verhaal/beschrijving boven de slider
