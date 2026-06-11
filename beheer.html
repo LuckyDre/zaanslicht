@@ -1694,6 +1694,23 @@ function positionPreview(e) {
   preview.style.top  = y + 'px';
 }
 
+window.bhLaadManifestEnRender = async function() {
+  const cont = document.getElementById('bh-map-label-lijst');
+  cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Mappen laden…</p>';
+  // Wissel even naar voetbal-tab om manifest te triggeren, en kom terug
+  if (!manifest) {
+    switchTab('voetbal');
+    // Wacht tot manifest geladen is (max 5 sec)
+    for (let i = 0; i < 50; i++) {
+      await new Promise(r => setTimeout(r, 100));
+      if (manifest) break;
+    }
+    switchTab('labels');
+  } else {
+    bhRenderMapLabelLijst();
+  }
+};
+
 // ── MAP-LABELS VANUIT LABELS TAB ─────────────────────────────────────────
 
 let _bhMapLabelsCache = {};   // key → labels[]
