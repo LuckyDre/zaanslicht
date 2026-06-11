@@ -4,6 +4,8 @@
 const CATEGORY   = document.currentScript.getAttribute('data-category');
 const WORKER_URL = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
+let _ovObserver = null; // IntersectionObserver voor lazy-load in overzicht
+
 // ── LIGHTBOX ──────────────────────────────────────────────────────────────
 let _lb_fotos = [];   // { src, key } van de huidige open serie
 let _lb_idx   = 0;
