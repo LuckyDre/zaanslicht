@@ -117,13 +117,39 @@
     .foto-grid { display: none; padding: 0.8rem 1rem 1rem; border-top: 1px solid #2a2a2a; flex-wrap: wrap; gap: 6px; }
     .slider-item.open .foto-grid { display: flex; }
 
-    .foto-thumb { width: 110px; height: 74px; border-radius: 3px; overflow: hidden; cursor: grab; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; position: relative; flex-shrink: 0; }
+    .foto-thumb { width: 110px; height: 74px; border-radius: 3px; overflow: visible; cursor: grab; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; position: relative; flex-shrink: 0; }
     .foto-thumb:hover { border-color: var(--oranje); }
     .foto-thumb:active { cursor: grabbing; }
     .foto-thumb.sortable-ghost { opacity: 0.25; }
     .foto-thumb.sortable-chosen { border-color: var(--oranje); transform: scale(1.06); }
+    .foto-thumb-img { position: absolute; inset: 0; overflow: hidden; border-radius: 1px; }
     .foto-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-    .foto-nr { position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: var(--wit); font-size: 0.6rem; padding: 1px 4px; }
+    .foto-nr { position: absolute; bottom: 0; left: 0; background: rgba(0,0,0,0.7); color: var(--wit); font-size: 0.6rem; padding: 1px 4px; pointer-events: none; }
+    .foto-lbl {
+      position: absolute; top: -6px; right: -6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(20,20,20,0.9); border: 1.5px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; cursor: pointer; z-index: 20; opacity: 0;
+      transition: opacity 0.15s; color: #888; line-height: 1;
+    }
+    .foto-lbl.heeft-labels { background: var(--oranje); color: #fff; opacity: 1; border-color: #111; }
+    .foto-thumb:hover .foto-lbl { opacity: 1; }
+    .bh-label-popup {
+      position: fixed; z-index: 9000; background: #1a1a1a;
+      border: 1px solid #333; border-radius: 8px; padding: 0.7rem;
+      min-width: 240px; max-width: 300px; box-shadow: 0 6px 24px rgba(0,0,0,0.7);
+    }
+    .bh-label-popup-titel { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .bh-label-popup-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .bh-label-chip {
+      font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 20px;
+      border: 1px solid #333; color: #888; cursor: pointer; transition: all 0.12s; background: transparent;
+    }
+    .bh-label-chip:hover { border-color: var(--oranje); color: var(--oranje); }
+    .bh-label-chip.actief { background: var(--oranje); border-color: var(--oranje); color: #fff; font-weight: 600; }
+    .bh-label-popup-sluiten { margin-top: 0.5rem; font-size: 0.7rem; color: #555; text-align: right; cursor: pointer; }
+    .bh-label-popup-sluiten:hover { color: #aaa; }
 
     .leeg { color: var(--dim); padding: 2rem; text-align: center; font-size: 0.9rem; }
 
