@@ -1162,24 +1162,34 @@ async function fgToggleMappen(id) {
 
     paneel.innerHTML = Object.entries(mapGroepen).map(([mapNaam, fotos]) => {
       const verborgen = verborgenM.includes(mapNaam);
-      return `<div style="margin-bottom:0.8rem">
-        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem">
+      const mapId = 'map-' + id + '-' + mapNaam.replace(/[^a-z0-9]/gi,'_');
+      return `<div id="${mapId}" style="margin-bottom:0.8rem">
+        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem">
           <span style="font-size:0.8rem;font-weight:700;color:#ccc;flex:1">📁 ${escB(mapNaam)} <span style="color:#555;font-weight:400">(${fotos.length} foto's)</span></span>
           <button onclick="fgToggleMap('${id}','${escB(mapNaam)}',this)" data-verborgen="${verborgen}"
-            style="background:transparent;border:1px solid ${verborgen ? '#ef4444' : '#333'};color:${verborgen ? '#ef4444' : '#666'};padding:0.2rem 0.6rem;border-radius:4px;font-size:0.7rem;cursor:pointer">
+            style="background:transparent;border:1px solid ${verborgen ? '#ef4444' : '#333'};color:${verborgen ? '#ef4444' : '#666'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;cursor:pointer">
             ${verborgen ? '👁 Toon' : '🚫 Verberg'}
           </button>
+          <button onclick="fgVerwijderMap(event,'${id}','${escB(mapNaam)}',document.getElementById('${mapId}'))" title="Map verwijderen"
+            style="background:transparent;border:1px solid #555;color:#555;padding:0.2rem 0.4rem;border-radius:4px;font-size:0.7rem;cursor:pointer"
+            onmouseover="this.style.color='#ef4444';this.style.borderColor='#ef4444'"
+            onmouseout="this.style.color='#555';this.style.borderColor='#555'">🗑</button>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:0.3rem">
           ${fotos.map(f => {
             const hidden = verborgenF.includes(f.key);
             const naam = f.naam;
-            return `<span onclick="fgToggleFoto('${id}','${f.key}',this)" data-verborgen="${hidden}"
-              title="${naam}"
-              style="cursor:pointer;padding:0.15rem 0.4rem;border-radius:4px;font-size:0.65rem;font-family:monospace;
-                     background:${hidden ? '#3a1a1a' : '#1e2a1e'};color:${hidden ? '#ef4444' : '#4ade80'};
-                     border:1px solid ${hidden ? '#ef444444' : '#22c55e44'}">
-              ${hidden ? '✕' : '✓'} ${naam.substring(0, 12)}
+            return `<span style="display:inline-flex;align-items:center;gap:0">
+              <span onclick="fgToggleFoto('${id}','${f.key}',this)" data-verborgen="${hidden}"
+                title="${naam}"
+                style="cursor:pointer;padding:0.15rem 0.4rem;border-radius:4px 0 0 4px;font-size:0.65rem;font-family:monospace;
+                       background:${hidden ? '#3a1a1a' : '#1e2a1e'};color:${hidden ? '#ef4444' : '#4ade80'};
+                       border:1px solid ${hidden ? '#ef444444' : '#22c55e44'};border-right:none">
+                ${hidden ? '✕' : '✓'} ${naam.substring(0, 12)}
+              </span><button onclick="fgVerwijderFoto(event,'${id}','${f.key}',this.closest('[style*=inline-flex]'))"
+                title="Foto verwijderen"
+                style="background:#1a1a1a;border:1px solid #333;border-left:none;border-radius:0 4px 4px 0;color:#666;font-size:0.6rem;cursor:pointer;padding:0.15rem 0.3rem;line-height:1"
+                onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#666'">×</button>
             </span>`;
           }).join('')}
         </div>
