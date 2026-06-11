@@ -1105,6 +1105,32 @@ async function laadLabelsBeheer() {
   } catch(e) { cont.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>'; }
 }
 
+async function voegLabelToe() {
+  const secret = localStorage.getItem('zl_worker_secret');
+  const input  = document.getElementById('nieuw-label-input');
+  const fb     = document.getElementById('label-feedback');
+  const label  = input.value.trim();
+  if (!label) return;
+  fb.style.display = 'block';
+  fb.style.color   = '#888';
+  fb.textContent   = 'Toevoegen…';
+  try {
+    const res  = await fetch(WORKER_URL + '/labels', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ label }),
+    });
+    const data = await res.json();
+    if (data.error) { fb.style.color = '#ef4444'; fb.textContent = data.error; return; }
+    input.value      = '';
+    fb.style.color   = '#4ade80';
+    fb.textContent   = `Label "${data.label}" toegevoegd.`;
+    _bhAlleLabels    = [];  // cache legen zodat map-labeling ook ververst
+    laadLabelsBeheer();
+    setTimeout(() => { fb.style.display = 'none'; }, 3000);
+  } catch(e) { fb.style.color = '#ef4444'; fb.textContent = 'Fout: ' + e.message; }
+}
+
 async function verwijderLabel(label) {
   const secret = localStorage.getItem('zl_worker_secret');
   if (!confirm(`Label "${label}" verwijderen?`)) return;
@@ -1114,6 +1140,7 @@ async function verwijderLabel(label) {
       headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
       body: JSON.stringify({ label }),
     });
+    _bhAlleLabels = [];  // cache legen
     laadLabelsBeheer();
   } catch(e) { alert('Fout: ' + e.message); }
 }
