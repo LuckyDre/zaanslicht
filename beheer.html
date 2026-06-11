@@ -1341,9 +1341,9 @@ async function gastMapVerwijderen(fgId, fgNaam, mapNaam, btn) {
 
 async function fgVerwijderMap(event, id, mapNaam, sectieEl) {
   event.stopPropagation();
+  const btn = event.currentTarget;
   if (!confirm(`Map "${mapNaam}" van deze fotograaf verwijderen?\n\nAlle foto's in deze map worden permanent verwijderd.`)) return;
   const secret = localStorage.getItem('zl_worker_secret');
-  const btn = event.currentTarget;
   btn.disabled = true; btn.textContent = '⏳';
   try {
     const res = await fetch(WORKER_URL + '/admin/map-verwijderen', {
@@ -1363,10 +1363,10 @@ async function fgVerwijderMap(event, id, mapNaam, sectieEl) {
 
 async function fgVerwijderFoto(event, id, key, wrapperEl) {
   event.stopPropagation();
+  const btn = event.currentTarget;
   const naam = key.split('/').pop();
   if (!confirm(`Foto "${naam}" permanent verwijderen?`)) return;
   const secret = localStorage.getItem('zl_worker_secret');
-  const btn = event.currentTarget;
   btn.disabled = true; btn.textContent = '⏳';
   try {
     const res = await fetch(WORKER_URL + '/admin/foto-verwijderen', {
