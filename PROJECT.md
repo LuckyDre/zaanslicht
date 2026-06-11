@@ -1,6 +1,6 @@
 # Zaanslicht.com — Projectdocument
 
-_Laatste update: 11 juni 2026 — v0.6_
+_Laatste update: 12 juni 2026 — v0.7_
 
 ---
 
