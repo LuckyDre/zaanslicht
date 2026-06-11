@@ -704,6 +704,9 @@ function renderCategorie(cat) {
         <span class="slider-count">${item.fotos.length} foto's</span>
         ${item.ts ? `<span class="slider-count" style="font-size:0.72rem">${fmtTsB(item.ts)}</span>` : ''}
         <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
+        <button onclick="eigenMapVerwijderen(event,this)" title="Map verwijderen uit slider"
+          style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
+          onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'">🗑</button>
       </div>
       <div class="fotograaf-row" style="padding:0.4rem 1rem 0.3rem;display:flex;align-items:center;gap:0.5rem;border-top:1px solid #222;">
         <span style="font-size:0.72rem;color:#555;flex-shrink:0">Fotograaf:</span>
