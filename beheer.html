@@ -1070,12 +1070,11 @@ async function slaAndreasKleurOp() {
 const STANDAARD_LABELS = ['AFC IJburg','Alcmaria Victrix','ASC De Volewijckers','De Blokkers','Fortuna Wormerveer','KFC','OFC Oostzaan','SC Purmerland','Sporting Krommenie','SV DTS','SV Koedijk','TOS Actief','United Davo','VV Assendelft','VV Opperdoes','VV Saenden','WSV 1930','ZCFC','ZVV Zaandijk'];
 
 async function laadLabelsBeheer() {
-  const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
   const cont   = document.getElementById('labels-beheer-lijst');
   cont.innerHTML = '<p style="color:#555">Laden…</p>';
   try {
-    const res    = await fetch(url + '/labels');
+    const res    = await fetch(WORKER_URL + '/labels');
     const data   = await res.json();
     const labels = data.labels || [];
     cont.innerHTML = labels.map(l => {
@@ -1089,11 +1088,10 @@ async function laadLabelsBeheer() {
 }
 
 async function verwijderLabel(label) {
-  const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
   if (!confirm(`Label "${label}" verwijderen?`)) return;
   try {
-    await fetch(url + '/labels', {
+    await fetch(WORKER_URL + '/labels', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
       body: JSON.stringify({ label }),
