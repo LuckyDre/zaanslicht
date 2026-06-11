@@ -169,6 +169,15 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.7 — 12 juni 2026
+- 🔍 **Site-brede zoekfunctie** (`zoek.js`, geladen op alle 6 publieke pagina's naast nav-fotografen.js)
+  - Vergrootglas in de header opent een overlay met filterchips: Alles / Series / Fotografen / Labels
+  - Zoekt in serienamen, fotograafnamen en labels (eigen manifest.json + `/fotograaf/manifest` + `/labels`)
+  - Serie-resultaat → `voetbal.html#serie=<naam>` of `nosports.html#serie=<naam>`; gallery-nieuw.js scrollt + highlight (functie `scrollNaarSerieUitHash`)
+  - Label-resultaat → `clubs.html?club=<naam>`; clubs.html scrollt naar de club-kaart en opent automatisch het foto-paneel
+  - Fotograaf-resultaat → `fotograaf-pagina.html?id=`
+- ➕ **Label toevoegen in beheer.html**: invoerveld + knop in de Labels-tab (ontbrak); worker-fix: `handleAddLabel` accepteert nu óók `X-Worker-Secret` (gaf altijd 401 voor admin)
+
 ### v0.6 — 11 juni 2026
 - 🗑 Kapotte slider ZCFC VR1 verwijderd uit `gallery:volgorde:voetbal` en `fotograaf:mappen:5aaa4a798ac6fc01` (Jan Kaper)
 - 🐛 `fotograaf-pagina.html`: foto-filter fix — `decodeURIComponent(f.key)` i.p.v. `encodeURIComponent` (haakjes-encodering mismatch)
