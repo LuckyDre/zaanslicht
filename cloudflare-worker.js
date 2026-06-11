@@ -1050,8 +1050,9 @@ async function handleSetFotoLabels(request, env) {
 
   let entry;
   if (isAdmin) {
-    // Admin labelt eigen fotos — url, naam en kleur worden meegestuurd
+    const { mapNaam, type: entryType, cat } = await request.clone().json().catch(() => ({}));
     entry = { key, url: url || '', fotograafId: 'andreas', naam: naam || 'Andreas Luckfiel', kleur: kleur || '#FF6B00', ts: Date.now() };
+    if (mapNaam) { entry.mapNaam = mapNaam; entry.type = entryType || 'map'; entry.cat = cat || ''; }
   } else {
     const authToken = request.headers.get('X-Fotograaf-Token');
     const fotograaf = await getFotograafByToken(authToken, env);
