@@ -751,15 +751,23 @@ function toggleOpen(hdr) {
     const item    = (manifest[cat] || []).find(x => x.map === mapNaam);
     if (item) {
       const grid = li.querySelector('.foto-grid');
-      grid.innerHTML = item.fotos.map((f, i) => `
-        <div class="foto-thumb" data-foto="${f}">
-          <img src="${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}" loading="lazy" />
+      grid.innerHTML = item.fotos.map((f, i) => {
+        const fUrl = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`;
+        const fKey = `eigen/${cat}/${mapNaam}/${f}`;
+        return `<div class="foto-thumb" data-foto="${f}" data-key="${fKey}" data-url="${fUrl}" data-cat="${cat}" data-map="${mapNaam}">
+          <div class="foto-thumb-img">
+            <img src="${fUrl}" loading="lazy" />
+          </div>
           <span class="foto-nr">${i + 1}</span>
-        </div>`).join('');
+          <div class="foto-lbl" onclick="bhOpenLabelPopup(event, this)" title="Labels">🏷</div>
+        </div>`;
+      }).join('');
       new Sortable(grid, {
         animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
         onEnd() { hernum(grid); dirty = true; }
       });
+      // Labels asynchroon laden
+      grid.querySelectorAll('.foto-thumb[data-key]').forEach(t => bhLaadFotoLabelBadge(t));
       li.dataset.fotosLoaded = 'true';
     }
   }
