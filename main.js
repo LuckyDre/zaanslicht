@@ -228,11 +228,17 @@ async function loadTegels() {
 
     nosportsTegels.forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('mouseenter', () => wisselThema('nosports', topVoetbal, topNosports));
+      if (el) el.addEventListener('mouseenter', () => {
+        document.body.style.removeProperty('--oranje');
+        wisselThema('nosports', topVoetbal, topNosports);
+      });
     });
     voetbalTegels.forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('mouseenter', () => wisselThema('voetbal', topVoetbal, topNosports));
+      if (el) el.addEventListener('mouseenter', () => {
+        document.body.style.removeProperty('--oranje');
+        wisselThema('voetbal', topVoetbal, topNosports);
+      });
     });
 
     // Geen mouseleave op grid: thema blijft staan tot de andere zone actief wordt
