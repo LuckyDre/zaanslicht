@@ -1045,7 +1045,7 @@ async function handleGetFotoLabels(request, env) {
 
 async function handleSetFotoLabels(request, env) {
   const isAdmin = requireSecret(request, env);
-  const { key, labels, url, naam, kleur } = await request.json().catch(() => ({}));
+  const { key, labels, url, naam, kleur, mapNaam, type: entryType, cat } = await request.json().catch(() => ({}));
   if (!key) return json({ error: 'key verplicht' }, 400);
 
   let entry;
