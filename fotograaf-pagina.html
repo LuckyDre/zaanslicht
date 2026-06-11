@@ -891,7 +891,90 @@ document.getElementById('hamburger').addEventListener('click', () => {
 document.getElementById('nav-close').addEventListener('click', sluitMenu);
 function sluitMenu() { document.getElementById('nav-mobile').classList.remove('open'); }
 
+// ── OVERZICHT (thumbnail grid, lazy-load) ────────────────────────────────────
+let _ovObserver = null;
+const OV_PAGE = 20;
+
+function toonOverzicht(titel, fotos) {
+  const modal = document.getElementById('ov');
+  const grid  = document.getElementById('ov-grid');
+
+  if (_ovObserver) { _ovObserver.disconnect(); _ovObserver = null; }
+
+  document.getElementById('ov-titel').textContent = `${titel} (${fotos.length})`;
+  grid.innerHTML = '';
+  grid.scrollTop = 0;
+
+  let rendered = 0;
+
+  function renderBatch() {
+    const batch = fotos.slice(rendered, rendered + OV_PAGE);
+    batch.forEach((f, i) => {
+      const absIdx = rendered + i;
+      const d = document.createElement('div');
+      d.className = 'ov-thumb';
+      const img = document.createElement('img');
+      img.src = f.src;
+      img.loading = 'lazy';
+      img.alt = '';
+      d.appendChild(img);
+      d.addEventListener('click', () => {
+        sluitOverzicht();
+        setTimeout(() => _openLightboxFotograaf(fotos, absIdx), 50);
+      });
+      grid.appendChild(d);
+    });
+    rendered += batch.length;
+
+    if (rendered < fotos.length) {
+      const sentinel = document.createElement('div');
+      sentinel.style.cssText = 'grid-column:1/-1;height:1px;';
+      grid.appendChild(sentinel);
+
+      _ovObserver = new IntersectionObserver(entries => {
+        if (!entries[0].isIntersecting) return;
+        _ovObserver.disconnect();
+        _ovObserver = null;
+        sentinel.remove();
+        renderBatch();
+      }, { root: grid, rootMargin: '0px 0px 300px 0px' });
+
+      _ovObserver.observe(sentinel);
+    }
+  }
+
+  renderBatch();
+  modal.classList.add('ov-open');
+  document.body.style.overflow = 'hidden';
+}
+
+function sluitOverzicht() {
+  if (_ovObserver) { _ovObserver.disconnect(); _ovObserver = null; }
+  document.getElementById('ov').classList.remove('ov-open');
+  document.body.style.overflow = '';
+}
+
+function initOverzicht() {
+  document.getElementById('ov-terug').addEventListener('click', sluitOverzicht);
+  document.getElementById('ov-sluit').addEventListener('click', sluitOverzicht);
+  const modal = document.getElementById('ov');
+  modal.addEventListener('click', e => { if (e.target === modal) sluitOverzicht(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.classList.contains('ov-open')) sluitOverzicht();
+  });
+}
+
+function addOverzichtBtn(h3El, naam, fotos) {
+  const btn = document.createElement('button');
+  btn.className = 'foto-overzicht-btn';
+  btn.title = "Alle foto's als thumbnail";
+  btn.textContent = '⊞';
+  btn.addEventListener('click', e => { e.stopPropagation(); toonOverzicht(naam, fotos); });
+  h3El.appendChild(btn);
+}
+
 laadPagina();
+initOverzicht();
 
 // ── ANDREAS — laadt uit manifest.json (statische eigen foto's) ────────────
 async function laadAndreasPagina(container) {
