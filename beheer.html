@@ -800,7 +800,7 @@ function switchTab(tab) {
   }
   if (tab === 'abonnees')   abLaadConfig();
   if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); }
-  if (tab === 'labels')       { laadLabelsBeheer(); }
+  if (tab === 'labels')       { laadLabelsBeheer(); bhRenderMapLabelLijst(); }
   if (tab === 'mijn-profiel') { laadAndreasKleur(); }
 }
 
@@ -1696,117 +1696,109 @@ function positionPreview(e) {
   preview.style.top  = y + 'px';
 }
 
-// ── FOTO-LABELS VANUIT BEHEER ─────────────────────────────────────────────
+// ── MAP-LABELS VANUIT LABELS TAB ─────────────────────────────────────────
 
-const _bhFotoLabelsCache = {};
-let _bhActievePopup = null;
-let _bhAlleLabels = [];
+let _bhMapLabelsCache = {};   // key → labels[]
+let _bhAlleLabels     = [];
+let _bhActieveCat     = 'voetbal';
 
-async function bhLaadLabels() {
+async function bhLaadAlleLabels() {
   if (_bhAlleLabels.length) return;
   try {
-    const res = await fetch(WORKER_URL + '/labels');
+    const res  = await fetch(WORKER_URL + '/labels');
     const data = await res.json();
     _bhAlleLabels = data.labels || [];
   } catch {}
 }
 
-async function bhLaadFotoLabelBadge(thumbEl) {
-  const key = thumbEl.dataset.key;
-  if (!key) return;
-  if (_bhFotoLabelsCache[key] !== undefined) { bhUpdateBadge(thumbEl, _bhFotoLabelsCache[key]); return; }
-  const secret = localStorage.getItem('zl_worker_secret');
-  if (!secret) return;
-  try {
-    const res = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(key), {
-      headers: { 'X-Worker-Secret': secret },
-    });
-    const data = await res.json();
-    _bhFotoLabelsCache[key] = data.labels || [];
-    bhUpdateBadge(thumbEl, _bhFotoLabelsCache[key]);
-  } catch {}
-}
+window.bhFilterCat = function(cat) {
+  _bhActieveCat = cat;
+  document.querySelectorAll('.bh-cat-btn').forEach(b => b.classList.remove('actief'));
+  document.getElementById('bh-cat-' + cat)?.classList.add('actief');
+  bhRenderMapLabelLijst();
+};
 
-function bhUpdateBadge(thumbEl, labels) {
-  const badge = thumbEl.querySelector('.foto-lbl');
-  if (!badge) return;
-  if (labels.length > 0) {
-    badge.classList.add('heeft-labels');
-    badge.title = 'Labels: ' + labels.join(', ');
-    badge.textContent = labels.length;
-  } else {
-    badge.classList.remove('heeft-labels');
-    badge.title = 'Labels toevoegen';
-    badge.textContent = '🏷';
+async function bhRenderMapLabelLijst() {
+  const cont = document.getElementById('bh-map-label-lijst');
+  if (!manifest) {
+    cont.innerHTML = '<p style="color:#666;font-size:0.85rem">Laad eerst het tabblad ⚽ Voetbal of 🌄 No Sports zodat de mappen beschikbaar zijn.</p>';
+    return;
+  }
+  await bhLaadAlleLabels();
+
+  const secret = localStorage.getItem('zl_worker_secret');
+  const items  = (manifest[_bhActieveCat] || []).sort((a, b) => (a.volgorde || 0) - (b.volgorde || 0));
+
+  if (!items.length) {
+    cont.innerHTML = '<p style="color:#666;font-size:0.85rem">Geen mappen gevonden in deze categorie.</p>';
+    return;
+  }
+
+  cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Laden…</p>';
+
+  // Labels per map ophalen (parallel)
+  await Promise.all(items.map(async item => {
+    const key = 'eigen-map/' + _bhActieveCat + '/' + item.map;
+    if (_bhMapLabelsCache[key] !== undefined) return;
+    try {
+      const res  = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(key), {
+        headers: { 'X-Worker-Secret': secret },
+      });
+      const data = await res.json();
+      _bhMapLabelsCache[key] = data.labels || [];
+    } catch { _bhMapLabelsCache[key] = []; }
+  }));
+
+  cont.innerHTML = '';
+  for (const item of items) {
+    const key      = 'eigen-map/' + _bhActieveCat + '/' + item.map;
+    const huidig   = _bhMapLabelsCache[key] || [];
+    const thumbSrc = item.fotos?.[0]
+      ? `${SITE}/images/${_bhActieveCat}/${encodeURIComponent(item.map)}/${encodeURIComponent(item.fotos[0])}`
+      : '';
+    const thumbUrl  = thumbSrc;
+    const fotoUrl   = thumbSrc; // voor de reverse index: thumbnail van de map
+
+    const card = document.createElement('div');
+    card.className = 'bh-map-card';
+    card.dataset.key = key;
+    card.innerHTML = `
+      <div class="bh-map-thumb">
+        ${thumbSrc ? `<img src="${thumbSrc}" loading="lazy" />` : '<div style="width:100%;height:100%;background:#222;display:flex;align-items:center;justify-content:center;font-size:1.4rem">📁</div>'}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="bh-map-naam">${escB(item.map)}</div>
+        <div class="bh-map-chips">
+          ${_bhAlleLabels.map(l => `<span class="bh-label-chip${huidig.includes(l) ? ' actief' : ''}" data-label="${l.replace(/"/g,'&quot;')}">${escB(l)}</span>`).join('')}
+        </div>
+        <span class="bh-opslaan-feedback" id="bh-fb-${CSS.escape(key)}">✓ Opgeslagen</span>
+      </div>`;
+
+    card.querySelectorAll('.bh-label-chip').forEach(chip => {
+      chip.addEventListener('click', async () => {
+        chip.classList.toggle('actief');
+        const actief = [...card.querySelectorAll('.bh-label-chip.actief')].map(c => c.dataset.label);
+        await bhSlaMapLabelsOp(key, actief, fotoUrl, item.map, secret, card);
+      });
+    });
+
+    cont.appendChild(card);
   }
 }
 
-window.bhOpenLabelPopup = async function(event, badge) {
-  event.stopPropagation();
-  if (_bhActievePopup) { _bhActievePopup.remove(); _bhActievePopup = null; }
-
-  await bhLaadLabels();
-
-  const thumb  = badge.closest('.foto-thumb');
-  const key    = thumb.dataset.key;
-  const url    = thumb.dataset.url;
-  const secret = localStorage.getItem('zl_worker_secret');
-  if (!secret) { alert('Worker Secret niet ingesteld — stel het in via het Abonnees-tabblad.'); return; }
-
-  const huidig = _bhFotoLabelsCache[key] || [];
-  const popup = document.createElement('div');
-  popup.className = 'bh-label-popup';
-  popup.innerHTML = `
-    <div class="bh-label-popup-titel">Labels voor deze foto</div>
-    <div class="bh-label-popup-chips">
-      ${_bhAlleLabels.map(l => `<span class="bh-label-chip${huidig.includes(l) ? ' actief' : ''}"
-        data-label="${l.replace(/"/g,'&quot;')}">${l}</span>`).join('')}
-    </div>
-    <div class="bh-label-popup-sluiten">✕ Sluiten</div>`;
-
-  document.body.appendChild(popup);
-  _bhActievePopup = popup;
-  const rect = badge.getBoundingClientRect();
-  let top  = rect.bottom + 6;
-  let left = rect.left - 110;
-  if (left < 8) left = 8;
-  if (top + 220 > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
-  popup.style.top  = top  + 'px';
-  popup.style.left = left + 'px';
-
-  popup.querySelectorAll('.bh-label-chip').forEach(chip => {
-    chip.addEventListener('click', async () => {
-      chip.classList.toggle('actief');
-      const actief = [...popup.querySelectorAll('.bh-label-chip.actief')].map(c => c.dataset.label);
-      await bhSlaFotoLabelsOp(key, actief, url, secret, thumb);
-    });
-  });
-
-  popup.querySelector('.bh-label-popup-sluiten').addEventListener('click', () => {
-    popup.remove(); _bhActievePopup = null;
-  });
-
-  setTimeout(() => {
-    document.addEventListener('click', function buiten(e) {
-      if (!popup.contains(e.target) && e.target !== badge) {
-        popup.remove(); _bhActievePopup = null;
-        document.removeEventListener('click', buiten);
-      }
-    });
-  }, 0);
-};
-
-async function bhSlaFotoLabelsOp(key, labels, url, secret, thumbEl) {
+async function bhSlaMapLabelsOp(key, labels, url, mapNaam, secret, cardEl) {
   try {
-    const res = await fetch(WORKER_URL + '/foto-labels', {
+    const res  = await fetch(WORKER_URL + '/foto-labels', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
-      body: JSON.stringify({ key, labels, url }),
+      body: JSON.stringify({ key, labels, url, mapNaam, type: 'map', cat: _bhActieveCat }),
     });
     const data = await res.json();
     if (data.ok) {
-      _bhFotoLabelsCache[key] = data.labels;
-      if (thumbEl) bhUpdateBadge(thumbEl, data.labels);
+      _bhMapLabelsCache[key] = data.labels;
+      // Feedback tonen
+      const fb = document.getElementById('bh-fb-' + CSS.escape(key));
+      if (fb) { fb.classList.add('zichtbaar'); setTimeout(() => fb.classList.remove('zichtbaar'), 1800); }
     }
   } catch {}
 }
