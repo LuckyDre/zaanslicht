@@ -324,7 +324,10 @@
         <hr style="border:none;border-top:1px solid #2a2a2a;margin-bottom:1.5rem">
 
         <!-- Map-labeling -->
-        <h3 style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:0.5rem">Mijn mappen koppelen aan labels</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+          <h3 style="font-size:0.8rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin:0">Mijn mappen koppelen aan labels</h3>
+          <button onclick="bhRenderMapLabelLijst()" style="background:none;border:1px solid #333;color:#666;padding:0.25rem 0.7rem;border-radius:6px;font-size:0.75rem;cursor:pointer" title="Vernieuwen">↺ Vernieuwen</button>
+        </div>
         <p style="color:#666;font-size:0.82rem;margin-bottom:1rem">Klik een label aan om een map aan dat label te koppelen. Zo verschijnen die foto's straks op de clubpagina.</p>
         <div style="display:flex;gap:0.5rem;margin-bottom:1.2rem">
           <button class="bh-cat-btn actief" id="bh-cat-voetbal" onclick="bhFilterCat('voetbal')">⚽ Voetbal</button>
