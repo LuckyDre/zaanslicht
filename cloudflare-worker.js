@@ -1007,6 +1007,63 @@ async function handleAddLabel(request, env) {
   return json({ ok: true, label: schoon });
 }
 
+async function handleGetFotoLabels(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+  const key = new URL(request.url).searchParams.get('key');
+  if (!key) return json({ error: 'key verplicht' }, 400);
+  if (!key.startsWith('fotografen/' + fotograaf.id + '/')) return json({ error: 'Geen toegang' }, 403);
+  const raw = await env.SUBSCRIBERS.get('foto:labels:' + key);
+  return json({ labels: raw ? JSON.parse(raw) : [] });
+}
+
+async function handleSetFotoLabels(request, env) {
+  const authToken = request.headers.get('X-Fotograaf-Token');
+  const fotograaf = await getFotograafByToken(authToken, env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+  const { key, labels } = await request.json().catch(() => ({}));
+  if (!key) return json({ error: 'key verplicht' }, 400);
+  if (!key.startsWith('fotografen/' + fotograaf.id + '/')) return json({ error: 'Geen toegang' }, 403);
+  const schoneLabels = Array.isArray(labels) ? labels.slice(0, 10) : [];
+
+  const oudRaw = await env.SUBSCRIBERS.get('foto:labels:' + key);
+  const oudeLabels = oudRaw ? JSON.parse(oudRaw) : [];
+
+  // Reverse index bijwerken
+  for (const label of oudeLabels) {
+    if (!schoneLabels.includes(label)) {
+      const idxRaw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+      const idx = idxRaw ? JSON.parse(idxRaw) : [];
+      await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(idx.filter(f => f.key !== key)));
+    }
+  }
+  for (const label of schoneLabels) {
+    if (!oudeLabels.includes(label)) {
+      const idxRaw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+      const idx = idxRaw ? JSON.parse(idxRaw) : [];
+      if (!idx.find(f => f.key === key)) {
+        idx.push({ key, fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() });
+        await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(idx));
+      }
+    }
+  }
+
+  if (schoneLabels.length === 0) {
+    await env.SUBSCRIBERS.delete('foto:labels:' + key);
+  } else {
+    await env.SUBSCRIBERS.put('foto:labels:' + key, JSON.stringify(schoneLabels));
+  }
+  return json({ ok: true, labels: schoneLabels });
+}
+
+async function handleFotosBijLabel(request, env) {
+  const label = new URL(request.url).searchParams.get('label');
+  if (!label) return json({ error: 'label verplicht' }, 400);
+  const raw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+  return json({ fotos: raw ? JSON.parse(raw) : [] });
+}
+
 async function handleDeleteComment(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
   const { id, photoKey } = await request.json().catch(() => ({}));
@@ -1206,6 +1263,9 @@ export default {
     if (url.pathname === '/comments'     && request.method === 'GET')  return handleComments(request, env);
     if (url.pathname === '/profiel/andreas' && request.method === 'GET')  return handleGetAndreasProfile(request, env);
     if (url.pathname === '/profiel/andreas' && request.method === 'POST') return handleSetAndreasProfile(request, env);
+    if (url.pathname === '/foto-labels'   && request.method === 'GET')    return handleGetFotoLabels(request, env);
+    if (url.pathname === '/foto-labels'   && request.method === 'POST')   return handleSetFotoLabels(request, env);
+    if (url.pathname === '/fotos-bij-label' && request.method === 'GET')  return handleFotosBijLabel(request, env);
     if (url.pathname === '/labels'       && request.method === 'GET')    return handleGetLabels(request, env);
     if (url.pathname === '/labels'       && request.method === 'POST')   return handleAddLabel(request, env);
     if (url.pathname === '/labels'       && request.method === 'DELETE') {
