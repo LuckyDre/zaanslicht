@@ -1081,10 +1081,9 @@ async function laadLabelsBeheer() {
     const data   = await res.json();
     const labels = data.labels || [];
     cont.innerHTML = labels.map(l => {
-      const isStandaard = STANDAARD_LABELS.includes(l);
-      return `<span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.65rem;border-radius:100px;font-size:0.82rem;border:1px solid ${isStandaard ? 'rgba(255,255,255,0.15)' : 'rgba(255,107,0,0.4)'};color:${isStandaard ? '#aaa' : '#FF6B00'};background:#1a1a1a">
+      return `<span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.65rem;border-radius:100px;font-size:0.82rem;border:1px solid rgba(255,255,255,0.15);color:#aaa;background:#1a1a1a">
         ${escB(l)}
-        ${!isStandaard ? `<button onclick="verwijderLabel('${escB(l)}')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:0.9rem;padding:0;line-height:1;margin-left:0.2rem" title="Verwijder">🗑</button>` : ''}
+        <button onclick="verwijderLabel('${escB(l)}')" style="background:none;border:none;color:#555;cursor:pointer;font-size:0.9rem;padding:0;line-height:1;margin-left:0.2rem" title="Verwijder" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'">🗑</button>
       </span>`;
     }).join('');
   } catch(e) { cont.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>'; }
