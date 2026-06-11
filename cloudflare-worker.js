@@ -1293,10 +1293,20 @@ export default {
     if (url.pathname === '/labels'       && request.method === 'DELETE') {
       if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
       const { label } = await request.json().catch(() => ({}));
-      const raw = await env.SUBSCRIBERS.get('labels:lijst');
+      if (!label) return json({ error: 'label verplicht' }, 400);
+      // Verwijder uit aangepaste lijst
+      const raw  = await env.SUBSCRIBERS.get('labels:lijst');
       const lijst = raw ? JSON.parse(raw) : [];
-      const nieuw = lijst.filter(l => l !== label);
-      await env.SUBSCRIBERS.put('labels:lijst', JSON.stringify(nieuw));
+      await env.SUBSCRIBERS.put('labels:lijst', JSON.stringify(lijst.filter(l => l !== label)));
+      // Voeg toe aan blocklist als het een standaard label is
+      if (STANDAARD_LABELS.includes(label)) {
+        const vRaw = await env.SUBSCRIBERS.get('labels:verwijderd');
+        const verwijderd = vRaw ? JSON.parse(vRaw) : [];
+        if (!verwijderd.includes(label)) {
+          verwijderd.push(label);
+          await env.SUBSCRIBERS.put('labels:verwijderd', JSON.stringify(verwijderd));
+        }
+      }
       return json({ ok: true });
     }
     if (url.pathname === '/alle-comments'  && request.method === 'GET')    return handleAlleComments(request, env);
