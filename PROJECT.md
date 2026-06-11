@@ -169,6 +169,11 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.6 — 11 juni 2026
+- 🗑 Kapotte slider ZCFC VR1 verwijderd uit `gallery:volgorde:voetbal` en `fotograaf:mappen:5aaa4a798ac6fc01` (Jan Kaper)
+- 🐛 `fotograaf-pagina.html`: foto-filter fix — `decodeURIComponent(f.key)` i.p.v. `encodeURIComponent` (haakjes-encodering mismatch)
+- 🖼 `beheer.html` Dashboard-modal: toont nu echte foto-thumbnails per map i.p.v. kapotte galerij-teller
+
 ### v0.5 — 11 juni 2026
 - 🗑 Delete-knoppen op alle sliders (eigen + gast) in Voetbal/No Sports-tab
 - 🗑 Delete-knoppen per map en per foto in Fotografen-tab
