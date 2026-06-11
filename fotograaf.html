@@ -1155,6 +1155,107 @@ window.voegLabelToe = async function() {
   }
 };
 
+// ── FOTO-LABELS (per individuele foto) ────────────────────────────────────
+
+const _fotoLabelsCache = {}; // key → labels[]
+let _actiefeLabelPopup = null;
+
+async function laadFotoLabelBadge(chipEl, key) {
+  if (_fotoLabelsCache[key] !== undefined) {
+    updateLabelBadge(chipEl, _fotoLabelsCache[key]);
+    return;
+  }
+  try {
+    const res = await fetch(WORKER + '/foto-labels?key=' + encodeURIComponent(key), {
+      headers: { 'X-Fotograaf-Token': sessie?.token || '' },
+    });
+    const data = await res.json();
+    _fotoLabelsCache[key] = data.labels || [];
+    updateLabelBadge(chipEl, _fotoLabelsCache[key]);
+  } catch {}
+}
+
+function updateLabelBadge(chipEl, labels) {
+  const badge = chipEl.querySelector('.foto-chip-lbl');
+  if (!badge) return;
+  if (labels.length > 0) {
+    badge.classList.add('heeft-labels');
+    badge.title = 'Labels: ' + labels.join(', ');
+    badge.textContent = labels.length;
+  } else {
+    badge.classList.remove('heeft-labels');
+    badge.title = 'Labels toevoegen';
+    badge.textContent = '🏷';
+  }
+}
+
+window.openFotoLabelPopup = async function(key, badge) {
+  // Sluit eerder open popup
+  if (_actiefeLabelPopup) { _actiefeLabelPopup.remove(); _actiefeLabelPopup = null; }
+
+  if (!_alleLabels.length) await laadLabels();
+
+  const huidig = _fotoLabelsCache[key] || [];
+  const popup = document.createElement('div');
+  popup.className = 'foto-label-popup';
+  popup.innerHTML = `
+    <div class="foto-label-popup-titel">Labels voor deze foto</div>
+    <div class="foto-label-popup-chips">
+      ${_alleLabels.map(l => `<span class="foto-label-popup-chip${huidig.includes(l) ? ' actief' : ''}"
+        data-label="${l.replace(/"/g,'&quot;')}">${l}</span>`).join('')}
+    </div>
+    <div class="foto-label-popup-sluiten">✕ Sluiten</div>`;
+
+  // Positie naast de badge
+  document.body.appendChild(popup);
+  _actiefeLabelPopup = popup;
+  const rect = badge.getBoundingClientRect();
+  let top  = rect.bottom + 6;
+  let left = rect.left - 100;
+  if (left < 8) left = 8;
+  if (top + 200 > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
+  popup.style.top  = top  + 'px';
+  popup.style.left = left + 'px';
+
+  popup.querySelectorAll('.foto-label-popup-chip').forEach(chip => {
+    chip.addEventListener('click', async () => {
+      const label = chip.dataset.label;
+      chip.classList.toggle('actief');
+      const actief = [...popup.querySelectorAll('.foto-label-popup-chip.actief')].map(c => c.dataset.label);
+      await slaFotoLabelsOp(key, actief, badge.closest('.foto-chip'));
+    });
+  });
+
+  popup.querySelector('.foto-label-popup-sluiten').addEventListener('click', () => {
+    popup.remove(); _actiefeLabelPopup = null;
+  });
+
+  // Klik buiten popup sluit hem
+  setTimeout(() => {
+    document.addEventListener('click', function buiten(e) {
+      if (!popup.contains(e.target) && e.target !== badge) {
+        popup.remove(); _actiefeLabelPopup = null;
+        document.removeEventListener('click', buiten);
+      }
+    });
+  }, 0);
+};
+
+async function slaFotoLabelsOp(key, labels, chipEl) {
+  try {
+    const res = await fetch(WORKER + '/foto-labels', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie?.token || '' },
+      body: JSON.stringify({ key, labels }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      _fotoLabelsCache[key] = data.labels;
+      if (chipEl) updateLabelBadge(chipEl, data.labels);
+    }
+  } catch {}
+}
+
 window.startUpload = async () => {
     const btn  = document.getElementById('upload-btn');
     const map  = document.getElementById('up-map').value.trim();
