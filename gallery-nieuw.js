@@ -367,9 +367,32 @@ async function laadGallery() {
     if (fotoEl)   fotoEl.textContent   = totaalFotos.toLocaleString('nl-NL');
     if (mappenEl) mappenEl.textContent = totaalSeries;
 
+    // Deeplink vanuit zoekfunctie: #serie=<naam> → scroll naar die serie
+    scrollNaarSerieUitHash(container);
+
   } catch (err) {
     console.error('Gallery laden mislukt:', err);
     container.innerHTML = '<p class="leeg">Kon foto\'s niet laden.</p>';
+  }
+}
+
+function scrollNaarSerieUitHash(container) {
+  const m = location.hash.match(/^#serie=(.+)$/);
+  if (!m) return;
+  let doel;
+  try { doel = decodeURIComponent(m[1]).trim(); } catch { return; }
+  const pcs = container.querySelectorAll('.pc');
+  for (const pc of pcs) {
+    const titel = pc.querySelector('.pc-titel');
+    // childNodes[0] is de naam-tekst, vóór de sub/teller-spans
+    const naam = titel?.childNodes[0]?.nodeValue?.trim() || '';
+    if (naam === doel) {
+      pc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      pc.style.transition = 'box-shadow 0.4s';
+      pc.style.boxShadow = '0 0 0 2px var(--oranje, #FF6B00)';
+      setTimeout(() => { pc.style.boxShadow = ''; }, 2500);
+      return;
+    }
   }
 }
 
