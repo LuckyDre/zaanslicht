@@ -1297,6 +1297,82 @@ async function fgToggleFoto(id, key, el) {
   } catch(e) { alert('Fout: ' + e.message); }
 }
 
+function eigenMapVerwijderen(event, btn) {
+  event.stopPropagation();
+  const li = btn.closest('.slider-item');
+  const cat = li.dataset.cat;
+  const mapNaam = li.dataset.map;
+  if (!confirm(`Map "${mapNaam}" verwijderen uit de ${cat}-slider?\n\nDe foto's blijven bewaard op GitHub Pages.`)) return;
+  manifest[cat] = (manifest[cat] || []).filter(x => x.map !== mapNaam);
+  li.remove();
+  dirty = true;
+  setLog(`Map "${mapNaam}" verwijderd uit slider. Klik Opslaan om te bevestigen.`, 'success');
+}
+
+async function gastMapVerwijderen(fgId, fgNaam, mapNaam, btn) {
+  if (!confirm(`Map "${mapNaam}" van ${fgNaam} verwijderen?\n\nAlle foto's in deze map worden permanent verwijderd.`)) return;
+  const secret = localStorage.getItem('zl_worker_secret');
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const res = await fetch(WORKER_URL + '/admin/map-verwijderen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id: fgId, map: mapNaam }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Onbekend');
+    btn.closest('.slider-item').remove();
+    setLog(`Map "${mapNaam}" verwijderd (${data.verwijderd} foto's).`, 'success');
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '🗑';
+    setLog('Fout: ' + e.message, 'error');
+  }
+}
+
+async function fgVerwijderMap(event, id, mapNaam, sectieEl) {
+  event.stopPropagation();
+  if (!confirm(`Map "${mapNaam}" van deze fotograaf verwijderen?\n\nAlle foto's in deze map worden permanent verwijderd.`)) return;
+  const secret = localStorage.getItem('zl_worker_secret');
+  const btn = event.currentTarget;
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const res = await fetch(WORKER_URL + '/admin/map-verwijderen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id, map: mapNaam }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Onbekend');
+    sectieEl.remove();
+    setLog(`Map "${mapNaam}" verwijderd (${data.verwijderd} foto's).`, 'success');
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '🗑';
+    setLog('Fout: ' + e.message, 'error');
+  }
+}
+
+async function fgVerwijderFoto(event, id, key, wrapperEl) {
+  event.stopPropagation();
+  const naam = key.split('/').pop();
+  if (!confirm(`Foto "${naam}" permanent verwijderen?`)) return;
+  const secret = localStorage.getItem('zl_worker_secret');
+  const btn = event.currentTarget;
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const res = await fetch(WORKER_URL + '/admin/foto-verwijderen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Onbekend');
+    wrapperEl.remove();
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '×';
+    setLog('Fout: ' + e.message, 'error');
+  }
+}
+
 async function fgVerwijder(id, naam) {
   if (!confirm(`Fotograaf "${naam}" verwijderen?\n\nAlle geüploade foto's worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.`)) return;
   const url    = localStorage.getItem('zl_worker_url');
