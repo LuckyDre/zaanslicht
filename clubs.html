@@ -681,6 +681,21 @@
     }
   };
 
+  // Deeplink vanuit zoekfunctie: ?club=X → scroll naar de club en open foto's
+  (function() {
+    var club = new URLSearchParams(location.search).get('club');
+    if (!club) return;
+    var card = Array.from(document.querySelectorAll('.club-card')).find(function(c) {
+      return c.dataset.club === club;
+    });
+    if (!card) return;
+    setTimeout(function() {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var btn = card.querySelector('.club-fotos-btn');
+      if (btn) toggleClubFotos(btn);
+    }, 100);
+  })();
+
   window.openClubFoto = function(src) {
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out';
