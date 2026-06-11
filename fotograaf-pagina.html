@@ -516,9 +516,9 @@ async function laadPagina() {
     for (const map of mappen) {
       const fotosRes  = await fetch(`${WORKER}/fotograaf/fotos?id=${fg.id}&categorie=${encodeURIComponent(map.categorie)}`);
       const fotosData = await fotosRes.json();
-      const fotos     = (fotosData.fotos || []).filter(f =>
-        f.key.includes(`/${encodeURIComponent(map.map)}/`) || f.key.includes(`/${map.map}/`)
-      );
+      const fotos     = (fotosData.fotos || []).filter(f => {
+        try { return decodeURIComponent(f.key).includes(`/${map.map}/`); } catch { return false; }
+      });
       if (!fotos.length) continue;
 
       totaalFotos += fotos.length;
