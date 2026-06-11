@@ -112,44 +112,79 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   container.appendChild(div);
 }
 
-// ── OVERZICHT GRID ─────────────────────────────────────────────────────────
+// ── OVERZICHT GRID (lazy-load: 20 thumbnails, meer bij scrollen) ───────────
+const OV_PAGE = 20;
+
 function toonOverzicht(titel, fotos) {
-  const modal  = document.getElementById('ov');
-  const grid   = document.getElementById('ov-grid');
-  document.getElementById('ov-titel').textContent = titel;
+  const modal = document.getElementById('ov');
+  const grid  = document.getElementById('ov-grid');
+
+  // Cleanup vorige observer
+  if (_ovObserver) { _ovObserver.disconnect(); _ovObserver = null; }
+
+  document.getElementById('ov-titel').textContent = `${titel} (${fotos.length})`;
   grid.innerHTML = '';
-  fotos.forEach((f, i) => {
-    const d = document.createElement('div');
-    d.className = 'ov-thumb';
-    d.innerHTML = `<img src="${f.src}" loading="lazy" />`;
-    d.addEventListener('click', () => {
-      modal.classList.remove('ov-open');
-      document.body.style.overflow = '';
-      setTimeout(() => lbOpen(fotos, i), 50);
+  grid.scrollTop = 0;
+
+  let rendered = 0;
+
+  function renderBatch() {
+    const batch = fotos.slice(rendered, rendered + OV_PAGE);
+    batch.forEach((f, i) => {
+      const absIdx = rendered + i;
+      const d = document.createElement('div');
+      d.className = 'ov-thumb';
+      const img = document.createElement('img');
+      img.src = f.src;
+      img.loading = 'lazy';
+      img.alt = '';
+      d.appendChild(img);
+      d.addEventListener('click', () => {
+        sluitOverzicht();
+        setTimeout(() => lbOpen(fotos, absIdx), 50);
+      });
+      grid.appendChild(d);
     });
-    grid.appendChild(d);
-  });
+    rendered += batch.length;
+
+    // Sentinel voor volgende batch
+    if (rendered < fotos.length) {
+      const sentinel = document.createElement('div');
+      sentinel.style.cssText = 'grid-column:1/-1;height:1px;';
+      grid.appendChild(sentinel);
+
+      _ovObserver = new IntersectionObserver(entries => {
+        if (!entries[0].isIntersecting) return;
+        _ovObserver.disconnect();
+        _ovObserver = null;
+        sentinel.remove();
+        renderBatch();
+      }, { root: grid, rootMargin: '0px 0px 300px 0px' });
+
+      _ovObserver.observe(sentinel);
+    }
+  }
+
+  renderBatch();
+
   modal.classList.add('ov-open');
   document.body.style.overflow = 'hidden';
 }
 
-function initOverzicht() {
+function sluitOverzicht() {
+  if (_ovObserver) { _ovObserver.disconnect(); _ovObserver = null; }
   const modal = document.getElementById('ov');
-  document.getElementById('ov-terug').addEventListener('click', () => {
-    modal.classList.remove('ov-open');
-    document.body.style.overflow = '';
-  });
-  document.getElementById('ov-sluit').addEventListener('click', () => {
-    modal.classList.remove('ov-open');
-    document.body.style.overflow = '';
-  });
-  modal.addEventListener('click', e => {
-    if (e.target === modal) { modal.classList.remove('ov-open'); document.body.style.overflow = ''; }
-  });
+  modal.classList.remove('ov-open');
+  document.body.style.overflow = '';
+}
+
+function initOverzicht() {
+  document.getElementById('ov-terug').addEventListener('click', sluitOverzicht);
+  document.getElementById('ov-sluit').addEventListener('click', sluitOverzicht);
+  const modal = document.getElementById('ov');
+  modal.addEventListener('click', e => { if (e.target === modal) sluitOverzicht(); });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modal.classList.contains('ov-open')) {
-      modal.classList.remove('ov-open'); document.body.style.overflow = '';
-    }
+    if (e.key === 'Escape' && modal.classList.contains('ov-open')) sluitOverzicht();
   });
 }
 
