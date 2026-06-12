@@ -169,6 +169,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.10 — 12 juni 2026
+- 👁 **Review-modus**: admin kan meekijken als gastfotograaf (echte dashboard-replicatie)
+  - beheer.html → Fotografen-tab → kaart "Meekijken als fotograaf": kies fotograaf + apart review-wachtwoord → opent fotograaf.html in nieuw tabblad met een echte (korte) sessie
+  - Review-wachtwoord instellen/wijzigen kan in dezelfde kaart (opgeslagen als PBKDF2-hash in KV `review:wachtwoord`)
+  - Worker: `POST /admin/review-wachtwoord` (secret) en `POST /admin/review-sessie` (secret + review-wachtwoord) → token via bestaand `fotograaf:token:`-mechanisme, TTL 2 uur
+  - fotograaf.html toont een oranje sticky banner "Review-modus — je kijkt mee als {naam}" met Stop review-knop (wist sessie + vlag, terug naar beheer); ook gewone Uitloggen wist de review-vlag
+  - ⚠️ Wijzigingen in review-modus zijn écht (zelfde API's als de fotograaf zelf)
+
 ### v0.9 — 12 juni 2026
 - 📅 **Datum per slider/map** (kalender-widget, `<input type="date">` met dark color-scheme)
   - beheer.html eigen sliders: datumveld naast Fotograaf → `datum` (JJJJ-MM-DD) in manifest.json, opslaan via bestaande GitHub-commit ("Opslaan")
