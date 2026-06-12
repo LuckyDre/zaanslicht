@@ -170,6 +170,7 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 ## Changelog
 
 ### v0.10 — 12 juni 2026
+- 🐛 **Fix "Mijn mappen" laadde niet** (fotograaf.html): de hele LABELS-sectie (renderLabelChips, laadLabels, laadFotoLabelBadge, openFotoLabelPopup, slaFotoLabelsOp, …) stond per ongeluk bínnen de functie-body van `toonDashboard`, waardoor het top-level `laadMappenTab` ze niet kon aanroepen (`laadFotoLabelBadge is not defined` → tab bleef op "Laden…"). Blok van 181 regels naar top-level verplaatst; `startUpload` bleef bewust binnen toonDashboard (gebruikt closure-variabelen `bestanden`/`converteerNaarWebp`).
 - 👁 **Review-modus**: admin kan meekijken als gastfotograaf (echte dashboard-replicatie)
   - beheer.html → Fotografen-tab → kaart "Meekijken als fotograaf": kies fotograaf + apart review-wachtwoord → opent fotograaf.html in nieuw tabblad met een echte (korte) sessie
   - Review-wachtwoord instellen/wijzigen kan in dezelfde kaart (opgeslagen als PBKDF2-hash in KV `review:wachtwoord`)
