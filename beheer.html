@@ -839,7 +839,7 @@ function switchTab(tab) {
     clearInterval(window._reactiesInterval);
     window._reactiesInterval = null;
   }
-  if (tab === 'abonnees')   abLaadConfig();
+  if (tab === 'abonnees')   { abLaadConfig(); if (typeof QRCode !== 'undefined') qrVulDoelen(); }
   if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); }
   if (tab === 'labels')       { laadLabelsBeheer(); bhRenderMapLabelLijst(); }
   if (tab === 'mijn-profiel') { laadAndreasKleur(); }
