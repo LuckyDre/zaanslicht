@@ -170,7 +170,8 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 ## Changelog
 
 ### v0.8 — 12 juni 2026
-- 📱 **Mobiele landingspagina `/m/`** (`m/index.html`, zelfstandige pagina, geen redirect vanaf hoofdsite)
+- 📲 **Auto-redirect telefoons**: index.html stuurt mobiele bezoekers (max-width 768px + pointer coarse) door naar /m/; `?desktop=1` (link "volledige website" op /m/) zet sessionStorage-vlag `zl_desktop` en houdt de redirect die sessie tegen
+- 📱 **Mobiele landingspagina `/m/`** (`m/index.html`)
   - Nieuwste serie met foto-grid (gast via `/fotograaf/fotos`, eigen via manifest.json), eerdere series, grote navigatieknoppen, fotografen-chips, abonneren-formulier (`/subscribe`)
   - Deel-knop (navigator.share / klembord) + QR-code van zaanslicht.com/m/ (qrcodejs, client-side)
   - zoek.js werkt ook op /m/ (vergrootglas in header)
