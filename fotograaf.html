@@ -578,12 +578,32 @@ window.addEventListener('DOMContentLoaded', () => {
   if (sessie?.token) {
     toonDashboard();
     checkPositieBeheer();
+    toonReviewBanner();
   } else if (inviteToken) {
     toonRegistreren();
   } else {
     toonInloggen();
   }
 });
+
+// ── Review-banner: admin kijkt mee via beheer.html ────────────────────────
+function toonReviewBanner() {
+  if (localStorage.getItem('zl_review') !== '1') return;
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:sticky;top:0;z-index:500;background:#7c2d12;border-bottom:2px solid #FF6B00;color:#fff;padding:0.6rem 1rem;display:flex;align-items:center;justify-content:center;gap:0.8rem;font-size:0.82rem;font-weight:600';
+  banner.innerHTML = `
+    <span>👁 Review-modus — je kijkt mee als <strong>${sessie.naam}</strong>. Wijzigingen zijn écht.</span>
+    <button onclick="stopReview()" style="background:#FF6B00;border:none;color:#fff;padding:0.3rem 0.9rem;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit">Stop review</button>`;
+  document.body.prepend(banner);
+}
+
+window.stopReview = () => {
+  localStorage.removeItem('zl_fotograaf');
+  localStorage.removeItem('zl_review');
+  window.close();
+  // Als het tabblad niet door script geopend was, val terug op beheer
+  setTimeout(() => { location.href = 'beheer.html'; }, 200);
+};
 
 // ══════════════════════════════════════════════════════
 // INLOGGEN
