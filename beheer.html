@@ -392,6 +392,37 @@
           <p id="fg-uitnodig-feedback" style="font-size:0.8rem;margin-top:0.8rem;display:none"></p>
         </div>
 
+        <!-- Meekijken als fotograaf (review-modus) -->
+        <div style="background:#1a1a1a;border:1px solid rgba(255,107,0,0.25);border-radius:10px;padding:1.5rem;margin-bottom:2rem">
+          <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888;margin-bottom:0.5rem">👁 Meekijken als fotograaf</h3>
+          <p style="color:#777;font-size:0.8rem;margin-bottom:1.2rem">Open het echte fotograaf-dashboard van een gastfotograaf in een nieuw tabblad, om te controleren of alles werkt zoals het hoort. Let op: wijzigingen die je daar maakt zijn écht.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:0.8rem;align-items:end">
+            <div>
+              <label style="display:block;font-size:0.75rem;color:#666;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:1px">Fotograaf</label>
+              <select id="review-fg" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;color:#fff;padding:0.6rem 0.8rem;font-size:0.85rem">
+                <option value="">Laden…</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.75rem;color:#666;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:1px">Review-wachtwoord</label>
+              <input type="password" id="review-pw" placeholder="••••••••" style="width:100%;background:#111;border:1px solid #333;border-radius:6px;color:#fff;padding:0.6rem 0.8rem;font-size:0.85rem"
+                onkeydown="if(event.key==='Enter')startReview()" />
+            </div>
+            <button onclick="startReview()" style="background:#FF6B00;border:none;color:#fff;padding:0.6rem 1.2rem;border-radius:6px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap">
+              👁 Open dashboard →
+            </button>
+          </div>
+          <p id="review-feedback" style="font-size:0.8rem;margin-top:0.8rem;display:none"></p>
+          <details style="margin-top:1rem">
+            <summary style="font-size:0.75rem;color:#666;cursor:pointer">Review-wachtwoord instellen of wijzigen</summary>
+            <div style="display:flex;gap:0.8rem;margin-top:0.8rem;align-items:center">
+              <input type="password" id="review-pw-nieuw" placeholder="Nieuw review-wachtwoord (min. 8 tekens)" style="flex:1;background:#111;border:1px solid #333;border-radius:6px;color:#fff;padding:0.5rem 0.8rem;font-size:0.82rem" />
+              <button onclick="reviewWachtwoordOpslaan()" style="background:none;border:1px solid #333;color:#888;padding:0.5rem 1rem;border-radius:6px;font-size:0.78rem;cursor:pointer">Opslaan</button>
+            </div>
+            <p id="review-pw-feedback" style="font-size:0.78rem;margin-top:0.5rem;display:none"></p>
+          </details>
+        </div>
+
         <!-- Fotografen lijst -->
         <!-- Openstaande uitnodigingen -->
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
