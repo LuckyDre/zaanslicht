@@ -684,7 +684,7 @@ async function laadGastSeries() {
   }
 }
 
-function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts) {
+function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts, datum) {
   const li = document.createElement('li');
   li.className = 'slider-item';
   li.dataset.type  = 'gast';
@@ -702,11 +702,34 @@ function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts) {
       <span class="slider-count" style="color:${fg.kleur||'#3b82f6'}">${escB(fg.naam)}</span>
       <span class="slider-count">${aantalFotos} foto${aantalFotos !== 1 ? "'s" : ""}</span>
       ${ts ? `<span class="slider-count" style="font-size:0.72rem">${fmtTsB(ts)}</span>` : ''}
+      <span style="font-size:0.72rem;color:#555;flex-shrink:0;margin-left:auto">📅</span>
+      <input type="date" class="datum-input" value="${datum || ''}" title="Datum van deze serie"
+        style="background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.2rem 0.4rem;font-size:0.75rem;outline:none;color-scheme:dark;font-family:inherit;flex-shrink:0"
+        onclick="event.stopPropagation()"
+        onchange="gastMapDatumOpslaan('${fgIdS}','${mapS}',this)" />
       <button onclick="gastMapVerwijderen('${fgIdS}','${fgNaamS}','${mapS}',this)"
-        style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;border-radius:4px;margin-left:auto;flex-shrink:0"
+        style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;border-radius:4px;flex-shrink:0"
         onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'" title="Map verwijderen">🗑</button>
     </div>`;
   return li;
+}
+
+async function gastMapDatumOpslaan(fgId, mapNaam, input) {
+  const secret = localStorage.getItem('zl_worker_secret');
+  try {
+    const res  = await fetch(WORKER_URL + '/fotograaf/map-datum', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id: fgId, map: mapNaam, datum: input.value }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Fout');
+    input.style.borderColor = '#22c55e';
+    setTimeout(() => { input.style.borderColor = '#333'; }, 1500);
+  } catch (e) {
+    input.style.borderColor = '#ef4444';
+    alert('Datum opslaan mislukt: ' + e.message);
+  }
 }
 
 function renderCategorie(cat) {
