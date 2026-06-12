@@ -957,6 +957,60 @@ function fgKopieer() {
   });
 }
 
+// ── REVIEW-MODUS: meekijken als fotograaf ───────────────────────────────
+async function startReview() {
+  const secret = localStorage.getItem('zl_worker_secret');
+  const id     = document.getElementById('review-fg').value;
+  const pw     = document.getElementById('review-pw').value;
+  const fb     = document.getElementById('review-feedback');
+  fb.style.display = 'block';
+
+  if (!id)  { fb.style.color = '#ef4444'; fb.textContent = 'Kies eerst een fotograaf.'; return; }
+  if (!pw)  { fb.style.color = '#ef4444'; fb.textContent = 'Vul het review-wachtwoord in.'; return; }
+
+  fb.style.color = '#888'; fb.textContent = 'Review-sessie aanvragen…';
+  try {
+    const res  = await fetch(WORKER_URL + '/admin/review-sessie', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ id, wachtwoord: pw }),
+    });
+    const data = await res.json();
+    if (!data.ok) { fb.style.color = '#ef4444'; fb.textContent = data.error || 'Mislukt'; return; }
+
+    // Sessie klaarzetten zoals een gewone fotograaf-login + review-vlag
+    localStorage.setItem('zl_fotograaf', JSON.stringify({ token: data.token, naam: data.naam, kleur: data.kleur, id: data.id }));
+    localStorage.setItem('zl_review', '1');
+    document.getElementById('review-pw').value = '';
+    fb.style.color = '#4ade80';
+    fb.textContent = `✓ Dashboard van ${data.naam} geopend in nieuw tabblad (sessie 2 uur geldig).`;
+    window.open('fotograaf.html', '_blank');
+  } catch(e) {
+    fb.style.color = '#ef4444'; fb.textContent = 'Fout: ' + e.message;
+  }
+}
+
+async function reviewWachtwoordOpslaan() {
+  const secret = localStorage.getItem('zl_worker_secret');
+  const pw     = document.getElementById('review-pw-nieuw').value;
+  const fb     = document.getElementById('review-pw-feedback');
+  fb.style.display = 'block';
+  if (pw.length < 8) { fb.style.color = '#ef4444'; fb.textContent = 'Minimaal 8 tekens.'; return; }
+  try {
+    const res  = await fetch(WORKER_URL + '/admin/review-wachtwoord', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ wachtwoord: pw }),
+    });
+    const data = await res.json();
+    if (!data.ok) { fb.style.color = '#ef4444'; fb.textContent = data.error || 'Mislukt'; return; }
+    document.getElementById('review-pw-nieuw').value = '';
+    fb.style.color = '#4ade80'; fb.textContent = '✓ Review-wachtwoord opgeslagen.';
+  } catch(e) {
+    fb.style.color = '#ef4444'; fb.textContent = 'Fout: ' + e.message;
+  }
+}
+
 async function fgLaadLijst() {
   const url    = localStorage.getItem('zl_worker_url');
   const secret = localStorage.getItem('zl_worker_secret');
