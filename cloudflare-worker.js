@@ -890,6 +890,37 @@ async function handleMappenVolgorde(request, env) {
   return json({ ok: true });
 }
 
+// ── DATUM PER MAP ──────────────────────────────────────────────────────────
+async function handleMapDatum(request, env) {
+  // Admin (secret + id in body) of fotograaf (token, eigen mappen)
+  const isAdmin = requireSecret(request, env);
+  const body = await request.json().catch(() => ({}));
+  const { map, datum } = body;
+  if (!map) return json({ error: 'map verplicht' }, 400);
+  if (datum && !/^\d{4}-\d{2}-\d{2}$/.test(datum)) return json({ error: 'datum moet JJJJ-MM-DD zijn' }, 400);
+
+  let fotograafId;
+  if (isAdmin) {
+    fotograafId = body.id;
+    if (!fotograafId) return json({ error: 'id verplicht' }, 400);
+  } else {
+    const fotograaf = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+    if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+    fotograafId = fotograaf.id;
+  }
+
+  const raw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograafId);
+  const mappen = raw ? JSON.parse(raw) : [];
+  const entry = mappen.find(m => m.map === map);
+  if (!entry) return json({ error: 'map niet gevonden' }, 404);
+
+  if (datum) entry.datum = datum;
+  else delete entry.datum;
+
+  await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograafId, JSON.stringify(mappen));
+  return json({ ok: true, datum: datum || null });
+}
+
 // ── KLEUR BIJWERKEN ────────────────────────────────────────────────────────
 async function handleFotograafKleur(request, env) {
   const authToken = request.headers.get('X-Fotograaf-Token');
