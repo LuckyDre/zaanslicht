@@ -527,6 +527,34 @@ async function handleFotograafLogin(request, env) {
   return json({ ok: true, token: sessieToken, naam: found.naam, kleur: found.kleur, id: found.id });
 }
 
+// ── REVIEW-MODUS (admin kijkt mee als fotograaf) ───────────────────────────
+async function handleReviewWachtwoord(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { wachtwoord } = await request.json().catch(() => ({}));
+  if (!wachtwoord || wachtwoord.length < 8) return json({ error: 'Review-wachtwoord moet minimaal 8 tekens zijn' }, 400);
+  await env.SUBSCRIBERS.put('review:wachtwoord', await hashPassword(wachtwoord));
+  return json({ ok: true });
+}
+
+async function handleReviewSessie(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, wachtwoord } = await request.json().catch(() => ({}));
+  if (!id || !wachtwoord) return json({ error: 'id en wachtwoord verplicht' }, 400);
+
+  const opgeslagen = await env.SUBSCRIBERS.get('review:wachtwoord');
+  if (!opgeslagen) return json({ error: 'Er is nog geen review-wachtwoord ingesteld' }, 400);
+  if (!(await verifyPassword(wachtwoord, opgeslagen))) return json({ error: 'Onjuist review-wachtwoord' }, 401);
+
+  const raw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
+  if (!raw) return json({ error: 'Fotograaf niet gevonden' }, 404);
+  const account = JSON.parse(raw);
+
+  // Korte sessie (2 uur) — zelfde token-mechanisme als een gewone login
+  const token = randomToken();
+  await env.SUBSCRIBERS.put('fotograaf:token:' + token, account.id, { expirationTtl: 2 * 3600 });
+  return json({ ok: true, token, naam: account.naam, kleur: account.kleur, id: account.id });
+}
+
 // ── FOTO UPLOADEN ──────────────────────────────────────────────────────────
 async function handleFotoUpload(request, env) {
   const authToken = request.headers.get('X-Fotograaf-Token');
