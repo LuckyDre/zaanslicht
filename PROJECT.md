@@ -169,6 +169,15 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.9 — 12 juni 2026
+- 📅 **Datum per slider/map** (kalender-widget, `<input type="date">` met dark color-scheme)
+  - beheer.html eigen sliders: datumveld naast Fotograaf → `datum` (JJJJ-MM-DD) in manifest.json, opslaan via bestaande GitHub-commit ("Opslaan")
+  - beheer.html gast-sliders: datumveld in de slider-header → direct opgeslagen via nieuw worker-endpoint
+  - fotograaf.html Mijn mappen: datumveld per map → direct opgeslagen (groene rand = gelukt)
+  - Worker: `POST /fotograaf/map-datum` `{id?, map, datum}` — admin (secret+id) of fotograaf (token); zet/verwijdert `datum` op de map-entry in `fotograaf:mappen:{id}`
+- 🐛 Fix: `slaMappenVolgordeOp` (fotograaf.html) gooide extra velden weg (labels, datum, verborgen) — behoudt nu alle bestaande velden via spread van `_mappenData`
+- ℹ️ De datum wordt opgeslagen maar nog nergens publiek getoond (bewuste keuze; tonen in galerij is een kleine vervolgklus)
+
 ### v0.8 — 12 juni 2026
 - 📲 **Auto-redirect telefoons**: index.html stuurt mobiele bezoekers (max-width 768px + pointer coarse) door naar /m/; `?desktop=1` (link "volledige website" op /m/) zet sessionStorage-vlag `zl_desktop` en houdt de redirect die sessie tegen
 - 📱 **Mobiele landingspagina `/m/`** (`m/index.html`)
