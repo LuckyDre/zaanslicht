@@ -3,6 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+  // Telefoons automatisch naar de mobiele startpagina /m/
+  // Uitzondering: ?desktop in de URL (link "volledige website" op /m/) — onthouden voor de sessie
+  (function () {
+    if (new URLSearchParams(location.search).has('desktop')) {
+      try { sessionStorage.setItem('zl_desktop', '1'); } catch {}
+      return;
+    }
+    try { if (sessionStorage.getItem('zl_desktop')) return; } catch {}
+    var isMobiel = window.matchMedia('(max-width: 768px)').matches
+                && window.matchMedia('(pointer: coarse)').matches;
+    if (isMobiel) location.replace('/m/');
+  })();
+  </script>
   <title>Zaans Licht — Sportfotografie uit de Zaanstreek</title>
   <meta name="description" content="Zaans Licht — wedstrijdfotografie van Zaans voetbal, landschap en architectuur door Andreas Luckfiel uit de Zaanstreek." />
   <meta name="keywords" content="sportfotografie, voetbal, Zaanstreek, ZCFC, fotograaf, Zaandam, wedstrijdfotografie" />
