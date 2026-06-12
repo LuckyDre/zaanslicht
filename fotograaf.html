@@ -1651,6 +1651,27 @@ async function laadMappenTab() {
   }
 }
 
+window.slaMapDatumOp = async function(mapNaam, input) {
+  const oudeRand = input.style.borderColor;
+  try {
+    const res  = await fetch(WORKER + '/fotograaf/map-datum', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ map: mapNaam, datum: input.value }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Fout');
+    // Lokale cache bijwerken zodat volgorde-opslaan de datum niet kwijtraakt
+    const entry = _mappenData.find(m => m.map === mapNaam);
+    if (entry) { if (input.value) entry.datum = input.value; else delete entry.datum; }
+    input.style.borderColor = '#22c55e';
+    setTimeout(() => { input.style.borderColor = oudeRand || '#333'; }, 1500);
+  } catch (e) {
+    input.style.borderColor = '#ef4444';
+    alert('Datum opslaan mislukt: ' + e.message);
+  }
+};
+
 function toggleMapFotos(btn) {
   const paneel = btn.closest('.map-item').querySelector('.map-fotos-paneel');
   const open   = paneel.style.display === 'block';
