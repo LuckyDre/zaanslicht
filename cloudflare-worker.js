@@ -1375,6 +1375,7 @@ export default {
     if (url.pathname === '/delete-comment' && request.method === 'POST')   return handleDeleteComment(request, env);
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
     if (url.pathname === '/fotograaf/mappen-volgorde' && request.method === 'POST') return handleMappenVolgorde(request, env);
+    if (url.pathname === '/fotograaf/map-datum'       && request.method === 'POST') return handleMapDatum(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'GET')  return handleGetGalleryVolgorde(request, env);
     if (url.pathname === '/fotograaf/positiebeheer'   && request.method === 'POST') return handlePositieBeheer(request, env);
