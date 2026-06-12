@@ -1153,6 +1153,98 @@ async function voegLabelToe() {
   } catch(e) { fb.style.color = '#ef4444'; fb.textContent = 'Fout: ' + e.message; }
 }
 
+// ── QR-CODE GENERATOR ───────────────────────────────────────────────────
+let _qrInstance = null;
+
+async function qrVulDoelen() {
+  const type      = document.getElementById('qr-type').value;
+  const doel      = document.getElementById('qr-doel');
+  const doelLabel = document.getElementById('qr-doel-label');
+  document.getElementById('qr-uitvoer').style.display = 'none';
+
+  if (type === 'm') {
+    doel.hidden = true; doelLabel.hidden = true;
+    qrToon();
+    return;
+  }
+
+  doel.hidden = false; doelLabel.hidden = false;
+  doel.innerHTML = '<option value="">Laden…</option>';
+
+  try {
+    if (type === 'pagina') {
+      doel.innerHTML = `
+        <option value="https://zaanslicht.com/">Homepage</option>
+        <option value="https://zaanslicht.com/voetbal.html">Voetbal</option>
+        <option value="https://zaanslicht.com/nosports.html">No Sports</option>
+        <option value="https://zaanslicht.com/clubs.html">Clubs</option>
+        <option value="https://zaanslicht.com/contact.html">Contact</option>`;
+    } else if (type === 'serie') {
+      const [manRes, gastRes] = await Promise.all([
+        fetch('manifest.json?v=' + Date.now()),
+        fetch(WORKER_URL + '/fotograaf/manifest'),
+      ]);
+      const manifest = await manRes.json();
+      const gastData = await gastRes.json();
+      const opties = [];
+      for (const cat of ['voetbal', 'nosports']) {
+        for (const item of (manifest[cat] || [])) {
+          const naam = item.naam || item.map;
+          opties.push({ naam: naam + ' (Andreas)', url: `https://zaanslicht.com/${cat}.html#serie=${encodeURIComponent(naam)}` });
+        }
+      }
+      for (const fg of (gastData.fotografen || [])) {
+        for (const m of (fg.mappen || [])) {
+          const cat = m.categorie || 'voetbal';
+          const url = cat === 'eigen'
+            ? `https://zaanslicht.com/fotograaf-pagina.html?id=${fg.id}`
+            : `https://zaanslicht.com/${cat === 'nosports' ? 'nosports' : 'voetbal'}.html#serie=${encodeURIComponent(m.map)}`;
+          opties.push({ naam: `${m.map} (${fg.naam})`, url });
+        }
+      }
+      doel.innerHTML = opties.map(o => `<option value="${o.url.replace(/"/g,'&quot;')}">${escB(o.naam)}</option>`).join('');
+    } else if (type === 'club') {
+      const res  = await fetch(WORKER_URL + '/labels');
+      const data = await res.json();
+      doel.innerHTML = (data.labels || []).map(l =>
+        `<option value="https://zaanslicht.com/clubs.html?club=${encodeURIComponent(l)}">${escB(l)}</option>`).join('');
+    } else if (type === 'fotograaf') {
+      const res  = await fetch(WORKER_URL + '/fotograaf/manifest');
+      const data = await res.json();
+      const fgs = [{ id: 'andreas', naam: 'Andreas Luckfiel' }]
+        .concat((data.fotografen || []).map(fg => ({ id: fg.id, naam: fg.naam })));
+      doel.innerHTML = fgs.map(fg =>
+        `<option value="https://zaanslicht.com/fotograaf-pagina.html?id=${fg.id}">${escB(fg.naam)}</option>`).join('');
+    }
+    qrToon();
+  } catch(e) {
+    doel.innerHTML = '<option value="">Fout: ' + e.message + '</option>';
+  }
+}
+
+function qrToon() {
+  const type = document.getElementById('qr-type').value;
+  const url  = type === 'm' ? 'https://zaanslicht.com/m/' : document.getElementById('qr-doel').value;
+  if (!url) return;
+  const plek = document.getElementById('qr-plek');
+  plek.innerHTML = '';
+  _qrInstance = new QRCode(plek, { text: url, width: 220, height: 220, colorDark: '#0d0d0d', colorLight: '#ffffff' });
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('qr-uitvoer').style.display = 'block';
+}
+
+function qrDownload() {
+  const img    = document.querySelector('#qr-plek img') || document.querySelector('#qr-plek canvas');
+  if (!img) return;
+  const src    = img.tagName === 'CANVAS' ? img.toDataURL('image/png') : img.src;
+  const a      = document.createElement('a');
+  const doelTxt = document.getElementById('qr-url').textContent
+    .replace('https://zaanslicht.com/', '').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'home';
+  a.href = src;
+  a.download = 'zaanslicht-qr-' + doelTxt + '.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
 async function verwijderLabel(label) {
   const secret = localStorage.getItem('zl_worker_secret');
   if (!confirm(`Label "${label}" verwijderen?`)) return;
