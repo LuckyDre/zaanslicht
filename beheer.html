@@ -745,6 +745,12 @@ function renderCategorie(cat) {
           onclick="event.stopPropagation()"
           onchange="this.closest('.slider-item').dataset.fotograaf=this.value;dirty=true;"
           onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
+        <span style="font-size:0.72rem;color:#555;flex-shrink:0">📅 Datum:</span>
+        <input type="date" class="datum-input" value="${item.datum || ''}"
+          style="background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;color-scheme:dark;font-family:inherit"
+          onclick="event.stopPropagation()"
+          onchange="this.closest('.slider-item').dataset.datum=this.value;dirty=true;"
+          onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
       </div>
       <div style="padding:0.3rem 1rem 0.6rem;display:flex;align-items:flex-start;gap:0.5rem;border-bottom:1px solid #1a1a1a;">
         <span style="font-size:0.72rem;color:#555;flex-shrink:0;margin-top:0.3rem">Verhaal:</span>
