@@ -1789,11 +1789,14 @@ window.slaMappenVolgordeOp = async () => {
   btn.disabled = true; btn.textContent = 'Opslaan…';
 
   // Lees per groep de volgorde uit — categorie staat op de groep-lijst
+  // Behoud overige velden (labels, datum, verborgen, …) uit _mappenData
   const nieuweMappen = [];
   document.querySelectorAll('.map-groep-lijst').forEach(lijst => {
     const categorie = lijst.dataset.categorie;
     lijst.querySelectorAll('.map-item').forEach(el => {
+      const bestaand = _mappenData.find(m => m.map === el.dataset.map) || {};
       nieuweMappen.push({
+        ...bestaand,
         map:       el.dataset.map,
         categorie: categorie,
         ts:        Number(el.dataset.ts),
