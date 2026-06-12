@@ -970,6 +970,14 @@ async function fgLaadLijst() {
     const data = await res.json();
     const list = data.fotografen || [];
 
+    // Review-dropdown vullen
+    const reviewSel = document.getElementById('review-fg');
+    if (reviewSel) {
+      reviewSel.innerHTML = list.length
+        ? list.map(fg => `<option value="${fg.id}">${escB(fg.naam)}</option>`).join('')
+        : '<option value="">Geen fotografen</option>';
+    }
+
     if (!list.length) { cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Nog geen fotografen aangemeld.</p>'; return; }
 
     cont.innerHTML = list.map(fg => `
