@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zaans Licht — Foto's van vandaag</title>
+  <meta name="description" content="Mobiele startpagina van Zaans Licht — bekijk de nieuwste voetbalfoto's uit de Zaanstreek." />
+  <link rel="canonical" href="https://zaanslicht.com/m/" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://zaanslicht.com/m/" />
+  <meta property="og:title"       content="Zaans Licht — Foto's van vandaag" />
+  <meta property="og:description" content="Bekijk de nieuwste voetbalfoto's uit de Zaanstreek." />
+  <meta property="og:image"       content="https://zaanslicht.com/images/logo-oranje.png" />
+  <meta property="og:locale"      content="nl_NL" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <style>
+    :root {
+      --oranje: #FF6B00;
+      --bg: #0d0d0d;
+      --grijs: #1a1a1a;
+      --dim: #aaaaaa;
+      --wit: #f5f5f5;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--wit);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 3rem;
+    }
+    a { color: inherit; }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 1.1rem;
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,13,13,0.95); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,107,0,0.15);
+    }
+    .logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 800; font-size: 1.15rem; letter-spacing: 1px; }
+    .logo span.accent { color: var(--oranje); }
+    .logo-img {
+      display: inline-block; width: 38px; height: 38px;
+      background-color: var(--oranje);
+      -webkit-mask: url('/images/logo-oranje.png') center / contain no-repeat;
+      mask: url('/images/logo-oranje.png') center / contain no-repeat;
+    }
+
+    /* ── INTRO ──────────────────────────────────────────── */
+    .intro { padding: 1.6rem 1.2rem 0.4rem; }
+    .intro h1 { font-size: 1.5rem; line-height: 1.25; }
+    .intro h1 span { color: var(--oranje); }
+    .intro p { color: var(--dim); font-size: 0.9rem; margin-top: 0.4rem; }
+
+    /* ── NIEUWSTE SERIE ─────────────────────────────────── */
+    .sectie-titel {
+      font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+      color: #777; padding: 1.6rem 1.2rem 0.6rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nieuw-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--oranje); display: inline-block;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.35 } }
+    .serie-kaart {
+      display: block; margin: 0 1.2rem;
+      background: var(--grijs); border: 1px solid #2a2a2a; border-radius: 14px;
+      overflow: hidden; text-decoration: none;
+      transition: border-color 0.2s;
+    }
+    .serie-kaart:active { border-color: var(--oranje); }
+    .serie-thumbs {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+      aspect-ratio: 3 / 2; background: #111;
+    }
+    .serie-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .serie-info { padding: 0.9rem 1.1rem 1rem; }
+    .serie-naam { font-weight: 700; font-size: 1rem; line-height: 1.3; }
+    .serie-meta { font-size: 0.78rem; color: var(--dim); margin-top: 0.3rem; }
+    .serie-cta {
+      display: inline-block; margin-top: 0.7rem;
+      color: var(--oranje); font-size: 0.82rem; font-weight: 700;
+    }
+    .serie-rij {
+      display: flex; align-items: center; gap: 0.7rem;
+      margin: 0 1.2rem 0.5rem; padding: 0.75rem 1rem;
+      background: #141414; border: 1px solid #242424; border-radius: 10px;
+      text-decoration: none;
+    }
+    .serie-rij:active { border-color: var(--oranje); }
+    .serie-rij-icoon { flex-shrink: 0; font-size: 1.05rem; }
+    .serie-rij-naam { font-size: 0.85rem; font-weight: 600; line-height: 1.3; }
+    .serie-rij-meta { font-size: 0.72rem; color: #888; margin-top: 0.15rem; }
+
+    /* ── KNOPPEN ────────────────────────────────────────── */
+    .knoppen {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;
+      padding: 0 1.2rem;
+    }
+    .knop {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      background: var(--grijs); border: 1px solid #2a2a2a; border-radius: 12px;
+      padding: 1.1rem 0.5rem; text-decoration: none;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px;
+      transition: border-color 0.2s;
+    }
+    .knop:active { border-color: var(--oranje); }
+    .knop .icoon { font-size: 1.5rem; }
+    .knop .sub { font-size: 0.68rem; color: #888; font-weight: 400; }
+
+    /* ── FOTOGRAFEN ─────────────────────────────────────── */
+    .fotografen { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1.2rem; }
+    .fg-chip {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 100px;
+      padding: 0.5rem 1rem; text-decoration: none;
+      font-size: 0.82rem; font-weight: 600;
+    }
+    .fg-chip:active { border-color: var(--oranje); }
+    .fg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── ABONNEREN ──────────────────────────────────────── */
+    .abonneer {
+      margin: 0 1.2rem; padding: 1.2rem;
+      background: linear-gradient(135deg, rgba(255,107,0,0.08), rgba(255,107,0,0.02));
+      border: 1px solid rgba(255,107,0,0.25); border-radius: 14px;
+    }
+    .abonneer h2 { font-size: 1rem; margin-bottom: 0.3rem; }
+    .abonneer p { font-size: 0.8rem; color: var(--dim); margin-bottom: 0.9rem; }
+    .abonneer input[type="email"] {
+      width: 100%; background: #111; border: 1px solid #333; border-radius: 10px;
+      color: #fff; padding: 0.8rem 1rem; font-size: 1rem; outline: none;
+    }
+    .abonneer input[type="email"]:focus { border-color: var(--oranje); }
+    .abonneer label.akkoord {
+      display: flex; align-items: flex-start; gap: 0.5rem;
+      font-size: 0.72rem; color: #888; margin: 0.7rem 0 0.9rem; line-height: 1.4;
+    }
+    .abonneer button {
+      width: 100%; background: var(--oranje); border: none; border-radius: 10px;
+      color: #fff; font-weight: 800; font-size: 0.95rem; padding: 0.85rem;
+      cursor: pointer;
+    }
+    .abonneer button:disabled { opacity: 0.6; }
+    #ab-feedback { font-size: 0.8rem; margin-top: 0.7rem; display: none; }
+
+    /* ── DELEN / QR ─────────────────────────────────────── */
+    .delen { margin: 0 1.2rem; text-align: center; }
+    .delen-knoppen { display: flex; gap: 0.7rem; }
+    .delen-knoppen button {
+      flex: 1; background: var(--grijs); border: 1px solid #2a2a2a; border-radius: 12px;
+      color: var(--wit); font-size: 0.85rem; font-weight: 700; padding: 0.9rem;
+      cursor: pointer; font-family: inherit;
+    }
+    .delen-knoppen button:active { border-color: var(--oranje); }
+    #qr-houder {
+      display: none; margin: 1rem auto 0; padding: 1.1rem;
+      background: #fff; border-radius: 14px; width: fit-content;
+    }
+    #qr-houder p { color: #333; font-size: 0.7rem; margin-top: 0.5rem; font-weight: 600; }
+
+    footer {
+      text-align: center; color: #555; font-size: 0.72rem;
+      padding: 2.5rem 1.2rem 0;
+    }
+    footer a { color: #888; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/m/" style="text-decoration:none">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      Zaans<span class="accent">&nbsp;Licht</span>
+    </a>
+  </header>
+
+  <div class="intro">
+    <h1>Voetbalfotografie uit de <span>Zaanstreek</span></h1>
+    <p>Gespot langs het veld? Hier vind je de foto's terug.</p>
+  </div>
+
+  <div class="sectie-titel"><span class="nieuw-dot"></span> Nieuwste serie</div>
+  <div id="nieuwste"><p style="color:#666;font-size:0.85rem;padding:0 1.2rem">Laden…</p></div>
+
+  <div id="recente-series"></div>
+
+  <div class="sectie-titel">Bekijk alle foto's</div>
+  <div class="knoppen">
+    <a class="knop" href="/voetbal.html"><span class="icoon">&#9917;</span>Voetbal<span class="sub">Wedstrijdfotografie</span></a>
+    <a class="knop" href="/nosports.html"><span class="icoon">&#127807;</span>No Sports<span class="sub">Landschap &amp; meer</span></a>
+    <a class="knop" href="/clubs.html"><span class="icoon">&#127967;</span>Clubs<span class="sub">Foto's per club</span></a>
+    <a class="knop" href="/contact.html"><span class="icoon">&#9993;</span>Contact<span class="sub">Vraag of verzoek</span></a>
+  </div>
+
+  <div class="sectie-titel">Fotografen</div>
+  <div class="fotografen" id="fotografen"></div>
+
+  <div class="sectie-titel">Blijf op de hoogte</div>
+  <div class="abonneer">
+    <h2>Nieuwe foto's in je mailbox</h2>
+    <p>Ontvang een mailtje zodra er nieuwe series online staan.</p>
+    <form id="ab-form">
+      <input type="email" id="ab-email" placeholder="jouw@email.nl" required />
+      <label class="akkoord">
+        <input type="checkbox" id="ab-akkoord" required />
+        <span>Ik ga akkoord met het ontvangen van e-mailupdates van Zaans Licht. Afmelden kan altijd.</span>
+      </label>
+      <button type="submit">Aanmelden &#8594;</button>
+    </form>
+    <p id="ab-feedback"></p>
+  </div>
+
+  <div class="sectie-titel">Deel deze pagina</div>
+  <div class="delen">
+    <div class="delen-knoppen">
+      <button id="deel-knop">&#128228; Delen</button>
+      <button id="qr-knop">&#9641; Toon QR-code</button>
+    </div>
+    <div id="qr-houder">
+      <div id="qr-canvas"></div>
+      <p>zaanslicht.com/m/</p>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; Zaans Licht — <a href="/index.html">volledige website</a></p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+  (function () {
+    const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+    // ── Nieuwste series ──────────────────────────────────────────────────
+    async function laadSeries() {
+      const elNieuw   = document.getElementById('nieuwste');
+      const elRecent  = document.getElementById('recente-series');
+      const elFg      = document.getElementById('fotografen');
+      try {
+        const [manRes, gastRes] = await Promise.all([
+          fetch('/manifest.json?v=' + Date.now()),
+          fetch(WORKER + '/fotograaf/manifest'),
+        ]);
+        const manifest = await manRes.json();
+        const gastData = await gastRes.json();
+
+        // Fotografen-chips
+        const fgs = [{ id: 'andreas', naam: 'Andreas Luckfiel', kleur: '#FF6B00' }]
+          .concat((gastData.fotografen || []).filter(fg => fg.mappen?.length)
+            .map(fg => ({ id: fg.id, naam: fg.naam, kleur: fg.kleur || '#FF6B00' })));
+        elFg.innerHTML = fgs.map(fg =>
+          `<a class="fg-chip" href="/fotograaf-pagina.html?id=${fg.id}">
+            <span class="fg-dot" style="background:${fg.kleur}"></span>${fg.naam}</a>`).join('');
+
+        // Kandidaten: gast-mappen hebben een timestamp
+        let kandidaten = [];
+        for (const fg of (gastData.fotografen || [])) {
+          for (const m of (fg.mappen || [])) {
+            if (!m.ts) continue;
+            kandidaten.push({
+              naam: m.map, fotograaf: fg.naam, fgId: fg.id, kleur: fg.kleur || '#FF6B00',
+              cat: m.categorie || 'voetbal', ts: m.ts,
+            });
+          }
+        }
+        kandidaten.sort((a, b) => b.ts - a.ts);
+
+        // Eigen nieuwste serie (eerste in manifest = bovenaan op de site)
+        const eigen = (manifest.voetbal || [])[0];
+
+        // Nieuwste = gast-kandidaat of eigen serie, wat het recentst voelt:
+        // gast heeft ts; eigen niet → toon gast als die er is, anders eigen
+        const top = kandidaten[0] || (eigen ? {
+          naam: eigen.naam || eigen.map, fotograaf: eigen.fotograaf || 'Andreas Luckfiel',
+          kleur: '#FF6B00', cat: 'voetbal', eigenItem: eigen,
+        } : null);
+
+        if (!top) { elNieuw.innerHTML = ''; return; }
+
+        // Thumbnails ophalen
+        let thumbs = [];
+        if (top.eigenItem) {
+          thumbs = (top.eigenItem.fotos || []).slice(0, 6).map(f =>
+            '/images/voetbal/' + encodeURIComponent(top.eigenItem.map) + '/' + encodeURIComponent(f));
+        } else {
+          try {
+            const r = await fetch(WORKER + '/fotograaf/fotos?id=' + top.fgId);
+            const d = await r.json();
+            thumbs = (d.fotos || []).filter(f => {
+              try { return decodeURIComponent(f.key).includes('/' + top.naam + '/'); } catch { return false; }
+            }).slice(0, 6).map(f => WORKER + '/foto/' + f.key);
+          } catch {}
+        }
+
+        const href = top.cat === 'eigen'
+          ? '/fotograaf-pagina.html?id=' + top.fgId
+          : '/' + (top.cat === 'nosports' ? 'nosports' : 'voetbal') + '.html#serie=' + encodeURIComponent(top.naam);
+        const datum = top.ts ? new Date(top.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' }) : '';
+
+        elNieuw.innerHTML = `
+          <a class="serie-kaart" href="${href}">
+            ${thumbs.length ? `<div class="serie-thumbs">${thumbs.map(t => `<img src="${t}" loading="lazy" alt="" />`).join('')}</div>` : ''}
+            <div class="serie-info">
+              <div class="serie-naam">${top.naam}</div>
+              <div class="serie-meta"><span style="color:${top.kleur}">${top.fotograaf}</span>${datum ? ' · ' + datum : ''}</div>
+              <span class="serie-cta">Bekijk alle foto's &#8594;</span>
+            </div>
+          </a>`;
+
+        // Daarna: 4 recente series als rijen
+        const rest = kandidaten.slice(1, 5);
+        if (rest.length) {
+          elRecent.innerHTML = '<div class="sectie-titel">Eerdere series</div>' + rest.map(s => {
+            const h = s.cat === 'eigen'
+              ? '/fotograaf-pagina.html?id=' + s.fgId
+              : '/' + (s.cat === 'nosports' ? 'nosports' : 'voetbal') + '.html#serie=' + encodeURIComponent(s.naam);
+            const d = new Date(s.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+            return `<a class="serie-rij" href="${h}">
+              <span class="serie-rij-icoon">${s.cat === 'nosports' ? '&#127807;' : '&#9917;'}</span>
+              <span><span class="serie-rij-naam">${s.naam}</span><br/>
+              <span class="serie-rij-meta"><span style="color:${s.kleur}">${s.fotograaf}</span> · ${d}</span></span>
+            </a>`;
+          }).join('');
+        }
+      } catch (e) {
+        elNieuw.innerHTML = '<p style="color:#666;font-size:0.85rem;padding:0 1.2rem">Kon series niet laden.</p>';
+      }
+    }
+    laadSeries();
+
+    // ── Abonneren ────────────────────────────────────────────────────────
+    document.getElementById('ab-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const fb  = document.getElementById('ab-feedback');
+      const btn = e.target.querySelector('button');
+      btn.disabled = true; btn.textContent = 'Bezig…';
+      fb.style.display = 'block'; fb.style.color = '#888'; fb.textContent = '';
+      try {
+        const res = await fetch(WORKER + '/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: document.getElementById('ab-email').value.trim() }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          fb.style.color = '#4ade80';
+          fb.textContent = '✓ Aangemeld! Je ontvangt een mail bij nieuwe foto\'s.';
+          e.target.reset();
+        } else {
+          fb.style.color = '#ef4444';
+          fb.textContent = 'Er ging iets mis. Probeer het opnieuw.';
+        }
+      } catch {
+        fb.style.color = '#ef4444';
+        fb.textContent = 'Geen verbinding. Probeer het later opnieuw.';
+      }
+      btn.disabled = false;
+      btn.innerHTML = 'Aanmelden &#8594;';
+    });
+
+    // ── Delen + QR ───────────────────────────────────────────────────────
+    const PAGINA_URL = 'https://zaanslicht.com/m/';
+
+    document.getElementById('deel-knop').addEventListener('click', async () => {
+      if (navigator.share) {
+        try { await navigator.share({ title: 'Zaans Licht', url: PAGINA_URL }); } catch {}
+      } else {
+        try {
+          await navigator.clipboard.writeText(PAGINA_URL);
+          document.getElementById('deel-knop').textContent = '✓ Link gekopieerd';
+        } catch {}
+      }
+    });
+
+    let _qrGemaakt = false;
+    document.getElementById('qr-knop').addEventListener('click', () => {
+      const houder = document.getElementById('qr-houder');
+      const open = houder.style.display === 'block';
+      houder.style.display = open ? 'none' : 'block';
+      document.getElementById('qr-knop').innerHTML = open ? '&#9641; Toon QR-code' : '&#9650; Verberg QR-code';
+      if (!_qrGemaakt && typeof QRCode !== 'undefined') {
+        new QRCode(document.getElementById('qr-canvas'), {
+          text: PAGINA_URL, width: 180, height: 180,
+          colorDark: '#0d0d0d', colorLight: '#ffffff',
+        });
+        _qrGemaakt = true;
+      }
+    });
+  })();
+  </script>
+  <script src="/zoek.js?v=20260612"></script>
+</body>
+</html>
