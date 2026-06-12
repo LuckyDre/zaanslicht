@@ -136,7 +136,7 @@
     resultaten.innerHTML = '<p class="zk-leeg">Index laden…</p>';
     _laden = (async () => {
       const [manRes, gastRes, labelRes] = await Promise.all([
-        fetch('manifest.json?v=' + Date.now()).catch(() => null),
+        fetch('/manifest.json?v=' + Date.now()).catch(() => null),
         fetch(WORKER + '/fotograaf/manifest').catch(() => null),
         fetch(WORKER + '/labels').catch(() => null),
       ]);
@@ -154,9 +154,9 @@
             kleur: '#FF6B00',
             labels: item.labels || [],
             cat,
-            href: cat + '.html#serie=' + encodeURIComponent(item.naam || item.map),
+            href: '/' + cat + '.html#serie=' + encodeURIComponent(item.naam || item.map),
             thumb: item.fotos?.length
-              ? 'images/' + cat + '/' + encodeURIComponent(item.map) + '/' + encodeURIComponent(item.fotos[0])
+              ? '/images/' + cat + '/' + encodeURIComponent(item.map) + '/' + encodeURIComponent(item.fotos[0])
               : null,
           });
         }
@@ -174,8 +174,8 @@
             labels: m.labels || [],
             cat,
             href: cat === 'eigen'
-              ? 'fotograaf-pagina.html?id=' + fg.id
-              : cat + '.html#serie=' + encodeURIComponent(m.map),
+              ? '/fotograaf-pagina.html?id=' + fg.id
+              : '/' + cat + '.html#serie=' + encodeURIComponent(m.map),
             thumb: null,
           });
         }
@@ -212,7 +212,7 @@
       if (hits.length) {
         html.push('<div class="zk-groep-titel">Fotografen</div>');
         for (const fg of hits) {
-          html.push(`<a class="zk-item" href="fotograaf-pagina.html?id=${fg.id}">
+          html.push(`<a class="zk-item" href="/fotograaf-pagina.html?id=${fg.id}">
             <span class="zk-item-icoon" style="color:${fg.kleur}">&#9679;</span>
             <div><div class="zk-item-naam">${fg.naam}</div>
             <div class="zk-item-meta">Bekijk fotograaf-pagina</div></div></a>`);
@@ -245,7 +245,7 @@
       if (hits.length) {
         html.push('<div class="zk-groep-titel">Labels / Clubs</div>');
         for (const l of hits) {
-          html.push(`<a class="zk-item" href="clubs.html?club=${encodeURIComponent(l)}">
+          html.push(`<a class="zk-item" href="/clubs.html?club=${encodeURIComponent(l)}">
             <span class="zk-item-icoon">🏷</span>
             <div><div class="zk-item-naam">${l}</div>
             <div class="zk-item-meta">Bekijk foto's bij dit label</div></div></a>`);
