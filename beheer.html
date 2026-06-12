@@ -564,7 +564,9 @@ function updateManifestFromDOM() {
         : (base.fotos || []);
       const fotograaf    = el.dataset.fotograaf    || base.fotograaf    || 'Andreas Luckfiel';
       const beschrijving = el.dataset.beschrijving !== undefined ? el.dataset.beschrijving : (base.beschrijving || '');
-      return { ...base, volgorde: i, fotos, fotograaf, beschrijving };
+      const item = { ...base, volgorde: i, fotos, fotograaf, beschrijving };
+      if (el.dataset.datum) item.datum = el.dataset.datum; else delete item.datum;
+      return item;
     });
   });
 }
