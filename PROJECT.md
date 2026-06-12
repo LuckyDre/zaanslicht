@@ -169,6 +169,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.8 — 12 juni 2026
+- 📱 **Mobiele landingspagina `/m/`** (`m/index.html`, zelfstandige pagina, geen redirect vanaf hoofdsite)
+  - Nieuwste serie met foto-grid (gast via `/fotograaf/fotos`, eigen via manifest.json), eerdere series, grote navigatieknoppen, fotografen-chips, abonneren-formulier (`/subscribe`)
+  - Deel-knop (navigator.share / klembord) + QR-code van zaanslicht.com/m/ (qrcodejs, client-side)
+  - zoek.js werkt ook op /m/ (vergrootglas in header)
+- 🔗 `zoek.js`: alle interne links/fetches root-relative gemaakt (`/manifest.json`, `/voetbal.html`, …) zodat het script ook vanuit submappen zoals /m/ werkt
+- 📇 **QR-generator in beheer.html** (Abonnees-tab): QR maken voor mobiele pagina, vaste pagina's, series (deeplink `#serie=`), clubs/labels (`?club=`) en fotografen; download als PNG
+
 ### v0.7 — 12 juni 2026
 - 🔍 **Site-brede zoekfunctie** (`zoek.js`, geladen op alle 6 publieke pagina's naast nav-fotografen.js)
   - Vergrootglas in de header opent een overlay met filterchips: Alles / Series / Fotografen / Labels
