@@ -574,6 +574,43 @@ const inviteToken = params.get('invite');
 // ── Laad opgeslagen sessie ────────────────────────────────────────────────
 let sessie = JSON.parse(localStorage.getItem('zl_fotograaf') || 'null');
 
+// ── REALTIME PRESENCE ─────────────────────────────────────────────────────
+let _presRef = null;
+
+async function startPresence() {
+  if (_presRef || !sessie?.id) return;
+  const srcs = [
+    'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
+    'https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js',
+    'firebase-config.js',
+  ];
+  for (const src of srcs) {
+    await new Promise((res, rej) => {
+      if (document.querySelector(`script[src="${src}"]`)) return res();
+      const s = document.createElement('script');
+      s.src = src; s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+  if (typeof db === 'undefined') return;
+  _presRef = db.ref('online/' + sessie.id);
+  db.ref('.info/connected').on('value', snap => {
+    if (!snap.val()) return;
+    _presRef.onDisconnect().remove();
+    _presRef.set({
+      naam: sessie.naam,
+      kleur: sessie.kleur || '#FF6B00',
+      sinds: firebase.database.ServerValue.TIMESTAMP,
+    });
+  });
+}
+
+async function stopPresence() {
+  if (!_presRef) return;
+  await _presRef.remove().catch(() => {});
+  _presRef = null;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   if (sessie?.token) {
     toonDashboard();
