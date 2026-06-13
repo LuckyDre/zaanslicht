@@ -35,7 +35,7 @@
     .page-hero,
     .contact-page,
     .clubs-header {
-      padding-top: var(--zk-header-hoogte, 120px) !important;
+      padding-top: var(--zk-header-hoogte, 160px) !important;
     }
     .zk-trigger {
       background: none; border: none; cursor: pointer;
