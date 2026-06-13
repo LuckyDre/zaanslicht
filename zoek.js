@@ -128,7 +128,7 @@
   function updateHeaderOffset() {
     document.documentElement.style.setProperty('--zk-header-hoogte', header.offsetHeight + 'px');
   }
-  requestAnimationFrame(updateHeaderOffset);
+  updateHeaderOffset();
   window.addEventListener('resize', updateHeaderOffset);
   window.addEventListener('load', updateHeaderOffset);
 
