@@ -93,9 +93,11 @@
   `;
   document.head.appendChild(style);
 
-  // ── Zoekbalk onder de header ──────────────────────────────────────────────
+  // ── Zoekbalk als tweede rij in de header ─────────────────────────────────
   const header = document.querySelector('header');
   if (!header) return;
+
+  header.style.flexWrap = 'wrap';
 
   const balk = document.createElement('div');
   balk.className = 'zk-balk';
@@ -115,16 +117,7 @@
 
   balk.appendChild(balkInput);
   balk.appendChild(trigger);
-  document.body.appendChild(balk);
-
-  // Positie bepalen op basis van header-hoogte
-  function positioneerBalk() {
-    balk.style.top = header.offsetHeight + 'px';
-  }
-  positioneerBalk();
-  window.addEventListener('resize', positioneerBalk);
-  // Na fonts/nav-load opnieuw meten
-  window.addEventListener('load', positioneerBalk);
+  header.appendChild(balk);
 
   // ── Overlay ───────────────────────────────────────────────────────────────
   const overlay = document.createElement('div');
