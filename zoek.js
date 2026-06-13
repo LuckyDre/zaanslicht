@@ -1,18 +1,46 @@
-// zoek.js — site-brede zoekfunctie via vergrootglas in de header
-// Zoekt in series (eigen + gast), fotografen en labels.
+// zoek.js — site-brede zoekfunctie via zoekbalk onder de header
 (function () {
   const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
   // ── CSS ───────────────────────────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
+    /* Zoekbalk onder de header */
+    .zk-balk {
+      position: fixed;
+      right: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 1rem 0.35rem 1.1rem;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(6px);
+      border-left: 1px solid rgba(255,107,0,0.18);
+      border-bottom: 1px solid rgba(255,107,0,0.18);
+      border-bottom-left-radius: 10px;
+    }
+    .zk-balk-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #aaaaaa;
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      width: 140px;
+      font-family: inherit;
+    }
+    .zk-balk-input::placeholder { color: #444; letter-spacing: 1px; }
+    .zk-balk-input:focus { color: #ffffff; }
     .zk-trigger {
       background: none; border: none; cursor: pointer;
-      color: #aaaaaa; font-size: 1.1rem; line-height: 1;
-      padding: 0.3rem 0.5rem; margin-left: 1rem;
-      transition: color 0.2s;
+      color: #aaaaaa; font-size: 1rem; line-height: 1;
+      padding: 0.1rem 0.2rem;
+      transition: color 0.2s; flex-shrink: 0;
     }
     .zk-trigger:hover { color: var(--oranje, #FF6B00); }
+    /* Volledige zoek-overlay */
     .zk-overlay {
       position: fixed; inset: 0; z-index: 1000;
       background: rgba(8,8,8,0.96); backdrop-filter: blur(8px);
@@ -67,17 +95,38 @@
   `;
   document.head.appendChild(style);
 
-  // ── Vergrootglas in de header ─────────────────────────────────────────────
+  // ── Zoekbalk onder de header ──────────────────────────────────────────────
   const header = document.querySelector('header');
   if (!header) return;
+
+  const balk = document.createElement('div');
+  balk.className = 'zk-balk';
+
+  const balkInput = document.createElement('input');
+  balkInput.type = 'text';
+  balkInput.className = 'zk-balk-input';
+  balkInput.placeholder = 'Zoeken…';
+  balkInput.autocomplete = 'off';
+  balkInput.spellcheck = false;
+
   const trigger = document.createElement('button');
   trigger.className = 'zk-trigger';
   trigger.title = 'Zoeken';
   trigger.setAttribute('aria-label', 'Zoeken');
-  trigger.innerHTML = '&#128269;'; // 🔍
-  const menuToggle = header.querySelector('.menu-toggle');
-  if (menuToggle) header.insertBefore(trigger, menuToggle);
-  else header.appendChild(trigger);
+  trigger.innerHTML = '&#128269;';
+
+  balk.appendChild(balkInput);
+  balk.appendChild(trigger);
+  document.body.appendChild(balk);
+
+  // Positie bepalen op basis van header-hoogte
+  function positioneerBalk() {
+    balk.style.top = header.offsetHeight + 'px';
+  }
+  positioneerBalk();
+  window.addEventListener('resize', positioneerBalk);
+  // Na fonts/nav-load opnieuw meten
+  window.addEventListener('load', positioneerBalk);
 
   // ── Overlay ───────────────────────────────────────────────────────────────
   const overlay = document.createElement('div');
@@ -100,23 +149,35 @@
   const resultaten = overlay.querySelector('.zk-resultaten');
   let filter = 'alles';
 
-  function openZoek() {
+  function openZoek(startTekst) {
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    if (startTekst) {
+      input.value = startTekst;
+      render();
+    }
     input.focus();
     laadIndex();
   }
   function sluitZoek() {
     overlay.classList.remove('open');
     document.body.style.overflow = '';
+    balkInput.value = '';
+    balkInput.blur();
   }
 
-  trigger.addEventListener('click', openZoek);
+  trigger.addEventListener('click', () => openZoek(balkInput.value));
+  balkInput.addEventListener('focus', () => openZoek(balkInput.value));
+  balkInput.addEventListener('input', () => openZoek(balkInput.value));
+
   overlay.querySelector('.zk-sluit').addEventListener('click', sluitZoek);
   overlay.addEventListener('click', e => { if (e.target === overlay) sluitZoek(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && overlay.classList.contains('open')) sluitZoek();
   });
+
+  // Sync typen in overlay terug naar balk
+  input.addEventListener('input', () => { balkInput.value = input.value; render(); });
 
   overlay.querySelectorAll('.zk-chip').forEach(chip => {
     chip.addEventListener('click', () => {
@@ -128,7 +189,7 @@
   });
 
   // ── Index opbouwen (lazy, bij eerste keer openen) ─────────────────────────
-  let _index = null;     // { series: [], fotografen: [], labels: [] }
+  let _index = null;
   let _laden = null;
 
   async function laadIndex() {
@@ -140,12 +201,11 @@
         fetch(WORKER + '/fotograaf/manifest').catch(() => null),
         fetch(WORKER + '/labels').catch(() => null),
       ]);
-      const manifest = manRes  ? await manRes.json().catch(() => ({}))  : {};
-      const gastData = gastRes ? await gastRes.json().catch(() => ({})) : {};
+      const manifest  = manRes   ? await manRes.json().catch(() => ({}))  : {};
+      const gastData  = gastRes  ? await gastRes.json().catch(() => ({})) : {};
       const labelData = labelRes ? await labelRes.json().catch(() => ({})) : {};
 
       const series = [];
-      // Eigen series van Andreas
       for (const cat of ['voetbal', 'nosports']) {
         for (const item of (manifest[cat] || [])) {
           series.push({
@@ -161,7 +221,6 @@
           });
         }
       }
-      // Gast-series
       const fotografen = [{ id: 'andreas', naam: 'Andreas Luckfiel', kleur: '#FF6B00' }];
       for (const fg of (gastData.fotografen || [])) {
         if (fg.mappen?.length) fotografen.push({ id: fg.id, naam: fg.naam, kleur: fg.kleur || '#FF6B00' });
@@ -181,11 +240,7 @@
         }
       }
 
-      _index = {
-        series,
-        fotografen,
-        labels: labelData.labels || [],
-      };
+      _index = { series, fotografen, labels: labelData.labels || [] };
       render();
     })();
     return _laden;
@@ -206,7 +261,6 @@
       return;
     }
 
-    // Fotografen
     if (filter === 'alles' || filter === 'fotografen') {
       const hits = _index.fotografen.filter(fg => norm(fg.naam).includes(q));
       if (hits.length) {
@@ -220,7 +274,6 @@
       }
     }
 
-    // Series — match op naam, fotograaf én labels
     if (filter === 'alles' || filter === 'series') {
       const hits = _index.series.filter(s =>
         norm(s.naam).includes(q) ||
@@ -239,7 +292,6 @@
       }
     }
 
-    // Labels → clubs.html
     if (filter === 'alles' || filter === 'labels') {
       const hits = _index.labels.filter(l => norm(l).includes(q));
       if (hits.length) {
@@ -255,6 +307,4 @@
 
     resultaten.innerHTML = html.length ? html.join('') : '<p class="zk-leeg">Geen resultaten voor "' + input.value.trim().replace(/</g, '&lt;') + '"</p>';
   }
-
-  input.addEventListener('input', render);
 })();
