@@ -1914,6 +1914,29 @@ async function abVerstuur() {
   btn.textContent = '📧 Verstuur naar alle abonnees';
 }
 
+// ── ONLINE FOTOGRAFEN (realtime presence) ────────────────────────────────
+function startPresenceWatcher() {
+  const db = window._fbdb;
+  if (!db) return;
+  const bar = document.getElementById('online-bar');
+
+  db.ref('online').on('value', snap => {
+    const data = snap.val() || {};
+    const fotografen = Object.values(data);
+    if (!fotografen.length) { bar.innerHTML = ''; return; }
+
+    bar.innerHTML = fotografen.map(f => {
+      const kleur = f.kleur || '#FF6B00';
+      const mins  = f.sinds ? Math.floor((Date.now() - f.sinds) / 60000) : null;
+      const tijd  = mins === null ? '' : mins < 1 ? ' · nu actief' : ` · ${mins} min`;
+      return `<span class="online-chip" title="Online in fotograaf-portaal">
+        <span class="online-dot" style="background:${kleur}"></span>
+        ${f.naam}${tijd}
+      </span>`;
+    }).join('');
+  });
+}
+
 // ── FIREBASE LAZY LOADER ──────────────────────────────────────────────────
 let firebaseLoaded = false;
 
