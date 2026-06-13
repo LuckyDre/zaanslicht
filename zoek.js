@@ -125,6 +125,13 @@
   balk.appendChild(trigger);
   header.appendChild(balk);
 
+  function updateHeaderOffset() {
+    document.documentElement.style.setProperty('--zk-header-hoogte', header.offsetHeight + 'px');
+  }
+  requestAnimationFrame(updateHeaderOffset);
+  window.addEventListener('resize', updateHeaderOffset);
+  window.addEventListener('load', updateHeaderOffset);
+
   // ── Overlay ───────────────────────────────────────────────────────────────
   const overlay = document.createElement('div');
   overlay.className = 'zk-overlay';
