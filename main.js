@@ -293,12 +293,18 @@ function hexNaarHueMain(hex) {
 // ── GASTFOTOGRAAF TEGELS ──────────────────────────────────────────────────
 const WORKER_URL_MAIN = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
-loadTegels();
-loadRecentComments();
+const _tegelsP       = loadTegels();
+const _commentsP     = loadRecentComments();
 // Manifest één keer ophalen, delen tussen tegels en nieuwste-serie
 const _manifestPromise = fetch(WORKER_URL_MAIN + '/fotograaf/manifest').then(r => r.json()).catch(() => ({}));
-laadGastTegels();
-laadNieuwsteSerie();
+const _gastP         = laadGastTegels();
+const _serieP        = laadNieuwsteSerie();
+
+// Na alle async content: herscrol naar #over als we er vanuit een andere pagina naartoe navigeerden
+if (window.location.hash === '#over') {
+  Promise.all([_tegelsP, _commentsP, _gastP, _serieP, _manifestPromise])
+    .finally(() => document.getElementById('over')?.scrollIntoView({ behavior: 'instant' }));
+}
 
 async function laadGastTegels() {
   try {
