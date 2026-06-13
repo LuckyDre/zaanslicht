@@ -189,3 +189,22 @@
     // Stille fout — nav werkt zonder fotografen-links
   }
 })();
+
+// Correcte anchor-scroll voor fixed header (scroll-padding-top werkt niet in alle browsers)
+(function () {
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    var href = a.getAttribute('href');
+    if (!href || !href.startsWith('#')) return;
+    if (href === '#') return;
+    var el = document.querySelector(href);
+    if (!el) return;
+    e.preventDefault();
+    var header = document.querySelector('header');
+    var offset = header ? header.getBoundingClientRect().height : 0;
+    var top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    history.pushState(null, '', href);
+  });
+})();
