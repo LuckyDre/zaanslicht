@@ -975,7 +975,7 @@ footer {
 @media (max-width: 768px) {
   header { padding: 1rem 1.5rem; }
   nav { display: none; }
-  .menu-toggle { display: block; }
+  .menu-toggle { display: block; margin-left: auto; }
 
   .slide-overlay { padding: 0 2rem; }
 
