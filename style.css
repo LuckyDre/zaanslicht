@@ -197,7 +197,7 @@ nav a:hover { color: var(--oranje); }
 
 .hero-swiper .swiper-slide {
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-repeat: no-repeat;
   /* Placeholder gradient wanneer er nog geen foto is */
   background-color: var(--grijs);
