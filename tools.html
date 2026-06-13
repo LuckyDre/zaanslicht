@@ -263,6 +263,60 @@
     </div>
   </main>
 
+  <!-- Beta disclaimer modal -->
+  <div id="beta-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="beta-modal-titel" onclick="sluitBetaModalBuiten(event)">
+    <div id="beta-modal">
+      <h3 id="beta-modal-titel">&#9888;&#65039; Bètaversie — lees dit eerst</h3>
+      <p>
+        Het toernooisysteem van Zaans Licht bevindt zich momenteel in de <strong>testfase (bèta)</strong>.
+        De software wordt actief doorontwikkeld en kan fouten, onverwacht gedrag of tijdelijke
+        uitval bevatten.
+      </p>
+      <p>
+        Zaans Licht aanvaardt <strong>geen aansprakelijkheid</strong> voor onjuiste standen,
+        verloren gegevens of andere gevolgen van het gebruik van deze bètaversie. Geef fouten
+        of problemen door via het <a href="contact.html" style="color:var(--oranje,#FF6B00)">contactformulier</a>
+        — zo help je ons de software te verbeteren.
+      </p>
+      <label class="beta-check-label">
+        <input type="checkbox" id="beta-akkoord" onchange="updateBetaKnop()" />
+        Ik heb bovenstaande gelezen en begrijp dat dit een bètaversie betreft.
+      </label>
+      <div class="beta-modal-btns">
+        <button id="beta-ga-door" onclick="gaaNaarToernooi()">Doorgaan naar toernooien &#8599;</button>
+        <button id="beta-annuleer" onclick="sluitBetaModal()">Annuleren</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openBetaModal() {
+      document.getElementById('beta-akkoord').checked = false;
+      document.getElementById('beta-ga-door').classList.remove('actief');
+      document.getElementById('beta-modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function sluitBetaModal() {
+      document.getElementById('beta-modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function sluitBetaModalBuiten(e) {
+      if (e.target === document.getElementById('beta-modal-overlay')) sluitBetaModal();
+    }
+    function updateBetaKnop() {
+      const knop = document.getElementById('beta-ga-door');
+      knop.classList.toggle('actief', document.getElementById('beta-akkoord').checked);
+    }
+    function gaaNaarToernooi() {
+      if (!document.getElementById('beta-akkoord').checked) return;
+      sluitBetaModal();
+      window.open('https://zaanslicht-toernooi.vercel.app', '_blank', 'noopener');
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') sluitBetaModal();
+    });
+  </script>
+
   <footer>
     <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
     <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan. Staat er een foto op deze site waarvan u de verwijdering wenst? Neem dan contact op via het contactformulier.</p>
