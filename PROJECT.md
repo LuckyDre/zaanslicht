@@ -169,6 +169,15 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.11 — 13 juni 2026
+- ✨ **NIEUW-badge op sliders**: pulserende badge op galerij-sliders waarvan de datum < 14 dagen oud is. Automatisch zichtbaar in `gallery-nieuw.js` via `isNieuw(datum)` + `ensureNieuwStyles()`. Verdwijnt vanzelf na 2 weken.
+- 🔀 **Hero-shuffle**: hero toonde altijd dezelfde top-5; nu wordt uit de top-20 meest gelikte foto's willekeurig 5 gekozen bij elke laad. Fix in `main.js` (`vulHeroEnStart`). Cache-buster naar `main.js?v=20260613b`.
+- 🛠 **Tools-pagina** (`tools.html`): nieuwe publieke pagina met alle site-tools (tactiekbord, ZCFC-tracker, toernooien). Zwevende "Tools"-knop (FAB) rechtsonder de hamburger op alle 5 hoofdpagina's (`index.html`, `voetbal.html`, `nosports.html`, `clubs.html`, `contact.html`).
+- 📊 **ZCFC Competitietracker** hernoemd van "Nieuwsfeed"; uitleg-pagina `zcfc-tracker-handleiding.html` toegevoegd met beschrijving van alle 8 tabs.
+- 🏆 **Toernooien op Tools-pagina**: kaart met "Openen ↗" knop naar zaanslicht-toernooi.vercel.app + "ⓘ Handleiding"-knop.
+- 📖 **Toernooi handleiding** (`toernooi-handleiding.html`): 8-stappen handleiding met screenshots, ingedeeld in 3 groepen (bezoekers / organisatie / beamer). Screenshots opgeslagen in `images/tools/`.
+- 🖼 **`images/tools/`**: 8 PNG-screenshots van de toernooitool (geconverteerd via `sips`): stand, uitslagen, schema, team-detail, admin-dashboard, scheidsrechters, admin-live, scorebord.
+
 ### v0.10 — 12 juni 2026
 - 🐛 **Fix "Mijn mappen" laadde niet** (fotograaf.html): de hele LABELS-sectie (renderLabelChips, laadLabels, laadFotoLabelBadge, openFotoLabelPopup, slaFotoLabelsOp, …) stond per ongeluk bínnen de functie-body van `toonDashboard`, waardoor het top-level `laadMappenTab` ze niet kon aanroepen (`laadFotoLabelBadge is not defined` → tab bleef op "Laden…"). Blok van 181 regels naar top-level verplaatst; `startUpload` bleef bewust binnen toonDashboard (gebruikt closure-variabelen `bestanden`/`converteerNaarWebp`).
 - 👁 **Review-modus**: admin kan meekijken als gastfotograaf (echte dashboard-replicatie)
