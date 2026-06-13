@@ -31,6 +31,12 @@
     @media (max-width: 768px) {
       .zk-balk { padding: 0.4rem 1.2rem; }
     }
+    /* Schuif eerste content-element naar beneden mee met header-hoogte */
+    .page-hero,
+    .contact-page,
+    .clubs-header {
+      padding-top: var(--zk-header-hoogte, 120px) !important;
+    }
     .zk-trigger {
       background: none; border: none; cursor: pointer;
       color: #aaaaaa; font-size: 1rem; line-height: 1;
