@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toernooisysteem — Handleiding — Zaans Licht</title>
+  <meta name="description" content="Handleiding voor het Zaans Licht toernooisysteem: voor bezoekers, de organisatie en op de beamer." />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://zaanslicht.com/toernooi-handleiding.html" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css?v=20260613" />
+  <style>
+    .hl-page {
+      min-height: 100vh;
+      padding: 120px 3rem 4rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .hl-page .section-header { margin-bottom: 1rem; }
+    .hl-page h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+    .hl-intro {
+      color: var(--tekst-dim);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+    /* Snelnavigatie */
+    .hl-nav { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
+    .hl-nav a {
+      font-size: 0.8rem; letter-spacing: 0.5px;
+      padding: 0.4rem 0.9rem; border-radius: 100px;
+      border: 1px solid var(--oranje-15, rgba(255,107,0,0.25));
+      color: var(--tekst-dim); text-decoration: none;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .hl-nav a:hover { color: var(--oranje, #FF6B00); border-color: var(--oranje, #FF6B00); }
+    /* Groepskop per doelgroep */
+    .hl-groep {
+      margin: 3.5rem 0 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--oranje, #FF6B00);
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .hl-groep h2 { font-size: 1.5rem; font-weight: 800; margin: 0; }
+    .hl-groep .hl-emoji { font-size: 1.5rem; }
+    /* Stap */
+    .stap { margin: 2.2rem 0; }
+    .stap h3 {
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--oranje, #FF6B00); margin: 0 0 0.4rem;
+      display: flex; align-items: baseline; gap: 0.6rem;
+    }
+    .stap h3 .nr {
+      flex-shrink: 0;
+      font-size: 0.8rem; font-weight: 800;
+      width: 1.6rem; height: 1.6rem; line-height: 1.6rem; text-align: center;
+      border-radius: 50%;
+      background: var(--oranje, #FF6B00); color: #0d0d0d;
+    }
+    .stap p { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.65; margin: 0 0 1rem; }
+    .stap p.zonder-shot { margin-bottom: 0; }
+    .stap ul { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.65; margin: 0 0 1rem 1.2rem; }
+    .stap ul li { margin-bottom: 0.3rem; }
+    /* Browser-frame om de screenshot */
+    .shot-frame {
+      border: 1px solid var(--oranje-15, rgba(255,107,0,0.18));
+      border-radius: 12px; overflow: hidden; background: #111; max-width: 420px;
+    }
+    .shot-frame.breed { max-width: 100%; }
+    .shot-balk {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 0.9rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .shot-balk span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.18); }
+    .shot-frame img { display: block; width: 100%; height: auto; }
+    .shot-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.5rem; min-height: 240px; padding: 2rem; text-align: center; color: var(--tekst-dim);
+    }
+    .shot-placeholder .ph-icon { font-size: 2.5rem; opacity: 0.6; }
+    .shot-placeholder .ph-tekst { font-size: 0.9rem; }
+    .shot-placeholder .ph-pad { font-size: 0.74rem; opacity: 0.6; font-family: var(--mono, monospace); word-break: break-all; }
+    .hl-cta { margin-top: 3.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .hl-cta a {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.7rem 1.2rem; border-radius: 100px;
+      border: 1px solid var(--oranje, #FF6B00); color: var(--oranje, #FF6B00);
+      text-decoration: none; font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .hl-cta a:hover { background: var(--oranje, #FF6B00); color: #0d0d0d; }
+    .hl-cta a.secundair { border-color: var(--oranje-15, rgba(255,107,0,0.3)); color: var(--tekst-dim); }
+    @media (max-width: 768px) {
+      .hl-page { padding: 100px 1.5rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="index.html#over">Over ons</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <main class="hl-page">
+    <div class="section-header">
+      <h1>Handleiding toernooisysteem</h1>
+      <div class="accent-line"></div>
+    </div>
+
+    <p class="hl-intro">
+      Het Zaans Licht toernooisysteem draait een compleet voetbaltoernooi: poules, schema, live
+      standen en uitslagen — voor het publiek, de organisatie en op een groot scherm. Deze
+      handleiding loopt de tool langs vanuit drie kanten.
+    </p>
+
+    <div class="hl-nav">
+      <a href="#bezoekers">Voor bezoekers</a>
+      <a href="#organisatie">Voor de organisatie</a>
+      <a href="#beamer">Op de beamer</a>
+    </div>
+
+    <!-- ── BEZOEKERS ──────────────────────────────────────────── -->
+    <div class="hl-groep" id="bezoekers">
+      <span class="hl-emoji">👀</span>
+      <h2>Voor bezoekers</h2>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">1</span> De stand volgen</h3>
+      <p>
+        Open het toernooi en je ziet bovenaan de kerngegevens (aantal teams, velden, speeltijd) en
+        een <strong>Live</strong>-label als er gespeeld wordt. Onder het tabblad <strong>Stand</strong>
+        staat de ranglijst per poule met gespeeld (Gs), winst/gelijk/verlies, doelsaldo (+/-) en punten (Pnt).
+        Met de ster maak je een team favoriet, zodat het bovenaan blijft staan.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-bezoeker-stand.png" alt="Bezoekersview: de stand per poule"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-bezoeker-stand.png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">2</span> Uitslagen &amp; live wedstrijden</h3>
+      <p>
+        Het tabblad <strong>Uitslagen</strong> toont bovenaan de wedstrijden die nú live zijn (met
+        tussenstand en speeltijd), daaronder de al gespeelde wedstrijden per poule.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-bezoeker-uitslagen.png" alt="Bezoekersview: uitslagen en live wedstrijden"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-bezoeker-uitslagen.png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">3</span> Het schema bekijken</h3>
+      <p>
+        Onder <strong>Schema</strong> staan alle geplande wedstrijden met tijd en veld, gegroepeerd
+        per poule — zo zie je precies wanneer je team aan de beurt is.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-bezoeker-schema.png" alt="Bezoekersview: het wedstrijdschema"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-bezoeker-schema.png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">4</span> Je team volgen</h3>
+      <p>
+        Tik op een team voor de teampagina: een melding "Nu aan het spelen!" bij een live wedstrijd,
+        het eigen wedstrijdrooster en alle statistieken (punten, doelsaldo, gespeeld). Handig om één
+        team door het toernooi heen te volgen.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-team-detail.png" alt="Bezoekersview: teampagina met statistieken"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-team-detail.png</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ORGANISATIE ───────────────────────────────────────── -->
+    <div class="hl-groep" id="organisatie">
+      <span class="hl-emoji">🎛️</span>
+      <h2>Voor de organisatie</h2>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">5</span> Het dashboard &amp; een ronde starten</h3>
+      <p>
+        Na inloggen kom je op het toernooi-dashboard. Bovenaan zie je de voortgang (bv. 2/6 rondes,
+        4/12 wedstrijden), het tijdschema en het clublogo. Via de rondebalk (R1–R6) kies je een ronde;
+        per veld staat de wedstrijd klaar met een knop <strong>Start dit veld</strong> om de wedstrijd
+        live te zetten.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-admin-dashboard.png" alt="Adminview: dashboard en een ronde starten"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-admin-dashboard.png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">6</span> Scheidsrechters toevoegen &amp; verdelen</h3>
+      <p>
+        Voeg scheidsrechters toe met naam, of laat het systeem ze met <strong>Automatisch verdelen</strong>
+        eerlijk over alle nog te spelen wedstrijden verdelen. Per scheidsrechter zie je de toewijzing per
+        veld en ronde, kun je rondes blokkeren, en deel je via <strong>Link</strong> een persoonlijke
+        link waarmee de scheidsrechter zelf de stand kan bijhouden.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-scheidsrechters.png" alt="Adminview: scheidsrechters toevoegen en verdelen"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-scheidsrechters.png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">7</span> Scores live invoeren</h3>
+      <p>
+        Tijdens een live ronde bedien je per veld de score met de grote <strong>+ / −</strong> knoppen.
+        Met <strong>Tussenstand</strong> bewaar je de stand zonder af te ronden; met <strong>Klaar</strong>
+        sluit je de wedstrijd af. De stand wordt automatisch herberekend en direct naar alle bezoekers
+        en het scorebord gepusht.
+      </p>
+      <div class="shot-frame">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-admin-live.png" alt="Adminview: scores live invoeren met plus/min knoppen"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-admin-live.png</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BEAMER ─────────────────────────────────────────────── -->
+    <div class="hl-groep" id="beamer">
+      <span class="hl-emoji">📺</span>
+      <h2>Op de beamer</h2>
+    </div>
+
+    <div class="stap">
+      <h3><span class="nr">8</span> Het presentatie-scorebord</h3>
+      <p>
+        Voor op een groot scherm of beamer is er een presentatieweergave: beide velden groot in beeld
+        met de live standen, een klok en de poulestanden eronder. Bij een doelpunt verschijnt kort een
+        opvallende <strong>DOELPUNT!</strong>-melding. Ideaal in de kantine of langs het veld.
+      </p>
+      <div class="shot-frame breed">
+        <div class="shot-balk"><span></span><span></span><span></span></div>
+        <img src="images/tools/toernooi-scorebord.png" alt="Presentatie-scorebord op een groot scherm"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+        <div class="shot-placeholder" style="display:none">
+          <div class="ph-icon">🖼️</div><div class="ph-tekst">Screenshot volgt</div>
+          <div class="ph-pad">images/tools/toernooi-scorebord.png</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hl-cta">
+      <a href="https://zaanslicht-toernooi.vercel.app" target="_blank" rel="noopener">Open de toernooi-tool &#8599;</a>
+      <a href="tools.html" class="secundair">&#8592; Terug naar tools</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+    <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan. Staat er een foto op deze site waarvan u de verwijdering wenst? Neem dan contact op via het contactformulier.</p>
+  </footer>
+
+</body>
+</html>
