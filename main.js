@@ -676,3 +676,19 @@ async function laadNieuwsteSerie() {
     el.style.display = 'block';
   } catch {}
 }
+
+// Scroll naar hash na page load (bij navigatie vanuit andere pagina's naar index.html#over etc.)
+(function () {
+  if (!location.hash) return;
+  var hash = location.hash;
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var el = document.querySelector(hash);
+      if (!el) return;
+      var header = document.querySelector('header');
+      var offset = header ? header.getBoundingClientRect().height : 0;
+      var top = el.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }, 350);
+  });
+})();
