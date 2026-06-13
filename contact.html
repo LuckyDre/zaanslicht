@@ -73,12 +73,24 @@
       <a href="index.html">Home</a>
       <a href="voetbal.html">Voetbal</a>
       <a href="nosports.html">No Sports</a>
+      <a href="tools.html">Tools</a>
       <a href="clubs.html">Clubs</a>
       <a href="index.html#over">Over ons</a>
       <a href="contact.html" class="nav-active">Contact</a>
     </nav>
-    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+    <button class="menu-toggle" id="hamburger" aria-label="Menu">&#9776;</button>
   </header>
+
+<div class="nav-mobile" id="nav-mobile">
+  <button class="nav-mobile-close" id="nav-close">&times;</button>
+  <a href="index.html"     onclick="sluitMenu()">Home</a>
+  <a href="voetbal.html"   onclick="sluitMenu()">Voetbal</a>
+  <a href="nosports.html"  onclick="sluitMenu()">No Sports</a>
+  <a href="tools.html"     onclick="sluitMenu()">Tools</a>
+  <a href="clubs.html"     onclick="sluitMenu()">Clubs</a>
+  <a href="index.html#over" onclick="sluitMenu()">Over ons</a>
+  <a href="contact.html" class="nav-active" onclick="sluitMenu()">Contact</a>
+</div>
 
 
   <main class="contact-page">
@@ -152,7 +164,12 @@
   }
   </script>
 
-  <script src="nav-fotografen.js?v=20260613e"></script>
+  <script>
+document.getElementById('hamburger').addEventListener('click', () => document.getElementById('nav-mobile').classList.add('open'));
+document.getElementById('nav-close').addEventListener('click', () => document.getElementById('nav-mobile').classList.remove('open'));
+function sluitMenu() { document.getElementById('nav-mobile').classList.remove('open'); }
+</script>
+<script src="nav-fotografen.js?v=20260613e"></script>
 <script src="zoek.js?v=20260612"></script>
   <!-- Cloudflare Web Analytics -->
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
