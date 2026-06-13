@@ -160,8 +160,7 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Openstaande punten
 
-- [ ] Google Postmaster Tools verificatie (TXT-record in TransIP)
-- [ ] DMARC-record (`_dmarc` TXT `p=none`)
+- [x] Google Postmaster Tools verificatie + DMARC-record (13-06-2026)
 - [ ] ZCFC-website: link naar zaanslicht.com vragen als officieel clubfotograaf
 
 ---
