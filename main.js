@@ -71,7 +71,9 @@ function vulHeroEnStart(fotos, thema) {
   const wrapper = document.getElementById('hero-wrapper');
   if (!wrapper) return;
   const teksten = HERO_TEKSTEN[thema] || HERO_TEKSTEN.voetbal;
-  wrapper.innerHTML = fotos.slice(0, 5).map((f, i) => {
+  // Kies elke load 5 willekeurige uit de top-pool (top 20 meest geliked) → afwisseling, blijft 'beste werk'
+  const selectie = shuffle(fotos).slice(0, 5);
+  wrapper.innerHTML = selectie.map((f, i) => {
     const t = teksten[i % teksten.length];
     // Eerste foto: trainers gezichten bovenin — nav is ~120px, foto top 120px omlaag zetten
     const pos = i === 0 ? 'background-position: center top;' : '';
