@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tools — Zaans Licht</title>
+  <meta name="description" content="Handige tools van Zaans Licht — waaronder het interactieve tactiekbord." />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://zaanslicht.com/tools.html" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css?v=20260613" />
+  <style>
+    .tools-page {
+      min-height: 100vh;
+      padding: 120px 3rem 4rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .tools-page .section-header { margin-bottom: 1rem; }
+    .tools-page h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+    .tools-intro {
+      color: var(--tekst-dim);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.2rem;
+    }
+    .tool-kaart {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1.5rem;
+      border: 1px solid var(--oranje-15, rgba(255,107,0,0.15));
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    }
+    .tool-kaart:hover {
+      border-color: var(--oranje, #FF6B00);
+      transform: translateY(-3px);
+      background: rgba(255,107,0,0.05);
+    }
+    .tool-kaart .tool-icon { font-size: 2.2rem; line-height: 1; }
+    .tool-kaart h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--oranje, #FF6B00);
+      margin: 0;
+    }
+    .tool-kaart p {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--tekst-dim);
+      margin: 0;
+    }
+    .tool-kaart .tool-link {
+      margin-top: auto;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--oranje, #FF6B00);
+      font-weight: 700;
+    }
+    @media (max-width: 768px) {
+      .tools-page { padding: 100px 1.5rem 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="index.html#over">Over ons</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <main class="tools-page">
+    <div class="section-header">
+      <h1>Tools</h1>
+      <div class="accent-line"></div>
+    </div>
+
+    <p class="tools-intro">
+      Handige extra's van Zaans Licht. Hieronder vind je het interactieve tactiekbord
+      en de bijbehorende handleiding.
+    </p>
+
+    <div class="tools-grid">
+
+      <a href="tactiekbord.html" class="tool-kaart">
+        <div class="tool-icon">⚽</div>
+        <h2>Tactiekbord</h2>
+        <p>Interactief tactiekbord: zet spelers neer, teken loop- en passlijnen en bouw je opstelling op.</p>
+        <span class="tool-link">Openen &#8594;</span>
+      </a>
+
+      <a href="tactiekbord-handleiding.html" class="tool-kaart">
+        <div class="tool-icon">📖</div>
+        <h2>Handleiding tactiekbord</h2>
+        <p>Korte uitleg en tips voor het gebruik van het tactiekbord.</p>
+        <span class="tool-link">Lezen &#8594;</span>
+      </a>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+    <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan. Staat er een foto op deze site waarvan u de verwijdering wenst? Neem dan contact op via het contactformulier.</p>
+  </footer>
+
+</body>
+</html>
