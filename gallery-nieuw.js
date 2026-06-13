@@ -296,20 +296,17 @@ async function laadGallery() {
   initActies();
 
   try {
-    // Laad manifest + gast manifest + gecombineerde volgorde parallel
-    const [manRes, gastRes, volRes] = await Promise.all([
+    // Laad manifest + gast manifest parallel
+    const [manRes, gastRes] = await Promise.all([
       fetch('manifest.json?v=' + Date.now()),
       fetch(WORKER_URL + '/fotograaf/manifest'),
-      fetch(WORKER_URL + '/gallery/volgorde').catch(() => ({ json: () => ({}) })),
     ]);
 
-    const manifest      = await manRes.json();
-    const gastData      = await gastRes.json();
-    const volgordeData  = await volRes.json().catch(() => ({}));
+    const manifest  = await manRes.json();
+    const gastData  = await gastRes.json();
 
-    const eigenItems   = manifest[CATEGORY] || [];
-    const fotografen   = (gastData.fotografen || []).filter(fg => fg.mappen?.length);
-    const gecombineerd = volgordeData[CATEGORY] || null;
+    const eigenItems = manifest[CATEGORY] || [];
+    const fotografen = (gastData.fotografen || []).filter(fg => fg.mappen?.length);
 
     container.innerHTML = '';
 
@@ -321,7 +318,6 @@ async function laadGallery() {
         const d = await r.json();
         gastCache[fgId] = d.fotos || [];
       }
-      // Zoek fotos van deze map — vergelijk decoded keys
       return gastCache[fgId].filter(f => {
         try {
           const decodedKey = decodeURIComponent(f.key);
@@ -330,7 +326,6 @@ async function laadGallery() {
       });
     }
 
-    // Zelfde key-transformatie als de oude gallery.js: / → __ en . → --
     function photoKey(path) {
       return path.replace(/\//g, '__').replace(/\./g, '--');
     }
@@ -350,51 +345,49 @@ async function laadGallery() {
       }));
     }
 
-    // Render in gecombineerde volgorde, of eigen-eerst als geen volgorde
-    if (gecombineerd?.length) {
-      for (const entry of gecombineerd) {
-        if (entry.type === 'eigen') {
-          const item = eigenItems.find(x => x.map === entry.map);
-          if (item) renderSerie(container, {
-            naam: item.naam, fotograaf: item.fotograaf,
-            fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving,
-            datum: item.datum,
-          });
-        } else if (entry.type === 'gast') {
-          const fg = fotografen.find(x => x.id === entry.fgId);
-          if (fg) {
-            const fotos = await gastNaarFotos(fg.id, entry.map);
-            const mapMeta = (fg.mappen || []).find(m => m.map === entry.map);
+    // Bouw gecombineerde lijst van alle series met hun datum
+    const alleSeries = [];
+
+    for (const item of eigenItems) {
+      alleSeries.push({
+        datum: item.datum || '',
+        render: () => renderSerie(container, {
+          naam: item.naam, fotograaf: item.fotograaf,
+          fotos: eigenNaarFotos(item), labels: item.labels,
+          beschrijving: item.beschrijving, datum: item.datum,
+        }),
+      });
+    }
+
+    for (const fg of fotografen) {
+      const mappen = (fg.mappen || []).filter(m =>
+        m.categorie === CATEGORY ||
+        (m.categorie === 'eigen' && CATEGORY === 'voetbal')
+      );
+      for (const map of mappen) {
+        alleSeries.push({
+          datum: map.datum || '',
+          render: async () => {
+            const fotos = await gastNaarFotos(fg.id, map.map);
             if (fotos.length) renderSerie(container, {
-              naam: entry.map, fotograaf: fg.naam,
-              fotos, kleur: fg.kleur, labels: mapMeta?.labels, datum: mapMeta?.datum,
+              naam: map.map, fotograaf: fg.naam,
+              fotos, kleur: fg.kleur, labels: map.labels, datum: map.datum,
             });
-          }
-        }
+          },
+        });
       }
-      // Eigen items die ontbreken in volgorde → achteraan (.trim() voor veiligheid)
-      for (const item of eigenItems) {
-        if (!gecombineerd.find(e => e.type === 'eigen' && e.map.trim() === item.map.trim())) {
-          renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving, datum: item.datum });
-        }
-      }
-    } else {
-      // Geen opgeslagen volgorde: eigen eerst, daarna gast
-      for (const item of eigenItems) {
-        renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving, datum: item.datum });
-      }
-      for (const fg of fotografen) {
-        const mappen = (fg.mappen || []).filter(m =>
-          m.categorie === CATEGORY ||
-          (m.categorie === 'eigen' && CATEGORY === 'voetbal')
-        );
-        for (const map of mappen) {
-          const fotos = await gastNaarFotos(fg.id, map.map);
-          if (fotos.length) renderSerie(container, {
-            naam: map.map, fotograaf: fg.naam, fotos, kleur: fg.kleur, labels: map.labels, datum: map.datum,
-          });
-        }
-      }
+    }
+
+    // Sorteer op datum (nieuwste eerst), series zonder datum achteraan
+    alleSeries.sort((a, b) => {
+      if (!a.datum && !b.datum) return 0;
+      if (!a.datum) return 1;
+      if (!b.datum) return -1;
+      return b.datum.localeCompare(a.datum);
+    });
+
+    for (const serie of alleSeries) {
+      await serie.render();
     }
 
     if (!container.children.length) {
