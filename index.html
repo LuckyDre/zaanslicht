@@ -87,10 +87,20 @@
       <a href="clubs.html">Clubs</a>
       <a href="#over">Over ons</a>
       <a href="contact.html">Contact</a>
-      <a href="tools.html">Tools</a>
     </nav>
-    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+    <button class="menu-toggle" id="hamburger" aria-label="Menu">&#9776;</button>
   </header>
+
+  <div class="nav-mobile" id="nav-mobile">
+    <button class="nav-mobile-close" id="nav-close">&times;</button>
+    <a href="#hero"          onclick="sluitMenu()">Home</a>
+    <a href="voetbal.html"   onclick="sluitMenu()">Voetbal</a>
+    <a href="nosports.html"  onclick="sluitMenu()">No Sports</a>
+    <a href="clubs.html"     onclick="sluitMenu()">Clubs</a>
+    <a href="#over"          onclick="sluitMenu()">Over ons</a>
+    <a href="contact.html"   onclick="sluitMenu()">Contact</a>
+    <a href="tools.html"     onclick="sluitMenu()">Tools</a>
+  </div>
 
   <!-- HERO FULLSCREEN SLIDER -->
   <section id="hero">
