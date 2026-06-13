@@ -1,24 +1,19 @@
-// zoek.js — site-brede zoekfunctie via zoekbalk onder de header
+// zoek.js — site-brede zoekfunctie via zoekbalk in de header (tweede rij)
 (function () {
   const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
   // ── CSS ───────────────────────────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
-    /* Zoekbalk onder de header */
+    /* Zoekbalk als tweede rij in de header */
     .zk-balk {
-      position: fixed;
-      right: 0;
-      z-index: 500;
+      flex: 0 0 100%;
+      width: 100%;
       display: flex;
       align-items: center;
-      gap: 0.3rem;
-      padding: 0.35rem 1rem 0.35rem 1.1rem;
-      background: rgba(13,13,13,0.92);
-      backdrop-filter: blur(6px);
-      border-left: 1px solid rgba(255,107,0,0.18);
-      border-bottom: 1px solid rgba(255,107,0,0.18);
-      border-bottom-left-radius: 10px;
+      gap: 0.5rem;
+      padding: 0.45rem 3rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
     }
     .zk-balk-input {
       background: transparent;
@@ -28,11 +23,14 @@
       font-size: 0.82rem;
       letter-spacing: 1px;
       text-transform: uppercase;
-      width: 140px;
+      flex: 1;
       font-family: inherit;
     }
     .zk-balk-input::placeholder { color: #444; letter-spacing: 1px; }
     .zk-balk-input:focus { color: #ffffff; }
+    @media (max-width: 768px) {
+      .zk-balk { padding: 0.4rem 1.2rem; }
+    }
     .zk-trigger {
       background: none; border: none; cursor: pointer;
       color: #aaaaaa; font-size: 1rem; line-height: 1;
