@@ -391,7 +391,7 @@ async function laadGallery() {
         for (const map of mappen) {
           const fotos = await gastNaarFotos(fg.id, map.map);
           if (fotos.length) renderSerie(container, {
-            naam: map.map, fotograaf: fg.naam, fotos, kleur: fg.kleur, labels: map.labels,
+            naam: map.map, fotograaf: fg.naam, fotos, kleur: fg.kleur, labels: map.labels, datum: map.datum,
           });
         }
       }
