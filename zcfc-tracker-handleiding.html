@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competitietracker — Uitleg — Zaans Licht</title>
+  <meta name="description" content="Korte uitleg van de ZCFC Competitietracker: wat de tabbladen betekenen en hoe je ze gebruikt." />
+  <meta name="robots" content="noindex" />
+  <link rel="canonical" href="https://zaanslicht.com/zcfc-tracker-handleiding.html" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css?v=20260613" />
+  <style>
+    .uitleg-page {
+      min-height: 100vh;
+      padding: 120px 3rem 4rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .uitleg-page .section-header { margin-bottom: 1rem; }
+    .uitleg-page h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+    .uitleg-intro {
+      color: var(--tekst-dim);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+    .uitleg-page h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--oranje, #FF6B00);
+      margin: 2.5rem 0 1rem;
+    }
+    .tab-lijst { display: flex; flex-direction: column; gap: 0.9rem; }
+    .tab-item {
+      display: flex;
+      gap: 0.8rem;
+      align-items: baseline;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--oranje-15, rgba(255,107,0,0.12));
+    }
+    .tab-item:last-child { border-bottom: none; }
+    .tab-naam {
+      flex-shrink: 0;
+      min-width: 130px;
+      font-weight: 700;
+      color: var(--oranje, #FF6B00);
+      letter-spacing: 0.3px;
+    }
+    .tab-uitleg { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.6; }
+    .uitleg-noot {
+      margin-top: 2.5rem;
+      padding: 1rem 1.2rem;
+      border-left: 3px solid var(--oranje, #FF6B00);
+      background: rgba(255,255,255,0.02);
+      color: var(--tekst-dim);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .uitleg-cta { margin-top: 2.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .uitleg-cta a {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.7rem 1.2rem; border-radius: 100px;
+      border: 1px solid var(--oranje, #FF6B00);
+      color: var(--oranje, #FF6B00);
+      text-decoration: none; font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .uitleg-cta a:hover { background: var(--oranje, #FF6B00); color: #0d0d0d; }
+    .uitleg-cta a.secundair { border-color: var(--oranje-15, rgba(255,107,0,0.3)); color: var(--tekst-dim); }
+    @media (max-width: 768px) {
+      .uitleg-page { padding: 100px 1.5rem 3rem; }
+      .tab-item { flex-direction: column; gap: 0.2rem; }
+      .tab-naam { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="index.html#over">Over ons</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <main class="uitleg-page">
+    <div class="section-header">
+      <h1>ZCFC Competitietracker</h1>
+      <div class="accent-line"></div>
+    </div>
+
+    <p class="uitleg-intro">
+      De competitietracker volgt ZCFC in de 5e klasse A (West 1) live: stand, vorm,
+      statistieken en de kansen op de nacompetitie. Hieronder kort wat elk tabblad laat zien.
+    </p>
+
+    <h2>De tabbladen</h2>
+    <div class="tab-lijst">
+      <div class="tab-item"><span class="tab-naam">Overzicht</span><span class="tab-uitleg">Snel dashboard met de belangrijkste cijfers en de eerstvolgende wedstrijd in één blik.</span></div>
+      <div class="tab-item"><span class="tab-naam">Wedstrijden</span><span class="tab-uitleg">Alle uitslagen tot nu toe en het volledige speelschema.</span></div>
+      <div class="tab-item"><span class="tab-naam">Stand</span><span class="tab-uitleg">De actuele competitiestand met punten, gewonnen, gelijk en verloren.</span></div>
+      <div class="tab-item"><span class="tab-naam">Vorm</span><span class="tab-uitleg">De recente vorm (laatste wedstrijden) en het puntenverloop per speelronde.</span></div>
+      <div class="tab-item"><span class="tab-naam">Kansen</span><span class="tab-uitleg">Winkans voor de volgende wedstrijd en de scenario's voor de nacompetitie/promotie.</span></div>
+      <div class="tab-item"><span class="tab-naam">Scorers</span><span class="tab-uitleg">De doelpuntenmakers van ZCFC dit seizoen.</span></div>
+      <div class="tab-item"><span class="tab-naam">Selectie</span><span class="tab-uitleg">De spelersgroep van het team.</span></div>
+      <div class="tab-item"><span class="tab-naam">Club</span><span class="tab-uitleg">Algemene informatie over de club.</span></div>
+    </div>
+
+    <p class="uitleg-noot">
+      De winkans wordt berekend uit een mix van seizoenspunten, recente vorm en thuisvoordeel —
+      een indicatie, geen garantie. De gegevens komen van de Hollandse Velden-data, aangevuld door
+      vrijwilligers, dus een enkele fout is mogelijk.
+    </p>
+
+    <div class="uitleg-cta">
+      <a href="https://luckydre.github.io/zcfc-feed/" target="_blank" rel="noopener">Open de tracker &#8599;</a>
+      <a href="tools.html" class="secundair">&#8592; Terug naar tools</a>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+    <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan. Staat er een foto op deze site waarvan u de verwijdering wenst? Neem dan contact op via het contactformulier.</p>
+  </footer>
+
+</body>
+</html>
