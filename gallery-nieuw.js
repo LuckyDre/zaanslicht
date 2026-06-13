@@ -375,13 +375,13 @@ async function laadGallery() {
       // Eigen items die ontbreken in volgorde → achteraan (.trim() voor veiligheid)
       for (const item of eigenItems) {
         if (!gecombineerd.find(e => e.type === 'eigen' && e.map.trim() === item.map.trim())) {
-          renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving });
+          renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving, datum: item.datum });
         }
       }
     } else {
       // Geen opgeslagen volgorde: eigen eerst, daarna gast
       for (const item of eigenItems) {
-        renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving });
+        renderSerie(container, { naam: item.naam, fotograaf: item.fotograaf, fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving, datum: item.datum });
       }
       for (const fg of fotografen) {
         const mappen = (fg.mappen || []).filter(m =>
