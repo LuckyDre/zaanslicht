@@ -367,7 +367,7 @@ async function laadGallery() {
             const mapMeta = (fg.mappen || []).find(m => m.map === entry.map);
             if (fotos.length) renderSerie(container, {
               naam: entry.map, fotograaf: fg.naam,
-              fotos, kleur: fg.kleur, labels: mapMeta?.labels,
+              fotos, kleur: fg.kleur, labels: mapMeta?.labels, datum: mapMeta?.datum,
             });
           }
         }
