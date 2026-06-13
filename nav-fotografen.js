@@ -26,7 +26,7 @@
     .nav-meer-dropdown {
       position: absolute;
       top: 100%;
-      right: 2.5rem;
+      right: 0.5rem;
       /* Padding-top zorgt voor visuele ruimte zonder hover-gat */
       padding-top: 10px;
       background: transparent;
