@@ -127,7 +127,7 @@
     // ── Clubs / Over ons / Contact groeperen in "..." dropdown ───────────
     const nav = document.querySelector('header nav');
     if (nav) {
-      const groepeernamen = ['Clubs', 'Over ons', 'Contact'];
+      const groepeernamen = ['Tools', 'Clubs', 'Over ons', 'Contact'];
       const teGroeperen = Array.from(nav.querySelectorAll('a')).filter(a =>
         groepeernamen.includes(a.textContent.trim())
       );
