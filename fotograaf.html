@@ -2046,7 +2046,8 @@ window.slaPositieOp = async () => {
   btn.disabled = false; btn.textContent = 'Positie opslaan';
 };
 
-window.uitloggen = () => {
+window.uitloggen = async () => {
+  await stopPresence();
   localStorage.removeItem('zl_fotograaf');
   localStorage.removeItem('zl_review');
   sessie = null;
