@@ -162,7 +162,6 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 - [ ] Google Postmaster Tools verificatie (TXT-record in TransIP)
 - [ ] DMARC-record (`_dmarc` TXT `p=none`)
-- [ ] fotograaf.html hero: gezichten trainers beter zichtbaar (nav overlapt)
 - [ ] ZCFC-website: link naar zaanslicht.com vragen als officieel clubfotograaf
 
 ---
