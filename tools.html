@@ -72,6 +72,26 @@
       color: var(--oranje, #FF6B00);
       font-weight: 700;
     }
+    .tool-acties {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .tool-acties .tool-link { margin-top: 0; }
+    .tool-info {
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--tekst-dim);
+      text-decoration: none;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--oranje-15, rgba(255,107,0,0.25));
+      border-radius: 100px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tool-info:hover { color: var(--oranje, #FF6B00); border-color: var(--oranje, #FF6B00); }
     @media (max-width: 768px) {
       .tools-page { padding: 100px 1.5rem 3rem; }
     }
