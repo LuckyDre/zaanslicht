@@ -75,9 +75,8 @@ function vulHeroEnStart(fotos, thema) {
   const selectie = shuffle(fotos).slice(0, 5);
   wrapper.innerHTML = selectie.map((f, i) => {
     const t = teksten[i % teksten.length];
-    // Eerste foto: trainers gezichten bovenin — nav is ~120px, foto top 120px omlaag zetten
-    const pos = i === 0 ? 'background-position: center top;' : '';
-    return `<div class="swiper-slide" style="background-image: url('${f.src}');${pos}">
+    // Elke hero-foto is nu willekeurig → standaard gecentreerde crop (CSS: background-position center)
+    return `<div class="swiper-slide" style="background-image: url('${f.src}');">
       <div class="slide-overlay"><h1>${t.h1}</h1><p>${t.p}</p></div>
     </div>`;
   }).join('');
