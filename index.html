@@ -263,6 +263,11 @@
   <script src="main.js?v=20260613b"></script>
   <script src="nav-fotografen.js"></script>
 <script src="zoek.js?v=20260612"></script>
+  <script>
+    document.getElementById('hamburger').addEventListener('click', () => document.getElementById('nav-mobile').classList.add('open'));
+    document.getElementById('nav-close').addEventListener('click', () => document.getElementById('nav-mobile').classList.remove('open'));
+    function sluitMenu() { document.getElementById('nav-mobile').classList.remove('open'); }
+  </script>
 
   <!-- Fotografen-profielen in Over ons sectie -->
   <script>
