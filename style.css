@@ -128,6 +128,32 @@ nav a:hover { color: var(--oranje); }
   cursor: pointer;
 }
 
+.nav-mobile {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,8,.98);
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.nav-mobile.open { display: flex; }
+.nav-mobile a { font-size: 2rem; font-weight: 700; color: var(--wit); text-decoration: none; transition: color .2s; }
+.nav-mobile a:hover { color: var(--oranje); }
+.nav-mobile-close {
+  position: absolute;
+  top: 1.5rem; right: 1.5rem;
+  background: none;
+  border: 1px solid var(--rand);
+  color: var(--tekst);
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
 /* Zwevende Tools-knop — rechtsboven, onder de header/hamburger */
 .tools-fab {
   position: fixed;
