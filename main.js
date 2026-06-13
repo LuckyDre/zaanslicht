@@ -518,6 +518,9 @@ async function loadRecentComments() {
     widget.style.display = 'block';
     widget.style.maxWidth = '420px';
     widget.style.margin = '5rem auto';
+    if (window.location.hash === '#over') {
+      document.getElementById('over')?.scrollIntoView();
+    }
   } catch(e) {
     console.warn('Reacties widget mislukt:', e);
   }
