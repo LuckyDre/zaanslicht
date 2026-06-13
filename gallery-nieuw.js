@@ -358,6 +358,7 @@ async function laadGallery() {
           if (item) renderSerie(container, {
             naam: item.naam, fotograaf: item.fotograaf,
             fotos: eigenNaarFotos(item), labels: item.labels, beschrijving: item.beschrijving,
+            datum: item.datum,
           });
         } else if (entry.type === 'gast') {
           const fg = fotografen.find(x => x.id === entry.fgId);
