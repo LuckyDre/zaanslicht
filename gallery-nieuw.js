@@ -55,8 +55,38 @@ function initLightbox() {
   });
 }
 
+// ── "NIEUW"-badge: series met een datum < 2 weken oud ─────────────────────
+const NIEUW_DAGEN = 14;
+
+function isNieuw(datum) {
+  if (!datum || !/^\d{4}-\d{2}-\d{2}$/.test(datum)) return false;
+  const d = new Date(datum + 'T00:00:00');
+  if (isNaN(d.getTime())) return false;
+  const dagenOud = (Date.now() - d.getTime()) / 86400000;
+  return dagenOud >= 0 && dagenOud < NIEUW_DAGEN; // vandaag t/m 13 dagen oud
+}
+
+// Voeg de badge-stijl éénmalig toe (werkt op elke pagina die deze gallery laadt)
+function ensureNieuwStyles() {
+  if (document.getElementById('pc-nieuw-styles')) return;
+  const st = document.createElement('style');
+  st.id = 'pc-nieuw-styles';
+  st.textContent = `
+    .pc-nieuw{display:inline-flex;align-items:center;gap:.35rem;font-size:.62rem;font-weight:800;
+      letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;color:#fff;
+      background:linear-gradient(135deg,#FF6B00,#ff3d3d);padding:.28rem .6rem;border-radius:100px;
+      box-shadow:0 2px 8px rgba(255,61,61,.4);}
+    .pc-nieuw::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;
+      animation:pc-nieuw-pulse 1.8s infinite;}
+    @keyframes pc-nieuw-pulse{
+      0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}
+      70%{box-shadow:0 0 0 6px rgba(255,255,255,0)}
+      100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}`;
+  document.head.appendChild(st);
+}
+
 // ── RENDER SERIE ──────────────────────────────────────────────────────────
-function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschrijving }) {
+function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschrijving, datum }) {
   if (!fotos.length) return;
 
   const div = document.createElement('div');
@@ -68,6 +98,17 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   h3.innerHTML = `${naam}${fotograaf ? `<span class="pc-sub">${fotograaf}</span>` : ''}
     <span class="pc-rechts"><span class="pc-count">${fotos.length} foto's</span></span>`;
   if (kleur) { const sub = h3.querySelector('.pc-sub'); if (sub) sub.style.color = kleur; }
+
+  // "NIEUW"-badge vóór de fototeller als de serie < 2 weken oud is
+  if (isNieuw(datum)) {
+    ensureNieuwStyles();
+    const badge = document.createElement('span');
+    badge.className = 'pc-nieuw';
+    badge.textContent = 'Nieuw';
+    badge.title = 'Nieuwe foto\'s — blijven ongeveer 2 weken staan';
+    const rechts = h3.querySelector('.pc-rechts');
+    rechts.insertBefore(badge, rechts.querySelector('.pc-count'));
+  }
 
   // Overzicht-knop naast de teller
   const ovBtn = document.createElement('button');
