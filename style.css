@@ -973,9 +973,10 @@ footer {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  header { padding: 1rem 1.5rem; }
+  header { padding: 1rem 1.5rem; justify-content: space-between; gap: 0; }
+  header nav { margin-left: 0; }
   nav { display: none; }
-  .menu-toggle { display: block; margin-left: auto; }
+  .menu-toggle { display: block; }
 
   .slide-overlay { padding: 0 2rem; }
 
