@@ -1064,6 +1064,9 @@ async function toonDashboard(nieuwAangemeld = false) {
   // Stijl accentkleur dynamisch
   document.documentElement.style.setProperty('--accent', sessie.kleur || '#FF6B00');
 
+  // Realtime presence — laat beheer.html zien dat fotograaf online is
+  startPresence();
+
   // Upload zone drag & drop
   const zone  = document.getElementById('upload-zone');
   const input = document.getElementById('file-input');
