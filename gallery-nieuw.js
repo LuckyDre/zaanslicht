@@ -395,7 +395,7 @@ async function laadGallery() {
     }
 
     // Update totaaltelller bovenaan met alle foto's (eigen + gast)
-    const totaalFotos = Array.from(container.querySelectorAll('.pc-swiper .swiper-slide')).length;
+    const totaalFotos = Array.from(container.querySelectorAll('.foto-cel')).length;
     const totaalSeries = container.querySelectorAll('.pc').length;
     const fotoEl   = document.getElementById('meta-fotos');
     const mappenEl = document.getElementById('meta-mappen');
