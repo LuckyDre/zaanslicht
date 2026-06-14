@@ -1,4 +1,8 @@
 images/_originelen/
+images/**/*.jpg
+images/**/*.JPG
+images/**/*.jpeg
+images/**/*.JPEG
 admin.html
 admin-server.py
 .env.local

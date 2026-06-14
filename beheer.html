@@ -132,8 +132,25 @@
     .slider-item.open .expand-btn { transform: rotate(180deg); color: var(--oranje); }
 
     /* FOTO GRID */
-    .foto-grid { display: none; padding: 0.8rem 1rem 1rem; border-top: 1px solid #2a2a2a; flex-wrap: wrap; gap: 6px; }
+    .foto-grid { display: none; padding: 0.8rem 1rem 0.5rem; border-top: 1px solid #2a2a2a; flex-wrap: wrap; gap: 6px; }
     .slider-item.open .foto-grid { display: flex; }
+
+    /* UPLOAD ZONE */
+    .upload-zone { display: none; margin: 0 1rem 0.8rem; padding: 0.9rem; border: 2px dashed #333; border-radius: 8px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .slider-item.open .upload-zone { display: block; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: var(--oranje); background: rgba(255,107,0,0.05); }
+    .upload-zone span { font-size: 0.82rem; color: #666; display: block; }
+    .upload-zone span u { color: var(--oranje); text-decoration: none; border-bottom: 1px solid; }
+    .upload-zone .uz-sub { font-size: 0.72rem; color: #444; margin-top: 0.2rem; }
+    .upload-progres { margin: 0 1rem 0.6rem; display: none; }
+    .slider-item.open .upload-progres { display: block; }
+    .uz-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: #888; padding: 0.2rem 0; }
+    .uz-item .uz-naam { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .uz-item .uz-status { flex-shrink: 0; font-size: 0.72rem; }
+
+    /* NIEUWE MAP KNOP */
+    .nieuwe-map-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.75rem; margin-bottom: 1rem; background: transparent; border: 1px dashed #333; border-radius: 8px; color: #555; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+    .nieuwe-map-btn:hover { border-color: var(--oranje); color: var(--oranje); }
 
     .foto-thumb { width: 110px; height: 74px; border-radius: 3px; overflow: hidden; cursor: grab; border: 2px solid transparent; transition: border-color 0.2s, transform 0.15s; position: relative; flex-shrink: 0; }
     .foto-thumb:hover { border-color: var(--oranje); }
