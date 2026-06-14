@@ -230,7 +230,11 @@
     <div class="header-btns">
       <span class="badge ok" id="badge-status">✓ Online</span>
       <span id="online-bar"></span>
+      <span class="badge" id="badge-convert" style="display:none"></span>
+      <span class="badge" id="badge-sync-local" style="display:none"></span>
+      <button class="btn btn-blauw" id="btn-convert" onclick="doConvert()" style="display:none">🔄 Converteer JPG → WebP</button>
       <button class="btn btn-oranje" id="btn-save" onclick="doSave()">💾 Opslaan &amp; publiceren</button>
+      <button class="btn btn-groen" id="btn-sync-local" onclick="doSyncLocal()" style="display:none">🚀 Sync naar GitHub</button>
       <button class="btn btn-dim"    onclick="doLogout()">Uitloggen</button>
     </div>
   </div>
