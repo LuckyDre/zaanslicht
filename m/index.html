@@ -280,7 +280,7 @@
         // gast heeft ts; eigen niet → toon gast als die er is, anders eigen
         const top = kandidaten[0] || (eigen ? {
           naam: eigen.naam || eigen.map, fotograaf: eigen.fotograaf || 'Andreas Luckfiel',
-          kleur: '#FF6B00', cat: 'voetbal', eigenItem: eigen,
+          kleur: andreasKleur, cat: 'voetbal', eigenItem: eigen,
         } : null);
 
         if (!top) { elNieuw.innerHTML = ''; return; }
