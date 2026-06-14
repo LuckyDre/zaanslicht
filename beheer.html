@@ -2091,6 +2091,170 @@ function setLog(html, cls = '') {
   el.className = cls;
 }
 
+// ── FOTO UPLOAD ──────────────────────────────────────────────────────────
+
+function voegUploadZoneToe(li, cat, mapNaam) {
+  // Verwijder bestaande zone zodat dubbele toevoeging niet optreedt
+  li.querySelector('.upload-zone')?.remove();
+  li.querySelector('.upload-progres')?.remove();
+
+  const progres = document.createElement('div');
+  progres.className = 'upload-progres';
+  li.appendChild(progres);
+
+  const zone = document.createElement('div');
+  zone.className = 'upload-zone';
+  zone.innerHTML = `
+    <input type="file" accept="image/jpeg,image/jpg,image/webp,image/png" multiple style="display:none">
+    <span>📁 Sleep foto's hierheen of <u>kies bestanden</u></span>
+    <span class="uz-sub">JPG, PNG en WebP — worden automatisch omgezet naar WebP</span>`;
+
+  const input = zone.querySelector('input');
+  zone.addEventListener('click', e => { if (e.target.tagName !== 'INPUT') input.click(); });
+  input.addEventListener('change', () => verwerkUploads([...input.files], cat, mapNaam, li, progres));
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', ()  => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    verwerkUploads([...e.dataTransfer.files], cat, mapNaam, li, progres);
+  });
+
+  li.appendChild(zone);
+}
+
+async function fotoNaarWebP(file, maxPx = 2200, kwaliteit = 0.82) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (w > maxPx) { h = Math.round(h * maxPx / w); w = maxPx; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        if (!blob) return reject(new Error('WebP conversie mislukt'));
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.split(',')[1]); // base64
+        reader.readAsDataURL(blob);
+      }, 'image/webp', kwaliteit);
+    };
+    img.onerror = () => reject(new Error('Afbeelding laden mislukt'));
+    img.src = url;
+  });
+}
+
+async function uploadFotoNaarGitHub(cat, mapNaam, naam, base64) {
+  const pad = `images/${cat}/${encodeURIComponent(mapNaam)}/${naam}`;
+  let sha;
+  try { sha = (await ghGet(`/repos/${REPO}/contents/${pad}?ref=${BRANCH}`)).sha; } catch {}
+  const body = { message: `Upload: ${mapNaam}/${naam}`, content: base64, branch: BRANCH };
+  if (sha) body.sha = sha;
+  await ghPut(`/repos/${REPO}/contents/${pad}`, body);
+}
+
+async function verwerkUploads(files, cat, mapNaam, li, progres) {
+  if (!files.length) return;
+  progres.innerHTML = '';
+  progres.style.display = 'block';
+
+  const grid = li.querySelector('.foto-grid');
+  const item = (manifest[cat] || []).find(x => x.map === mapNaam);
+
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    const naamWebP = file.name.replace(/\.[^.]+$/, '') + '.webp';
+
+    const rij = document.createElement('div');
+    rij.className = 'uz-item';
+    rij.innerHTML = `<span class="uz-naam">${file.name}</span><span class="uz-status">⏳ converteren…</span>`;
+    progres.appendChild(rij);
+
+    try {
+      const base64 = await fotoNaarWebP(file);
+      rij.querySelector('.uz-status').textContent = '⬆️ uploaden…';
+
+      await uploadFotoNaarGitHub(cat, mapNaam, naamWebP, base64);
+
+      // Thumbnail direct tonen
+      const idx = grid.querySelectorAll('.foto-thumb').length + 1;
+      const thumb = document.createElement('div');
+      thumb.className = 'foto-thumb';
+      thumb.dataset.foto = naamWebP;
+      const dataUrl = 'data:image/webp;base64,' + base64;
+      thumb.innerHTML = `<img src="${dataUrl}"><span class="foto-nr">${idx}</span>`;
+      grid.appendChild(thumb);
+
+      // Manifest bijwerken
+      if (item && !item.fotos.includes(naamWebP)) {
+        item.fotos.push(naamWebP);
+      }
+      dirty = true;
+      rij.querySelector('.uz-status').textContent = '✓';
+      rij.style.color = 'var(--groen)';
+    } catch (e) {
+      rij.querySelector('.uz-status').textContent = '❌ ' + e.message;
+      rij.style.color = 'var(--rood)';
+    }
+  }
+
+  // Sortable opnieuw op grid zodat nieuwe thumbs ook sleepbaar zijn
+  new Sortable(grid, {
+    animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+    onEnd() { hernum(grid); dirty = true; }
+  });
+  hernum(grid);
+  setLog(`✓ Upload klaar — klik "Opslaan & publiceren" om manifest bij te werken`, 'success');
+}
+
+async function nieuweEigenMap(cat) {
+  const naam = prompt(`Naam van de nieuwe map (bijv. "ZCFC - FC Wormerveer 2-1"):`);
+  if (!naam?.trim()) return;
+  const mapNaam = naam.trim();
+
+  // Check of naam al bestaat
+  if ((manifest[cat] || []).some(x => x.map === mapNaam)) {
+    alert(`Map "${mapNaam}" bestaat al.`); return;
+  }
+
+  // Voeg toe aan manifest (in memory)
+  const id = mapNaam.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const nieuw = { id, naam: mapNaam, map: mapNaam, fotos: [], volgorde: -1,
+                  fotograaf: 'Andreas Luckfiel', beschrijving: '', datum: '' };
+  if (!manifest[cat]) manifest[cat] = [];
+  manifest[cat].unshift(nieuw);
+  dirty = true;
+
+  // Render de nieuwe li bovenaan
+  const lijst = document.getElementById('lijst-' + cat);
+  const li = document.createElement('li');
+  li.className = 'slider-item open';
+  li.dataset.map = mapNaam; li.dataset.cat = cat;
+  li.dataset.fotosLoaded = 'true';
+  li.dataset.fotograaf = 'Andreas Luckfiel'; li.dataset.beschrijving = ''; li.dataset.datum = '';
+  li.innerHTML = `
+    <div class="slider-header" onclick="toggleOpen(this)">
+      <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
+      <span class="slider-naam">${mapNaam}</span>
+      <span class="slider-count">0 foto's</span>
+      <button class="expand-btn" title="Foto's tonen/verbergen" style="transform:rotate(180deg);color:var(--oranje)">▼</button>
+      <button onclick="eigenMapVerwijderen(event,this)" title="Map verwijderen"
+        style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
+        onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'">🗑</button>
+    </div>
+    <div class="foto-grid" style="display:flex"></div>`;
+
+  lijst.insertBefore(li, lijst.firstChild);
+  const progres = document.createElement('div');
+  progres.className = 'upload-progres';
+  li.appendChild(progres);
+  voegUploadZoneToe(li, cat, mapNaam);
+  li.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setLog(`✓ Map "${mapNaam}" aangemaakt — sleep nu je foto's in de upload zone`, 'success');
+}
+
 // ── LOKALE ADMIN SERVER (JPG → WebP + Sync) ───────────────────────────────
 const LOCAL_API = 'http://localhost:8765/api';
 
