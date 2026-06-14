@@ -48,7 +48,7 @@ fswatch -o "$SITE" \
       git pull --rebase origin main 2>/dev/null || true
 
       # Stap 2: kijk of er nieuwe WebP's zijn → manifest bijwerken
-      NIEUWE_WEBPS=$(git status --porcelain | grep -E "images/(voetbal|nosports)/.*\.webp" | wc -l | tr -d ' ')
+      NIEUWE_WEBPS=$(git status --porcelain | grep -iE "images/(voetbal|nosports)/.*\.webp" | wc -l | tr -d ' ')
       if [ "$NIEUWE_WEBPS" -gt "0" ]; then
         echo "→ $NIEUWE_WEBPS nieuwe WebP foto('s) — manifest bijwerken..."
         python3 "$SITE/generate-manifest.py"

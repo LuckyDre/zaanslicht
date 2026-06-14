@@ -1,6 +1,133 @@
 {
   "voetbal": [
     {
+      "id": "zcfc-eindejaarstoernooi-2026",
+      "naam": "ZCFC Eindejaarstoernooi 2026",
+      "map": "ZCFC Eindejaarstoernooi 2026",
+      "fotos": [
+        "AM4A0228.WEBP",
+        "AM4A0230.WEBP",
+        "IMGL0794.WEBP",
+        "IMGL0798.WEBP",
+        "IMGL0802.WEBP",
+        "IMGL0805.WEBP",
+        "IMGL0808.WEBP",
+        "IMGL0815.WEBP",
+        "IMGL0816.WEBP",
+        "IMGL0825.WEBP",
+        "IMGL0829.WEBP",
+        "IMGL0834.WEBP",
+        "IMGL0836.WEBP",
+        "IMGL0840.WEBP",
+        "IMGL0860.WEBP",
+        "IMGL0863.WEBP",
+        "IMGL0881.WEBP",
+        "IMGL0883.WEBP",
+        "IMGL0888.WEBP",
+        "IMGL0890.WEBP",
+        "IMGL0894.WEBP",
+        "IMGL0899.WEBP",
+        "IMGL0904.WEBP",
+        "IMGL0907.WEBP",
+        "IMGL0910.WEBP",
+        "IMGL0912.WEBP",
+        "IMGL0918.WEBP",
+        "IMGL0922.WEBP",
+        "IMGL0925.WEBP",
+        "IMGL0930.WEBP",
+        "IMGL0934.WEBP",
+        "IMGL0938.WEBP",
+        "IMGL0941.WEBP",
+        "IMGL0951.WEBP",
+        "IMGL0952.WEBP",
+        "IMGL0954.WEBP",
+        "IMGL0958.WEBP",
+        "IMGL0959.WEBP",
+        "IMGL0964.WEBP",
+        "IMGL0965.WEBP",
+        "IMGL0969.WEBP",
+        "IMGL0981.WEBP",
+        "IMGL0982.WEBP",
+        "IMGL0987.WEBP",
+        "IMGL0996.WEBP",
+        "IMGL1000.WEBP",
+        "IMGL1001.WEBP",
+        "IMGL1002.WEBP",
+        "IMGL1007.WEBP",
+        "IMGL1008.WEBP",
+        "IMGL1009.WEBP",
+        "IMGL1015.WEBP",
+        "IMGL1016.WEBP",
+        "IMGL1023.WEBP",
+        "IMGL1029.WEBP",
+        "IMGL1033.WEBP",
+        "IMGL1037.WEBP",
+        "IMGL1039.WEBP",
+        "IMGL1052.WEBP",
+        "IMGL1053.WEBP",
+        "IMGL1055.WEBP",
+        "_M4A0003.WEBP",
+        "_M4A0019.WEBP",
+        "_M4A0034.WEBP",
+        "_M4A0039.WEBP",
+        "_M4A0041.WEBP",
+        "_M4A0064.WEBP",
+        "_M4A0067.WEBP",
+        "_M4A0074.WEBP",
+        "_M4A0082.WEBP",
+        "_M4A0085.WEBP",
+        "_M4A0110.WEBP",
+        "_M4A0111.WEBP",
+        "_M4A0122.WEBP",
+        "_M4A0140.WEBP",
+        "_M4A0163.WEBP",
+        "_M4A0180.WEBP",
+        "_M4A0195.WEBP",
+        "_M4A0248.WEBP",
+        "_M4A0358.WEBP",
+        "_M4A0360.WEBP",
+        "_M4A0364.WEBP",
+        "_M4A0375.WEBP",
+        "_M4A0377.WEBP",
+        "_M4A0378.WEBP",
+        "_M4A0380.WEBP",
+        "_M4A0386.WEBP",
+        "_M4A0389.WEBP",
+        "_M4A0391.WEBP",
+        "_M4A0413.WEBP",
+        "_M4A0439.WEBP",
+        "_M4A0454.WEBP",
+        "_M4A9633.WEBP",
+        "_M4A9657.WEBP",
+        "_M4A9660.WEBP",
+        "_M4A9692.WEBP",
+        "_M4A9712.WEBP",
+        "_M4A9721.WEBP",
+        "_M4A9755.WEBP",
+        "_M4A9759.WEBP",
+        "_M4A9785.WEBP",
+        "_M4A9789.WEBP",
+        "_M4A9811.WEBP",
+        "_M4A9815.WEBP",
+        "_M4A9822.WEBP",
+        "_M4A9829.WEBP",
+        "_M4A9831.WEBP",
+        "_M4A9843.WEBP",
+        "_M4A9886.WEBP",
+        "_M4A9894.WEBP",
+        "_M4A9904.WEBP",
+        "_M4A9919.WEBP",
+        "_M4A9927.WEBP",
+        "_M4A9961.WEBP",
+        "_M4A9975.WEBP",
+        "_M4A9980.WEBP",
+        "_M4A9995.WEBP"
+      ],
+      "volgorde": 0,
+      "fotograaf": "Andreas Luckfiel",
+      "beschrijving": ""
+    },
+    {
       "id": "zcfc-tos-actief-2-3-najaarscompetitie-25-26",
       "naam": "ZCFC - TOS Actief 2-3 (Najaarscompetitie 25-26)",
       "map": "ZCFC - TOS Actief 2-3 (Najaarscompetitie 25-26)",
@@ -128,7 +255,7 @@
         "_M4A9241.webp",
         "_M4A9255.webp"
       ],
-      "volgorde": 0,
+      "volgorde": 1,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -159,7 +286,7 @@
         "_M4A6767.webp",
         "_M4A7140.webp"
       ],
-      "volgorde": 1,
+      "volgorde": 2,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Een gelijkspel buitenshuis bij AFC IJburg. ZCFC wist ondanks de uitwedstrijd een punt mee te nemen: 1-1."
     },
@@ -199,7 +326,7 @@
         "122140667180902795.webp",
         "122140667186902795.webp"
       ],
-      "volgorde": 2,
+      "volgorde": 3,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -243,7 +370,7 @@
         "122138671700902795.webp",
         "122138671712902795.webp"
       ],
-      "volgorde": 3,
+      "volgorde": 4,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -275,7 +402,7 @@
         "122136068834902795.webp",
         "122136068912902795.webp"
       ],
-      "volgorde": 4,
+      "volgorde": 5,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -328,7 +455,7 @@
         "122132543624902795.webp",
         "122132543672902795.webp"
       ],
-      "volgorde": 5,
+      "volgorde": 6,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -374,7 +501,7 @@
         "122131343150902795.webp",
         "122131343156902795.webp"
       ],
-      "volgorde": 6,
+      "volgorde": 7,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -408,7 +535,7 @@
         "122151218534902795.webp",
         "122151218558902795.webp"
       ],
-      "volgorde": 7,
+      "volgorde": 8,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Uitwedstrijd bij CV Wieringermeer in Slootdorp. Matchday met de hoop dat het weer mee zou werken en dat deed het! ZCFC won met 2-1."
     },
@@ -475,7 +602,7 @@
         "122127712334902795.webp",
         "122127714104902795.webp"
       ],
-      "volgorde": 8,
+      "volgorde": 9,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -538,7 +665,7 @@
         "122129046518902795.webp",
         "122129046680902795.webp"
       ],
-      "volgorde": 9,
+      "volgorde": 10,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Bekerwedstrijd om 17:00 uur bij ZCFC in Wijdewormer. Tegen de nummer van Zaandijk in de bekercompetitie met een uitgebreide selectie. De mannen lieten zien wat ze kunnen: 6-2!"
     },
@@ -580,7 +707,7 @@
         "122110874558902795.webp",
         "122110874594902795.webp"
       ],
-      "volgorde": 10,
+      "volgorde": 11,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd tegen Fortuna Wormerveer. Een nipte uitslag: 0-1 voor Fortuna. Toch mooie momenten om vast te leggen op de camera."
     },
@@ -650,7 +777,7 @@
         "122130357116902795.webp",
         "122130357128902795.webp"
       ],
-      "volgorde": 11,
+      "volgorde": 12,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd ZCFC 1 - Saenden 1. ZCFC won met 1-0."
     },
@@ -714,7 +841,7 @@
         "122111403200902795.webp",
         "122111403254902795.webp"
       ],
-      "volgorde": 12,
+      "volgorde": 13,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd ZCFC 1 - Jisp 1, eindigend in een gelijkspel: 0-0. Beide ploegen hielden elkaar goed in evenwicht."
     },
@@ -779,7 +906,7 @@
         "JKR69085_DxO.webp",
         "JKR69278_DxO.webp"
       ],
-      "volgorde": 13,
+      "volgorde": 14,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     },
@@ -791,7 +918,7 @@
         "122109456800902795.webp",
         "122116855118902795.webp"
       ],
-      "volgorde": 14,
+      "volgorde": 15,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     }
