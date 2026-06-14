@@ -925,6 +925,7 @@ function toggleOpen(hdr) {
         animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
         onEnd() { hernum(grid); dirty = true; }
       });
+      voegUploadZoneToe(li, cat, mapNaam);
       li.dataset.fotosLoaded = 'true';
     }
   }
