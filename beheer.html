@@ -2071,6 +2071,54 @@ function setLog(html, cls = '') {
   el.className = cls;
 }
 
+// ── LOKALE ADMIN SERVER (JPG → WebP + Sync) ───────────────────────────────
+const LOCAL_API = 'http://localhost:8765/api';
+
+async function refreshLocalStatus() {
+  try {
+    const s = await fetch(LOCAL_API + '/status', { signal: AbortSignal.timeout(800) }).then(r => r.json());
+    const bc = document.getElementById('badge-convert');
+    const bs = document.getElementById('badge-sync-local');
+    bc.textContent = s.unconverted > 0 ? `⚠ ${s.unconverted} JPG te converteren` : '✓ Alle foto\'s zijn WebP';
+    bc.className   = 'badge ' + (s.unconverted > 0 ? 'warn' : 'ok');
+    bs.textContent = s.git_changes > 0 ? `⚠ ${s.git_changes} wijzigingen te pushen` : '✓ Gesynchroniseerd';
+    bs.className   = 'badge ' + (s.git_changes > 0 ? 'warn' : 'ok');
+    ['badge-convert','badge-sync-local','btn-convert','btn-sync-local'].forEach(id => {
+      document.getElementById(id).style.display = '';
+    });
+  } catch {
+    // Admin server draait niet — knoppen verborgen houden
+  }
+}
+
+async function doConvert() {
+  setLog('<span class="spinner">⟳</span> Foto\'s converteren naar WebP...', 'loading');
+  document.getElementById('btn-convert').disabled = true;
+  try {
+    const r = await fetch(LOCAL_API + '/convert').then(r => r.json());
+    setLog(`✓ ${r.converted} foto('s) geconverteerd naar WebP`, 'success');
+    await loadManifest();
+    renderAll();
+    refreshLocalStatus();
+  } catch (e) {
+    setLog('❌ Conversie mislukt — draait admin-server.py? (' + e.message + ')', 'error');
+  }
+  document.getElementById('btn-convert').disabled = false;
+}
+
+async function doSyncLocal() {
+  setLog('<span class="spinner">⟳</span> Pushen naar GitHub...', 'loading');
+  document.getElementById('btn-sync-local').disabled = true;
+  try {
+    const r = await fetch(LOCAL_API + '/sync').then(r => r.json());
+    setLog((r.success ? '✓ ' : '❌ ') + r.msg, r.success ? 'success' : 'error');
+    refreshLocalStatus();
+  } catch (e) {
+    setLog('❌ Sync mislukt — draait admin-server.py? (' + e.message + ')', 'error');
+  }
+  document.getElementById('btn-sync-local').disabled = false;
+}
+
 // Cmd+S / Ctrl+S
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); doSave(); }
