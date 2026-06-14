@@ -606,8 +606,12 @@ async function doSave() {
   setLog('<span class="spinner">⟳</span> Opslaan en publiceren...', 'loading');
   document.getElementById('btn-save').disabled = true;
   try {
-    const now    = new Date();
-    const ts     = now.toLocaleDateString('nl-NL') + ' ' + now.toTimeString().slice(0,5);
+    // Altijd verse SHA ophalen zodat auto-sync commits geen conflict geven
+    const huidig = await ghGet(`/repos/${REPO}/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
+    fileSHA = huidig.sha;
+
+    const now     = new Date();
+    const ts      = now.toLocaleDateString('nl-NL') + ' ' + now.toTimeString().slice(0,5);
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2))));
     const result  = await ghPut(`/repos/${REPO}/contents/manifest.json`, {
       message: `Beheer sync: ${ts}`,
@@ -620,7 +624,7 @@ async function doSave() {
     setLog(`✓ Gepubliceerd — wijzigingen zijn live op zaanslicht.com`, 'success');
     document.getElementById('badge-status').textContent = '✓ Gesynchroniseerd';
   } catch (e) {
-    setLog('❌ Fout: ' + e.message, 'error');
+    setLog('❌ Opslaan mislukt: ' + e.message, 'error');
   }
   document.getElementById('btn-save').disabled = false;
 }
