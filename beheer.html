@@ -830,6 +830,28 @@ async function gastMapDatumOpslaan(fgId, mapNaam, input) {
   }
 }
 
+const _gastNaamTimers = {};
+function gastMapNaamOpslaan(fgId, mapNaam, input) {
+  input.style.borderBottomColor = '#FF6B00';
+  clearTimeout(_gastNaamTimers[fgId + '::' + mapNaam]);
+  _gastNaamTimers[fgId + '::' + mapNaam] = setTimeout(async () => {
+    const secret = localStorage.getItem('zl_worker_secret');
+    try {
+      const res = await fetch(WORKER_URL + '/fotograaf/map-naam', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+        body: JSON.stringify({ id: fgId, map: mapNaam, naam: input.value }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Fout');
+      input.style.borderBottomColor = '#22c55e';
+      setTimeout(() => { input.style.borderBottomColor = 'transparent'; }, 1500);
+    } catch (e) {
+      input.style.borderBottomColor = '#ef4444';
+    }
+  }, 1500);
+}
+
 const _gastBeschrijvingTimers = {};
 function gastMapBeschrijvingOpslaan(fgId, mapNaam, textarea) {
   textarea.style.borderColor = '#FF6B00';
