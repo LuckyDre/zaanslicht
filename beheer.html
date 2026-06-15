@@ -2240,7 +2240,7 @@ async function nieuweEigenMap(cat) {
                   fotograaf: 'Andreas Luckfiel', beschrijving: '', datum: '' };
   if (!manifest[cat]) manifest[cat] = [];
   manifest[cat].unshift(nieuw);
-  dirty = true;
+  planSave();
 
   // Render de nieuwe li bovenaan
   const lijst = document.getElementById('lijst-' + cat);
