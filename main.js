@@ -347,7 +347,7 @@ async function laadGastTegels() {
         const t1 = maakGastTegel('andreas-main', kleur, `
           <div class="tegel-icon">📸</div>
           <h2>Andreas Luckfiel</h2>
-          <p>Oprichter · Bekijk portfolio</p>`);
+          <p>Bekijk portfolio</p>`);
         t1.addEventListener('click', () => { window.location.href = 'fotograaf-pagina.html?id=andreas'; });
 
         const t2 = maakGastTegel('andreas-random', kleur, `
