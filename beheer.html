@@ -561,7 +561,7 @@ async function doLogin() {
 }
 
 function doLogout() {
-  if (dirty && !confirm('Je hebt niet-opgeslagen wijzigingen. Toch uitloggen?')) return;
+  if (dirty && !confirm('Er zijn nog wijzigingen die worden opgeslagen. Toch uitloggen?')) return;
   localStorage.removeItem('zl_token');
   token = '';
   document.getElementById('app').style.display = 'none';
