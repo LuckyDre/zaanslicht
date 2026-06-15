@@ -862,6 +862,7 @@ function renderCategorie(cat) {
     li.dataset.map        = item.map;
     li.dataset.cat        = cat;
     li.dataset.fotosLoaded  = 'false';
+    li.dataset.naam         = item.naam;
     li.dataset.fotograaf    = item.fotograaf   || 'Andreas Luckfiel';
     li.dataset.beschrijving = item.beschrijving || '';
     li.dataset.datum        = item.datum || '';
@@ -869,7 +870,11 @@ function renderCategorie(cat) {
     li.innerHTML = `
       <div class="slider-header" onclick="toggleOpen(this)">
         <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
-        <span class="slider-naam">${item.naam}</span>
+        <input type="text" class="slider-naam" value="${item.naam.replace(/"/g,'&quot;')}"
+          style="flex:1;background:transparent;border:none;border-bottom:1px solid transparent;color:inherit;font-size:inherit;font-weight:600;outline:none;min-width:0;cursor:text"
+          onclick="event.stopPropagation()"
+          oninput="this.closest('.slider-item').dataset.naam=this.value;planSave();"
+          onfocus="this.style.borderBottomColor='#FF6B00'" onblur="this.style.borderBottomColor='transparent'" />
         <span class="slider-count">${item.fotos.length} foto's</span>
         ${item.ts ? `<span class="slider-count" style="font-size:0.72rem">${fmtTsB(item.ts)}</span>` : ''}
         <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
