@@ -524,7 +524,7 @@ let saveTimer = null;
 function planSave() {
   dirty = true;
   clearTimeout(saveTimer);
-  setBadge('⟳ Opslaan...', 'loading');
+  document.getElementById('badge-status').textContent = '⟳ Opslaan...';
   saveTimer = setTimeout(doSave, 1500);
 }
 let activeTab = 'voetbal';
