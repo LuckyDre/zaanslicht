@@ -607,13 +607,6 @@ async function loadManifest() {
   manifest = JSON.parse(atob(data.content.replace(/\n/g, '')));
 }
 
-async function slaatDatumOp(btn) {
-  const li    = btn.closest('.slider-item');
-  const input = li.querySelector('.datum-input');
-  li.dataset.datum = input.value;
-  planSave();
-}
-
 // ── OPSLAAN → COMMIT ──────────────────────────────────────────────────────
 async function doSave() {
   updateManifestFromDOM();
