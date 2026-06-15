@@ -1662,8 +1662,8 @@ function eigenMapVerwijderen(event, btn) {
   if (!confirm(`Map "${mapNaam}" verwijderen uit de ${cat}-slider?\n\nDe foto's blijven bewaard op GitHub Pages.`)) return;
   manifest[cat] = (manifest[cat] || []).filter(x => x.map !== mapNaam);
   li.remove();
-  dirty = true;
-  setLog(`Map "${mapNaam}" verwijderd uit slider. Klik Opslaan om te bevestigen.`, 'success');
+  planSave();
+  setLog(`Map "${mapNaam}" verwijderd uit slider.`, 'success');
 }
 
 async function gastMapVerwijderen(fgId, fgNaam, mapNaam, btn) {
