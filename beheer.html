@@ -864,7 +864,7 @@ function renderCategorie(cat) {
         <textarea class="beschrijving-input" rows="2"
           style="flex:1;background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;resize:vertical;font-family:inherit"
           onclick="event.stopPropagation()"
-          onchange="this.closest('.slider-item').dataset.beschrijving=this.value;planSave();"
+          oninput="this.closest('.slider-item').dataset.beschrijving=this.value;planSave();"
           onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'"
           placeholder="Kort wedstrijdverslag of beschrijving (goed voor Google)..."
         >${item.beschrijving || ''}</textarea>
