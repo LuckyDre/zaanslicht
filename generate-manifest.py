@@ -19,6 +19,7 @@ def scan(category):
     existing_foto_order = {}
     existing_fotograaf    = {}
     existing_beschrijving = {}
+    existing_datum        = {}
     manifest_file = SITE / 'manifest.json'
     if manifest_file.exists():
         with open(manifest_file, encoding='utf-8') as f:
@@ -28,6 +29,8 @@ def scan(category):
                 existing_foto_order[item['map']] = item.get('fotos', [])
                 existing_fotograaf[item['map']]    = item.get('fotograaf', 'Andreas Luckfiel')
                 existing_beschrijving[item['map']] = item.get('beschrijving', '')
+                if item.get('datum'):
+                    existing_datum[item['map']] = item['datum']
 
     items = []
     for d in cat_dir.iterdir():
