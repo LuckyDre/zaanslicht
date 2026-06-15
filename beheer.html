@@ -755,7 +755,7 @@ async function laadGastSeries() {
         if (!lijst) continue;
 
         const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
-        const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving);
+        const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving, m.naam);
         lijst.appendChild(li);
       }
     }
