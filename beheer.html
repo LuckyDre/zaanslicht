@@ -766,7 +766,7 @@ async function laadGastSeries() {
   }
 }
 
-function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts, datum) {
+function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts, datum, beschrijving) {
   const li = document.createElement('li');
   li.className = 'slider-item';
   li.dataset.type  = 'gast';
@@ -792,6 +792,16 @@ function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts, datum) {
       <button onclick="gastMapVerwijderen('${fgIdS}','${fgNaamS}','${mapS}',this)"
         style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;border-radius:4px;flex-shrink:0"
         onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'" title="Map verwijderen">🗑</button>
+    </div>
+    <div style="padding:0.3rem 1rem 0.6rem;display:flex;align-items:flex-start;gap:0.5rem;border-top:1px solid #1a1a1a;">
+      <span style="font-size:0.72rem;color:#555;flex-shrink:0;margin-top:0.3rem">Verhaal:</span>
+      <textarea rows="2"
+        style="flex:1;background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;resize:vertical;font-family:inherit"
+        onclick="event.stopPropagation()"
+        oninput="gastMapBeschrijvingOpslaan('${fgIdS}','${mapS}',this)"
+        onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'"
+        placeholder="Kort wedstrijdverslag of beschrijving..."
+      >${escB(beschrijving || '')}</textarea>
     </div>`;
   return li;
 }
