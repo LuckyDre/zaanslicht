@@ -634,9 +634,12 @@ async function laadNieuwsteSerie() {
   const el = document.getElementById('nieuwste-serie');
   if (!el) return;
   try {
-    const data = await _manifestPromise;
+    const [data, lokaal] = await Promise.all([
+      _manifestPromise,
+      fetch('/manifest.json?t=' + Date.now()).then(r => r.json()).catch(() => ({})),
+    ]);
 
-    // Verzamel mappen van alle fotografen (eigen via manifest + gast)
+    // Gast-fotografen met ts
     let kandidaten = [];
     for (const fg of (data.fotografen || [])) {
       for (const m of (fg.mappen || [])) {
@@ -650,16 +653,22 @@ async function laadNieuwsteSerie() {
         }
       }
     }
-    // Eigen mappen van Andreas (als die in manifest.eigen staan)
-    for (const item of (data.eigen || [])) {
-      if (item.ts) {
-        kandidaten.push({
-          naam: item.naam || item.map,
-          fotograaf: 'Andreas Luckfiel',
-          categorie: item.categorie || 'voetbal',
-          ts: item.ts,
-        });
-      }
+    // Eigen series van Andreas met datum → ts
+    for (const serie of (lokaal.voetbal || [])) {
+      if (serie.datum) kandidaten.push({
+        naam: serie.naam || serie.map,
+        fotograaf: serie.fotograaf || 'Andreas Luckfiel',
+        categorie: 'voetbal',
+        ts: new Date(serie.datum + 'T12:00:00Z').getTime(),
+      });
+    }
+    for (const serie of (lokaal.nosports || [])) {
+      if (serie.datum) kandidaten.push({
+        naam: serie.naam || serie.map,
+        fotograaf: serie.fotograaf || 'Andreas Luckfiel',
+        categorie: 'nosports',
+        ts: new Date(serie.datum + 'T12:00:00Z').getTime(),
+      });
     }
 
     if (!kandidaten.length) return;
