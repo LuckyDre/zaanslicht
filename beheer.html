@@ -611,12 +611,7 @@ async function slaatDatumOp(btn) {
   const li    = btn.closest('.slider-item');
   const input = li.querySelector('.datum-input');
   li.dataset.datum = input.value;
-  dirty = true;
-  btn.disabled = true;
-  btn.textContent = '⟳';
-  await doSave();
-  btn.disabled = false;
-  btn.textContent = '💾';
+  planSave();
 }
 
 // ── OPSLAAN → COMMIT ──────────────────────────────────────────────────────
@@ -862,7 +857,7 @@ function renderCategorie(cat) {
         <input type="text" class="fotograaf-input" value="${item.fotograaf || 'Andreas Luckfiel'}"
           style="flex:1;background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none"
           onclick="event.stopPropagation()"
-          onchange="this.closest('.slider-item').dataset.fotograaf=this.value;dirty=true;"
+          onchange="this.closest('.slider-item').dataset.fotograaf=this.value;planSave();"
           onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
         <span style="font-size:0.72rem;color:#555;flex-shrink:0">📅 Datum:</span>
         <input type="date" class="datum-input" value="${item.datum || ''}"
