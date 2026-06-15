@@ -49,18 +49,22 @@ def scan(category):
         fotos = ordered + new_fotos
 
         item_id = re.sub(r'[^a-z0-9]+', '-', d.name.lower()).strip('-')
-        volgorde = existing_sliders.get(d.name, -1)  # -1 = nieuw → bovenaan
+        volgorde     = existing_sliders.get(d.name, -1)  # -1 = nieuw → bovenaan
         fotograaf    = existing_fotograaf.get(d.name, 'Andreas Luckfiel')
         beschrijving = existing_beschrijving.get(d.name, '')
-        items.append({
+        datum        = existing_datum.get(d.name, '')
+        entry = {
             'id': item_id,
             'naam': d.name,
             'map': d.name,
             'fotos': fotos,
             'volgorde': volgorde,
             'fotograaf': fotograaf,
-            'beschrijving': beschrijving
-        })
+            'beschrijving': beschrijving,
+        }
+        if datum:
+            entry['datum'] = datum
+        items.append(entry)
 
     # Nieuwe items bovenaan, daarna op volgorde
     new_items  = [x for x in items if x['volgorde'] == -1]
