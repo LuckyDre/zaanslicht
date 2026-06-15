@@ -863,7 +863,7 @@ function renderCategorie(cat) {
         <input type="date" class="datum-input" value="${item.datum || ''}"
           style="background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;color-scheme:dark;font-family:inherit"
           onclick="event.stopPropagation()"
-          onchange="this.closest('.slider-item').dataset.datum=this.value;dirty=true;"
+          onchange="this.closest('.slider-item').dataset.datum=this.value;planSave();"
           onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
         <button onclick="event.stopPropagation();slaatDatumOp(this)"
           style="background:#1a3a1a;border:1px solid #22c55e;border-radius:4px;color:#22c55e;font-size:0.75rem;padding:0.2rem 0.55rem;cursor:pointer;flex-shrink:0"
