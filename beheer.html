@@ -729,7 +729,7 @@ async function laadGastSeries() {
           if (fg) {
             const aantalFotos = fotoTellingen[fg.id]?.[entry.map] || 0;
             const mapMeta = (fg.mappen || []).find(m => m.map === entry.map);
-            const li = maakGastLijstItem(fg, entry.map, entry.fgCat || 'voetbal', aantalFotos, mapMeta?.ts, mapMeta?.datum);
+            const li = maakGastLijstItem(fg, entry.map, entry.fgCat || 'voetbal', aantalFotos, mapMeta?.ts, mapMeta?.datum, mapMeta?.beschrijving);
             lijst.appendChild(li);
             toegevoegd.add(entry.fgId + '::' + entry.map);
             inVolgorde[cat].add(entry.fgId + '::' + entry.map);
@@ -754,7 +754,7 @@ async function laadGastSeries() {
         if (!lijst) continue;
 
         const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
-        const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum);
+        const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving);
         lijst.appendChild(li);
       }
     }
