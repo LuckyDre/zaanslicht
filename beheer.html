@@ -885,7 +885,7 @@ function renderCategorie(cat) {
     animation: 200, handle: '.drag-handle',
     ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
     onEnd() {
-      dirty = true;
+      planSave();
       slaGastVolgordeOp(lijst);
     }
   });
