@@ -308,9 +308,9 @@
           } catch {}
         }
 
-        const href = top.cat === 'eigen'
-          ? '/fotograaf-pagina.html?id=' + top.fgId
-          : '/' + (top.cat === 'nosports' ? 'nosports' : 'voetbal') + '.html#serie=' + encodeURIComponent(top.naam);
+        const href = top.eigenItem
+          ? '/fotograaf-pagina.html?id=andreas'
+          : '/fotograaf-pagina.html?id=' + top.fgId;
         const datum = top.ts ? new Date(top.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' }) : '';
 
         elNieuw.innerHTML = `
