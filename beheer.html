@@ -938,7 +938,7 @@ function toggleOpen(hdr) {
         </div>`).join('');
       new Sortable(grid, {
         animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
-        onEnd() { hernum(grid); dirty = true; }
+        onEnd() { hernum(grid); planSave(); }
       });
       voegUploadZoneToe(li, cat, mapNaam);
       li.dataset.fotosLoaded = 'true';
