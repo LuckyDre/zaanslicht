@@ -600,6 +600,18 @@ async function loadManifest() {
   manifest = JSON.parse(atob(data.content.replace(/\n/g, '')));
 }
 
+async function slaatDatumOp(btn) {
+  const li    = btn.closest('.slider-item');
+  const input = li.querySelector('.datum-input');
+  li.dataset.datum = input.value;
+  dirty = true;
+  btn.disabled = true;
+  btn.textContent = '⟳';
+  await doSave();
+  btn.disabled = false;
+  btn.textContent = '💾';
+}
+
 // ── OPSLAAN → COMMIT ──────────────────────────────────────────────────────
 async function doSave() {
   updateManifestFromDOM();
