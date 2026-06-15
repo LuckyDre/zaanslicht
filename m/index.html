@@ -327,9 +327,9 @@
         const rest = kandidaten.slice(1, 5);
         if (rest.length) {
           elRecent.innerHTML = '<div class="sectie-titel">Eerdere series</div>' + rest.map(s => {
-            const h = s.cat === 'eigen'
-              ? '/fotograaf-pagina.html?id=' + s.fgId
-              : '/' + (s.cat === 'nosports' ? 'nosports' : 'voetbal') + '.html#serie=' + encodeURIComponent(s.naam);
+            const h = s.eigenItem
+              ? '/fotograaf-pagina.html?id=andreas'
+              : '/fotograaf-pagina.html?id=' + s.fgId;
             const d = new Date(s.ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
             return `<a class="serie-rij" href="${h}">
               <span class="serie-rij-icoon">${s.cat === 'nosports' ? '&#127807;' : '&#9917;'}</span>
