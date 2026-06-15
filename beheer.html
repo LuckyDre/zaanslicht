@@ -644,9 +644,10 @@ function updateManifestFromDOM() {
       const fotos = el.dataset.fotosLoaded === 'true'
         ? Array.from(el.querySelectorAll('.foto-thumb')).map(t => t.dataset.foto)
         : (base.fotos || []);
+      const naam         = el.dataset.naam          || base.naam         || mapNaam;
       const fotograaf    = el.dataset.fotograaf    || base.fotograaf    || 'Andreas Luckfiel';
       const beschrijving = el.dataset.beschrijving !== undefined ? el.dataset.beschrijving : (base.beschrijving || '');
-      const item = { ...base, volgorde: i, fotos, fotograaf, beschrijving };
+      const item = { ...base, naam, volgorde: i, fotos, fotograaf, beschrijving };
       if (el.dataset.datum) item.datum = el.dataset.datum; else delete item.datum;
       return item;
     });
