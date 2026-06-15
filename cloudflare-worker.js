@@ -1404,6 +1404,7 @@ export default {
     if (url.pathname === '/fotograaf/verborgen'       && request.method === 'GET')  return handleVerborgeLijst(request, env);
     if (url.pathname === '/fotograaf/mappen-volgorde' && request.method === 'POST') return handleMappenVolgorde(request, env);
     if (url.pathname === '/fotograaf/map-datum'       && request.method === 'POST') return handleMapDatum(request, env);
+    if (url.pathname === '/fotograaf/map-beschrijving' && request.method === 'POST') return handleMapBeschrijving(request, env);
     if (url.pathname === '/admin/review-wachtwoord'   && request.method === 'POST') return handleReviewWachtwoord(request, env);
     if (url.pathname === '/admin/review-sessie'       && request.method === 'POST') return handleReviewSessie(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
