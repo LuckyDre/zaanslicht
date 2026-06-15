@@ -252,7 +252,6 @@
       <span class="badge" id="badge-convert" style="display:none"></span>
       <span class="badge" id="badge-sync-local" style="display:none"></span>
       <button class="btn btn-blauw" id="btn-convert" onclick="doConvert()" style="display:none">🔄 Converteer JPG → WebP</button>
-      <button class="btn btn-oranje" id="btn-save" onclick="doSave()">💾 Opslaan &amp; publiceren</button>
       <button class="btn btn-groen" id="btn-sync-local" onclick="doSyncLocal()" style="display:none">🚀 Sync naar GitHub</button>
       <button class="btn btn-dim"    onclick="doLogout()">Uitloggen</button>
     </div>
@@ -520,6 +519,14 @@ let token    = '';
 let manifest = null;
 let fileSHA  = '';
 let dirty    = false;
+let saveTimer = null;
+
+function planSave() {
+  dirty = true;
+  clearTimeout(saveTimer);
+  setBadge('⟳ Opslaan...', 'loading');
+  saveTimer = setTimeout(doSave, 1500);
+}
 let activeTab = 'voetbal';
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────
