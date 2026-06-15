@@ -622,8 +622,6 @@ async function slaatDatumOp(btn) {
 // ── OPSLAAN → COMMIT ──────────────────────────────────────────────────────
 async function doSave() {
   updateManifestFromDOM();
-  setLog('<span class="spinner">⟳</span> Opslaan en publiceren...', 'loading');
-  document.getElementById('btn-save').disabled = true;
   try {
     // Altijd verse SHA ophalen zodat auto-sync commits geen conflict geven
     const huidig = await ghGet(`/repos/${REPO}/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
