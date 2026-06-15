@@ -427,7 +427,7 @@ async function laadGastTegels() {
       const t1 = maakGastTegel(`${prefix}-main`, kleur, `
         <div class="tegel-icon">📸</div>
         <h2>${fg.naam}</h2>
-        <p>Naar pagina van ${fg.naam}</p>`);
+        <p>Bekijk portfolio</p>`);
       t1.addEventListener('click', () => { window.location.href = `fotograaf-pagina.html?id=${fg.id}`; });
 
       // Tegel 2: verrassing — alleen als er galerij-foto's zijn
