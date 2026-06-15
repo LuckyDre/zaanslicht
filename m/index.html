@@ -260,7 +260,7 @@
           `<a class="fg-chip" href="/fotograaf-pagina.html?id=${fg.id}">
             <span class="fg-dot" style="background:${fg.kleur}"></span>${fg.naam}</a>`).join('');
 
-        // Kandidaten: gast-mappen hebben een timestamp
+        // Kandidaten: gast-mappen met ts + eigen series met datum
         let kandidaten = [];
         for (const fg of (gastData.fotografen || [])) {
           for (const m of (fg.mappen || [])) {
@@ -271,17 +271,24 @@
             });
           }
         }
+        // Eigen series met datum omzetten naar ts (middag UTC om tijdzone-drift te vermijden)
+        for (const serie of (manifest.voetbal || [])) {
+          if (serie.datum) kandidaten.push({
+            naam: serie.naam || serie.map, fotograaf: serie.fotograaf || 'Andreas Luckfiel',
+            kleur: andreasKleur, cat: 'voetbal',
+            ts: new Date(serie.datum + 'T12:00:00Z').getTime(), eigenItem: serie,
+          });
+        }
+        for (const serie of (manifest.nosports || [])) {
+          if (serie.datum) kandidaten.push({
+            naam: serie.naam || serie.map, fotograaf: serie.fotograaf || 'Andreas Luckfiel',
+            kleur: andreasKleur, cat: 'nosports',
+            ts: new Date(serie.datum + 'T12:00:00Z').getTime(), eigenItem: serie,
+          });
+        }
         kandidaten.sort((a, b) => b.ts - a.ts);
 
-        // Eigen nieuwste serie (eerste in manifest = bovenaan op de site)
-        const eigen = (manifest.voetbal || [])[0];
-
-        // Nieuwste = gast-kandidaat of eigen serie, wat het recentst voelt:
-        // gast heeft ts; eigen niet → toon gast als die er is, anders eigen
-        const top = kandidaten[0] || (eigen ? {
-          naam: eigen.naam || eigen.map, fotograaf: eigen.fotograaf || 'Andreas Luckfiel',
-          kleur: andreasKleur, cat: 'voetbal', eigenItem: eigen,
-        } : null);
+        const top = kandidaten[0] || null;
 
         if (!top) { elNieuw.innerHTML = ''; return; }
 
