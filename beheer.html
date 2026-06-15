@@ -2218,10 +2218,10 @@ async function verwerkUploads(files, cat, mapNaam, li, progres) {
   // Sortable opnieuw op grid zodat nieuwe thumbs ook sleepbaar zijn
   new Sortable(grid, {
     animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
-    onEnd() { hernum(grid); dirty = true; }
+    onEnd() { hernum(grid); planSave(); }
   });
   hernum(grid);
-  setLog(`✓ Upload klaar — klik "Opslaan & publiceren" om manifest bij te werken`, 'success');
+  setLog(`✓ Upload klaar — wijzigingen worden automatisch opgeslagen`, 'success');
 }
 
 async function nieuweEigenMap(cat) {
