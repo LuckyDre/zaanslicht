@@ -638,12 +638,11 @@ async function doSave() {
     });
     fileSHA = result.content.sha;
     dirty   = false;
-    setLog(`✓ Gepubliceerd — wijzigingen zijn live op zaanslicht.com`, 'success');
-    document.getElementById('badge-status').textContent = '✓ Gesynchroniseerd';
+    document.getElementById('badge-status').textContent = '✓ Opgeslagen';
   } catch (e) {
+    document.getElementById('badge-status').textContent = '❌ Opslaan mislukt';
     setLog('❌ Opslaan mislukt: ' + e.message, 'error');
   }
-  document.getElementById('btn-save').disabled = false;
 }
 
 // ── MANIFEST UIT DOM ──────────────────────────────────────────────────────
