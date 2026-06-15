@@ -949,6 +949,35 @@ async function handleMapDatum(request, env) {
   return json({ ok: true, datum: datum || null });
 }
 
+// ── VERHAAL/BESCHRIJVING OPSLAAN ──────────────────────────────────────────
+async function handleMapBeschrijving(request, env) {
+  const isAdmin = requireSecret(request, env);
+  const body = await request.json().catch(() => ({}));
+  const { map, beschrijving } = body;
+  if (!map) return json({ error: 'map verplicht' }, 400);
+
+  let fotograafId;
+  if (isAdmin) {
+    fotograafId = body.id;
+    if (!fotograafId) return json({ error: 'id verplicht' }, 400);
+  } else {
+    const fotograaf = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+    if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+    fotograafId = fotograaf.id;
+  }
+
+  const raw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograafId);
+  const mappen = raw ? JSON.parse(raw) : [];
+  const entry = mappen.find(m => m.map === map);
+  if (!entry) return json({ error: 'map niet gevonden' }, 404);
+
+  if (beschrijving) entry.beschrijving = beschrijving;
+  else delete entry.beschrijving;
+
+  await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograafId, JSON.stringify(mappen));
+  return json({ ok: true });
+}
+
 // ── KLEUR BIJWERKEN ────────────────────────────────────────────────────────
 async function handleFotograafKleur(request, env) {
   const authToken = request.headers.get('X-Fotograaf-Token');
