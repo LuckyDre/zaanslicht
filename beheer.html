@@ -2206,7 +2206,7 @@ async function verwerkUploads(files, cat, mapNaam, li, progres) {
       if (item && !item.fotos.includes(naamWebP)) {
         item.fotos.push(naamWebP);
       }
-      dirty = true;
+      planSave();
       rij.querySelector('.uz-status').textContent = '✓';
       rij.style.color = 'var(--groen)';
     } catch (e) {
