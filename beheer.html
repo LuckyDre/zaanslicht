@@ -824,6 +824,28 @@ async function gastMapDatumOpslaan(fgId, mapNaam, input) {
   }
 }
 
+const _gastBeschrijvingTimers = {};
+function gastMapBeschrijvingOpslaan(fgId, mapNaam, textarea) {
+  textarea.style.borderColor = '#FF6B00';
+  clearTimeout(_gastBeschrijvingTimers[fgId + '::' + mapNaam]);
+  _gastBeschrijvingTimers[fgId + '::' + mapNaam] = setTimeout(async () => {
+    const secret = localStorage.getItem('zl_worker_secret');
+    try {
+      const res = await fetch(WORKER_URL + '/fotograaf/map-beschrijving', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+        body: JSON.stringify({ id: fgId, map: mapNaam, beschrijving: textarea.value }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'Fout');
+      textarea.style.borderColor = '#22c55e';
+      setTimeout(() => { textarea.style.borderColor = '#333'; }, 1500);
+    } catch (e) {
+      textarea.style.borderColor = '#ef4444';
+    }
+  }, 1500);
+}
+
 function renderCategorie(cat) {
   const lijst = document.getElementById('lijst-' + cat);
   lijst.innerHTML = '';
