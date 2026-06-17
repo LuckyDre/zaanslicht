@@ -238,9 +238,11 @@
       .tab-panel > div { padding-left: 0 !important; padding-right: 0 !important; }
       /* 3-koloms grids in Fotografen-tab → 1 kolom */
       .fg-form-grid { grid-template-columns: 1fr !important; }
-      /* Slider header: verhaal-row wrappen */
-      .slider-header { flex-wrap: wrap; }
-      .slider-header .slider-naam { min-width: 100px; }
+      /* Slider header: timestamp verbergen, niet wrappen */
+      .slider-ts { display: none; }
+      /* Fotograaf+datum row: wrappen op 2 regels */
+      .fotograaf-row { flex-wrap: wrap; }
+      .fotograaf-row .fotograaf-input { min-width: 0; width: 100%; }
       /* Abonnees kaarten al 1-kolom via eigen media query */
       .ab-card { padding: 1rem; }
       /* Foto-thumb iets kleiner */
