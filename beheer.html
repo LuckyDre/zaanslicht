@@ -1846,9 +1846,9 @@ async function fgVerwijder(id, naam) {
 
 // ── ABONNEES ──────────────────────────────────────────────────────────────
 function abLaadConfig() {
-  const url    = localStorage.getItem('zl_worker_url')    || '';
+  const url    = localStorage.getItem('zl_worker_url')    || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret') || '';
-  if (url)    document.getElementById('ab-worker-url').value    = url;
+  document.getElementById('ab-worker-url').value    = url;
   if (secret) document.getElementById('ab-worker-secret').value = secret;
   if (url && secret) {
     document.getElementById('ab-setup-warning').style.display = 'none';
