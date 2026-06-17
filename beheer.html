@@ -221,6 +221,30 @@
 
     /* APPINFO */
     #app { display: none; }
+
+    /* MOBIEL */
+    @media (max-width: 640px) {
+      .admin-header { padding: 0.7rem 1rem; }
+      .admin-header h1 { font-size: 1rem; letter-spacing: 1px; }
+      .header-btns { gap: 0.4rem; }
+      .badge { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
+      .btn { padding: 0.45rem 0.8rem; font-size: 0.78rem; letter-spacing: 0; }
+      .tabs { padding: 0 0.5rem; }
+      .tab { padding: 0.75rem 0.8rem; font-size: 0.75rem; letter-spacing: 0; }
+      #log-panel { padding: 0.7rem 1rem; }
+      .content { padding: 0.8rem; }
+      /* Tab-panel inner containers met hardcoded 2rem padding */
+      .tab-panel > div { padding-left: 0 !important; padding-right: 0 !important; }
+      /* 3-koloms grids in Fotografen-tab → 1 kolom */
+      .fg-form-grid { grid-template-columns: 1fr !important; }
+      /* Slider header: verhaal-row wrappen */
+      .slider-header { flex-wrap: wrap; }
+      .slider-header .slider-naam { min-width: 100px; }
+      /* Abonnees kaarten al 1-kolom via eigen media query */
+      .ab-card { padding: 1rem; }
+      /* Foto-thumb iets kleiner */
+      .foto-thumb { width: 85px; height: 57px; }
+    }
   </style>
 </head>
 <body>
