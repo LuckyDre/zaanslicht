@@ -1075,7 +1075,7 @@ function switchTab(tab) {
 // ── FOTOGRAFEN BEHEER ─────────────────────────────────────────────────────
 
 async function fgUitnodig() {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   if (!url || !secret) { alert('Stel eerst de Worker URL en Secret in via het Abonnees-tabblad.'); return; }
 
@@ -1176,7 +1176,7 @@ async function reviewWachtwoordOpslaan() {
 }
 
 async function fgLaadLijst() {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const cont   = document.getElementById('fg-lijst');
   if (!url || !secret) { cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Stel eerst Worker URL en Secret in via Abonnees-tabblad.</p>'; return; }
@@ -1243,7 +1243,7 @@ async function fgLaadLijst() {
 }
 
 async function fgLaadUitnodigingen() {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const cont   = document.getElementById('fg-uitnodigingen');
   if (!url || !secret) { cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Stel eerst Worker URL en Secret in.</p>'; return; }
@@ -1285,7 +1285,7 @@ async function fgLaadUitnodigingen() {
 
 async function fgIntrekken(token, naam) {
   if (!confirm(`Uitnodiging voor "${naam}" intrekken? De link wordt ongeldig.`)) return;
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   try {
     await fetch(url + '/fotograaf/intrekken', {
@@ -1298,7 +1298,7 @@ async function fgIntrekken(token, naam) {
 }
 
 async function fgLaadStatus(id) {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   try {
     const [statusRes, posRes] = await Promise.all([
@@ -1337,7 +1337,7 @@ async function fgLaadStatus(id) {
 }
 
 async function fgTogglePositie(id) {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const btn    = document.getElementById('fg-pos-' + id);
   const huidig = btn?.dataset.mag === '1';
@@ -1540,7 +1540,7 @@ async function verwijderLabel(label) {
 }
 
 async function fgToggleBlokkeer(id) {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const btn    = document.getElementById('fg-blok-' + id);
   const huidig = btn?.dataset.geblokkeerd === '1';
@@ -1555,7 +1555,7 @@ async function fgToggleBlokkeer(id) {
 }
 
 async function fgToggleMappen(id) {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const paneel = document.getElementById('fg-mappen-' + id);
   if (!paneel) return;
@@ -1629,7 +1629,7 @@ async function fgToggleMappen(id) {
 }
 
 async function fgBekijkDashboard(id, naam) {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   if (!url || !secret) { alert('Stel eerst Worker URL en Secret in.'); return; }
 
@@ -1828,7 +1828,7 @@ async function fgVerwijderFoto(event, id, key, wrapperEl) {
 
 async function fgVerwijder(id, naam) {
   if (!confirm(`Fotograaf "${naam}" verwijderen?\n\nAlle geüploade foto's worden ook verwijderd. Dit kan niet ongedaan worden gemaakt.`)) return;
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   try {
     const res  = await fetch(url + '/fotograaf/verwijderen', {
@@ -1957,7 +1957,7 @@ async function abHaalAantal(url, secret) {
 
 async function abVerwijder(email) {
   if (!confirm(`Abonnee verwijderen?\n${email}`)) return;
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const res = await fetch(url + '/delete-subscriber', {
     method: 'POST',
@@ -1976,7 +1976,7 @@ async function abVerwijder(email) {
 }
 
 async function abBan(email, ban) {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   await fetch(url + '/ban', {
     method: 'POST',
@@ -1987,7 +1987,7 @@ async function abBan(email, ban) {
 }
 
 async function abTogglePauze() {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const btn    = document.getElementById('ab-pauze-btn');
   const huidig = btn.dataset.paused === '1';
@@ -2010,7 +2010,7 @@ function abPauzeStatus(paused) {
 }
 
 async function abVerstuur() {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   if (!url || !secret) { alert('Stel eerst de Worker URL en Secret in.'); return; }
 
@@ -2132,7 +2132,7 @@ function renderReacties(items, container) {
 }
 
 async function laadReacties() {
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const container = document.getElementById('reacties-beheer-lijst');
   if (!url || !secret) { container.innerHTML = '<p style="color:#555;font-size:0.85rem">Stel eerst Worker URL en Secret in via Abonnees-tabblad.</p>'; return; }
@@ -2174,7 +2174,7 @@ async function laadReacties() {
 
 async function verwijderReactie(pushId, photoKey, bron = 'kv') {
   if (!confirm('Reactie verwijderen?')) return;
-  const url    = localStorage.getItem('zl_worker_url');
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   try {
     if (bron === 'firebase') {
