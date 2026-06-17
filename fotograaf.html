@@ -1655,16 +1655,18 @@ async function laadMappenTab() {
               : `${fotos.length} foto${fotos.length !== 1 ? '\'s' : ''}`}
             </div>
           </div>
-          <select class="map-cat-select" onchange="wisselCategorie(this)">
-            <option value="voetbal"  ${m.categorie === 'voetbal'  ? 'selected' : ''}>⚽ Voetbal</option>
-            <option value="nosports" ${m.categorie === 'nosports' ? 'selected' : ''}>🌿 No Sports</option>
-            <option value="eigen"    ${m.categorie === 'eigen'    ? 'selected' : ''}>📷 Eigen pagina</option>
-          </select>
-          <input type="date" class="map-datum-input" value="${m.datum || ''}" title="Datum van deze serie"
-            style="background:#111;border:1px solid #333;border-radius:6px;color:#ccc;padding:0.3rem 0.5rem;font-size:0.78rem;color-scheme:dark;font-family:inherit"
-            onclick="event.stopPropagation()"
-            onchange="slaMapDatumOp('${m.map.replace(/'/g,"\\'")}', this)" />
-          <button class="map-expand-btn" title="Foto's bekijken" onclick="toggleMapFotos(this)">▾</button>
+          <div class="map-controls">
+            <select class="map-cat-select" onchange="wisselCategorie(this)">
+              <option value="voetbal"  ${m.categorie === 'voetbal'  ? 'selected' : ''}>⚽ Voetbal</option>
+              <option value="nosports" ${m.categorie === 'nosports' ? 'selected' : ''}>🌿 No Sports</option>
+              <option value="eigen"    ${m.categorie === 'eigen'    ? 'selected' : ''}>📷 Eigen pagina</option>
+            </select>
+            <input type="date" class="map-datum-input" value="${m.datum || ''}" title="Datum van deze serie"
+              style="background:#111;border:1px solid #333;border-radius:6px;color:#ccc;padding:0.3rem 0.5rem;font-size:0.78rem;color-scheme:dark;font-family:inherit"
+              onclick="event.stopPropagation()"
+              onchange="slaMapDatumOp('${m.map.replace(/'/g,"\\'")}', this)" />
+            <button class="map-expand-btn" title="Foto's bekijken" onclick="toggleMapFotos(this)">▾</button>
+          </div>
         </div>
         <div class="map-fotos-paneel">
           <div class="map-fotos-grid"></div>
