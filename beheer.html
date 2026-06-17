@@ -1716,7 +1716,7 @@ async function fgBekijkDashboard(id, naam) {
 }
 
 async function fgToggleMap(id, mapNaam, btn) {
-  const url     = localStorage.getItem('zl_worker_url');
+  const url     = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret  = localStorage.getItem('zl_worker_secret');
   const verberg = btn.dataset.verborgen !== 'true';
   try {
