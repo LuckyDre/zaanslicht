@@ -1733,7 +1733,7 @@ async function fgToggleMap(id, mapNaam, btn) {
 }
 
 async function fgToggleFoto(id, key, el) {
-  const url     = localStorage.getItem('zl_worker_url');
+  const url     = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret  = localStorage.getItem('zl_worker_secret');
   const verberg = el.dataset.verborgen !== 'true';
   try {
