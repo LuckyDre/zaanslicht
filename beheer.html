@@ -1179,7 +1179,7 @@ async function fgLaadLijst() {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const cont   = document.getElementById('fg-lijst');
-  if (!url || !secret) { cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Stel eerst Worker URL en Secret in via Abonnees-tabblad.</p>'; return; }
+  if (!secret) { cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Stel eerst de Worker Secret in via het Abonnees-tabblad.</p>'; return; }
 
   cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Laden…</p>';
 
