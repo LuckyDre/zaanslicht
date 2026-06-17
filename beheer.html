@@ -91,8 +91,9 @@
     .btn-dim:hover:not(:disabled)    { background: #444; color: var(--wit); }
 
     /* TABS */
-    .tabs { display: flex; border-bottom: 1px solid #333; padding: 0 2rem; }
-    .tab { padding: 0.9rem 1.4rem; cursor: pointer; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: color 0.2s; }
+    .tabs { display: flex; border-bottom: 1px solid #333; padding: 0 2rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { padding: 0.9rem 1.4rem; cursor: pointer; font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); border-bottom: 3px solid transparent; margin-bottom: -1px; transition: color 0.2s; white-space: nowrap; flex-shrink: 0; }
     .tab.active { color: var(--oranje); border-bottom-color: var(--oranje); }
     .tab:hover { color: var(--wit); }
 
