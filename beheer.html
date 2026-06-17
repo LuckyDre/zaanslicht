@@ -1077,7 +1077,7 @@ function switchTab(tab) {
 async function fgUitnodig() {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
-  if (!url || !secret) { alert('Stel eerst de Worker URL en Secret in via het Abonnees-tabblad.'); return; }
+  if (!secret) { alert('Stel eerst de Worker URL en Secret in via het Abonnees-tabblad.'); return; }
 
   const naam  = document.getElementById('fg-naam').value.trim();
   const email = document.getElementById('fg-email').value.trim();
@@ -1246,7 +1246,7 @@ async function fgLaadUitnodigingen() {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const cont   = document.getElementById('fg-uitnodigingen');
-  if (!url || !secret) { cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Stel eerst Worker URL en Secret in.</p>'; return; }
+  if (!secret) { cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Stel eerst Worker URL en Secret in.</p>'; return; }
 
   cont.innerHTML = '<p style="color:#555;font-size:0.82rem">Laden…</p>';
   try {
@@ -1631,7 +1631,7 @@ async function fgToggleMappen(id) {
 async function fgBekijkDashboard(id, naam) {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
-  if (!url || !secret) { alert('Stel eerst Worker URL en Secret in.'); return; }
+  if (!secret) { alert('Stel eerst Worker URL en Secret in.'); return; }
 
   const modal = document.createElement('div');
   modal.id = 'fg-dashboard-modal';
@@ -1901,7 +1901,7 @@ function abToggleLock() {
 function abSlaConfig() {
   const url    = document.getElementById('ab-worker-url').value.trim().replace(/\/$/, '');
   const secret = document.getElementById('ab-worker-secret').value.trim();
-  if (!url || !secret) { alert('Vul zowel de Worker URL als de Worker Secret in.'); return; }
+  if (!secret) { alert('Vul zowel de Worker URL als de Worker Secret in.'); return; }
   localStorage.setItem('zl_worker_url', url);
   localStorage.setItem('zl_worker_secret', secret);
   document.getElementById('ab-setup-warning').style.display = 'none';
@@ -2012,7 +2012,7 @@ function abPauzeStatus(paused) {
 async function abVerstuur() {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
-  if (!url || !secret) { alert('Stel eerst de Worker URL en Secret in.'); return; }
+  if (!secret) { alert('Stel eerst de Worker URL en Secret in.'); return; }
 
   const subject = document.getElementById('ab-subject').value.trim();
   const message = document.getElementById('ab-message').value.trim();
@@ -2135,7 +2135,7 @@ async function laadReacties() {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
   const container = document.getElementById('reacties-beheer-lijst');
-  if (!url || !secret) { container.innerHTML = '<p style="color:#555;font-size:0.85rem">Stel eerst Worker URL en Secret in via Abonnees-tabblad.</p>'; return; }
+  if (!secret) { container.innerHTML = '<p style="color:#555;font-size:0.85rem">Stel eerst Worker URL en Secret in via Abonnees-tabblad.</p>'; return; }
 
   container.innerHTML = '<p style="color:#555">Laden…</p>';
   try {
