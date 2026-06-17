@@ -219,6 +219,23 @@
     .ab-setup strong { color: #8fce8f; }
     .ab-setup code { background: #0a0a0a; border: 1px solid #1a2a1a; border-radius: 3px; padding: 1px 5px; font-size: 0.78rem; color: #7aba7a; }
 
+    /* FOTOGRAFEN KAART KNOPPEN */
+    .fg-card-btns {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+      padding: 0 1.2rem 0.9rem; border-top: 1px solid #222; padding-top: 0.7rem;
+    }
+    .fg-btn {
+      background: transparent; border: 1px solid #333; color: #888;
+      padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.78rem;
+      cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;
+      transition: border-color 0.15s, color 0.15s; white-space: nowrap; font-family: inherit;
+    }
+    .fg-btn:hover { border-color: var(--oranje); color: var(--oranje); }
+    .fg-btn-accent { border-color: var(--oranje); color: var(--oranje); font-weight: 600; }
+    .fg-btn-accent:hover { background: rgba(255,107,0,0.1); }
+    .fg-btn-danger { color: #ef4444; border-color: #3a1a1a; background: #3a1a1a; }
+    .fg-btn-danger:hover { border-color: #ef4444; }
+
     /* APPINFO */
     #app { display: none; }
 
