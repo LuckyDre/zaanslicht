@@ -544,8 +544,39 @@
   .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
 
   @media (max-width: 600px) {
-    header { padding: 1rem 1.2rem; }
-    .card  { padding: 1.5rem; }
+    header { padding: 0.7rem 1rem; }
+    .logo { font-size: 1.6rem; gap: 0.4rem; }
+    .logo-img { width: 36px; height: 36px; }
+    main { padding: 1rem; }
+    .card { padding: 1.2rem; }
+
+    /* Tabs: scrollbaar */
+    .tabs {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 0;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    /* Map-rij: stapelen */
+    .map-rij-flex { flex-direction: column !important; }
+
+    /* Dash header */
+    .dash-header { margin-bottom: 1.2rem; }
+    .dash-naam { font-size: 1.15rem; }
+
+    /* Upload zone: compacter */
+    .upload-zone { padding: 1.5rem 1rem; }
+
+    /* Mappen acties */
+    #mappen-acties { flex-direction: column; align-items: stretch !important; }
   }
   </style>
 </head>
@@ -875,7 +906,7 @@ async function toonDashboard(nieuwAangemeld = false) {
               </div>
             </div>
           </div>
-          <div style="display:flex;gap:0.5rem;align-items:flex-end">
+          <div class="map-rij-flex" style="display:flex;gap:0.5rem;align-items:flex-end">
             <div style="flex:1">
               <label style="display:block;font-size:0.8rem;color:var(--muted);margin-bottom:0.3rem">Kies een bestaande map:</label>
               <select id="up-map-select" style="background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:0.75rem 1rem;font-family:var(--font);font-size:0.95rem;outline:none;width:100%">
