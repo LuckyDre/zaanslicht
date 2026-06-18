@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fotografen Portaal — Handleiding — Zaans Licht</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css?v=20260613e" />
+  <style>
+    .hl-page { min-height: 100vh; padding: 120px 3rem 5rem; max-width: 860px; margin: 0 auto; }
+    .hl-page h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem; }
+    .hl-intro { color: var(--tekst-dim); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+    .hl-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem; }
+    .hl-nav a { font-size: 0.8rem; padding: 0.4rem 0.9rem; border-radius: 100px; border: 1px solid rgba(255,107,0,0.25); color: var(--tekst-dim); text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+    .hl-nav a:hover { color: #FF6B00; border-color: #FF6B00; }
+    .hl-section { margin: 3.5rem 0; }
+    .hl-section-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.5rem; padding-bottom: 0.6rem; border-bottom: 2px solid #FF6B00; }
+    .hl-section-header h2 { font-size: 1.4rem; font-weight: 800; margin: 0; }
+    .stap { margin: 2rem 0; }
+    .stap h3 { font-size: 1rem; font-weight: 700; color: #FF6B00; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+    .stap h3 .nr { flex-shrink: 0; width: 1.6rem; height: 1.6rem; line-height: 1.6rem; text-align: center; border-radius: 50%; background: #FF6B00; color: #0d0d0d; font-size: 0.78rem; font-weight: 800; }
+    .stap p { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.65; margin: 0 0 0.8rem; }
+    .stap ul { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.65; margin: 0 0 0.8rem 1.2rem; }
+    .stap ul li { margin-bottom: 0.35rem; }
+    .tip { background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.25); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.85rem; color: #ccc; line-height: 1.6; margin-top: 0.6rem; }
+    .tip strong { color: #FF6B00; }
+    /* UI Mockup */
+    .mockup { background: #0d0d0d; border: 1px solid rgba(255,107,0,0.2); border-radius: 12px; overflow: hidden; margin: 1rem 0 1.5rem; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .mockup-bar { background: #111; border-bottom: 1px solid #222; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.8rem; }
+    .mockup-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+    .mockup-url { font-size: 0.72rem; color: #444; font-family: monospace; }
+    .mockup-body { padding: 0; }
+
+    /* Fotograaf portal-specifieke mockup-elementen */
+    .fp-header { background: #080808; padding: 0.8rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .fp-logo { font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; color: #FF6B00; }
+    .fp-card { background: #111; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.5rem; margin: 1.5rem; }
+    .fp-label { font-family: 'Courier New', monospace; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: #666; margin-bottom: 0.5rem; }
+    .fp-h2 { font-size: 1rem; font-weight: 800; margin-bottom: 0.8rem; color: #F0F0F0; }
+    .fp-input { width: 100%; background: #080808; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.55rem 0.9rem; color: #666; font-size: 0.8rem; margin-bottom: 0.5rem; }
+    .fp-btn { width: 100%; background: #FF6B00; border: none; border-radius: 8px; padding: 0.65rem; color: #fff; font-size: 0.8rem; font-weight: 700; text-align: center; margin-top: 0.3rem; }
+    .fp-btn-sec { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: #666; }
+    .fp-tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin: 0 1.5rem; overflow-x: auto; }
+    .fp-tab { padding: 0.7rem 1.1rem; font-size: 0.72rem; letter-spacing: 0.5px; text-transform: uppercase; color: #555; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+    .fp-tab.active { color: #FF6B00; border-bottom-color: #FF6B00; }
+    .fp-content { padding: 1.2rem 1.5rem; }
+    .fp-dash-header { margin-bottom: 1rem; }
+    .fp-dash-title { font-size: 1rem; font-weight: 800; color: #F0F0F0; }
+    .fp-dash-sub { font-size: 0.75rem; color: #555; margin-top: 0.2rem; }
+    .fp-upload-zone { border: 2px dashed rgba(255,107,0,0.3); border-radius: 12px; padding: 1.5rem; text-align: center; margin-bottom: 0.8rem; }
+    .fp-upload-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .fp-upload-text { font-size: 0.78rem; color: #555; }
+    .fp-map-row { background: #181818; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.7rem 0.9rem; display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.4rem; }
+    .fp-map-thumb { width: 44px; height: 32px; border-radius: 4px; background: #222; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .fp-map-name { flex: 1; font-size: 0.82rem; font-weight: 600; color: #eee; }
+    .fp-map-count { font-size: 0.68rem; color: #555; }
+    .fp-map-btns { display: flex; gap: 0.3rem; }
+    .fp-map-btn { border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #666; font-size: 0.65rem; padding: 0.2rem 0.45rem; border-radius: 4px; }
+    .fp-map-btn.accent { border-color: #FF6B00; color: #FF6B00; }
+    .fp-photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+    .fp-photo-thumb { aspect-ratio: 1; background: #222; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; position: relative; overflow: hidden; }
+    .fp-photo-num { position: absolute; bottom: 2px; right: 4px; font-size: 0.55rem; color: rgba(255,255,255,0.4); }
+    .fp-stat-row { display: flex; gap: 0.6rem; margin-bottom: 0.8rem; }
+    .fp-stat { background: #181818; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.7rem 0.9rem; flex: 1; }
+    .fp-stat-val { font-size: 1.4rem; font-weight: 800; color: #FF6B00; }
+    .fp-stat-lbl { font-size: 0.65rem; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+    .callout { display: flex; gap: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid #2a2a2a; border-radius: 8px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .callout-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .callout p { color: var(--tekst-dim); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+    .hl-cta { margin-top: 3.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .hl-cta a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.2rem; border-radius: 100px; border: 1px solid #FF6B00; color: #FF6B00; text-decoration: none; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; transition: background 0.2s, color 0.2s; }
+    .hl-cta a:hover { background: #FF6B00; color: #0d0d0d; }
+    .hl-cta a.sec { border-color: rgba(255,107,0,0.3); color: var(--tekst-dim); }
+    @media (max-width: 640px) {
+      .hl-page { padding: 90px 1.2rem 3rem; }
+      .fp-photo-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <main class="hl-page">
+    <div class="section-header">
+      <h1>Handleiding — Fotografen Portaal</h1>
+      <div class="accent-line"></div>
+    </div>
+
+    <p class="hl-intro">
+      Het fotografen portaal (<strong>fotograaf.html</strong>) is de persoonlijke omgeving voor gastfotografen.
+      Hier upload je foto's, beheer je mappen, kies je je accentkleur en volg je je statistieken.
+      Je hebt een persoonlijke uitnodigingslink nodig van Zaans Licht om een account aan te maken.
+    </p>
+
+    <div class="hl-nav">
+      <a href="#account">Account aanmaken</a>
+      <a href="#inloggen">Inloggen</a>
+      <a href="#upload">📤 Foto's uploaden</a>
+      <a href="#mappen">📁 Mappen beheren</a>
+      <a href="#statistieken">📊 Statistieken</a>
+      <a href="#profiel">🎨 Profiel &amp; kleur</a>
+      <a href="#mobiel">📱 Mobiel gebruik</a>
+    </div>
+
+    <!-- ACCOUNT AANMAKEN -->
+    <div class="hl-section" id="account">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">🔗</span>
+        <h2>Account aanmaken</h2>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Uitnodigingslink ontvangen</h3>
+        <p>Je ontvangt per e-mail een uitnodigingslink van Zaans Licht. De link is 7 dagen geldig. Klik op de link — je komt direct op de registratiepagina.</p>
+        <div class="tip"><strong>Link verlopen?</strong> Vraag een nieuwe uitnodiging aan bij Andreas. Hij genereert een nieuwe link via het Beheer-tabblad Fotografen.</div>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">zaanslicht.com/fotograaf.html?token=…</span></div>
+        <div class="mockup-body">
+          <div class="fp-header"><span class="fp-logo">Zaans Licht</span></div>
+          <div class="fp-card">
+            <div class="fp-label">Registratie</div>
+            <div class="fp-h2">Account aanmaken</div>
+            <p style="font-size:0.78rem;color:#555;margin-bottom:0.8rem">Welkom! Kies een wachtwoord en je accentkleur.</p>
+            <div class="fp-input" style="color:#888">Wachtwoord (min. 8 tekens)</div>
+            <div class="fp-input" style="color:#888">Herhaal wachtwoord</div>
+            <div style="margin-bottom:0.5rem">
+              <div class="fp-label" style="margin-bottom:0.3rem">Accentkleur</div>
+              <div style="display:flex;gap:0.4rem">
+                <div style="width:24px;height:24px;border-radius:50%;background:#FF6B00;border:2px solid #fff"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#3b82f6"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#22c55e"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#a855f7"></div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#ec4899"></div>
+              </div>
+            </div>
+            <div class="fp-btn">Account aanmaken →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Wachtwoord kiezen</h3>
+        <p>Kies een wachtwoord van minimaal 8 tekens. Dit wachtwoord gebruik je voortaan om in te loggen. Er is geen wachtwoordherstel — bewaar het goed. Als je het vergeet, vraag dan een nieuwe uitnodiging aan.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> Accentkleur kiezen</h3>
+        <p>Kies een kleur die jouw persoonlijke pagina kenmerkt. De kleur verschijnt als themakleur op jouw publieke fotograafpagina (zaanslicht.com/[naam]). Je kunt de kleur later altijd aanpassen via <strong>Profiel</strong>.</p>
+      </div>
+    </div>
+
+    <!-- INLOGGEN -->
+    <div class="hl-section" id="inloggen">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">🔐</span>
+        <h2>Inloggen</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">zaanslicht.com/fotograaf.html</span></div>
+        <div class="mockup-body">
+          <div class="fp-header"><span class="fp-logo">Zaans Licht</span></div>
+          <div class="fp-card">
+            <div class="fp-label">Fotografen portaal</div>
+            <div class="fp-h2">Inloggen</div>
+            <div class="fp-input" style="color:#888">Jouw naam of e-mailadres</div>
+            <div class="fp-input" style="color:#888">Wachtwoord</div>
+            <div class="fp-btn" style="margin-top:0.6rem">Inloggen →</div>
+            <div style="text-align:center;margin-top:0.6rem;font-size:0.72rem;color:#444">Geen account? Vraag een uitnodiging aan.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Naar de portaalpagina</h3>
+        <p>Ga naar <strong>zaanslicht.com/fotograaf.html</strong>. Voer je naam (of e-mailadres) en wachtwoord in en klik op <strong>Inloggen</strong>. Na inloggen kom je direct op je dashboard.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Ingelogd blijven</h3>
+        <p>Je sessie wordt lokaal in je browser opgeslagen. Op hetzelfde apparaat hoef je niet elke keer opnieuw in te loggen — tenzij je uitlogt of de browsergeschiedenis wist. Op een ander apparaat moet je opnieuw inloggen.</p>
+      </div>
+    </div>
+
+    <!-- FOTO'S UPLOADEN -->
+    <div class="hl-section" id="upload">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📤</span>
+        <h2>Foto's uploaden</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">fotograaf.html — Dashboard · Upload</span></div>
+        <div class="mockup-body">
+          <div class="fp-header">
+            <span class="fp-logo">Zaans Licht</span>
+            <span style="font-size:0.7rem;color:#555">Jan Kaper</span>
+          </div>
+          <div class="fp-tabs">
+            <div class="fp-tab active">📤 Upload</div>
+            <div class="fp-tab">📁 Mijn mappen</div>
+            <div class="fp-tab">📊 Statistieken</div>
+            <div class="fp-tab">🎨 Profiel</div>
+          </div>
+          <div class="fp-content">
+            <div class="fp-dash-header">
+              <div class="fp-dash-title">Welkom, Jan Kaper</div>
+              <div class="fp-dash-sub">3 mappen · 47 foto's geüpload</div>
+            </div>
+            <div style="background:#181818;border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:0.8rem;margin-bottom:0.6rem">
+              <div class="fp-label" style="margin-bottom:0.4rem">Map-naam</div>
+              <div class="fp-input" style="background:#0d0d0d;margin-bottom:0">ZCFC – Ajax (3-1)</div>
+            </div>
+            <div class="fp-upload-zone">
+              <div class="fp-upload-icon">📎</div>
+              <div class="fp-upload-text">Sleep foto's hierheen of klik om te selecteren<br><span style="font-size:0.65rem;color:#444">JPG, WebP — max 20 MB per foto</span></div>
+            </div>
+            <div class="fp-btn">📤 Upload naar Zaans Licht</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Map-naam invullen</h3>
+        <p>Vul een duidelijke map-naam in, zoals <em>ZCFC – Ajax (3-1)</em> of <em>Kidsday 2026</em>. Deze naam verschijnt op de website als titel van de fotoserie. Kies een bestaande map uit de lijst of typ een nieuwe naam voor een nieuwe serie.</p>
+        <div class="tip"><strong>Bestaande map aanvullen:</strong> Als je meer foto's wilt toevoegen aan een bestaande serie, kies dan exact dezelfde map-naam. Nieuwe foto's worden automatisch aan die serie toegevoegd.</div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Foto's selecteren</h3>
+        <p>Klik op het upload-vlak of sleep bestanden er naartoe. Je kunt meerdere foto's tegelijk selecteren. Ondersteunde formaten:</p>
+        <ul>
+          <li><strong>JPG / JPEG</strong> — worden automatisch omgezet naar WebP voor snellere laadtijden</li>
+          <li><strong>WebP</strong> — worden direct gebruikt</li>
+        </ul>
+        <p>Maximale bestandsgrootte: <strong>20 MB per foto</strong>. Kleinere bestanden uploaden sneller.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> Upload starten</h3>
+        <p>Klik op <strong>📤 Upload naar Zaans Licht</strong>. De foto's worden geüpload naar de Cloudflare R2-opslag van Zaans Licht. Je ziet een voortgangsbalk per foto. Wacht tot alle foto's klaar zijn voor je de pagina verlaat.</p>
+        <div class="tip"><strong>Na de upload</strong> is jouw map zichtbaar op jouw publieke pagina (zaanslicht.com/[naam]). Andreas kan de map daarna ook toevoegen aan de hoofdpagina via het beheer.</div>
+      </div>
+    </div>
+
+    <!-- MAPPEN BEHEREN -->
+    <div class="hl-section" id="mappen">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📁</span>
+        <h2>Mappen beheren</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">fotograaf.html — Dashboard · Mijn mappen</span></div>
+        <div class="mockup-body">
+          <div class="fp-header"><span class="fp-logo">Zaans Licht</span><span style="font-size:0.7rem;color:#555">Jan Kaper</span></div>
+          <div class="fp-tabs">
+            <div class="fp-tab">📤 Upload</div>
+            <div class="fp-tab active">📁 Mijn mappen</div>
+            <div class="fp-tab">📊 Statistieken</div>
+            <div class="fp-tab">🎨 Profiel</div>
+          </div>
+          <div class="fp-content">
+            <div class="fp-map-row">
+              <div class="fp-map-thumb">⚽</div>
+              <div>
+                <div class="fp-map-name">ZCFC – Ajax (3-1)</div>
+                <div class="fp-map-count">14 foto's · 12-06-2026</div>
+              </div>
+              <div class="fp-map-btns">
+                <span class="fp-map-btn accent">👁 Bekijk</span>
+                <span class="fp-map-btn">⬆️ Aanvullen</span>
+                <span class="fp-map-btn" style="color:#ef4444;border-color:#3a1a1a">🗑</span>
+              </div>
+            </div>
+            <div class="fp-map-row">
+              <div class="fp-map-thumb">📷</div>
+              <div>
+                <div class="fp-map-name">Zaanse Derby — april 2026</div>
+                <div class="fp-map-count">22 foto's · 04-04-2026</div>
+              </div>
+              <div class="fp-map-btns">
+                <span class="fp-map-btn accent">👁 Bekijk</span>
+                <span class="fp-map-btn">⬆️ Aanvullen</span>
+                <span class="fp-map-btn" style="color:#ef4444;border-color:#3a1a1a">🗑</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Mappen bekijken</h3>
+        <p>Het tabblad <strong>Mijn mappen</strong> toont al jouw geüploade series. Klik op <strong>👁 Bekijk</strong> om de foto's in een map te zien als grid. Hier kun je ook de volgorde aanpassen (versleep de thumbnails).</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Foto's toevoegen aan bestaande map</h3>
+        <p>Klik op <strong>⬆️ Aanvullen</strong> naast een map. Dit opent het upload-tabblad met de map-naam al ingevuld. Upload je extra foto's en klik op Uploaden.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> Foto-volgorde aanpassen</h3>
+        <p>Open een map (👁 Bekijk). Je ziet alle thumbnails als grid. Versleep een thumbnail naar een andere positie. De volgorde wordt automatisch opgeslagen en is direct zichtbaar op de website.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">4</span> Map verwijderen</h3>
+        <p>Klik op het <strong>🗑</strong> icoontje naast de map. Na bevestiging worden alle foto's uit die map permanent verwijderd uit Cloudflare R2. Dit is onomkeerbaar.</p>
+        <div class="tip"><strong>Let op:</strong> Als Andreas de map al heeft gekoppeld aan de hoofdpagina, verdwijnt hij daar ook. Overleg eerst.</div>
+      </div>
+    </div>
+
+    <!-- STATISTIEKEN -->
+    <div class="hl-section" id="statistieken">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📊</span>
+        <h2>Statistieken</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">fotograaf.html — Statistieken</span></div>
+        <div class="mockup-body">
+          <div class="fp-header"><span class="fp-logo">Zaans Licht</span><span style="font-size:0.7rem;color:#555">Jan Kaper</span></div>
+          <div class="fp-tabs">
+            <div class="fp-tab">📤 Upload</div>
+            <div class="fp-tab">📁 Mijn mappen</div>
+            <div class="fp-tab active">📊 Statistieken</div>
+            <div class="fp-tab">🎨 Profiel</div>
+          </div>
+          <div class="fp-content">
+            <div class="fp-stat-row">
+              <div class="fp-stat"><div class="fp-stat-val">47</div><div class="fp-stat-lbl">Foto's</div></div>
+              <div class="fp-stat"><div class="fp-stat-val">3</div><div class="fp-stat-lbl">Mappen</div></div>
+              <div class="fp-stat"><div class="fp-stat-val">1.2k</div><div class="fp-stat-lbl">Weergaven</div></div>
+            </div>
+            <div style="background:#181818;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.8rem;font-size:0.75rem;color:#555;text-align:center">
+              Weergaven per map — grafiek verschijnt hier
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Overzicht</h3>
+        <p>Het Statistieken-tabblad toont hoeveel foto's je hebt geüpload, hoeveel mappen je hebt en het totale aantal weergaven van jouw pagina en foto's. De statistieken worden dagelijks bijgewerkt.</p>
+      </div>
+    </div>
+
+    <!-- PROFIEL & KLEUR -->
+    <div class="hl-section" id="profiel">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">🎨</span>
+        <h2>Profiel &amp; accentkleur</h2>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Accentkleur aanpassen</h3>
+        <p>Ga naar het tabblad <strong>🎨 Profiel</strong>. Klik op een kleur of gebruik de kleurkiezer om een eigen kleur in te stellen. Klik op <strong>Opslaan</strong>. De kleur is direct zichtbaar op jouw publieke pagina (zaanslicht.com/[naam]).</p>
+        <div class="tip"><strong>Tip:</strong> Kies een kleur die past bij jouw stijl of bij de club waarvoor je fotografeert. De kleur beïnvloedt knoppen, accenten en de achtergrondtint van jouw fotopagina.</div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Bio toevoegen (optioneel)</h3>
+        <p>Je kunt in het Profiel-tabblad ook een korte bio invullen die op jouw publieke pagina verschijnt. Maximaal 200 tekens.</p>
+      </div>
+    </div>
+
+    <!-- MOBIEL -->
+    <div class="hl-section" id="mobiel">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📱</span>
+        <h2>Mobiel gebruik</h2>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">💡</span>
+        <p>Het fotografen portaal werkt volledig op je telefoon. Upload direct van je telefoon of tablet naar Zaans Licht.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Foto's uploaden vanaf je telefoon</h3>
+        <p>Open <strong>zaanslicht.com/fotograaf.html</strong> in je mobiele browser, log in en ga naar het Upload-tabblad. Tik op het upload-vlak en kies <strong>Foto kiezen</strong> of <strong>Camera</strong>. Je kunt ook meerdere foto's tegelijk selecteren vanuit je Foto's-app.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Tabbladen bereiken op mobiel</h3>
+        <p>De tabbladen-balk bovenaan scrollt horizontaal. Veeg naar links om <strong>Statistieken</strong> en <strong>Profiel</strong> te bereiken.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> Pagina bewaren als snelkoppeling</h3>
+        <p>Voeg de pagina toe aan je beginscherm voor snelle toegang:</p>
+        <ul>
+          <li><strong>iPhone (Safari):</strong> Deel-knop → "Zet op beginscherm"</li>
+          <li><strong>Android (Chrome):</strong> Menu (⋮) → "Toevoegen aan startscherm"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hl-cta">
+      <a href="fotograaf.html">→ Naar het portaal</a>
+      <a href="beheer-handleiding.html" class="sec">📖 Handleiding beheer</a>
+    </div>
+  </main>
+
+  <script src="nav-fotografen.js"></script>
+  <script src="zoek.js"></script>
+</body>
+</html>
