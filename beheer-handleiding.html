@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beheer — Handleiding — Zaans Licht</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css?v=20260613e" />
+  <style>
+    .hl-page { min-height: 100vh; padding: 120px 3rem 5rem; max-width: 860px; margin: 0 auto; }
+    .hl-page h1 { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem; }
+    .hl-intro { color: var(--tekst-dim); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+    .hl-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem; }
+    .hl-nav a { font-size: 0.8rem; padding: 0.4rem 0.9rem; border-radius: 100px; border: 1px solid rgba(255,107,0,0.25); color: var(--tekst-dim); text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+    .hl-nav a:hover { color: #FF6B00; border-color: #FF6B00; }
+    .hl-section { margin: 3.5rem 0; }
+    .hl-section-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.5rem; padding-bottom: 0.6rem; border-bottom: 2px solid #FF6B00; }
+    .hl-section-header h2 { font-size: 1.4rem; font-weight: 800; margin: 0; }
+    .stap { margin: 2rem 0; }
+    .stap h3 { font-size: 1rem; font-weight: 700; color: #FF6B00; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+    .stap h3 .nr { flex-shrink: 0; width: 1.6rem; height: 1.6rem; line-height: 1.6rem; text-align: center; border-radius: 50%; background: #FF6B00; color: #0d0d0d; font-size: 0.78rem; font-weight: 800; }
+    .stap p { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.65; margin: 0 0 0.8rem; }
+    .stap ul { color: var(--tekst-dim); font-size: 0.95rem; line-height: 1.65; margin: 0 0 0.8rem 1.2rem; }
+    .stap ul li { margin-bottom: 0.35rem; }
+    .tip { background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.25); border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.85rem; color: #ccc; line-height: 1.6; margin-top: 0.6rem; }
+    .tip strong { color: #FF6B00; }
+    /* UI Mockup */
+    .mockup { background: #0d0d0d; border: 1px solid rgba(255,107,0,0.2); border-radius: 12px; overflow: hidden; margin: 1rem 0 1.5rem; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .mockup-bar { background: #111; border-bottom: 1px solid #222; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.8rem; }
+    .mockup-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.12); flex-shrink: 0; }
+    .mockup-url { font-size: 0.72rem; color: #444; font-family: monospace; }
+    .mockup-body { padding: 0; }
+    .m-header { background: #111; padding: 0.7rem 1.2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1a1a1a; }
+    .m-header-title { font-weight: 800; font-size: 0.95rem; letter-spacing: 2px; text-transform: uppercase; }
+    .m-header-title span { color: #FF6B00; }
+    .m-badge { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); color: #22c55e; font-size: 0.68rem; padding: 0.2rem 0.6rem; border-radius: 100px; }
+    .m-btn { background: #222; border: 1px solid #333; color: #888; font-size: 0.72rem; padding: 0.3rem 0.7rem; border-radius: 5px; cursor: default; }
+    .m-log { background: #0a0a0a; padding: 0.5rem 1.2rem; font-size: 0.72rem; color: #22c55e; font-family: monospace; border-bottom: 1px solid #111; }
+    .m-tabs { display: flex; border-bottom: 1px solid #222; padding: 0 0.5rem; background: #0d0d0d; overflow-x: auto; }
+    .m-tab { padding: 0.6rem 0.9rem; font-size: 0.72rem; letter-spacing: 0.5px; text-transform: uppercase; color: #555; border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+    .m-tab.active { color: #FF6B00; border-bottom-color: #FF6B00; }
+    .m-content { padding: 1rem 1.2rem; }
+    .m-new-btn { width: 100%; padding: 0.6rem; border: 1px dashed #333; border-radius: 6px; background: transparent; color: #444; font-size: 0.75rem; text-align: center; margin-bottom: 0.8rem; }
+    .m-slider { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 0.7rem 0.9rem; display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; }
+    .m-drag { color: #444; font-size: 1rem; }
+    .m-slider-name { flex: 1; font-size: 0.85rem; font-weight: 600; color: #ddd; }
+    .m-slider-count { font-size: 0.72rem; color: #555; }
+    .m-expand { color: #555; font-size: 0.75rem; }
+    .m-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; margin-bottom: 0.6rem; }
+    .m-card-head { padding: 0.7rem 0.9rem; display: flex; align-items: center; gap: 0.6rem; }
+    .m-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+    .m-card-name { font-size: 0.82rem; font-weight: 700; color: #eee; }
+    .m-card-sub { font-size: 0.68rem; color: #555; }
+    .m-card-btns { display: flex; flex-wrap: wrap; gap: 0.3rem; padding: 0.5rem 0.9rem 0.7rem; border-top: 1px solid #222; }
+    .m-kbtn { border: 1px solid #333; background: transparent; color: #777; font-size: 0.67rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+    .m-kbtn.accent { border-color: #FF6B00; color: #FF6B00; font-weight: 700; }
+    .m-kbtn.danger { background: #3a1a1a; border-color: #3a1a1a; color: #ef4444; }
+    .m-ab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .m-ab-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 0.8rem 0.9rem; }
+    .m-ab-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-bottom: 0.3rem; }
+    .m-ab-count { font-size: 1.8rem; font-weight: 800; color: #FF6B00; line-height: 1; }
+    .m-input { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 4px; color: #666; font-size: 0.72rem; padding: 0.4rem 0.6rem; margin-top: 0.3rem; }
+    .m-form-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: end; }
+    .m-orange-btn { background: #FF6B00; border: none; color: #fff; font-size: 0.72rem; font-weight: 700; padding: 0.45rem 0.8rem; border-radius: 5px; white-space: nowrap; }
+    .label-chip { display: inline-block; font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 100px; border: 1px solid #333; color: #666; margin: 0.15rem; cursor: default; }
+    .label-chip.actief { background: #FF6B00; border-color: #FF6B00; color: #fff; }
+    /* Callout */
+    .callout { display: flex; gap: 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid #2a2a2a; border-radius: 8px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .callout-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .callout p { color: var(--tekst-dim); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+    .hl-cta { margin-top: 3.5rem; display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .hl-cta a { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.2rem; border-radius: 100px; border: 1px solid #FF6B00; color: #FF6B00; text-decoration: none; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; transition: background 0.2s, color 0.2s; }
+    .hl-cta a:hover { background: #FF6B00; color: #0d0d0d; }
+    .hl-cta a.sec { border-color: rgba(255,107,0,0.3); color: var(--tekst-dim); }
+    @media (max-width: 640px) {
+      .hl-page { padding: 90px 1.2rem 3rem; }
+      .m-ab-grid { grid-template-columns: 1fr; }
+      .m-form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <main class="hl-page">
+    <div class="section-header">
+      <h1>Handleiding — Beheer</h1>
+      <div class="accent-line"></div>
+    </div>
+
+    <p class="hl-intro">
+      De beheerpagina is het administratiepaneel van Zaans Licht. Hier sorteer je foto-sliders,
+      beheer je reacties en abonnees, nodig je gastfotografen uit en koppel je mappen aan clubnamen.
+      Je logt in met je GitHub Personal Access Token.
+    </p>
+
+    <div class="hl-nav">
+      <a href="#inloggen">Inloggen</a>
+      <a href="#voetbal">⚽ Voetbal</a>
+      <a href="#nosports">🌄 No Sports</a>
+      <a href="#reacties">💬 Reacties</a>
+      <a href="#abonnees">📧 Abonnees</a>
+      <a href="#fotografen">📸 Fotografen</a>
+      <a href="#labels">🏷️ Labels</a>
+      <a href="#mijn-profiel">🎨 Mijn profiel</a>
+      <a href="#mobiel">📱 Mobiel gebruik</a>
+    </div>
+
+    <!-- INLOGGEN -->
+    <div class="hl-section" id="inloggen">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">🔐</span>
+        <h2>Inloggen</h2>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> GitHub Personal Access Token ophalen</h3>
+        <p>De beheerpagina gebruikt je GitHub-token om foto-volgorde en tekstwijzigingen direct op te slaan in de repository. Het token wordt alleen lokaal in je browser opgeslagen.</p>
+        <ul>
+          <li>Ga naar <strong>github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</strong></li>
+          <li>Klik <strong>Generate new token (classic)</strong></li>
+          <li>Beschrijving: <code>ZaansLicht Beheer</code>, vink <strong>repo</strong> aan</li>
+          <li>Klik <strong>Generate token</strong> en kopieer het (begint met <code>ghp_</code>)</li>
+        </ul>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">zaanslicht.com/beheer.html</span></div>
+        <div class="mockup-body" style="padding:2.5rem;text-align:center">
+          <div style="font-size:1.1rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;margin-bottom:1.5rem">ZAANS <span style="color:#FF6B00">LICHT</span></div>
+          <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:1.2rem;max-width:340px;margin:0 auto">
+            <div style="font-size:0.65rem;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:0.5rem">GitHub Personal Access Token</div>
+            <div style="background:#111;border:1px solid #2a2a2a;border-radius:5px;padding:0.5rem 0.8rem;font-size:0.75rem;color:#555;font-family:monospace;margin-bottom:0.7rem">ghp_xxxxxxxxxxxxxxxxxxxx</div>
+            <div style="background:#FF6B00;color:#fff;font-size:0.8rem;font-weight:700;padding:0.55rem;border-radius:5px;text-align:center">INLOGGEN →</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Worker Secret instellen (eenmalig)</h3>
+        <p>Ga na het inloggen direct naar het <strong>Abonnees-tabblad</strong> en vul de Worker Secret in. Zonder dit werkt de Fotografen-tab niet. Zie de Abonnees-sectie hieronder voor uitleg.</p>
+        <div class="tip"><strong>Tip:</strong> Je token en secret worden opgeslagen in je browser. Op een nieuw apparaat of na het wissen van browserdata moet je dit opnieuw invoeren.</div>
+      </div>
+    </div>
+
+    <!-- VOETBAL / NO SPORTS -->
+    <div class="hl-section" id="voetbal">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">⚽</span>
+        <h2>Voetbal &amp; No Sports</h2>
+      </div>
+
+      <p class="stap" style="margin-top:0"><span style="color:var(--tekst-dim);font-size:0.95rem;line-height:1.65">Beide tabbladen werken identiek. Voetbal toont de voetbalgalerij, No Sports de landschaps- en architectuurfoto's. Je kunt sliders slepen, openen, bewerken en verwijderen.</span></p>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">beheer.html — Voetbal-tab</span></div>
+        <div class="mockup-body">
+          <div class="m-header">
+            <span class="m-header-title">ZAANS <span>LICHT</span> — BEHEER</span>
+            <div style="display:flex;gap:0.5rem;align-items:center"><span class="m-badge">✓ Online</span><span class="m-btn">Uitloggen</span></div>
+          </div>
+          <div class="m-log">✓ Ingelogd — sleep om de volgorde aan te passen</div>
+          <div class="m-tabs">
+            <div class="m-tab active">⚽ Voetbal</div>
+            <div class="m-tab">🌄 No Sports</div>
+            <div class="m-tab">💬 Reacties</div>
+            <div class="m-tab">📧 Abonnees</div>
+            <div class="m-tab">📸 Fotografen</div>
+            <div class="m-tab">🏷️ Labels</div>
+          </div>
+          <div class="m-content">
+            <div class="m-new-btn">＋ Nieuwe map (voetbal)</div>
+            <div class="m-slider"><span class="m-drag">⠿</span><span class="m-slider-name">ZCFC – Ajax (3-1)</span><span class="m-slider-count">14 foto's · 12-06-2026</span><span class="m-expand">▼</span></div>
+            <div class="m-slider"><span class="m-drag">⠿</span><span class="m-slider-name">Zaanse Derby — april 2026</span><span class="m-slider-count">22 foto's · 04-04-2026</span><span class="m-expand">▼</span></div>
+            <div class="m-slider"><span class="m-drag">⠿</span><span class="m-slider-name">Kidsday ZCFC 🎉</span><span class="m-slider-count">31 foto's · 15-03-2026</span><span class="m-expand">▼</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Volgorde aanpassen</h3>
+        <p>Sleep de <strong>⠿ grip-handle</strong> (links van de naam) om sliders te herordenen. De volgorde op de website past automatisch mee zodra je loslaat. Wijzigingen worden na 1,5 seconden opgeslagen.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Slider openen en bewerken</h3>
+        <p>Klik op <strong>▼</strong> rechts van de naam om een slider open te klappen. Je ziet dan:</p>
+        <ul>
+          <li><strong>Fotograaf</strong> — pas de naam aan die op de site verschijnt</li>
+          <li><strong>Beschrijving</strong> — korte tekst bij de serie</li>
+          <li><strong>Datum</strong> — datum van de serie (voor de NIEUW-badge)</li>
+          <li><strong>Foto's</strong> — versleep thumbnails om de volgorde van foto's aan te passen</li>
+          <li><strong>Upload</strong> — nieuwe foto's toevoegen aan de serie</li>
+        </ul>
+        <div class="tip"><strong>NIEUW-badge:</strong> Sliders met een datum jonger dan 14 dagen krijgen automatisch een pulserende oranje badge op de website. Stel altijd een datum in!</div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> Nieuwe map aanmaken</h3>
+        <p>Klik op <strong>＋ Nieuwe map (voetbal)</strong> bovenaan. Voer een naam in (bijv. <em>ZCFC – PSV (2-0)</em>) en klik op aanmaken. De lege slider verschijnt bovenaan de lijst — open hem direct om foto's te uploaden.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">4</span> Slider verwijderen</h3>
+        <p>Open de slider (▼) en klik op de <strong>🗑 Verwijder</strong>-knop onderaan. Dit verwijdert de map inclusief alle foto's permanent. Er is een bevestigingsvenster.</p>
+        <div class="tip"><strong>Let op:</strong> Verwijdering is onomkeerbaar. Eigen foto's worden uit GitHub verwijderd, gastfoto's uit Cloudflare R2.</div>
+      </div>
+    </div>
+
+    <!-- REACTIES -->
+    <div class="hl-section" id="reacties">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">💬</span>
+        <h2>Reacties</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">beheer.html — Reacties-tab</span></div>
+        <div class="mockup-body">
+          <div class="m-header"><span class="m-header-title">ZAANS <span>LICHT</span> — BEHEER</span><span class="m-badge">✓ Online</span></div>
+          <div class="m-tabs"><div class="m-tab">⚽ Voetbal</div><div class="m-tab">🌄 No Sports</div><div class="m-tab active">💬 Reacties</div><div class="m-tab">📧 Abonnees</div><div class="m-tab">📸 Fotografen</div></div>
+          <div class="m-content">
+            <div class="m-card" style="padding:0.8rem 0.9rem;display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div style="font-size:0.8rem;font-weight:700;color:#eee">Jan Pietersen <span style="color:#555;font-weight:400">· 14-06-2026 om 21:13</span></div><div style="font-size:0.78rem;color:#aaa;margin-top:0.3rem">Geweldige foto van de goal! 🔥</div></div>
+              <span style="color:#ef4444;font-size:0.9rem">🗑</span>
+            </div>
+            <div class="m-card" style="padding:0.8rem 0.9rem;display:flex;justify-content:space-between;align-items:flex-start;margin-top:0.4rem">
+              <div><div style="font-size:0.8rem;font-weight:700;color:#eee">Marieke de Vries <span style="color:#555;font-weight:400">· 11-06-2026 om 09:47</span></div><div style="font-size:0.78rem;color:#aaa;margin-top:0.3rem">Super sfeerbeelden, complimenten!</div></div>
+              <span style="color:#ef4444;font-size:0.9rem">🗑</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Reacties bekijken</h3>
+        <p>Het Reacties-tabblad laadt automatisch alle reacties die bezoekers hebben achtergelaten op de foto's. Ze zijn gesorteerd op nieuwste eerst. Klik op <strong>↺ Vernieuwen</strong> om opnieuw te laden (de lijst ververst ook elke 30 seconden automatisch).</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Reactie verwijderen</h3>
+        <p>Klik op het <strong>🗑</strong> icoontje rechts van een reactie om die te verwijderen. Er is geen bevestigingsvraag — verwijdering is direct en onomkeerbaar.</p>
+      </div>
+    </div>
+
+    <!-- ABONNEES -->
+    <div class="hl-section" id="abonnees">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📧</span>
+        <h2>Abonnees</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">beheer.html — Abonnees-tab</span></div>
+        <div class="mockup-body">
+          <div class="m-header"><span class="m-header-title">ZAANS <span>LICHT</span> — BEHEER</span><span class="m-badge">✓ Online</span></div>
+          <div class="m-tabs"><div class="m-tab">⚽ Voetbal</div><div class="m-tab">🌄 No Sports</div><div class="m-tab">💬 Reacties</div><div class="m-tab active">📧 Abonnees</div><div class="m-tab">📸 Fotografen</div></div>
+          <div class="m-content">
+            <div class="m-ab-grid">
+              <div class="m-ab-card">
+                <div class="m-ab-label">Abonnees</div>
+                <div class="m-ab-count">47</div>
+                <div style="font-size:0.68rem;color:#555;margin-top:0.2rem">aangemeld voor updates</div>
+                <div class="m-ab-label" style="margin-top:0.8rem">Worker URL</div>
+                <div class="m-input" style="color:#888;font-family:monospace;font-size:0.65rem">https://zaanslicht-updates.ntxzj…</div>
+                <div class="m-ab-label" style="margin-top:0.4rem">Worker Secret</div>
+                <div class="m-input" style="letter-spacing:2px">••••••••••••••••</div>
+              </div>
+              <div class="m-ab-card">
+                <div class="m-ab-label">Nieuwsbrief versturen</div>
+                <div class="m-ab-label" style="margin-top:0.6rem">Onderwerp</div>
+                <div class="m-input">Nieuwe foto's online!</div>
+                <div class="m-ab-label" style="margin-top:0.4rem">Bericht</div>
+                <div class="m-input" style="height:2.5rem">Hoi! Er staan weer nieuwe foto's…</div>
+                <div style="margin-top:0.5rem" class="m-orange-btn">📧 Verstuur naar alle abonnees</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Worker Secret instellen (eenmalig per apparaat)</h3>
+        <p>De Worker Secret is de geheime sleutel die API-verzoeken beveiligt. Je vindt hem in het <strong>Cloudflare Dashboard → Workers &amp; Pages → zaanslicht-updates → Settings → Variables and Secrets</strong>.</p>
+        <ul>
+          <li>Plak de secret in het veld <strong>Worker Secret</strong></li>
+          <li>De Worker URL staat al automatisch ingevuld</li>
+          <li>Klik op <strong>Opslaan &amp; verbinden</strong></li>
+          <li>Het abonneetal verschijnt als de verbinding gelukt is</li>
+        </ul>
+        <div class="tip"><strong>Let op:</strong> Dit sla je op per browser/apparaat. Op je telefoon moet je dit dus ook één keer instellen.</div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Nieuwsbrief versturen</h3>
+        <p>Vul een onderwerp en bericht in en klik op <strong>📧 Verstuur naar alle abonnees</strong>. Alle aangemelde e-mailadressen ontvangen de mail via Resend (afzender: updates@zaanslicht.com).</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> QR-code genereren</h3>
+        <p>Scroll verder op het Abonnees-tabblad om de QR-codegenerator te vinden. Hiermee maak je QR-codes voor de mobiele pagina, vaste pagina's, series en fotografen — handig voor op een beamer of poster.</p>
+      </div>
+    </div>
+
+    <!-- FOTOGRAFEN -->
+    <div class="hl-section" id="fotografen">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📸</span>
+        <h2>Fotografen</h2>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">beheer.html — Fotografen-tab</span></div>
+        <div class="mockup-body">
+          <div class="m-header"><span class="m-header-title">ZAANS <span>LICHT</span> — BEHEER</span><span class="m-badge">✓ Online</span></div>
+          <div class="m-tabs"><div class="m-tab">⚽ Voetbal</div><div class="m-tab">🌄 No Sports</div><div class="m-tab">💬 Reacties</div><div class="m-tab">📧 Abonnees</div><div class="m-tab active">📸 Fotografen</div><div class="m-tab">🏷️ Labels</div></div>
+          <div class="m-content">
+            <div class="m-card" style="margin-bottom:0.8rem">
+              <div style="padding:0.8rem 0.9rem">
+                <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:0.7rem">📩 Fotograaf uitnodigen</div>
+                <div class="m-form-row">
+                  <div class="m-input">Naam</div>
+                  <div class="m-input">E-mailadres</div>
+                  <div class="m-orange-btn">Uitnodiging genereren →</div>
+                </div>
+              </div>
+            </div>
+            <div class="m-card">
+              <div class="m-card-head"><div class="m-dot" style="background:#FF6B00"></div><div><div class="m-card-name">Jan Kaper</div><div class="m-card-sub">jan.kaper@zcfc.nl · 3 mappen · aangemeld 2 weken geleden</div></div></div>
+              <div class="m-card-btns">
+                <span class="m-kbtn accent">🔗 Pagina bekijken</span>
+                <span class="m-kbtn">👁️ Dashboard</span>
+                <span class="m-kbtn">📍 Positie</span>
+                <span class="m-kbtn">🔒 Blokkeer</span>
+                <span class="m-kbtn">📁 Mappen</span>
+                <span class="m-kbtn danger">🗑 Verwijder</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Fotograaf uitnodigen</h3>
+        <p>Vul naam en e-mailadres in en klik op <strong>Uitnodiging genereren →</strong>. De fotograaf ontvangt een unieke link die 7 dagen geldig is. Via die link maakt hij een account aan (wachtwoord + accentkleur kiezen).</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Fotografenkaart — knoppen</h3>
+        <p>Elke actieve fotograaf heeft een kaart met zes acties:</p>
+        <ul>
+          <li><strong>🔗 Pagina bekijken</strong> — opent de publieke fotograafpagina in een nieuw tabblad</li>
+          <li><strong>👁️ Dashboard</strong> — toont foto-thumbnails gegroepeerd per map (admin-overzicht)</li>
+          <li><strong>📍 Positie</strong> — bepaalt de volgorde van de fotograaf in de galerij en op de homepage</li>
+          <li><strong>🔒 Blokkeer</strong> — blokkeert het account (foto's blijven, login werkt niet meer)</li>
+          <li><strong>📁 Mappen</strong> — klapt een lijst van alle mappen open; per map kun je verbergen/tonen</li>
+          <li><strong>🗑 Verwijder</strong> — verwijdert account + alle foto's permanent</li>
+        </ul>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">3</span> Meekijken als fotograaf (review-modus)</h3>
+        <p>Met de <strong>👁 Meekijken als fotograaf</strong>-sectie kun je het dashboard van een gastfotograaf openen om te controleren of alles werkt. Selecteer de fotograaf, voer het review-wachtwoord in en klik op <strong>Open dashboard →</strong>.</p>
+        <div class="tip"><strong>Let op:</strong> Wijzigingen in review-modus zijn écht — je werkt in het echte account van de fotograaf.</div>
+      </div>
+    </div>
+
+    <!-- LABELS -->
+    <div class="hl-section" id="labels">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">🏷️</span>
+        <h2>Labels</h2>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Mappen koppelen aan clubnamen</h3>
+        <p>Het Labels-tabblad laat je je eigen foto-mappen (Voetbal en No Sports) koppelen aan Zaanse voetbalclubs. Klik op een label-chip naast een map om die club te koppelen. Klik opnieuw om te ontkoppelen. De map verschijnt daarna op <strong>clubs.html</strong> bij die club.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Nieuwe label aanmaken</h3>
+        <p>Typ een clubnaam in het invoerveld onderaan het Labels-tabblad en klik op <strong>＋ Toevoegen</strong>. Het nieuwe label is daarna beschikbaar voor jou en voor alle gastfotografen.</p>
+      </div>
+
+      <div class="mockup">
+        <div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><span class="mockup-url">beheer.html — Labels-tab</span></div>
+        <div class="mockup-body">
+          <div class="m-tabs"><div class="m-tab">⚽ Voetbal</div><div class="m-tab">🌄 No Sports</div><div class="m-tab">💬 Reacties</div><div class="m-tab">📧 Abonnees</div><div class="m-tab">📸 Fotografen</div><div class="m-tab active">🏷️ Labels</div></div>
+          <div class="m-content">
+            <div class="m-card" style="padding:0.8rem 0.9rem;margin-bottom:0.5rem;display:flex;align-items:flex-start;gap:0.7rem">
+              <div style="width:70px;height:48px;border-radius:4px;background:#1a1a1a;border:1px solid #222;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem">📸</div>
+              <div style="flex:1">
+                <div style="font-size:0.8rem;font-weight:600;color:#ddd;margin-bottom:0.3rem">ZCFC – Ajax (3-1)</div>
+                <div>
+                  <span class="label-chip actief">ZCFC</span>
+                  <span class="label-chip actief">Ajax</span>
+                  <span class="label-chip">Saenboys</span>
+                  <span class="label-chip">Zaandam</span>
+                  <span class="label-chip">Alliance</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-card" style="padding:0.8rem 0.9rem;display:flex;align-items:flex-start;gap:0.7rem">
+              <div style="width:70px;height:48px;border-radius:4px;background:#1a1a1a;border:1px solid #222;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem">📸</div>
+              <div style="flex:1">
+                <div style="font-size:0.8rem;font-weight:600;color:#ddd;margin-bottom:0.3rem">Zaanse Derby — april 2026</div>
+                <div>
+                  <span class="label-chip">ZCFC</span>
+                  <span class="label-chip actief">Saenboys</span>
+                  <span class="label-chip">Ajax</span>
+                  <span class="label-chip">Zaandam</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIJN PROFIEL -->
+    <div class="hl-section" id="mijn-profiel">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">🎨</span>
+        <h2>Mijn profiel</h2>
+      </div>
+      <div class="stap">
+        <p>In het Mijn profiel-tabblad stel je jouw accentkleur in. Deze kleur wordt gebruikt als themakleur op jouw publieke fotograafpagina. Kies een kleur, bekijk de preview en klik op <strong>Opslaan</strong>.</p>
+      </div>
+    </div>
+
+    <!-- MOBIEL -->
+    <div class="hl-section" id="mobiel">
+      <div class="hl-section-header">
+        <span style="font-size:1.4rem">📱</span>
+        <h2>Mobiel gebruik</h2>
+      </div>
+
+      <div class="callout">
+        <span class="callout-icon">💡</span>
+        <p>De beheerpagina werkt volledig op je telefoon. De tabbladbalk scrollt horizontaal — <strong>veeg naar rechts</strong> om tabbladen als Reacties, Abonnees en Fotografen te bereiken.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">1</span> Worker Secret instellen op telefoon</h3>
+        <p>Open <strong>beheer.html</strong> op je telefoon, log in, ga naar het <strong>Abonnees-tabblad</strong> (veeg de tabbladbalk naar rechts) en voer de Worker Secret in. Dit is eenmalig per apparaat.</p>
+      </div>
+
+      <div class="stap">
+        <h3><span class="nr">2</span> Tabbladen bereiken</h3>
+        <p>Op een smal scherm passen niet alle tabbladen tegelijk. Veeg de tabbladbalk naar links of rechts om alle tabbladen te bereiken:</p>
+        <ul>
+          <li>⚽ Voetbal · 🌄 No Sports · 💬 Reacties — zichtbaar bij openen</li>
+          <li>📧 Abonnees · 📸 Fotografen · 🏷️ Labels · 🎨 Mijn profiel — veeg naar rechts</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hl-cta">
+      <a href="beheer.html">→ Naar het beheer</a>
+      <a href="fotograaf-handleiding.html" class="sec">📖 Handleiding fotografen-portaal</a>
+    </div>
+  </main>
+
+  <script src="nav-fotografen.js"></script>
+  <script src="zoek.js"></script>
+</body>
+</html>
