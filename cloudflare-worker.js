@@ -534,6 +534,15 @@ async function handleFotograafLogin(request, env) {
   return json({ ok: true, token: sessieToken, naam: found.naam, kleur: found.kleur, id: found.id });
 }
 
+// ── LOGINLOG (admin) ──────────────────────────────────────────────────────
+async function handleLoginLog(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const id = new URL(request.url).searchParams.get('id');
+  if (!id) return json({ error: 'id verplicht' }, 400);
+  const raw = await env.SUBSCRIBERS.get('fotograaf:loginlog:' + id);
+  return json({ log: raw ? JSON.parse(raw) : [] });
+}
+
 // ── REVIEW-MODUS (admin kijkt mee als fotograaf) ───────────────────────────
 async function handleReviewWachtwoord(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
