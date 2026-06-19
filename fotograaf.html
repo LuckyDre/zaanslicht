@@ -586,8 +586,69 @@
     .map-cat-select { flex: 1; }
     .map-datum-input { width: 130px; }
   }
+
+  /* ── LIGHT MODE ─────────────────────────────────────────────────────── */
+  html.light-mode {
+    --accent: #FF6B00; --black: #f4f4f4; --s1: #ffffff; --s2: #f0f0f0;
+    --border: rgba(0,0,0,0.1); --text: #111111; --muted: #555555;
+    background: #f4f4f4;
+  }
+  html.light-mode body { background: #f4f4f4; color: #111; }
+  html.light-mode header { background: rgba(244,244,244,0.95); border-bottom-color: rgba(0,0,0,0.1); }
+  html.light-mode .card { background: #fff; border-color: rgba(0,0,0,0.1); }
+  html.light-mode .logout-btn { border-color: #ddd; color: #555; }
+  html.light-mode .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
+  html.light-mode .upload-zone { border-color: rgba(255,107,0,0.3); }
+  html.light-mode .upload-zone.dragover { background: rgba(255,107,0,0.06); }
+  html.light-mode .dash-header { border-bottom-color: #e0e0e0; }
+  html.light-mode .tab-bar { border-bottom-color: #e0e0e0; }
+  html.light-mode .tab-btn { color: #555; }
+  html.light-mode .tab-btn.active { color: var(--accent); }
+  html.light-mode .map-header { border-bottom-color: #e0e0e0; background: #fff; }
+  html.light-mode .map-header:hover { background: #f8f8f8; }
+  html.light-mode .map-groep-header { background: #f0f0f0; border-color: #e0e0e0; }
+  html.light-mode .positie-groep-header { background: #f0f0f0; border-color: #e0e0e0; }
+  html.light-mode input, html.light-mode textarea, html.light-mode select {
+    background: #fff !important; border-color: #ddd !important; color: #111 !important; color-scheme: light !important;
+  }
+  /* Override inline achtergrond-kleuren */
+  html.light-mode [style*="background:#080808"],
+  html.light-mode [style*="background: #080808"] { background: #f4f4f4 !important; }
+  html.light-mode [style*="background:#111"],
+  html.light-mode [style*="background: #111"] { background: #fff !important; }
+  html.light-mode [style*="background:#181818"],
+  html.light-mode [style*="background: #181818"] { background: #f5f5f5 !important; }
+  html.light-mode [style*="background:#1a1a1a"],
+  html.light-mode [style*="background: #1a1a1a"] { background: #fff !important; }
+  html.light-mode [style*="background:#222"],
+  html.light-mode [style*="background: #222"] { background: #ebebeb !important; }
+  html.light-mode [style*="background:#0d0d0d"],
+  html.light-mode [style*="background: #0d0d0d"] { background: #f4f4f4 !important; }
+  /* Override inline tekstkleuren */
+  html.light-mode [style*="color:#F0F0F0"],
+  html.light-mode [style*="color:#f0f0f0"] { color: #111 !important; }
+  html.light-mode [style*="color:#eee"] { color: #111 !important; }
+  html.light-mode [style*="color:#ddd"] { color: #222 !important; }
+  html.light-mode [style*="color:#ccc"] { color: #333 !important; }
+  html.light-mode [style*="color:#aaa"] { color: #555 !important; }
+  html.light-mode [style*="color:#888"] { color: #555 !important; }
+  html.light-mode [style*="color:#777"] { color: #555 !important; }
+  /* Override inline randen */
+  html.light-mode [style*="border:1px solid rgba(255,255,255,0.08)"],
+  html.light-mode [style*="border: 1px solid rgba(255,255,255,0.08)"] { border-color: rgba(0,0,0,0.1) !important; }
+  html.light-mode [style*="border:1px solid rgba(255,255,255,0.06)"],
+  html.light-mode [style*="border: 1px solid rgba(255,255,255,0.06)"] { border-color: rgba(0,0,0,0.08) !important; }
+  html.light-mode [style*="border:1px solid rgba(255,255,255,0.1)"],
+  html.light-mode [style*="border: 1px solid rgba(255,255,255,0.1)"] { border-color: rgba(0,0,0,0.12) !important; }
+  html.light-mode [style*="border:1px solid #333"],
+  html.light-mode [style*="border: 1px solid #333"] { border-color: #ddd !important; }
+  html.light-mode [style*="border-bottom:1px solid rgba(255,255,255,0.08)"],
+  html.light-mode [style*="border-bottom: 1px solid rgba(255,255,255,0.08)"] { border-bottom-color: rgba(0,0,0,0.08) !important; }
+  html.light-mode [style*="border-top:1px solid rgba(255,255,255,0.08)"],
+  html.light-mode [style*="border-top: 1px solid rgba(255,255,255,0.08)"] { border-top-color: rgba(0,0,0,0.08) !important; }
   </style>
 </head>
+<script>if(localStorage.getItem('zl_theme')==='light')document.documentElement.classList.add('light-mode');</script>
 <body>
 
 <header>
