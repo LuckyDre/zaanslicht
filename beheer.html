@@ -241,32 +241,39 @@
     /* APPINFO */
     #app { display: none; }
 
-    /* MOBIEL */
+    /* ── TABLET (≤900px) ── */
+    @media (max-width: 900px) {
+      .admin-header { padding: 0.6rem 1rem; }
+      .badge { display: none; }              /* badge verbergen, ruimte besparen */
+      #online-bar { display: none; }         /* online-fotografen verbergen */
+      .header-label { display: none; }       /* knoptekst verbergen, alleen icon */
+      .content { padding: 1rem; }
+      .tabs { padding: 0 0.75rem; }
+    }
+
+    /* ── MOBIEL (≤640px) ── */
     @media (max-width: 640px) {
-      .admin-header { padding: 0.7rem 1rem; }
-      .admin-header h1 { font-size: 1rem; letter-spacing: 1px; }
-      .header-btns { gap: 0.4rem; }
-      .badge { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
-      .btn { padding: 0.45rem 0.8rem; font-size: 0.78rem; letter-spacing: 0; }
-      .tabs { padding: 0 0.5rem; touch-action: pan-x; }
-      .tab { padding: 0.85rem 0.8rem; font-size: 0.75rem; letter-spacing: 0; min-height: 44px; display: flex; align-items: center; }
-      #log-panel { padding: 0.7rem 1rem; }
-      .content { padding: 0.8rem; }
-      /* Tab-panel inner containers met hardcoded 2rem padding */
+      .admin-header { padding: 0.5rem 0.75rem; gap: 0.4rem; }
+      .admin-header h1 { font-size: 0.85rem; letter-spacing: 1px; }
+      .btn { padding: 0.4rem 0.6rem; font-size: 0.72rem; }
+      .tabs { padding: 0 0.4rem; touch-action: pan-x; }
+      .tab { padding: 0.8rem 0.65rem; font-size: 0.72rem; letter-spacing: 0; min-height: 44px; display: flex; align-items: center; }
+      #log-panel { padding: 0.6rem 0.75rem; font-size: 0.75rem; }
+      .content { padding: 0.6rem; }
       .tab-panel > div { padding-left: 0 !important; padding-right: 0 !important; }
-      /* 3-koloms grids in Fotografen-tab → 1 kolom */
       .fg-form-grid { grid-template-columns: 1fr !important; }
-      /* Slider header: timestamp verbergen, niet wrappen */
       .slider-ts { display: none; }
-      /* Fotograaf+datum row: wrappen op 2 regels */
       .fotograaf-row { flex-wrap: wrap; }
       .fotograaf-row .fotograaf-input { min-width: 0; width: 100%; }
-      /* Fotografen kaart: pagina-knop volle breedte */
       .fg-btn-accent { width: 100%; justify-content: center; padding: 0.55rem; font-size: 0.85rem; }
-      /* Abonnees kaarten al 1-kolom via eigen media query */
-      .ab-card { padding: 1rem; }
-      /* Foto-thumb iets kleiner */
-      .foto-thumb { width: 85px; height: 57px; }
+      .ab-card { padding: 0.8rem; }
+      .foto-thumb { width: 75px; height: 50px; }
+    }
+
+    /* ── KLEIN MOBIEL (≤400px) ── */
+    @media (max-width: 400px) {
+      .admin-header h1 { font-size: 0.78rem; }
+      .btn { padding: 0.35rem 0.5rem; font-size: 0.68rem; }
     }
 
     /* ── LIGHT MODE ─────────────────────────────────────────────────────── */
