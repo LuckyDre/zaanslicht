@@ -40,14 +40,15 @@
 
     /* HEADER */
     .admin-header {
-      background: var(--grijs); padding: 1rem 2rem;
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      background: var(--grijs); padding: 0.75rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
       border-bottom: 2px solid var(--oranje);
-      position: sticky; top: 0; z-index: 100; flex-wrap: wrap;
+      position: sticky; top: 0; z-index: 100; min-width: 0;
     }
-    .admin-header h1 { font-size: 1.2rem; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+    .admin-header h1 { font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; }
     .admin-header h1 span { color: var(--oranje); }
-    .header-btns { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+    .header-btns { display: flex; gap: 0.4rem; align-items: center; flex-shrink: 0; overflow: hidden; }
+    .header-label { display: inline; }   /* verberg tekst op kleine schermen */
 
     /* STATUS BADGE */
     .badge {
