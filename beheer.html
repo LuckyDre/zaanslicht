@@ -1570,6 +1570,47 @@ async function fgToggleBlokkeer(id) {
   } catch(e) { alert('Fout: ' + e.message); }
 }
 
+async function fgToggleLoginLog(id) {
+  const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
+  const secret = localStorage.getItem('zl_worker_secret');
+  const paneel = document.getElementById('fg-loginlog-' + id);
+  if (!paneel) return;
+
+  if (paneel.style.display !== 'none') { paneel.style.display = 'none'; return; }
+  paneel.style.display = 'block';
+  paneel.innerHTML = '<p style="font-size:0.75rem;color:#555">Laden…</p>';
+
+  try {
+    const res  = await fetch(url + '/fotograaf/loginlog?id=' + id, { headers: { 'X-Worker-Secret': secret } });
+    const data = await res.json();
+    const log  = data.log || [];
+
+    if (!log.length) {
+      paneel.innerHTML = '<p style="font-size:0.75rem;color:#555;font-style:italic">Nog geen inlogmomenten geregistreerd.</p>';
+      return;
+    }
+
+    paneel.innerHTML = `
+      <div style="font-size:0.7rem;letter-spacing:1px;text-transform:uppercase;color:#555;margin-bottom:0.5rem">
+        Inloggeschiedenis — laatste ${log.length} moment${log.length !== 1 ? 'en' : ''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.25rem">
+        ${log.map((ts, i) => {
+          const d     = new Date(ts);
+          const datum = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+          const tijd  = d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+          const isNu  = i === 0;
+          return `<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.78rem;color:${isNu ? '#22c55e' : '#666'}">
+            <span style="width:6px;height:6px;border-radius:50%;background:${isNu ? '#22c55e' : '#333'};flex-shrink:0"></span>
+            ${datum} om ${tijd}${isNu ? ' <span style="font-size:0.65rem;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);padding:0.05rem 0.4rem;border-radius:100px">meest recent</span>' : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+  } catch(e) {
+    paneel.innerHTML = `<p style="font-size:0.75rem;color:#ef4444">Fout: ${e.message}</p>`;
+  }
+}
+
 async function fgToggleMappen(id) {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
