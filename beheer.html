@@ -1234,9 +1234,16 @@ async function fgLaadLijst() {
           <button onclick="fgToggleMappen('${fg.id}')" class="fg-btn">
             📁 Mappen
           </button>
+          <button onclick="fgToggleLoginLog('${fg.id}')" class="fg-btn">
+            🕐 Logins
+          </button>
           <button onclick="fgVerwijder('${fg.id}','${escB(fg.naam)}')" class="fg-btn fg-btn-danger">
             🗑 Verwijder
           </button>
+        </div>
+        <!-- Uitklapbaar loginlog-paneel -->
+        <div id="fg-loginlog-${fg.id}" style="display:none;border-top:1px solid #2a2a2a;padding:0.8rem 1.2rem;background:#151515">
+          <p style="font-size:0.75rem;color:#555">Laden…</p>
         </div>
         <!-- Uitklapbaar mappen-paneel -->
         <div id="fg-mappen-${fg.id}" style="display:none;border-top:1px solid #2a2a2a;padding:0.8rem 1.2rem;background:#151515">
