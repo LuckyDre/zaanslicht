@@ -432,6 +432,7 @@ async function handleFotograafRegister(request, env) {
   const account      = { id, naam: invite.naam, email: invite.email, kleur: kleur || '#3b82f6', passwordHash, ts: now, last_login: now };
 
   await env.SUBSCRIBERS.put('fotograaf:account:' + id, JSON.stringify(account));
+  await env.SUBSCRIBERS.put('fotograaf:loginlog:' + id, JSON.stringify([now]));
   await env.SUBSCRIBERS.delete('fotograaf:invite:' + inviteToken);
 
   const sessieToken = randomToken();
