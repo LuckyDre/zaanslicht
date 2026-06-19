@@ -521,6 +521,13 @@ async function handleFotograafLogin(request, env) {
   found.last_login = Date.now();
   await env.SUBSCRIBERS.put('fotograaf:account:' + found.id, JSON.stringify(found));
 
+  // Loginlog bijhouden (max 25 entries, nieuwste eerst)
+  const logRaw   = await env.SUBSCRIBERS.get('fotograaf:loginlog:' + found.id);
+  const loginLog = logRaw ? JSON.parse(logRaw) : [];
+  loginLog.unshift(Date.now());
+  if (loginLog.length > 25) loginLog.length = 25;
+  await env.SUBSCRIBERS.put('fotograaf:loginlog:' + found.id, JSON.stringify(loginLog));
+
   const sessieToken = randomToken();
   await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, found.id, { expirationTtl: 30 * 24 * 3600 });
 
