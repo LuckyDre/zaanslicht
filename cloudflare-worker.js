@@ -645,16 +645,18 @@ async function handleFotosLijst(request, env) {
   const verborgenMappen = verborgenMappenRaw ? JSON.parse(verborgenMappenRaw) : [];
   const verborgenFotos  = verborgenFotosRaw  ? JSON.parse(verborgenFotosRaw)  : [];
 
+  const isAdmin = requireSecret(request, env);
+
   const fotos = lijst.objects
-    .filter(o => !verborgenFotos.includes(o.key))
-    .filter(o => !verborgenMappen.some(m => o.key.includes(`/${encodeURIComponent(m)}/`) || o.key.includes(`/${m}/`)))
+    .filter(o => isAdmin || !verborgenFotos.includes(o.key))
+    .filter(o => isAdmin || !verborgenMappen.some(m => o.key.includes(`/${encodeURIComponent(m)}/`) || o.key.includes(`/${m}/`)))
     .map(o => ({
       key:  o.key,
       naam: o.key.split('/').pop(),
       ts:   o.uploaded?.getTime() || 0,
     }));
 
-  return json({ fotos });
+  return json({ fotos, verborgenMappen, verborgenFotos });
 }
 
 // ── MANIFEST VOOR GASTFOTOGRAFEN ───────────────────────────────────────────
