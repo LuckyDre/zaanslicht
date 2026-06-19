@@ -1436,6 +1436,7 @@ export default {
     if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
     if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return handleFotograafManifest(request, env);
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
+    if (url.pathname === '/fotograaf/loginlog'    && request.method === 'GET')  return handleLoginLog(request, env);
     if (url.pathname === '/admin/map-verwijderen'  && request.method === 'POST') return handleAdminMapVerwijderen(request, env);
     if (url.pathname === '/admin/foto-verwijderen' && request.method === 'POST') return handleAdminFotoVerwijderen(request, env);
     if (url.pathname === '/fotograaf/verwijderen' && request.method === 'POST') return handleFotograafVerwijderen(request, env);
