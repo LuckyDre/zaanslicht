@@ -40,19 +40,21 @@
   button { font-family: var(--font); cursor: pointer; }
 
   /* ── HEADER ── */
+  html { overflow-x: clip; }
   header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1.2rem 3rem;
+    padding: 0.7rem 1.5rem;
     border-bottom: 1px solid var(--border);
-    background: rgba(8,8,8,0.9);
-    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,8,8,0.95);
+    position: sticky; top: 0; z-index: 100; gap: 1rem; min-width: 0;
   }
   .logo {
-    display: flex; align-items: center; gap: 0.6rem;
-    font-size: 3.2rem; font-weight: 800;
+    display: flex; align-items: center; gap: 0.5rem;
+    font-size: 1.1rem; font-weight: 800;
     letter-spacing: 2px; text-transform: uppercase; color: var(--accent);
+    flex-shrink: 0;
   }
-  .logo-img { display:inline-block; width:80px; height:80px; flex-shrink:0; background-color:var(--accent,#FF6B00); -webkit-mask:url('images/logo-oranje.png') center/contain no-repeat; mask:url('images/logo-oranje.png') center/contain no-repeat; transition:background-color .4s ease; vertical-align:middle; }
+  .logo-img { display:inline-block; width:32px; height:32px; flex-shrink:0; background-color:var(--accent,#FF6B00); -webkit-mask:url('images/logo-oranje.png') center/contain no-repeat; mask:url('images/logo-oranje.png') center/contain no-repeat; transition:background-color .4s ease; vertical-align:middle; }
   .logo span { color: var(--accent); }
 
   /* ── MAIN ── */
