@@ -2054,6 +2054,16 @@ async function abVerstuur() {
 }
 
 // ── ONLINE FOTOGRAFEN (realtime presence) ────────────────────────────────
+window._onlineFg = {}; // id → { naam, kleur, sinds }
+
+function updateKaartPresence() {
+  document.querySelectorAll('[data-fg-presence]').forEach(el => {
+    const id = el.dataset.fgPresence;
+    const online = !!window._onlineFg[id];
+    el.style.display = online ? 'inline-flex' : 'none';
+  });
+}
+
 function startPresenceWatcher() {
   const db = window._fbdb;
   if (!db) return;
@@ -2061,18 +2071,24 @@ function startPresenceWatcher() {
 
   db.ref('online').on('value', snap => {
     const data = snap.val() || {};
+    window._onlineFg = data;
     const fotografen = Object.values(data);
-    if (!fotografen.length) { bar.innerHTML = ''; return; }
 
-    bar.innerHTML = fotografen.map(f => {
-      const kleur = f.kleur || '#FF6B00';
-      const mins  = f.sinds ? Math.floor((Date.now() - f.sinds) / 60000) : null;
-      const tijd  = mins === null ? '' : mins < 1 ? ' · nu actief' : ` · ${mins} min`;
-      return `<span class="online-chip" title="Online in fotograaf-portaal">
-        <span class="online-dot" style="background:${kleur}"></span>
-        ${f.naam}${tijd}
-      </span>`;
-    }).join('');
+    if (!fotografen.length) {
+      bar.innerHTML = '';
+    } else {
+      bar.innerHTML = fotografen.map(f => {
+        const kleur = f.kleur || '#FF6B00';
+        const mins  = f.sinds ? Math.floor((Date.now() - f.sinds) / 60000) : null;
+        const tijd  = mins === null ? '' : mins < 1 ? ' · nu actief' : ` · ${mins} min`;
+        return `<span class="online-chip" title="Online in fotograaf-portaal">
+          <span class="online-dot" style="background:${kleur}"></span>
+          ${f.naam}${tijd}
+        </span>`;
+      }).join('');
+    }
+
+    updateKaartPresence();
   });
 }
 
