@@ -672,6 +672,17 @@
 
 <script>
 const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+function toggleTheme() {
+  const light = document.documentElement.classList.toggle('light-mode');
+  localStorage.setItem('zl_theme', light ? 'light' : 'dark');
+  const btn = document.getElementById('btn-theme');
+  if (btn) btn.textContent = light ? '🌙' : '☀️';
+}
+(function() {
+  const btn = document.getElementById('btn-theme');
+  if (btn && document.documentElement.classList.contains('light-mode')) btn.textContent = '🌙';
+})();
 const params = new URLSearchParams(window.location.search);
 const inviteToken = params.get('invite');
 
