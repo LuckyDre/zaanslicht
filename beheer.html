@@ -674,6 +674,19 @@ async function doLogin() {
   }
 }
 
+function toggleTheme() {
+  const light = document.documentElement.classList.toggle('light-mode');
+  localStorage.setItem('zl_theme', light ? 'light' : 'dark');
+  const btn = document.getElementById('btn-theme');
+  if (btn) btn.textContent = light ? '🌙' : '☀️';
+}
+
+// Zet knop-icoon correct na paginalaad
+(function() {
+  const btn = document.getElementById('btn-theme');
+  if (btn && document.documentElement.classList.contains('light-mode')) btn.textContent = '🌙';
+})();
+
 function doLogout() {
   if (dirty && !confirm('Er zijn nog wijzigingen die worden opgeslagen. Toch uitloggen?')) return;
   localStorage.removeItem('zl_token');
