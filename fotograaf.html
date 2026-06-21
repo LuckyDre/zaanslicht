@@ -471,6 +471,16 @@
     transition: all 0.15s;
   }
   .map-verwijder-btn:hover { background: rgba(239,68,68,0.1); border-color: #ef4444; }
+  .map-verberg-btn {
+    background: none; border: 1px solid #444; color: #888;
+    border-radius: 6px; padding: 0.3rem 0.7rem; font-size: 0.75rem; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .map-verberg-btn:hover { border-color: #aaa; color: #ccc; }
+  .map-verberg-btn.verborgen { border-color: #FF6B00; color: #FF6B00; }
+  .map-verberg-btn.verborgen:hover { background: rgba(255,107,0,0.1); }
+  .verborgen-serie .map-naam { opacity: 0.5; }
+  .verborgen-serie .map-meta::after { content: ' · verborgen voor bezoekers'; color: #FF6B00; font-style: italic; }
 
   /* GROEPEN */
   .map-groep { margin-bottom: 1.5rem; }
