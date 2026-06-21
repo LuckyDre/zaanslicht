@@ -40,8 +40,8 @@ def upload_thumb(lokaal, r2_key):
 def main():
     # Haal lijst op van alle foto's
     print('Foto-lijst ophalen...')
-    with urllib.request.urlopen(f'{WORKER_URL}/fotograaf/fotos?id=5aaa4a798ac6fc01', timeout=15) as r:
-        data = json.loads(r.read())
+    r = subprocess.run(['curl', '-sL', f'{WORKER_URL}/fotograaf/fotos?id=5aaa4a798ac6fc01'], capture_output=True)
+    data = json.loads(r.stdout)
 
     fotos = [f for f in data.get('fotos', []) if 'profiel' not in f['key']]
     print(f'{len(fotos)} foto\'s gevonden\n')
