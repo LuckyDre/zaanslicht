@@ -593,8 +593,14 @@ async function handleFotoUpload(request, env) {
   try { labels = JSON.parse(labelsRaw).slice(0, 10); } catch {}
 
   if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
-  if (file.type !== 'image/webp') return json({ error: 'Alleen WebP-bestanden worden opgeslagen. Converteer eerst naar WebP.' }, 400);
   if (file.size > 15 * 1024 * 1024) return json({ error: 'Bestand te groot (max 15MB)' }, 400);
+
+  // Controleer magic bytes: WebP = RIFF....WEBP (bytes 0-3 en 8-11)
+  const header = await file.slice(0, 12).arrayBuffer();
+  const b = new Uint8Array(header);
+  const isWebP = b[0]===0x52&&b[1]===0x49&&b[2]===0x46&&b[3]===0x46&&
+                 b[8]===0x57&&b[9]===0x45&&b[10]===0x42&&b[11]===0x50;
+  if (!isWebP) return json({ error: 'Alleen WebP-bestanden worden opgeslagen. Converteer eerst naar WebP.' }, 400);
 
   // Bestandsnaam altijd als .webp opslaan
   const basisNaam  = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
