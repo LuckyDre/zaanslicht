@@ -1703,6 +1703,10 @@ async function laadMappenTab() {
     const manifestData = await manifestRes.json();
     const fotosData    = await fotosRes.json();
 
+    const verborgenRes = await fetch(WORKER + '/fotograaf/verborgen-eigen', { headers: { 'X-Fotograaf-Token': sessie.token } });
+    const verborgenData = verborgenRes.ok ? await verborgenRes.json() : {};
+    const verborgenSet = new Set(verborgenData.verborgenMappen || []);
+
     const fg = (manifestData.fotografen || []).find(f => f.id === sessie.id);
     _mappenData = fg?.mappen || [];
 
