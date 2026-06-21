@@ -1787,8 +1787,11 @@ async function laadMappenTab() {
       li.dataset.categorie = m.categorie;
       li.dataset.ts = m.ts || 0;
 
+      const escMap = m.map.replace(/'/g, "\\'").replace(/"/g, '&quot;');
       li.innerHTML = `
         <div class="map-header">
+          <input type="checkbox" class="map-checkbox" data-map="${m.map.replace(/"/g,'&quot;')}"
+            onclick="event.stopPropagation();fgToggleMapSelectie(this)" title="Selecteer serie" />
           <span class="map-drag-handle" title="Sleep om te sorteren">⠿</span>
           ${thumbSrc
             ? `<img class="map-thumb" src="${thumbSrc}" alt="" />`
