@@ -612,9 +612,15 @@ async function handleFotoUpload(request, env) {
     customMetadata: { fotograafId: fotograaf.id, fotograafNaam: fotograaf.naam, map, categorie },
   });
 
-  // Thumbnail opslaan als die meegezonden is
+  // Thumbnail opslaan als die meegezonden is (en ook echt WebP is)
   const thumb = formData.get('thumbnail');
-  if (thumb && thumb.type === 'image/webp') {
+  if (thumb && thumb.size > 0) {
+    const th = await thumb.slice(0, 12).arrayBuffer();
+    const tb = new Uint8Array(th);
+    if (!(tb[0]===0x52&&tb[1]===0x49&&tb[2]===0x46&&tb[3]===0x46&&
+          tb[8]===0x57&&tb[9]===0x45&&tb[10]===0x42&&tb[11]===0x50)) {
+      // Ongeldige thumbnail, doorgaan zonder
+    } else
     const thumbKey = 'thumbs/' + r2Key.replace(/\.[^.]+$/, '-thumb.webp');
     await env.FOTOS.put(thumbKey, thumb.stream(), {
       httpMetadata: { contentType: 'image/webp' },
