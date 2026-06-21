@@ -1032,21 +1032,12 @@ async function toonDashboard(nieuwAangemeld = false) {
               </div>
             </div>
           </div>
-          <!-- Omzet-optie -->
-          <label style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;cursor:pointer;text-transform:none;letter-spacing:0;font-size:0.83rem;color:var(--muted);font-weight:400">
-            <input type="checkbox" id="auto-convert" style="width:auto;accent-color:var(--accent)" />
-            JPG automatisch omzetten naar WebP in de browser
-            <div class="help-wrap">
-              <span class="help-btn">?</span>
-              <div class="help-tip">Als je dit aanvinkt, worden JPG-bestanden vóór het uploaden gratis omgezet naar WebP. WebP is kleiner en laadt sneller op de site. De originele JPG blijft op jouw computer staan.</div>
-            </div>
-          </label>
         </div>
         <div class="upload-zone" id="upload-zone">
-          <input type="file" id="file-input" accept=".webp,.jpg,.jpeg,image/webp,image/jpeg" multiple />
+          <input type="file" id="file-input" accept="image/*,.jpg,.jpeg,.png,.webp,.JPG,.JPEG,.PNG,.WEBP" multiple />
           <div class="uz-icon">📷</div>
-          <div class="uz-titel">Sleep WebP of JPG foto's hierheen</div>
-          <div class="uz-sub">of klik om bestanden te kiezen · max 15MB per foto</div>
+          <div class="uz-titel">Sleep foto's hierheen</div>
+          <div class="uz-sub">JPG · PNG · WebP — worden automatisch omgezet · max 15MB per foto</div>
         </div>
         <div class="upload-queue" id="upload-queue"></div>
         <button class="btn btn-primary" id="upload-btn" onclick="startUpload()" style="display:none;margin-top:1rem">
