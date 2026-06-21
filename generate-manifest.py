@@ -37,8 +37,8 @@ def scan(category):
         if not d.is_dir():
             continue
 
-        # Alle webp bestanden in deze map
-        all_fotos = set(f.name for f in d.iterdir() if f.suffix.lower() == '.webp')
+        # Alle webp bestanden in deze map (thumbnails uitsluiten)
+        all_fotos = set(f.name for f in d.iterdir() if f.suffix.lower() == '.webp' and not f.stem.endswith('-thumb'))
         if not all_fotos:
             continue
 
