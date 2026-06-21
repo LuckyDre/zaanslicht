@@ -2821,6 +2821,20 @@ async function bhSlaMapLabelsOp(key, labels, url, mapNaam, secret, cardEl) {
 }
 </script>
 
+<!-- Facebook deel-modal -->
+<div id="fb-deel-overlay" onclick="if(event.target===this)sluitFbModal()">
+  <div id="fb-deel-box">
+    <h3>🇫 Delen op Facebook</h3>
+    <textarea id="fb-deel-tekst" spellcheck="false"></textarea>
+    <div class="fb-deel-acties">
+      <button class="btn" onclick="kopieerEnOpenFb()" style="background:var(--oranje);color:#fff;border-color:var(--oranje)">
+        📋 Kopieer &amp; open Facebook
+      </button>
+      <button class="btn btn-dim" onclick="sluitFbModal()">Annuleren</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase wordt lazy geladen bij eerste klik op Reacties-tabblad -->
 </body>
 </html>
