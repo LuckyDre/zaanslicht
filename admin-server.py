@@ -8,11 +8,13 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 import subprocess, json, os, sys
 from pathlib import Path
 
-SITE   = Path(__file__).parent
-PORT   = 8765
-SIPS   = '/usr/bin/sips'
-CWEBP  = '/opt/homebrew/bin/cwebp'
-GIT    = '/usr/bin/git'
+SITE      = Path(__file__).parent
+PORT      = 8765
+SIPS      = '/usr/bin/sips'
+CWEBP     = '/opt/homebrew/bin/cwebp'
+GIT       = '/usr/bin/git'
+THUMB_W   = 400
+THUMB_Q   = 72
 
 class AdminHandler(SimpleHTTPRequestHandler):
 
