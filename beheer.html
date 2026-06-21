@@ -295,6 +295,13 @@
     #fb-deel-tekst:focus { border-color: var(--oranje); }
     .fb-deel-acties { display: flex; gap: 0.6rem; flex-wrap: wrap; }
     .fb-deel-acties button { flex: 1; min-width: 120px; }
+    #fb-foto-grid { display: flex; flex-wrap: wrap; gap: 6px; max-height: 180px; overflow-y: auto; }
+    .fb-foto-item { position: relative; width: 80px; height: 56px; border-radius: 4px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0; }
+    .fb-foto-item:hover { border-color: #666; }
+    .fb-foto-item.geselecteerd { border-color: var(--oranje); }
+    .fb-foto-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; display: block; }
+    .fb-foto-check { position: absolute; top: 2px; right: 2px; background: var(--oranje); color: #fff; font-size: 0.6rem; font-weight: 700; border-radius: 50%; width: 16px; height: 16px; display: none; align-items: center; justify-content: center; }
+    .fb-foto-item.geselecteerd .fb-foto-check { display: flex; }
 
     /* ── LIGHT MODE ─────────────────────────────────────────────────────── */
     html.light-mode {
