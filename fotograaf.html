@@ -2062,6 +2062,201 @@ window.toggleMapVerborg = async function(mapNaam, btn) {
   btn.disabled = false;
 };
 
+// ── BULK SELECTIE ──────────────────────────────────────────────────────────
+const _selMappen = new Set();
+const _selFotos  = new Map(); // mapNaam → Set<key>
+
+function fgUpdateBulkBalk() {
+  const balk = document.getElementById('fg-bulk-balk');
+  const tel  = document.getElementById('fg-bulk-tel');
+  const fotoTotaal = [..._selFotos.values()].reduce((a, s) => a + s.size, 0);
+  const mapAantal  = _selMappen.size;
+
+  if (mapAantal > 0) {
+    tel.textContent = `${mapAantal} serie${mapAantal !== 1 ? 's' : ''} geselecteerd`;
+    document.getElementById('fg-bulk-verberg').style.display = '';
+    document.getElementById('fg-bulk-toon').style.display = 'none';
+    document.getElementById('fg-bulk-del').style.display = '';
+    balk.classList.add('actief');
+  } else if (fotoTotaal > 0) {
+    tel.textContent = `${fotoTotaal} foto${fotoTotaal !== 1 ? "'s" : ''} geselecteerd`;
+    document.getElementById('fg-bulk-verberg').style.display = 'none';
+    document.getElementById('fg-bulk-toon').style.display = 'none';
+    document.getElementById('fg-bulk-del').style.display = '';
+    balk.classList.add('actief');
+  } else {
+    balk.classList.remove('actief');
+  }
+}
+
+window.fgToggleMapSelectie = function(cb) {
+  const mapNaam = cb.dataset.map;
+  if (cb.checked) _selMappen.add(mapNaam);
+  else _selMappen.delete(mapNaam);
+  cb.closest('.map-item').classList.toggle('geselecteerd', cb.checked);
+  fgUpdateBulkBalk();
+};
+
+window.fgSelecteerAlleMappen = function(categorie) {
+  const lijst = document.querySelector(`.map-groep-lijst[data-categorie="${categorie}"]`);
+  if (!lijst) return;
+  const cbs = lijst.querySelectorAll('.map-checkbox');
+  const alleAan = [...cbs].every(c => c.checked);
+  cbs.forEach(c => {
+    c.checked = !alleAan;
+    const naam = c.dataset.map;
+    if (!alleAan) _selMappen.add(naam); else _selMappen.delete(naam);
+    c.closest('.map-item').classList.toggle('geselecteerd', !alleAan);
+  });
+  fgUpdateBulkBalk();
+};
+
+window.fgToggleFotoSelectie = function(cb, mapNaam) {
+  const key = cb.dataset.key;
+  if (!_selFotos.has(mapNaam)) _selFotos.set(mapNaam, new Set());
+  const set = _selFotos.get(mapNaam);
+  if (cb.checked) set.add(key); else set.delete(key);
+  if (set.size === 0) _selFotos.delete(mapNaam);
+  cb.closest('.foto-chip').classList.toggle('geselecteerd', cb.checked);
+  // Teller in paneel bijwerken
+  const paneel = cb.closest('.map-fotos-paneel');
+  if (paneel) {
+    const n = paneel.querySelectorAll('.foto-chip-check:checked').length;
+    const telEl = paneel.querySelector('.foto-selectie-tel');
+    if (telEl) telEl.textContent = n > 0 ? `${n} geselecteerd` : '';
+  }
+  fgUpdateBulkBalk();
+};
+
+window.fgSelecteerAlleFotos = function(mapNaam, btn) {
+  const paneel = btn.closest('.map-fotos-paneel');
+  const cbs = paneel.querySelectorAll('.foto-chip-check');
+  const alleAan = [...cbs].every(c => c.checked);
+  if (!_selFotos.has(mapNaam)) _selFotos.set(mapNaam, new Set());
+  const set = _selFotos.get(mapNaam);
+  cbs.forEach(c => {
+    c.checked = !alleAan;
+    if (!alleAan) set.add(c.dataset.key); else set.delete(c.dataset.key);
+    c.closest('.foto-chip').classList.toggle('geselecteerd', !alleAan);
+  });
+  if (set.size === 0) _selFotos.delete(mapNaam);
+  const n = alleAan ? 0 : cbs.length;
+  const telEl = paneel.querySelector('.foto-selectie-tel');
+  if (telEl) telEl.textContent = n > 0 ? `${n} geselecteerd` : '';
+  fgUpdateBulkBalk();
+};
+
+async function fgBulkVerberg() {
+  if (_selMappen.size === 0) return;
+  const s = haalSessieOp(); if (!s) return;
+  for (const mapNaam of _selMappen) {
+    await fetch(WORKER + '/fotograaf/eigen-verberg-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+      body: JSON.stringify({ map: mapNaam, verborgen: true }),
+    });
+    _updateVerbergUI(mapNaam, true);
+  }
+  fgBulkAnnuleer();
+}
+
+async function fgBulkToon() {
+  if (_selMappen.size === 0) return;
+  const s = haalSessieOp(); if (!s) return;
+  for (const mapNaam of _selMappen) {
+    await fetch(WORKER + '/fotograaf/eigen-verberg-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+      body: JSON.stringify({ map: mapNaam, verborgen: false }),
+    });
+    _updateVerbergUI(mapNaam, false);
+  }
+  fgBulkAnnuleer();
+}
+
+function _updateVerbergUI(mapNaam, verborgen) {
+  document.querySelectorAll('.map-item').forEach(el => {
+    if (el.dataset.map !== mapNaam) return;
+    el.classList.toggle('verborgen-serie', verborgen);
+    const btn = el.querySelector('.map-verberg-btn');
+    if (btn) {
+      btn.classList.toggle('verborgen', verborgen);
+      btn.textContent = verborgen ? '👁 Toon' : '🙈 Verberg';
+    }
+  });
+}
+
+async function fgBulkVerwijder() {
+  const s = haalSessieOp(); if (!s) return;
+
+  if (_selMappen.size > 0) {
+    const n = _selMappen.size;
+    if (!confirm(`${n} serie${n !== 1 ? 's' : ''} verwijderen inclusief alle foto's?\nDeze actie kan niet ongedaan worden gemaakt.`)) return;
+    for (const mapNaam of [..._selMappen]) {
+      await _verwijderMapStil(mapNaam, s);
+    }
+    fgBulkAnnuleer();
+    return;
+  }
+
+  const alleKeys = [];
+  for (const set of _selFotos.values()) for (const k of set) alleKeys.push(k);
+  if (alleKeys.length === 0) return;
+  if (!confirm(`${alleKeys.length} foto${alleKeys.length !== 1 ? "'s" : ''} verwijderen?\nDeze actie kan niet ongedaan worden gemaakt.`)) return;
+
+  for (const key of alleKeys) {
+    await fetch(WORKER + '/fotograaf/foto-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+      body: JSON.stringify({ key }),
+    });
+    document.querySelectorAll('.foto-chip').forEach(c => {
+      if (c.dataset.fotoKey === key) c.remove();
+    });
+  }
+  fgBulkAnnuleer();
+}
+
+async function _verwijderMapStil(mapNaam, s) {
+  const res  = await fetch(WORKER + '/fotograaf/fotos?id=' + s.id, { headers: { 'X-Fotograaf-Token': s.token } });
+  const data = await res.json();
+  const fotos = (data.fotos || []).filter(f => {
+    try { return decodeURIComponent(f.key).split('/')[3] === mapNaam; } catch { return false; }
+  });
+  for (const f of fotos) {
+    await fetch(WORKER + '/fotograaf/foto-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+      body: JSON.stringify({ key: f.key }),
+    });
+  }
+  const nieuweMappen = _mappenData.filter(m => m.map !== mapNaam);
+  await fetch(WORKER + '/fotograaf/mappen-volgorde', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+    body: JSON.stringify({ mappen: nieuweMappen }),
+  });
+  _mappenData = nieuweMappen;
+  document.querySelectorAll('.map-item').forEach(el => {
+    if (el.dataset.map === mapNaam) el.remove();
+  });
+}
+
+function fgBulkAnnuleer() {
+  _selMappen.clear();
+  _selFotos.clear();
+  document.querySelectorAll('.map-checkbox').forEach(c => {
+    c.checked = false;
+    c.closest('.map-item')?.classList.remove('geselecteerd');
+  });
+  document.querySelectorAll('.foto-chip-check').forEach(c => {
+    c.checked = false;
+    c.closest('.foto-chip')?.classList.remove('geselecteerd');
+  });
+  document.querySelectorAll('.foto-selectie-tel').forEach(el => el.textContent = '');
+  fgUpdateBulkBalk();
+}
+
 window.slaMappenVolgordeOp = async () => {
   const btn = document.getElementById('btn-volgorde-opslaan');
   const fb  = document.getElementById('volgorde-feedback');
