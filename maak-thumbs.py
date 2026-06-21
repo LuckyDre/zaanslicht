@@ -34,7 +34,14 @@ def main():
         cat_pad = SITE / 'images' / cat
         if not cat_pad.exists():
             continue
-        fotos = [f for f in cat_pad.rglob('*.webp') if '-thumb' not in f.stem]
+        # Zoek zowel lowercase als uppercase extensies (rglob is case-sensitive op macOS)
+        gevonden = set()
+        fotos = []
+        for ext in ['webp', 'WEBP']:
+            for f in cat_pad.rglob(f'*.{ext}'):
+                if '-thumb' not in f.stem and str(f) not in gevonden:
+                    gevonden.add(str(f))
+                    fotos.append(f)
         print(f'\n{cat}: {len(fotos)} foto\'s te verwerken')
         for i, f in enumerate(fotos, 1):
             if maak_thumb(f):
