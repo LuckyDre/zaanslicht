@@ -2819,6 +2819,46 @@ async function bhSlaMapLabelsOp(key, labels, url, mapNaam, secret, cardEl) {
     }
   } catch {}
 }
+
+// ── FACEBOOK DELEN ────────────────────────────────────────────────────────
+function deelOpFacebook(event, btn) {
+  event.stopPropagation();
+  const li       = btn.closest('.slider-item');
+  const naam     = li.querySelector('.slider-naam')?.value?.trim() || li.dataset.naam || li.dataset.map || '';
+  const beschr   = li.dataset.beschrijving?.trim() || '';
+  const fotograaf = li.dataset.fotograaf?.trim() || 'Andreas Luckfiel';
+  const datum    = li.dataset.datum || '';
+  const map      = li.dataset.map || '';
+  const anchor   = encodeURIComponent(map);
+
+  let tekst = `📸 Nieuwe fotoserie: ${naam}`;
+  if (datum) {
+    const d = new Date(datum);
+    const dag = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
+    tekst += `\n📅 ${dag}`;
+  }
+  tekst += '\n';
+  if (beschr) tekst += `\n${beschr}\n`;
+  tekst += `\nBekijk de foto's op zaanslicht.com 👇\nhttps://zaanslicht.com/#serie=${anchor}`;
+  tekst += `\n\n📷 Foto's: ${fotograaf}`;
+  tekst += '\n#zaanslicht #voetbalfotografie #zaanstreek';
+
+  document.getElementById('fb-deel-tekst').value = tekst;
+  document.getElementById('fb-deel-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('fb-deel-tekst').focus(), 50);
+}
+
+function sluitFbModal() {
+  document.getElementById('fb-deel-overlay').classList.remove('open');
+}
+
+async function kopieerEnOpenFb() {
+  const tekst = document.getElementById('fb-deel-tekst').value;
+  try { await navigator.clipboard.writeText(tekst); } catch {}
+  window.open('https://www.facebook.com/', '_blank');
+  sluitFbModal();
+  setLog('✓ Tekst gekopieerd — plak hem in je Facebook-bericht', 'success');
+}
 </script>
 
 <!-- Facebook deel-modal -->
