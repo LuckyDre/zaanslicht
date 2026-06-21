@@ -482,6 +482,42 @@
   .verborgen-serie .map-naam { opacity: 0.5; }
   .verborgen-serie .map-meta::after { content: ' · verborgen voor bezoekers'; color: #FF6B00; font-style: italic; }
 
+  /* Bulk selectie */
+  .map-checkbox {
+    width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0;
+  }
+  .map-item.geselecteerd { border-color: var(--accent) !important; background: rgba(255,107,0,0.06); }
+  .groep-selecteer-btn {
+    background: none; border: 1px solid #444; color: #888; border-radius: 5px;
+    padding: 0.2rem 0.6rem; font-size: 0.72rem; cursor: pointer; transition: all 0.15s;
+  }
+  .groep-selecteer-btn:hover { border-color: #aaa; color: #ccc; }
+  .foto-chip-check {
+    position: absolute; top: 3px; left: 3px; width: 14px; height: 14px;
+    z-index: 25; accent-color: var(--accent); cursor: pointer;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .foto-chip:hover .foto-chip-check,
+  .foto-chip.geselecteerd .foto-chip-check { opacity: 1; }
+  .foto-chip.geselecteerd { border-color: var(--accent); }
+  #fg-bulk-balk {
+    position: fixed; bottom: 0; left: 0; right: 0; background: #1c1c1c;
+    border-top: 2px solid var(--accent); padding: 0.8rem 1.5rem;
+    display: none; align-items: center; gap: 0.75rem; z-index: 400;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+  }
+  #fg-bulk-balk.actief { display: flex; }
+  .bulk-btn {
+    background: none; border: 1px solid #555; color: #ccc;
+    border-radius: 6px; padding: 0.45rem 1rem; font-size: 0.82rem;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .bulk-btn:hover { border-color: #aaa; color: #fff; }
+  .bulk-btn.bulk-verwijder { border-color: rgba(239,68,68,0.5); color: #ef4444; }
+  .bulk-btn.bulk-verwijder:hover { background: rgba(239,68,68,0.1); border-color: #ef4444; }
+  .bulk-btn.bulk-verberg { border-color: var(--accent); color: var(--accent); }
+  .bulk-btn.bulk-annuleer { border-color: #333; color: #666; }
+
   /* GROEPEN */
   .map-groep { margin-bottom: 1.5rem; }
   .map-groep-header {
