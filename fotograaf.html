@@ -1875,6 +1875,7 @@ async function laadMappenTab() {
         <div class="map-groep-header">
           <span>${groep.label}</span>
           <span class="map-groep-teller">${mappen.length} map${mappen.length !== 1 ? 'pen' : ''}</span>
+          <button class="groep-selecteer-btn" onclick="fgSelecteerAlleMappen('${groep.categorie}')">Selecteer alles</button>
         </div>
         <div class="map-groep-lijst" data-categorie="${groep.categorie}"></div>`;
 
