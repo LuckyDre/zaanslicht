@@ -2968,6 +2968,95 @@ async function downloadGeselecteerdeFotos() {
   }
   setLog(`✓ ${items.length} foto('s) gedownload`, 'success');
 }
+
+// ── BULK SELECTIE EIGEN SLIDERS ────────────────────────────────────────────
+const _bhSel = new Set(); // "cat::mapNaam"
+
+function bhUpdateBulkBalk() {
+  const balk = document.getElementById('bh-bulk-balk');
+  const tel  = document.getElementById('bh-bulk-tel');
+  if (_bhSel.size > 0) {
+    tel.textContent = `${_bhSel.size} serie${_bhSel.size !== 1 ? 's' : ''} geselecteerd`;
+    balk.classList.add('actief');
+  } else {
+    balk.classList.remove('actief');
+  }
+}
+
+function bhToggleSelectie(cb) {
+  const key = cb.dataset.cat + '::' + cb.dataset.map;
+  if (cb.checked) _bhSel.add(key);
+  else _bhSel.delete(key);
+  cb.closest('.slider-item').classList.toggle('geselecteerd', cb.checked);
+  bhUpdateBulkBalk();
+}
+
+function bhSelecteerAlle(cat) {
+  const lijst  = document.getElementById('lijst-' + cat);
+  const cbs    = lijst.querySelectorAll('.slider-checkbox');
+  const alleAan = [...cbs].every(c => c.checked);
+  const btn = document.getElementById('sel-alle-' + cat);
+  cbs.forEach(c => {
+    c.checked = !alleAan;
+    const key = c.dataset.cat + '::' + c.dataset.map;
+    if (!alleAan) _bhSel.add(key); else _bhSel.delete(key);
+    c.closest('.slider-item').classList.toggle('geselecteerd', !alleAan);
+  });
+  if (btn) btn.textContent = (!alleAan ? '☑' : '☐') + ' Selecteer alles';
+  bhUpdateBulkBalk();
+}
+
+function bhBulkVerberg() {
+  if (_bhSel.size === 0) return;
+  for (const key of _bhSel) {
+    const [cat, mapNaam] = key.split('::');
+    const li = [...document.querySelectorAll(`.slider-item[data-cat="${cat}"]`)].find(el => el.dataset.map === mapNaam);
+    if (!li) continue;
+    const btn = li.querySelector('[onclick*="eigenToggleVerberg"]');
+    if (btn && btn.dataset.verborgen !== 'true') eigenToggleVerberg({ stopPropagation: () => {} }, btn);
+  }
+  bhBulkAnnuleer();
+}
+
+function bhBulkToon() {
+  if (_bhSel.size === 0) return;
+  for (const key of _bhSel) {
+    const [cat, mapNaam] = key.split('::');
+    const li = [...document.querySelectorAll(`.slider-item[data-cat="${cat}"]`)].find(el => el.dataset.map === mapNaam);
+    if (!li) continue;
+    const btn = li.querySelector('[onclick*="eigenToggleVerberg"]');
+    if (btn && btn.dataset.verborgen === 'true') eigenToggleVerberg({ stopPropagation: () => {} }, btn);
+  }
+  bhBulkAnnuleer();
+}
+
+function bhBulkVerwijder() {
+  if (_bhSel.size === 0) return;
+  const n = _bhSel.size;
+  if (!confirm(`${n} serie${n !== 1 ? 's' : ''} verwijderen uit de slider?\nDe foto's blijven bewaard op GitHub Pages.`)) return;
+  for (const key of [..._bhSel]) {
+    const [cat, mapNaam] = key.split('::');
+    manifest[cat] = (manifest[cat] || []).filter(x => x.map !== mapNaam);
+    const li = [...document.querySelectorAll(`.slider-item[data-cat="${cat}"]`)].find(el => el.dataset.map === mapNaam);
+    if (li) li.remove();
+  }
+  planSave();
+  setLog(`${n} serie${n !== 1 ? 's' : ''} verwijderd uit slider.`, 'success');
+  bhBulkAnnuleer();
+}
+
+function bhBulkAnnuleer() {
+  _bhSel.clear();
+  document.querySelectorAll('.slider-checkbox').forEach(c => {
+    c.checked = false;
+    c.closest('.slider-item')?.classList.remove('geselecteerd');
+  });
+  ['voetbal','nosports'].forEach(cat => {
+    const btn = document.getElementById('sel-alle-' + cat);
+    if (btn) btn.textContent = '☐ Selecteer alles';
+  });
+  bhUpdateBulkBalk();
+}
 </script>
 
 <!-- Facebook deel-modal -->
