@@ -1101,6 +1101,8 @@ function renderCategorie(cat) {
 
     li.innerHTML = `
       <div class="slider-header" onclick="toggleOpen(this)">
+        <input type="checkbox" class="slider-checkbox" data-map="${item.map.replace(/"/g,'&quot;')}" data-cat="${cat}"
+          onclick="event.stopPropagation();bhToggleSelectie(this)" title="Selecteer" />
         <span class="drag-handle" title="Sleep om te sorteren">⠿</span>
         <input type="text" class="slider-naam" value="${item.naam.replace(/"/g,'&quot;')}"
           style="flex:1;background:transparent;border:none;border-bottom:1px solid transparent;color:inherit;font-size:inherit;font-weight:600;outline:none;min-width:0;cursor:text"
