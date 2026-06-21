@@ -1820,10 +1820,16 @@ async function laadMappenTab() {
           </div>
         </div>
         <div class="map-fotos-paneel">
+          <div class="map-fotos-paneel-acties" style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem">
+            <button class="groep-selecteer-btn" onclick="fgSelecteerAlleFotos('${m.map.replace(/'/g,"\\'")}', this)">Selecteer alles</button>
+            <span class="foto-selectie-tel" style="font-size:0.75rem;color:#666"></span>
+          </div>
           <div class="map-fotos-grid"></div>
-          <button class="map-verwijder-btn" onclick="verwijderMap('${m.map.replace(/'/g,"\\'")}', ${fotos.length})">
-            🗑 ${isLeeg ? 'Lege map verwijderen' : 'Hele map verwijderen'}
-          </button>
+          <div style="display:flex;gap:0.6rem;margin-top:0.6rem;flex-wrap:wrap">
+            <button class="map-verwijder-btn" onclick="verwijderMap('${m.map.replace(/'/g,"\\'")}', ${fotos.length})">
+              🗑 ${isLeeg ? 'Lege map verwijderen' : 'Hele map verwijderen'}
+            </button>
+          </div>
         </div>`;
 
       const grid = li.querySelector('.map-fotos-grid');
@@ -1835,6 +1841,8 @@ async function laadMappenTab() {
         chip.title = naam;
         chip.dataset.fotoKey = f.key;
         chip.innerHTML = `
+          <input type="checkbox" class="foto-chip-check" data-key="${f.key.replace(/"/g,'&quot;')}"
+            onclick="event.stopPropagation();fgToggleFotoSelectie(this,'${m.map.replace(/'/g,"\\'")}')" />
           <div class="foto-chip-img">
             <img src="${WORKER}/foto/${f.key}" loading="lazy" alt="${naam}" />
           </div>
