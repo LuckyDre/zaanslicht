@@ -1992,6 +1992,28 @@ function actualiseerTellers() {
   });
 }
 
+window.toggleMapVerborg = async function(mapNaam, btn) {
+  const wordtVerborgen = !btn.classList.contains('verborgen');
+  const sessie = haalSessieOp();
+  if (!sessie) return;
+  btn.disabled = true;
+  try {
+    const r = await fetch(WORKER + '/fotograaf/eigen-verberg-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ map: mapNaam, verborgen: wordtVerborgen }),
+    });
+    if (!r.ok) throw new Error('Fout');
+    btn.classList.toggle('verborgen', wordtVerborgen);
+    btn.textContent = wordtVerborgen ? '👁 Toon' : '🙈 Verberg';
+    btn.title = wordtVerborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers';
+    btn.closest('.map-item').classList.toggle('verborgen-serie', wordtVerborgen);
+  } catch(e) {
+    alert('Kon status niet opslaan.');
+  }
+  btn.disabled = false;
+};
+
 window.slaMappenVolgordeOp = async () => {
   const btn = document.getElementById('btn-volgorde-opslaan');
   const fb  = document.getElementById('volgorde-feedback');
