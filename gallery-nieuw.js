@@ -364,6 +364,7 @@ async function laadGallery() {
     const alleSeries = [];
 
     for (const item of eigenItems) {
+      if (item.verborgen) continue;
       alleSeries.push({
         datum: item.datum || '',
         render: () => renderSerie(container, {
