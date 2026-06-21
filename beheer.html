@@ -3006,29 +3006,28 @@ function bhSelecteerAlle(cat) {
   bhUpdateBulkBalk();
 }
 
-function bhBulkVerberg() {
+function _bhSetVerborgen(wordtVerborgen) {
   if (_bhSel.size === 0) return;
   for (const key of _bhSel) {
     const [cat, mapNaam] = key.split('::');
-    const li = [...document.querySelectorAll(`.slider-item[data-cat="${cat}"]`)].find(el => el.dataset.map === mapNaam);
+    const li = [...document.querySelectorAll('.slider-item')].find(el => el.dataset.cat === cat && el.dataset.map === mapNaam);
     if (!li) continue;
-    const btn = li.querySelector('[onclick*="eigenToggleVerberg"]');
-    if (btn && btn.dataset.verborgen !== 'true') eigenToggleVerberg({ stopPropagation: () => {} }, btn);
+    li.dataset.verborgen = wordtVerborgen ? 'true' : 'false';
+    const btn = li.querySelector('[data-verborgen]');
+    if (btn) {
+      btn.dataset.verborgen = wordtVerborgen ? 'true' : 'false';
+      btn.textContent = wordtVerborgen ? '👁' : '🙈';
+      btn.title = wordtVerborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers';
+      btn.style.color = wordtVerborgen ? '#FF6B00' : '#555';
+    }
   }
+  planSave();
+  setLog(wordtVerborgen ? `${_bhSel.size} serie(s) verborgen.` : `${_bhSel.size} serie(s) weer zichtbaar.`, 'success');
   bhBulkAnnuleer();
 }
 
-function bhBulkToon() {
-  if (_bhSel.size === 0) return;
-  for (const key of _bhSel) {
-    const [cat, mapNaam] = key.split('::');
-    const li = [...document.querySelectorAll(`.slider-item[data-cat="${cat}"]`)].find(el => el.dataset.map === mapNaam);
-    if (!li) continue;
-    const btn = li.querySelector('[onclick*="eigenToggleVerberg"]');
-    if (btn && btn.dataset.verborgen === 'true') eigenToggleVerberg({ stopPropagation: () => {} }, btn);
-  }
-  bhBulkAnnuleer();
-}
+function bhBulkVerberg() { _bhSetVerborgen(true); }
+function bhBulkToon()    { _bhSetVerborgen(false); }
 
 function bhBulkVerwijder() {
   if (_bhSel.size === 0) return;
