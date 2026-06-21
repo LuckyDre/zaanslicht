@@ -650,6 +650,21 @@ let fileSHA  = '';
 let dirty    = false;
 let saveTimer = null;
 
+function sorteerOpDatum(cat) {
+  const lijst = document.getElementById('lijst-' + cat);
+  if (!lijst) return;
+  const items = Array.from(lijst.querySelectorAll('.slider-item'));
+  items.sort((a, b) => {
+    const da = a.dataset.datum || a.querySelector('input[type="date"]')?.value || '';
+    const db = b.dataset.datum || b.querySelector('input[type="date"]')?.value || '';
+    return db.localeCompare(da); // nieuwste eerst
+  });
+  items.forEach(el => lijst.appendChild(el));
+  planSave();
+  slaGastVolgordeOp(lijst);
+  setLog('✓ Volgorde gesorteerd op datum (nieuwste eerst)', 'success');
+}
+
 function planSave() {
   dirty = true;
   clearTimeout(saveTimer);
