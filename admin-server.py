@@ -75,7 +75,8 @@ class AdminHandler(SimpleHTTPRequestHandler):
     # ── CONVERTEREN ─────────────────────────────────────────────────────────
     def run_convert(self):
         converted, errors = [], []
-        tmp = '/tmp/zl_conv.jpg'
+        tmp      = '/tmp/zl_conv.jpg'
+        tmp_thumb = '/tmp/zl_thumb.webp'
 
         for ext in ['jpg', 'JPG', 'jpeg', 'JPEG']:
             for f in list(SITE.rglob(f'*.{ext}')):
@@ -86,6 +87,12 @@ class AdminHandler(SimpleHTTPRequestHandler):
                                    capture_output=True, check=True)
                     webp = f.with_suffix('.webp')
                     subprocess.run([CWEBP, '-q', '82', tmp, '-o', str(webp)],
+                                   capture_output=True, check=True)
+                    # Thumbnail aanmaken (400px breed, kwaliteit 72)
+                    thumb = webp.with_name(webp.stem + '-thumb.webp')
+                    subprocess.run([SIPS, '-Z', str(THUMB_W), str(f), '--out', tmp_thumb],
+                                   capture_output=True, check=True)
+                    subprocess.run([CWEBP, '-q', str(THUMB_Q), tmp_thumb, '-o', str(thumb)],
                                    capture_output=True, check=True)
                     f.unlink()
                     converted.append(f.name)
