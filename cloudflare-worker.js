@@ -1381,13 +1381,12 @@ async function handleFotoServe(request, env) {
   const key = url.pathname.replace('/foto/', '');
   if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
 
-  // Thumbnail ophalen als ?thumb=1 meegegeven
+  // Thumbnail ophalen als ?thumb=1 meegegeven; valt terug op origineel
   let object = null;
   if (url.searchParams.get('thumb') === '1') {
-    const thumbKey = 'thumbs/' + key.rsplit ? key.replace(/\.[^.]+$/, m => '-thumb.webp') : key.replace(/\.[^.]+$/, '-thumb.webp');
+    const thumbKey = 'thumbs/' + key.replace(/\.[^.]+$/, '-thumb.webp');
     object = await env.FOTOS.get(thumbKey);
   }
-  // Valt terug op origineel als thumbnail niet bestaat
   if (!object) object = await env.FOTOS.get(key);
   if (!object) return new Response('Niet gevonden', { status: 404 });
 
