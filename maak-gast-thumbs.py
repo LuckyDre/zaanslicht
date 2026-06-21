@@ -15,14 +15,6 @@ THUMB_Q    = 72
 TMP_IN     = '/tmp/gast_orig'
 TMP_OUT    = '/tmp/gast_thumb.webp'
 
-def wrangler_exists(key):
-    r = subprocess.run(
-        ['npx', 'wrangler', 'r2', 'object', 'get', BUCKET, key, '--file', '/tmp/zl_check', '--remote'],
-        capture_output=True, cwd=Path(__file__).parent
-    )
-    if os.path.exists('/tmp/zl_check'):
-        os.remove('/tmp/zl_check')
-    return r.returncode == 0
 
 def download(url, dest):
     r = subprocess.run(['curl', '-sL', '--max-time', '30', '-o', dest, url], capture_output=True)
