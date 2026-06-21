@@ -1819,7 +1819,7 @@ async function laadMappenTab() {
 
       const lijst = sectie.querySelector('.map-groep-lijst');
       for (const m of mappen) {
-        lijst.appendChild(maakMapItem(m, fotoPerMap[m.map] || []));
+        lijst.appendChild(maakMapItem(m, fotoPerMap[m.map] || [], verborgenSet));
       }
 
       if (mappen.length === 0) {
