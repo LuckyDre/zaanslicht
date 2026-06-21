@@ -6,10 +6,8 @@ Gebruik: python3 maak-thumbs.py
 from pathlib import Path
 import subprocess, sys
 
-SITE  = Path(__file__).parent
-SIPS  = '/usr/bin/sips'
-CWEBP = '/opt/homebrew/bin/cwebp'
-TMP   = '/tmp/zl_thumb_src.webp'
+SITE   = Path(__file__).parent
+MAGICK = '/opt/homebrew/bin/magick'
 
 THUMB_W   = 400
 THUMB_Q   = 72
@@ -20,10 +18,10 @@ def maak_thumb(src: Path) -> bool:
     if thumb.exists():
         return False  # al gedaan
     try:
-        subprocess.run([SIPS, '-Z', str(THUMB_W), str(src), '--out', TMP],
-                       capture_output=True, check=True)
-        subprocess.run([CWEBP, '-q', str(THUMB_Q), TMP, '-o', str(thumb)],
-                       capture_output=True, check=True)
+        subprocess.run(
+            [MAGICK, str(src), '-resize', f'{THUMB_W}x>', '-quality', str(THUMB_Q), str(thumb)],
+            capture_output=True, check=True
+        )
         return True
     except Exception as e:
         print(f'  ✗ {src.name}: {e}')

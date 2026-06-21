@@ -12,6 +12,7 @@ SITE      = Path(__file__).parent
 PORT      = 8765
 SIPS      = '/usr/bin/sips'
 CWEBP     = '/opt/homebrew/bin/cwebp'
+MAGICK    = '/opt/homebrew/bin/magick'
 GIT       = '/usr/bin/git'
 THUMB_W   = 400
 THUMB_Q   = 72
