@@ -89,12 +89,12 @@ class AdminHandler(SimpleHTTPRequestHandler):
                     webp = f.with_suffix('.webp')
                     subprocess.run([CWEBP, '-q', '82', tmp, '-o', str(webp)],
                                    capture_output=True, check=True)
-                    # Thumbnail aanmaken (400px breed, kwaliteit 72)
+                    # Thumbnail aanmaken via magick (400px breed, kwaliteit 72)
                     thumb = webp.with_name(webp.stem + '-thumb.webp')
-                    subprocess.run([SIPS, '-Z', str(THUMB_W), str(f), '--out', tmp_thumb],
-                                   capture_output=True, check=True)
-                    subprocess.run([CWEBP, '-q', str(THUMB_Q), tmp_thumb, '-o', str(thumb)],
-                                   capture_output=True, check=True)
+                    subprocess.run(
+                        [MAGICK, str(webp), '-resize', f'{THUMB_W}x>', '-quality', str(THUMB_Q), str(thumb)],
+                        capture_output=True, check=True
+                    )
                     f.unlink()
                     converted.append(f.name)
                 except Exception as e:
