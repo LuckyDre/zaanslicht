@@ -1,84 +1,6 @@
 {
   "voetbal": [
     {
-      "id": "zcfc-zvv-zaandijk-zaanstad-cup",
-      "naam": "ZCFC - ZVV Zaandijk (Zaanstad Cup)",
-      "map": "ZCFC - ZVV Zaandijk (Zaanstad Cup)",
-      "fotos": [
-        "_6190201.webp",
-        "_6190256.webp",
-        "_6190283.webp",
-        "_6190325.webp",
-        "_6190352.webp",
-        "_6190369.webp",
-        "_6190450.webp",
-        "_6190148.webp",
-        "_6190168.webp",
-        "_6190172.webp",
-        "_6190298.webp",
-        "_6190164.webp",
-        "_6190211.webp",
-        "_6190246.webp",
-        "_6190250.webp",
-        "_6190342.webp",
-        "_6190417.webp",
-        "_6190158.webp",
-        "_6190159.webp",
-        "_6190162.webp",
-        "_6190163.webp",
-        "_6190227.webp",
-        "_6190322.webp",
-        "_6190400.webp",
-        "_6190194.webp",
-        "_6190206.webp",
-        "_6190229.webp",
-        "_6190251.webp",
-        "_6190252.webp",
-        "_6190292.webp",
-        "_6190160.webp",
-        "_6190209.webp",
-        "_6190233.webp",
-        "_6190248.webp",
-        "_6190249.webp",
-        "_6190264.webp",
-        "_6190435.webp",
-        "_6190176.webp",
-        "_6190183.webp",
-        "_6190195.webp",
-        "_6190199.webp",
-        "_6190208.webp",
-        "_6190459.webp",
-        "_6190204.webp",
-        "_6190290.webp",
-        "_6190341.webp",
-        "_6190382.webp",
-        "_6190455.webp",
-        "_6190147.webp",
-        "_6190188.webp",
-        "_6190258.webp",
-        "_6190262.webp",
-        "_6190393.webp",
-        "_6190448.webp",
-        "_6190151.webp",
-        "_6190185.webp",
-        "_6190215.webp",
-        "_6190239.webp",
-        "_6190350.webp",
-        "_6190444.webp",
-        "_6190189.webp",
-        "_6190193.webp",
-        "_6190202.webp",
-        "_6190306.webp",
-        "_6190347.webp",
-        "_6190166.webp",
-        "_6190326.webp",
-        "_6190330.webp"
-      ],
-      "volgorde": 0,
-      "fotograaf": "Andreas Luckfiel",
-      "beschrijving": ""
-    },
-    {
       "id": "zcfc-eindejaarstoernooi-2026",
       "naam": "ZCFC Eindejaarstoernooi 2026",
       "map": "ZCFC Eindejaarstoernooi 2026",
@@ -201,7 +123,7 @@
         "_M4A9980.WEBP",
         "_M4A9995.WEBP"
       ],
-      "volgorde": 1,
+      "volgorde": 0,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2026-06-14"
@@ -334,7 +256,7 @@
         "_M4A9241.webp",
         "_M4A9255.webp"
       ],
-      "volgorde": 2,
+      "volgorde": 1,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2026-05-30"
@@ -366,7 +288,7 @@
         "_M4A6767.webp",
         "_M4A7140.webp"
       ],
-      "volgorde": 3,
+      "volgorde": 2,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Een gelijkspel buitenshuis bij AFC IJburg. ZCFC wist ondanks de uitwedstrijd een punt mee te nemen: 1-1.",
       "datum": "2026-05-09"
@@ -407,7 +329,7 @@
         "122140667180902795.webp",
         "122140667186902795.webp"
       ],
-      "volgorde": 4,
+      "volgorde": 3,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2026-04-18"
@@ -452,7 +374,7 @@
         "122138671700902795.webp",
         "122138671712902795.webp"
       ],
-      "volgorde": 5,
+      "volgorde": 4,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2026-03-28"
@@ -485,7 +407,7 @@
         "122136068834902795.webp",
         "122136068912902795.webp"
       ],
-      "volgorde": 6,
+      "volgorde": 5,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2026-03-14"
@@ -532,7 +454,7 @@
         "122131343150902795.webp",
         "122131343156902795.webp"
       ],
-      "volgorde": 7,
+      "volgorde": 6,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2026-02-07"
@@ -586,7 +508,7 @@
         "122132543624902795.webp",
         "122132543672902795.webp"
       ],
-      "volgorde": 8,
+      "volgorde": 7,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2025-10-04"
@@ -621,7 +543,7 @@
         "122151218534902795.webp",
         "122151218558902795.webp"
       ],
-      "volgorde": 9,
+      "volgorde": 8,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Uitwedstrijd bij CV Wieringermeer in Slootdorp. Matchday met de hoop dat het weer mee zou werken en dat deed het! ZCFC won met 2-1.",
       "datum": "2025-09-20"
@@ -689,7 +611,7 @@
         "122127712334902795.webp",
         "122127714104902795.webp"
       ],
-      "volgorde": 10,
+      "volgorde": 9,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2025-09-06"
@@ -753,7 +675,7 @@
         "122129046518902795.webp",
         "122129046680902795.webp"
       ],
-      "volgorde": 11,
+      "volgorde": 10,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Bekerwedstrijd om 17:00 uur bij ZCFC in Wijdewormer. Tegen de nummer van Zaandijk in de bekercompetitie met een uitgebreide selectie. De mannen lieten zien wat ze kunnen: 6-2!",
       "datum": "2025-09-13"
@@ -796,7 +718,7 @@
         "122110874558902795.webp",
         "122110874594902795.webp"
       ],
-      "volgorde": 12,
+      "volgorde": 11,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd tegen Fortuna Wormerveer. Een nipte uitslag: 0-1 voor Fortuna. Toch mooie momenten om vast te leggen op de camera.",
       "datum": "2025-06-21"
@@ -867,7 +789,7 @@
         "122130357116902795.webp",
         "122130357128902795.webp"
       ],
-      "volgorde": 13,
+      "volgorde": 12,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd ZCFC 1 - Saenden 1. ZCFC won met 1-0.",
       "datum": "2025-06-20"
@@ -932,7 +854,7 @@
         "122111403200902795.webp",
         "122111403254902795.webp"
       ],
-      "volgorde": 14,
+      "volgorde": 13,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "Toernooiwedstrijd ZCFC 1 - Jisp 1, eindigend in een gelijkspel: 0-0. Beide ploegen hielden elkaar goed in evenwicht.",
       "datum": "2025-06-20"
@@ -998,7 +920,7 @@
         "JKR69085_DxO.webp",
         "JKR69278_DxO.webp"
       ],
-      "volgorde": 15,
+      "volgorde": 14,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2025-01-25"
@@ -1011,10 +933,89 @@
         "122109456800902795.webp",
         "122116855118902795.webp"
       ],
-      "volgorde": 16,
+      "volgorde": 15,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": "",
       "datum": "2025-08-23"
+    },
+    {
+      "id": "zcfc-zvv-zaandijk-zaanstad-cup",
+      "naam": "ZCFC - ZVV Zaandijk (Zaanstad Cup)",
+      "map": "ZCFC - ZVV Zaandijk (Zaanstad Cup)",
+      "fotos": [
+        "_6190201.webp",
+        "_6190256.webp",
+        "_6190283.webp",
+        "_6190325.webp",
+        "_6190352.webp",
+        "_6190369.webp",
+        "_6190450.webp",
+        "_6190148.webp",
+        "_6190168.webp",
+        "_6190172.webp",
+        "_6190298.webp",
+        "_6190164.webp",
+        "_6190211.webp",
+        "_6190246.webp",
+        "_6190250.webp",
+        "_6190342.webp",
+        "_6190417.webp",
+        "_6190158.webp",
+        "_6190159.webp",
+        "_6190162.webp",
+        "_6190163.webp",
+        "_6190227.webp",
+        "_6190322.webp",
+        "_6190400.webp",
+        "_6190194.webp",
+        "_6190206.webp",
+        "_6190229.webp",
+        "_6190251.webp",
+        "_6190252.webp",
+        "_6190292.webp",
+        "_6190160.webp",
+        "_6190209.webp",
+        "_6190233.webp",
+        "_6190248.webp",
+        "_6190249.webp",
+        "_6190264.webp",
+        "_6190435.webp",
+        "_6190176.webp",
+        "_6190183.webp",
+        "_6190195.webp",
+        "_6190199.webp",
+        "_6190208.webp",
+        "_6190459.webp",
+        "_6190204.webp",
+        "_6190290.webp",
+        "_6190341.webp",
+        "_6190382.webp",
+        "_6190455.webp",
+        "_6190147.webp",
+        "_6190188.webp",
+        "_6190258.webp",
+        "_6190262.webp",
+        "_6190393.webp",
+        "_6190448.webp",
+        "_6190151.webp",
+        "_6190185.webp",
+        "_6190215.webp",
+        "_6190239.webp",
+        "_6190350.webp",
+        "_6190444.webp",
+        "_6190189.webp",
+        "_6190193.webp",
+        "_6190202.webp",
+        "_6190306.webp",
+        "_6190347.webp",
+        "_6190166.webp",
+        "_6190326.webp",
+        "_6190330.webp"
+      ],
+      "volgorde": 16,
+      "fotograaf": "Andreas Luckfiel",
+      "beschrijving": "",
+      "datum": "2026-06-19"
     }
   ],
   "nosports": [
