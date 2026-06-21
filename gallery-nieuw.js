@@ -134,7 +134,7 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   fotos.forEach((f, i) => {
     const cel = document.createElement('div');
     cel.className = 'foto-cel';
-    cel.innerHTML = `<img src="${f.src}" alt="${naam}" loading="lazy" />`;
+    cel.innerHTML = `<img src="${f.thumb || f.src}" alt="${naam}" loading="lazy" />`;
     cel.addEventListener('click', () => lbOpen(fotos, i));
     grid.appendChild(cel);
   });
@@ -342,8 +342,9 @@ async function laadGallery() {
     function eigenNaarFotos(item) {
       return item.fotos
         .map(f => ({
-          src: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
-          key: photoKey(`${CATEGORY}/${item.map}/${f}`),
+          src:   `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+          thumb: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`,
+          key:   photoKey(`${CATEGORY}/${item.map}/${f}`),
         }))
         .sort((a, b) => (likeCounts[b.key] || 0) - (likeCounts[a.key] || 0));
     }
