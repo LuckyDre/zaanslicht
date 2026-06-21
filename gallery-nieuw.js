@@ -340,18 +340,22 @@ async function laadGallery() {
     }
 
     function eigenNaarFotos(item) {
-      return item.fotos.map(f => ({
-        src: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
-        key: photoKey(`${CATEGORY}/${item.map}/${f}`),
-      }));
+      return item.fotos
+        .map(f => ({
+          src: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+          key: photoKey(`${CATEGORY}/${item.map}/${f}`),
+        }))
+        .sort((a, b) => (likeCounts[b.key] || 0) - (likeCounts[a.key] || 0));
     }
 
     async function gastNaarFotos(fgId, mapNaam) {
       const fotos = await getGastFotos(fgId, mapNaam);
-      return fotos.map(f => ({
-        src: `${WORKER_URL}/foto/${f.key}`,
-        key: photoKey(`gast/${fgId}/${f.naam}`),
-      }));
+      return fotos
+        .map(f => ({
+          src: `${WORKER_URL}/foto/${f.key}`,
+          key: photoKey(`gast/${fgId}/${f.naam}`),
+        }))
+        .sort((a, b) => (likeCounts[b.key] || 0) - (likeCounts[a.key] || 0));
     }
 
     // Bouw gecombineerde lijst van alle series met hun datum
