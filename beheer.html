@@ -1077,6 +1077,7 @@ function renderCategorie(cat) {
     li.dataset.fotograaf    = item.fotograaf   || 'Andreas Luckfiel';
     li.dataset.beschrijving = item.beschrijving || '';
     li.dataset.datum        = item.datum || '';
+    li.dataset.verborgen    = item.verborgen ? 'true' : 'false';
 
     li.innerHTML = `
       <div class="slider-header" onclick="toggleOpen(this)">
