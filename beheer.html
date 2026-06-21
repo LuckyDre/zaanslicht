@@ -1093,6 +1093,10 @@ function renderCategorie(cat) {
         <button onclick="deelOpFacebook(event,this)" title="Delen op Facebook"
           style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
           onmouseover="this.style.color='#1877f2'" onmouseout="this.style.color='#555'">🇫</button>
+        <button onclick="eigenToggleVerberg(event,this)" title="${item.verborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers'}"
+          data-verborgen="${item.verborgen ? 'true' : 'false'}"
+          style="background:transparent;border:none;color:${item.verborgen ? '#FF6B00' : '#555'};font-size:0.85rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
+          >${item.verborgen ? '👁' : '🙈'}</button>
         <button onclick="eigenMapVerwijderen(event,this)" title="Map verwijderen uit slider"
           style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
           onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'">🗑</button>
