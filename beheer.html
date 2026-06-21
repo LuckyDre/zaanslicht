@@ -2971,6 +2971,15 @@ async function downloadGeselecteerdeFotos() {
 </script>
 
 <!-- Facebook deel-modal -->
+<!-- Bulk actie balk (eigen sliders) -->
+<div id="bh-bulk-balk">
+  <span id="bh-bulk-tel" style="color:#aaa;font-size:0.85rem;flex:1">0 geselecteerd</span>
+  <button class="bh-bulk-btn oranje" onclick="bhBulkVerberg()">🙈 Verberg</button>
+  <button class="bh-bulk-btn oranje" onclick="bhBulkToon()">👁 Toon</button>
+  <button class="bh-bulk-btn del"   onclick="bhBulkVerwijder()">🗑 Verwijder</button>
+  <button class="bh-bulk-btn dim"   onclick="bhBulkAnnuleer()">✕ Annuleer</button>
+</div>
+
 <div id="fb-deel-overlay" onclick="if(event.target===this)sluitFbModal()">
   <div id="fb-deel-box">
     <h3>🇫 Delen op Facebook</h3>
