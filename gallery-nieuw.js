@@ -134,7 +134,7 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   fotos.forEach((f, i) => {
     const cel = document.createElement('div');
     cel.className = 'foto-cel';
-    cel.innerHTML = `<img src="${f.thumb || f.src}" alt="${naam}" loading="lazy" />`;
+    cel.innerHTML = `<img src="${f.thumb || f.src}" alt="${naam}" loading="lazy" onerror="if(this.src!=='${f.src}')this.src='${f.src}'" />`;
     cel.addEventListener('click', () => lbOpen(fotos, i));
     grid.appendChild(cel);
   });
