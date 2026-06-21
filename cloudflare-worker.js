@@ -805,6 +805,30 @@ async function handleVerborgeMap(request, env) {
   return json({ ok: true });
 }
 
+// ── MAP VERBERGEN / TONEN (fotograaf zelf) ───────────────────────────────
+async function handleEigenVerborgenLijst(request, env) {
+  const fg = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+  if (!fg) return json({ error: 'Geen toegang' }, 401);
+  const raw = await env.SUBSCRIBERS.get('fotograaf:verborgen-mappen:' + fg.id);
+  return json({ verborgenMappen: raw ? JSON.parse(raw) : [] });
+}
+
+async function handleEigenVerborgeMap(request, env) {
+  const fg = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+  if (!fg) return json({ error: 'Geen toegang' }, 401);
+  const { map, verborgen } = await request.json().catch(() => ({}));
+  if (!map) return json({ error: 'map verplicht' }, 400);
+  const raw = await env.SUBSCRIBERS.get('fotograaf:verborgen-mappen:' + fg.id);
+  let lijst = raw ? JSON.parse(raw) : [];
+  if (verborgen) {
+    if (!lijst.includes(map)) lijst.push(map);
+  } else {
+    lijst = lijst.filter(m => m !== map);
+  }
+  await env.SUBSCRIBERS.put('fotograaf:verborgen-mappen:' + fg.id, JSON.stringify(lijst));
+  return json({ ok: true });
+}
+
 // ── FOTO VERBERGEN / TONEN (admin) ────────────────────────────────────────
 async function handleVerborgeFoto(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
@@ -1474,8 +1498,10 @@ export default {
     if (url.pathname === '/fotograaf/kleur'          && request.method === 'POST') return handleFotograafKleur(request, env);
     if (url.pathname === '/fotograaf/delete-account'  && request.method === 'POST') return handleAccountVerwijderen(request, env);
     if (url.pathname === '/fotograaf/blokkeer'        && request.method === 'POST') return handleBlokkeer(request, env);
-    if (url.pathname === '/fotograaf/verberg-map'     && request.method === 'POST') return handleVerborgeMap(request, env);
-    if (url.pathname === '/fotograaf/verberg-foto'    && request.method === 'POST') return handleVerborgeFoto(request, env);
+    if (url.pathname === '/fotograaf/verberg-map'       && request.method === 'POST') return handleVerborgeMap(request, env);
+    if (url.pathname === '/fotograaf/verberg-foto'      && request.method === 'POST') return handleVerborgeFoto(request, env);
+    if (url.pathname === '/fotograaf/verborgen-eigen'   && request.method === 'GET')  return handleEigenVerborgenLijst(request, env);
+    if (url.pathname === '/fotograaf/eigen-verberg-map' && request.method === 'POST') return handleEigenVerborgeMap(request, env);
     if (url.pathname === '/comment'  && request.method === 'POST') return handleComment(request, env);
     if (url.pathname === '/comments'     && request.method === 'GET')  return handleComments(request, env);
     if (url.pathname === '/profiel/andreas' && request.method === 'GET')  return handleGetAndreasProfile(request, env);
