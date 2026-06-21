@@ -1953,6 +1953,19 @@ async function fgToggleFoto(id, key, el) {
   } catch(e) { alert('Fout: ' + e.message); }
 }
 
+function eigenToggleVerberg(event, btn) {
+  event.stopPropagation();
+  const li = btn.closest('.slider-item');
+  const wordtVerborgen = btn.dataset.verborgen !== 'true';
+  btn.dataset.verborgen = wordtVerborgen ? 'true' : 'false';
+  li.dataset.verborgen  = wordtVerborgen ? 'true' : 'false';
+  btn.textContent = wordtVerborgen ? '👁' : '🙈';
+  btn.title       = wordtVerborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers';
+  btn.style.color = wordtVerborgen ? '#FF6B00' : '#555';
+  planSave();
+  setLog(wordtVerborgen ? `Serie "${li.dataset.map}" verborgen voor bezoekers.` : `Serie "${li.dataset.map}" weer zichtbaar.`, 'success');
+}
+
 function eigenMapVerwijderen(event, btn) {
   event.stopPropagation();
   const li = btn.closest('.slider-item');
