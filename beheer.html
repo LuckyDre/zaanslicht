@@ -833,6 +833,7 @@ function updateManifestFromDOM() {
       const beschrijving = el.dataset.beschrijving !== undefined ? el.dataset.beschrijving : (base.beschrijving || '');
       const item = { ...base, naam, volgorde: i, fotos, fotograaf, beschrijving };
       if (el.dataset.datum) item.datum = el.dataset.datum; else delete item.datum;
+      if (el.dataset.verborgen === 'true') item.verborgen = true; else delete item.verborgen;
       return item;
     });
   });
