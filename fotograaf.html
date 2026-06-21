@@ -732,6 +732,7 @@ const inviteToken = params.get('invite');
 
 // ── Laad opgeslagen sessie ────────────────────────────────────────────────
 let sessie = JSON.parse(localStorage.getItem('zl_fotograaf') || 'null');
+function haalSessieOp() { return sessie; }
 
 // ── REALTIME PRESENCE ─────────────────────────────────────────────────────
 let _presRef = null;
