@@ -25,9 +25,9 @@ def wrangler_exists(key):
     return r.returncode == 0
 
 def download(url, dest):
-    req = urllib.request.Request(url, headers={'User-Agent': 'ZaanslichtThumb/1.0'})
-    with urllib.request.urlopen(req, timeout=30) as r, open(dest, 'wb') as f:
-        f.write(r.read())
+    r = subprocess.run(['curl', '-sL', '--max-time', '30', '-o', dest, url], capture_output=True)
+    if r.returncode != 0:
+        raise Exception(f'curl fout: {r.stderr.decode()[:80]}')
 
 def upload_thumb(lokaal, r2_key):
     r = subprocess.run(
