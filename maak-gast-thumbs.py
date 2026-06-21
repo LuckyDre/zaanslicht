@@ -23,10 +23,12 @@ def download(url, dest):
 
 def upload_thumb(lokaal, r2_key):
     r = subprocess.run(
-        ['npx', 'wrangler', 'r2', 'object', 'put', BUCKET, r2_key,
+        ['npx', 'wrangler', 'r2', 'object', 'put', f'{BUCKET}/{r2_key}',
          '--file', lokaal, '--content-type', 'image/webp', '--remote'],
         capture_output=True, cwd=Path(__file__).parent
     )
+    if r.returncode != 0:
+        print(f'    wrangler stderr: {r.stderr.decode()[:120]}')
     return r.returncode == 0
 
 def main():
