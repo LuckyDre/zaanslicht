@@ -593,19 +593,27 @@ async function handleFotoUpload(request, env) {
   try { labels = JSON.parse(labelsRaw).slice(0, 10); } catch {}
 
   if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
-  const naam_lower = file.name.toLowerCase();
-  const toegestaan = naam_lower.endsWith('.webp') || naam_lower.endsWith('.jpg') || naam_lower.endsWith('.jpeg');
-  if (!toegestaan) return json({ error: 'Alleen WebP of JPG bestanden toegestaan' }, 400);
-  const contentType = naam_lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+  if (file.type !== 'image/webp') return json({ error: 'Alleen WebP-bestanden worden opgeslagen. Converteer eerst naar WebP.' }, 400);
   if (file.size > 15 * 1024 * 1024) return json({ error: 'Bestand te groot (max 15MB)' }, 400);
 
-  const veiligNaam = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  // Bestandsnaam altijd als .webp opslaan
+  const basisNaam  = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+  const veiligNaam = basisNaam + '.webp';
   const r2Key = `fotografen/${fotograaf.id}/${categorie}/${encodeURIComponent(map)}/${veiligNaam}`;
 
   await env.FOTOS.put(r2Key, file.stream(), {
-    httpMetadata: { contentType },
+    httpMetadata: { contentType: 'image/webp' },
     customMetadata: { fotograafId: fotograaf.id, fotograafNaam: fotograaf.naam, map, categorie },
   });
+
+  // Thumbnail opslaan als die meegezonden is
+  const thumb = formData.get('thumbnail');
+  if (thumb && thumb.type === 'image/webp') {
+    const thumbKey = 'thumbs/' + r2Key.replace(/\.[^.]+$/, '-thumb.webp');
+    await env.FOTOS.put(thumbKey, thumb.stream(), {
+      httpMetadata: { contentType: 'image/webp' },
+    });
+  }
 
   // Bijhouden welke mappen de fotograaf heeft
   const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograaf.id);
