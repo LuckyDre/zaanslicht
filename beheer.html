@@ -2879,9 +2879,19 @@ async function kopieerEnOpenFb() {
   <div id="fb-deel-box">
     <h3>🇫 Delen op Facebook</h3>
     <textarea id="fb-deel-tekst" spellcheck="false"></textarea>
+    <div id="fb-foto-sectie">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+        <span style="font-size:0.8rem;color:#888">Selecteer foto's om te downloaden (max 5):</span>
+        <span id="fb-foto-teller" style="font-size:0.8rem;color:var(--oranje);font-weight:600">0 / 5</span>
+      </div>
+      <div id="fb-foto-grid"></div>
+    </div>
     <div class="fb-deel-acties">
       <button class="btn" onclick="kopieerEnOpenFb()" style="background:var(--oranje);color:#fff;border-color:var(--oranje)">
         📋 Kopieer &amp; open Facebook
+      </button>
+      <button class="btn btn-dim" id="fb-download-btn" onclick="downloadGeselecteerdeFotos()" style="display:none">
+        ⬇ Download foto's
       </button>
       <button class="btn btn-dim" onclick="sluitFbModal()">Annuleren</button>
     </div>
