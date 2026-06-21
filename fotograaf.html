@@ -1731,11 +1731,12 @@ async function laadMappenTab() {
     }
 
     // Bouw een map-item element
-    function maakMapItem(m, fotos) {
+    function maakMapItem(m, fotos, verborgenSet) {
       const isLeeg   = fotos.length === 0;
+      const isVerborgen = verborgenSet ? verborgenSet.has(m.map) : false;
       const thumbSrc = fotos.length > 0 ? `${WORKER}/foto/${fotos[0].key}` : null;
       const li = document.createElement('div');
-      li.className = 'map-item' + (isLeeg ? ' leeg' : '');
+      li.className = 'map-item' + (isLeeg ? ' leeg' : '') + (isVerborgen ? ' verborgen-serie' : '');
       li.dataset.map = m.map;
       li.dataset.categorie = m.categorie;
       li.dataset.ts = m.ts || 0;
