@@ -44,12 +44,6 @@ def main():
         key       = foto['key']
         thumb_key = 'thumbs/' + key.rsplit('.', 1)[0] + '-thumb.webp'
 
-        # Al aanwezig?
-        if wrangler_exists(thumb_key):
-            overgeslagen += 1
-            if i % 50 == 0: print(f'  {i}/{len(fotos)} verwerkt...')
-            continue
-
         # Download origineel
         ext = key.rsplit('.', 1)[-1].lower()
         tmp_in = TMP_IN + '.' + ext
