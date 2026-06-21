@@ -2557,6 +2557,9 @@ async function nieuweEigenMap(cat) {
       <span class="slider-naam">${mapNaam}</span>
       <span class="slider-count slider-ts">0 foto's</span>
       <button class="expand-btn" title="Foto's tonen/verbergen" style="transform:rotate(180deg);color:var(--oranje)">▼</button>
+      <button onclick="deelOpFacebook(event,this)" title="Delen op Facebook"
+        style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
+        onmouseover="this.style.color='#1877f2'" onmouseout="this.style.color='#555'">🇫</button>
       <button onclick="eigenMapVerwijderen(event,this)" title="Map verwijderen"
         style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
         onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#555'">🗑</button>
