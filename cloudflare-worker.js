@@ -1381,7 +1381,14 @@ async function handleFotoServe(request, env) {
   const key = url.pathname.replace('/foto/', '');
   if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
 
-  const object = await env.FOTOS.get(key);
+  // Thumbnail ophalen als ?thumb=1 meegegeven
+  let object = null;
+  if (url.searchParams.get('thumb') === '1') {
+    const thumbKey = 'thumbs/' + key.rsplit ? key.replace(/\.[^.]+$/, m => '-thumb.webp') : key.replace(/\.[^.]+$/, '-thumb.webp');
+    object = await env.FOTOS.get(thumbKey);
+  }
+  // Valt terug op origineel als thumbnail niet bestaat
+  if (!object) object = await env.FOTOS.get(key);
   if (!object) return new Response('Niet gevonden', { status: 404 });
 
   // Bepaal Content-Type op basis van bestandsextensie
