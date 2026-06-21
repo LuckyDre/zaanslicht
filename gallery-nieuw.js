@@ -310,6 +310,15 @@ async function laadGallery() {
 
     container.innerHTML = '';
 
+    // Haal like-aantallen op uit Firebase (één keer voor alle series)
+    let likeCounts = {};
+    try {
+      if (typeof db !== 'undefined') {
+        const snap = await db.ref('likes').once('value');
+        likeCounts = snap.val() || {};
+      }
+    } catch {}
+
     // Bouw lookup voor gast-fotos
     const gastCache = {};
     async function getGastFotos(fgId, mapNaam) {
