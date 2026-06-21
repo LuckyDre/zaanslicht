@@ -2836,29 +2836,62 @@ async function bhSlaMapLabelsOp(key, labels, url, mapNaam, secret, cardEl) {
 // ── FACEBOOK DELEN ────────────────────────────────────────────────────────
 function deelOpFacebook(event, btn) {
   event.stopPropagation();
-  const li       = btn.closest('.slider-item');
-  const naam     = li.querySelector('.slider-naam')?.value?.trim() || li.dataset.naam || li.dataset.map || '';
-  const beschr   = li.dataset.beschrijving?.trim() || '';
-  const fotograaf = li.dataset.fotograaf?.trim() || 'Andreas Luckfiel';
-  const datum    = li.dataset.datum || '';
-  const map      = li.dataset.map || '';
-  const anchor   = encodeURIComponent(map);
+  const li        = btn.closest('.slider-item');
+  const naam      = li.querySelector('.slider-naam')?.value?.trim() || li.dataset.naam || li.dataset.map || '';
+  const cat       = li.dataset.cat;
+  const mapNaam   = li.dataset.map || '';
+  const anchor    = encodeURIComponent(mapNaam);
 
-  let tekst = `📸 Nieuwe fotoserie: ${naam}`;
-  if (datum) {
-    const d = new Date(datum);
-    const dag = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' });
-    tekst += `\n📅 ${dag}`;
+  // Textarea leeg laten — gebruiker schrijft zelf de post
+  // Zet alleen de serie-link als startpunt
+  document.getElementById('fb-deel-tekst').value =
+    `https://zaanslicht.com/#serie=${anchor}`;
+
+  // Foto's vullen
+  const grid = document.getElementById('fb-foto-grid');
+  grid.innerHTML = '';
+  document.getElementById('fb-foto-teller').textContent = '0 / 5';
+  document.getElementById('fb-download-btn').style.display = 'none';
+
+  // Haal foto-URLs op: eerst uit geladen thumbs, anders uit manifest
+  let fotoUrls = [];
+  const thumbs = Array.from(li.querySelectorAll('.foto-thumb img'));
+  if (thumbs.length > 0) {
+    fotoUrls = thumbs.map(img => img.src);
+  } else {
+    const item = (manifest[cat] || []).find(x => x.map === mapNaam);
+    if (item && item.fotos) {
+      fotoUrls = item.fotos.map(f =>
+        `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`);
+    }
   }
-  tekst += '\n';
-  if (beschr) tekst += `\n${beschr}\n`;
-  tekst += `\nBekijk de foto's op zaanslicht.com 👇\nhttps://zaanslicht.com/#serie=${anchor}`;
-  tekst += `\n\n📷 Foto's: ${fotograaf}`;
-  tekst += '\n#zaanslicht #voetbalfotografie #zaanstreek';
 
-  document.getElementById('fb-deel-tekst').value = tekst;
+  if (fotoUrls.length > 0) {
+    fotoUrls.forEach(url => {
+      const div = document.createElement('div');
+      div.className = 'fb-foto-item';
+      div.dataset.url = url;
+      div.innerHTML = `<img src="${url}" loading="lazy"><span class="fb-foto-check">✓</span>`;
+      div.onclick = () => toggleFbFoto(div);
+      grid.appendChild(div);
+    });
+    document.getElementById('fb-foto-sectie').style.display = '';
+  } else {
+    document.getElementById('fb-foto-sectie').style.display = 'none';
+  }
+
   document.getElementById('fb-deel-overlay').classList.add('open');
   setTimeout(() => document.getElementById('fb-deel-tekst').focus(), 50);
+}
+
+function toggleFbFoto(el) {
+  const isGeselecteerd = el.classList.contains('geselecteerd');
+  const huidig = document.querySelectorAll('.fb-foto-item.geselecteerd').length;
+  if (!isGeselecteerd && huidig >= 5) return;
+  el.classList.toggle('geselecteerd');
+  const nieuw = document.querySelectorAll('.fb-foto-item.geselecteerd').length;
+  document.getElementById('fb-foto-teller').textContent = `${nieuw} / 5`;
+  document.getElementById('fb-download-btn').style.display = nieuw > 0 ? '' : 'none';
 }
 
 function sluitFbModal() {
@@ -2871,6 +2904,27 @@ async function kopieerEnOpenFb() {
   window.open('https://www.facebook.com/', '_blank');
   sluitFbModal();
   setLog('✓ Tekst gekopieerd — plak hem in je Facebook-bericht', 'success');
+}
+
+async function downloadGeselecteerdeFotos() {
+  const items = Array.from(document.querySelectorAll('.fb-foto-item.geselecteerd'));
+  if (!items.length) return;
+  for (const item of items) {
+    const url  = item.dataset.url;
+    const naam = decodeURIComponent(url.split('/').pop());
+    try {
+      const blob = await fetch(url).then(r => r.blob());
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = naam;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      window.open(url, '_blank');
+    }
+    await new Promise(r => setTimeout(r, 400));
+  }
+  setLog(`✓ ${items.length} foto('s) gedownload`, 'success');
 }
 </script>
 
