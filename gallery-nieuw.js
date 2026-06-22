@@ -310,17 +310,18 @@ async function laadGallery() {
 
     container.innerHTML = '';
 
-    // Haal like-aantallen op uit Firebase (max 3s, anders zonder likes verder)
+    // Likes non-blocking laden: foto's direct tonen, tellers bijwerken zodra Firebase reageert
     let likeCounts = {};
-    try {
-      if (typeof db !== 'undefined') {
-        const snap = await Promise.race([
-          db.ref('likes').once('value'),
-          new Promise(r => setTimeout(() => r(null), 1000)),
-        ]);
-        likeCounts = snap?.val() || {};
-      }
-    } catch {}
+    if (typeof db !== 'undefined') {
+      db.ref('likes').once('value').then(snap => {
+        likeCounts = snap.val() || {};
+        container.querySelectorAll('.btn-like[data-key]').forEach(btn => {
+          const c = likeCounts[btn.dataset.key] || 0;
+          const sp = btn.querySelector('.like-count');
+          if (sp) sp.textContent = c > 0 ? c : '';
+        });
+      }).catch(() => {});
+    }
 
     // Bouw lookup voor gast-fotos
     const gastCache = {};
