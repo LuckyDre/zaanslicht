@@ -2321,7 +2321,12 @@ async function laadPositieTab() {
           ...(eigenManifest[cat] || []).map(item => ({ type: 'eigen', map: item.map })),
           ...(Object.values(fgById)).flatMap(fg =>
             (fg.mappen || [])
-              .filter(m => m.categorie === cat || (cat === 'voetbal' && m.categorie === 'eigen'))
+              .filter(m => {
+                const opCat = cat === 'voetbal'
+                  ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
+                  : (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports');
+                return opCat;
+              })
               .map(m => ({ type: 'gast', fgId: fg.id, fgCat: m.categorie, map: m.map }))
           )
         ];
