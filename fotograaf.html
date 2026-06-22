@@ -2372,7 +2372,12 @@ async function laadPositieTab() {
 
       // Eigen mappen die nog niet in de volgorde staan → achteraan
       const eigenInVolgorde = new Set(volgorde.filter(e => e.type === 'gast' && e.fgId === sessie.id).map(e => e.map));
-      const eigenMappen = (_mappenData || []).filter(m => (m.categorie === cat || (cat === 'voetbal' && m.categorie === 'eigen')) && !eigenInVolgorde.has(m.map));
+      const eigenMappen = (_mappenData || []).filter(m => {
+        const opCat = cat === 'voetbal'
+          ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
+          : (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports');
+        return opCat && !eigenInVolgorde.has(m.map);
+      });
       for (const m of eigenMappen) {
         const item = document.createElement('div');
         item.className = 'positie-item eigen';
