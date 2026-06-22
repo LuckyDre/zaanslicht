@@ -1029,24 +1029,6 @@ async function toonDashboard(nieuwAangemeld = false) {
       <div class="tab-panel active" id="tab-upload">
         <div class="form-group">
           <div class="label-row">
-            <label>Categorie</label>
-            <div class="help-wrap">
-              <span class="help-btn">?</span>
-              <div class="help-tip">
-                <strong>Voetbal</strong> — foto's komen in de voetbalgalerij.<br>
-                <strong>No Sports</strong> — landschap, mensen, architectuur.<br>
-                <strong>Eigen pagina</strong> — een apart album op de site onder jouw naam.
-              </div>
-            </div>
-          </div>
-          <select id="up-categorie" style="background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:0.75rem 1rem;font-family:var(--font);font-size:0.95rem;outline:none;width:100%">
-            <option value="voetbal">⚽ Voetbal</option>
-            <option value="nosports">🌄 No Sports</option>
-            <option value="eigen">📸 Eigen pagina</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <div class="label-row">
             <label>Map / albumtitel</label>
             <div class="help-wrap">
               <span class="help-btn">?</span>
@@ -1333,7 +1315,7 @@ async function toonDashboard(nieuwAangemeld = false) {
 window.startUpload = async () => {
     const btn  = document.getElementById('upload-btn');
     const map  = document.getElementById('up-map').value.trim();
-    const cat  = document.getElementById('up-categorie').value;
+    const cat  = 'voetbal';
     const fb   = document.getElementById('upload-feedback');
 
     if (!map) { fb.textContent = 'Vul een mapnaam in.'; fb.className = 'feedback err'; return; }
