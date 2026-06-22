@@ -172,8 +172,11 @@ function setTilebg(elId, fotos) {
 async function getTopLiked(fotos, maxN) {
   try {
     if (typeof db === 'undefined') return shuffle(fotos).slice(0, maxN);
-    const snap   = await db.ref('likes').once('value');
-    const counts = snap.val() || {};
+    const snap   = await Promise.race([
+      db.ref('likes').once('value'),
+      new Promise(r => setTimeout(() => r(null), 3000)),
+    ]);
+    const counts = snap?.val() || {};
     const sorted = [...fotos]
       .map(f => ({ ...f, likes: counts[photoKeyMain(f.path)] || 0 }))
       .sort((a, b) => b.likes - a.likes);
