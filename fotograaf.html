@@ -1797,6 +1797,12 @@ async function laadMappenTab() {
       li.dataset.ts = m.ts || 0;
 
       const escMap = m.map.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const opEigenPagina = m.opEigenPagina !== false;
+      const eigenBtn = m.categorie !== 'eigen'
+        ? `<button class="map-eigen-btn${opEigenPagina ? ' actief' : ''}"
+            onclick="toggleMapEigenPagina('${escMap}', this)"
+            title="${opEigenPagina ? 'Staat op jouw eigen pagina — klik om te verbergen' : 'Niet op eigen pagina — klik om aan te zetten'}">🏠 ${opEigenPagina ? 'Aan' : 'Uit'}</button>`
+        : '';
       li.innerHTML = `
         <div class="map-header">
           <input type="checkbox" class="map-checkbox" data-map="${m.map.replace(/"/g,'&quot;')}"
