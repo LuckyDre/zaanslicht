@@ -376,10 +376,7 @@ async function laadGallery() {
     }
 
     for (const fg of fotografen) {
-      const mappen = (fg.mappen || []).filter(m =>
-        m.categorie === CATEGORY ||
-        (m.categorie === 'eigen' && CATEGORY === 'voetbal')
-      );
+      const mappen = (fg.mappen || []).filter(m => m.categorie === CATEGORY);
       for (const map of mappen) {
         alleSeries.push({
           datum: map.datum || '',
