@@ -2031,7 +2031,7 @@ function actualiseerTellers() {
   document.querySelectorAll('.map-groep').forEach(groep => {
     const aantal = groep.querySelectorAll('.map-item').length;
     const teller = groep.querySelector('.map-groep-teller');
-    if (teller) teller.textContent = `${aantal} map${aantal !== 1 ? 'pen' : ''}`;
+    if (teller) teller.textContent = `${aantal} serie${aantal !== 1 ? 's' : ''}`;
   });
 }
 
