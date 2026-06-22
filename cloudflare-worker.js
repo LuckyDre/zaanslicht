@@ -1071,11 +1071,11 @@ async function handleMapNaam(request, env) {
   return json({ ok: true });
 }
 
-// ── EIGEN PAGINA TOGGLE ────────────────────────────────────────────────────
-async function handleMapEigenPagina(request, env) {
+// ── PAGINA TOGGLES ─────────────────────────────────────────────────────────
+async function handleMapPaginas(request, env) {
   const isAdmin = requireSecret(request, env);
   const body = await request.json().catch(() => ({}));
-  const { map, opEigenPagina } = body;
+  const { map, opVoetbal, opNosports, opEigenPagina } = body;
   if (!map) return json({ error: 'map verplicht' }, 400);
 
   let fotograafId;
@@ -1093,11 +1093,12 @@ async function handleMapEigenPagina(request, env) {
   const entry = mappen.find(m => m.map === map);
   if (!entry) return json({ error: 'map niet gevonden' }, 404);
 
-  if (opEigenPagina === false) entry.opEigenPagina = false;
-  else entry.opEigenPagina = true;
+  if (opVoetbal    !== undefined) entry.opVoetbal    = Boolean(opVoetbal);
+  if (opNosports   !== undefined) entry.opNosports   = Boolean(opNosports);
+  if (opEigenPagina !== undefined) entry.opEigenPagina = Boolean(opEigenPagina);
 
   await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograafId, JSON.stringify(mappen));
-  return json({ ok: true, opEigenPagina: entry.opEigenPagina });
+  return json({ ok: true });
 }
 
 // ── KLEUR BIJWERKEN ────────────────────────────────────────────────────────
