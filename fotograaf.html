@@ -1791,12 +1791,10 @@ async function laadMappenTab() {
       li.dataset.ts = m.ts || 0;
 
       const escMap = m.map.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      // Bepaal pagina-flags met backwards-compat fallback op categorie
+      const opVoetbal    = m.opVoetbal   !== undefined ? m.opVoetbal   : (m.categorie === 'voetbal');
+      const opNosports   = m.opNosports  !== undefined ? m.opNosports  : (m.categorie === 'nosports');
       const opEigenPagina = m.opEigenPagina !== false;
-      const eigenBtn = m.categorie !== 'eigen'
-        ? `<button class="map-eigen-btn${opEigenPagina ? ' actief' : ''}"
-            onclick="toggleMapEigenPagina('${escMap}', this)"
-            title="${opEigenPagina ? 'Staat op jouw eigen pagina — klik om te verbergen' : 'Niet op eigen pagina — klik om aan te zetten'}">🏠 ${opEigenPagina ? 'Aan' : 'Uit'}</button>`
-        : '';
       li.innerHTML = `
         <div class="map-header">
           <input type="checkbox" class="map-checkbox" data-map="${m.map.replace(/"/g,'&quot;')}"
@@ -1814,15 +1812,14 @@ async function laadMappenTab() {
           </div>
           <div class="map-controls">
             <div class="map-cat-knoppen">
-              <button class="map-cat-btn${m.categorie === 'voetbal'  ? ' actief' : ''}" onclick="wisselCategorie(this,'voetbal')">⚽ Voetbal</button>
-              <button class="map-cat-btn${m.categorie === 'nosports' ? ' actief' : ''}" onclick="wisselCategorie(this,'nosports')">🌿 No Sports</button>
-              <button class="map-cat-btn${m.categorie === 'eigen'    ? ' actief' : ''}" onclick="wisselCategorie(this,'eigen')">📷 Eigen</button>
+              <button class="map-cat-btn${opVoetbal    ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','voetbal',this)"   title="Tonen op voetbalpagina">⚽ Voetbal</button>
+              <button class="map-cat-btn${opNosports   ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','nosports',this)"  title="Tonen op No Sports pagina">🌿 No Sports</button>
+              <button class="map-cat-btn${opEigenPagina ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','eigen',this)"    title="Tonen op jouw eigen pagina">🏠 Eigen</button>
             </div>
             <input type="date" class="map-datum-input" value="${m.datum || ''}" title="Datum van deze serie"
               style="background:#111;border:1px solid #333;border-radius:6px;color:#ccc;padding:0.3rem 0.5rem;font-size:0.78rem;color-scheme:dark;font-family:inherit"
               onclick="event.stopPropagation()"
               onchange="slaMapDatumOp('${m.map.replace(/'/g,"\\'")}', this)" />
-            ${eigenBtn}
             <button class="map-verberg-btn${isVerborgen ? ' verborgen' : ''}"
               onclick="toggleMapVerborg('${m.map.replace(/'/g,"\\'")}', this)"
               title="${isVerborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers'}">${isVerborgen ? '👁 Toon' : '🙈 Verberg'}</button>
