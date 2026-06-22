@@ -1964,10 +1964,13 @@ function toggleMapFotos(btn) {
   btn.classList.toggle('open', !open);
 }
 
-function wisselCategorie(select) {
-  const mapItem   = select.closest('.map-item');
+function wisselCategorie(btn, nieuweCategorie) {
+  const mapItem   = btn.closest('.map-item');
   const oudeLijst = mapItem.closest('.map-groep-lijst');
-  const nieuweCategorie = select.value;
+
+  // Update actieve knop
+  btn.closest('.map-cat-knoppen').querySelectorAll('.map-cat-btn').forEach(b => b.classList.remove('actief'));
+  btn.classList.add('actief');
 
   // Update data-categorie op het map-item
   mapItem.dataset.categorie = nieuweCategorie;
@@ -1975,16 +1978,13 @@ function wisselCategorie(select) {
   // Verplaats naar de juiste groep-lijst
   const nieuweLijst = document.querySelector(`.map-groep-lijst[data-categorie="${nieuweCategorie}"]`);
   if (nieuweLijst && nieuweLijst !== oudeLijst) {
-    // Verwijder lege-tekst placeholder als die er nog is
     const leegTekst = nieuweLijst.querySelector('p');
     if (leegTekst) leegTekst.remove();
     nieuweLijst.appendChild(mapItem);
 
-    // Controleer of oude lijst nu leeg is
     if (!oudeLijst.querySelector('.map-item')) {
       oudeLijst.innerHTML = '<p style="color:var(--muted);font-size:0.8rem;padding:0.5rem 0;font-style:italic">Geen mappen in deze categorie</p>';
     }
-    // Update teller
     actualiseerTellers();
   }
   document.getElementById('volgorde-feedback').textContent = '';
