@@ -1822,6 +1822,12 @@ async function laadMappenTab() {
               style="background:#111;border:1px solid #333;border-radius:6px;color:#ccc;padding:0.3rem 0.5rem;font-size:0.78rem;color-scheme:dark;font-family:inherit"
               onclick="event.stopPropagation()"
               onchange="slaMapDatumOp('${m.map.replace(/'/g,"\\'")}', this)" />
+            ${m.categorie !== 'eigen' ? (() => {
+              const opEigenPagina = m.opEigenPagina !== false;
+              return `<button class="map-eigen-btn${opEigenPagina ? ' actief' : ''}"
+                onclick="toggleMapEigenPagina('${m.map.replace(/'/g,"\\'")}', this)"
+                title="${opEigenPagina ? 'Staat op jouw eigen pagina — klik om te verbergen' : 'Niet op eigen pagina — klik om aan te zetten'}">🏠 ${opEigenPagina ? 'Aan' : 'Uit'}</button>`;
+            })() : ''}
             <button class="map-verberg-btn${isVerborgen ? ' verborgen' : ''}"
               onclick="toggleMapVerborg('${m.map.replace(/'/g,"\\'")}', this)"
               title="${isVerborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers'}">${isVerborgen ? '👁 Toon' : '🙈 Verberg'}</button>
