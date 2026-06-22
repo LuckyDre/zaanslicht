@@ -316,7 +316,7 @@ async function laadGallery() {
       if (typeof db !== 'undefined') {
         const snap = await Promise.race([
           db.ref('likes').once('value'),
-          new Promise(r => setTimeout(() => r(null), 3000)),
+          new Promise(r => setTimeout(() => r(null), 1000)),
         ]);
         likeCounts = snap?.val() || {};
       }
