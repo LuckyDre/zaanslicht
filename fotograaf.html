@@ -2078,6 +2078,27 @@ window.toggleMapVerborg = async function(mapNaam, btn) {
   btn.disabled = false;
 };
 
+window.toggleMapEigenPagina = async function(mapNaam, btn) {
+  const wordtAan = !btn.classList.contains('actief');
+  const sessie = haalSessieOp();
+  if (!sessie) return;
+  btn.disabled = true;
+  try {
+    const r = await fetch(WORKER + '/fotograaf/map-eigen-pagina', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+      body: JSON.stringify({ map: mapNaam, opEigenPagina: wordtAan }),
+    });
+    if (!r.ok) throw new Error('Fout');
+    btn.classList.toggle('actief', wordtAan);
+    btn.textContent = '🏠 ' + (wordtAan ? 'Aan' : 'Uit');
+    btn.title = wordtAan ? 'Staat op jouw eigen pagina — klik om te verbergen' : 'Niet op eigen pagina — klik om aan te zetten';
+  } catch(e) {
+    alert('Kon status niet opslaan.');
+  }
+  btn.disabled = false;
+};
+
 // ── BULK SELECTIE ──────────────────────────────────────────────────────────
 const _selMappen = new Set();
 const _selFotos  = new Map(); // mapNaam → Set<key>
