@@ -376,7 +376,11 @@ async function laadGallery() {
     }
 
     for (const fg of fotografen) {
-      const mappen = (fg.mappen || []).filter(m => m.categorie === CATEGORY);
+      const mappen = (fg.mappen || []).filter(m => {
+        if (CATEGORY === 'voetbal')  return m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal';
+        if (CATEGORY === 'nosports') return m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports';
+        return false;
+      });
       for (const map of mappen) {
         alleSeries.push({
           datum: map.datum || '',
