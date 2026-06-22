@@ -1862,49 +1862,37 @@ async function laadMappenTab() {
       return li;
     }
 
-    // Drie groepen
-    const groepen = [
-      { id: 'voetbal',  label: '⚽ Voetbal',      categorie: 'voetbal'  },
-      { id: 'nosports', label: '🌿 No Sports',     categorie: 'nosports' },
-      { id: 'eigen',    label: '📷 Eigen pagina',  categorie: 'eigen'    },
-    ];
-
     const wrapper = document.createElement('div');
     wrapper.id = 'mappen-sorteer-lijst';
 
-    for (const groep of groepen) {
-      const mappen = _mappenData.filter(m => m.categorie === groep.categorie);
+    const sectie = document.createElement('div');
+    sectie.className = 'map-groep';
+    sectie.innerHTML = `
+      <div class="map-groep-header">
+        <span>📁 Mijn series</span>
+        <span class="map-groep-teller">${_mappenData.length} serie${_mappenData.length !== 1 ? 's' : ''}</span>
+        <button class="groep-selecteer-btn" onclick="fgSelecteerAlleMappen()">Selecteer alles</button>
+      </div>
+      <div class="map-groep-lijst"></div>`;
 
-      const sectie = document.createElement('div');
-      sectie.className = 'map-groep';
-      sectie.dataset.categorie = groep.categorie;
-      sectie.innerHTML = `
-        <div class="map-groep-header">
-          <span>${groep.label}</span>
-          <span class="map-groep-teller">${mappen.length} map${mappen.length !== 1 ? 'pen' : ''}</span>
-          <button class="groep-selecteer-btn" onclick="fgSelecteerAlleMappen('${groep.categorie}')">Selecteer alles</button>
-        </div>
-        <div class="map-groep-lijst" data-categorie="${groep.categorie}"></div>`;
-
-      const lijst = sectie.querySelector('.map-groep-lijst');
-      for (const m of mappen) {
-        lijst.appendChild(maakMapItem(m, fotoPerMap[m.map] || [], verborgenSet));
-      }
-
-      if (mappen.length === 0) {
-        lijst.innerHTML = '<p style="color:var(--muted);font-size:0.8rem;padding:0.5rem 0;font-style:italic">Geen mappen in deze categorie</p>';
-      }
-
-      new Sortable(lijst, {
-        animation: 200,
-        handle: '.map-drag-handle',
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        onEnd() { document.getElementById('volgorde-feedback').textContent = ''; }
-      });
-
-      wrapper.appendChild(sectie);
+    const lijst = sectie.querySelector('.map-groep-lijst');
+    for (const m of _mappenData) {
+      lijst.appendChild(maakMapItem(m, fotoPerMap[m.map] || [], verborgenSet));
     }
+
+    if (_mappenData.length === 0) {
+      lijst.innerHTML = '<p style="color:var(--muted);font-size:0.8rem;padding:0.5rem 0;font-style:italic">Nog geen mappen — upload je eerste foto\'s!</p>';
+    }
+
+    new Sortable(lijst, {
+      animation: 200,
+      handle: '.map-drag-handle',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd() { document.getElementById('volgorde-feedback').textContent = ''; }
+    });
+
+    wrapper.appendChild(sectie);
 
     inhoud.innerHTML = '';
     inhoud.appendChild(wrapper);
