@@ -2113,8 +2113,8 @@ window.fgToggleMapSelectie = function(cb) {
   fgUpdateBulkBalk();
 };
 
-window.fgSelecteerAlleMappen = function(categorie) {
-  const lijst = document.querySelector(`.map-groep-lijst[data-categorie="${categorie}"]`);
+window.fgSelecteerAlleMappen = function() {
+  const lijst = document.querySelector('.map-groep-lijst');
   if (!lijst) return;
   const cbs = lijst.querySelectorAll('.map-checkbox');
   const alleAan = [...cbs].every(c => c.checked);
