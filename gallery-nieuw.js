@@ -310,12 +310,15 @@ async function laadGallery() {
 
     container.innerHTML = '';
 
-    // Haal like-aantallen op uit Firebase (één keer voor alle series)
+    // Haal like-aantallen op uit Firebase (max 3s, anders zonder likes verder)
     let likeCounts = {};
     try {
       if (typeof db !== 'undefined') {
-        const snap = await db.ref('likes').once('value');
-        likeCounts = snap.val() || {};
+        const snap = await Promise.race([
+          db.ref('likes').once('value'),
+          new Promise(r => setTimeout(() => r(null), 3000)),
+        ]);
+        likeCounts = snap?.val() || {};
       }
     } catch {}
 
