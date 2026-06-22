@@ -174,7 +174,7 @@ async function getTopLiked(fotos, maxN) {
     if (typeof db === 'undefined') return shuffle(fotos).slice(0, maxN);
     const snap   = await Promise.race([
       db.ref('likes').once('value'),
-      new Promise(r => setTimeout(() => r(null), 1000)),
+      new Promise(r => setTimeout(() => r(null), 200)),
     ]);
     const counts = snap?.val() || {};
     const sorted = [...fotos]
