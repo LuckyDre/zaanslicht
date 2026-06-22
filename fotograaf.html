@@ -536,12 +536,23 @@
   }
   .map-groep-teller { font-weight: 400; }
   .map-groep-lijst { min-height: 2rem; }
-  .map-cat-select {
-    background: #1a1a1a; border: 1px solid rgba(255,255,255,0.12); color: var(--text);
-    border-radius: 6px; padding: 0.25rem 0.5rem; font-size: 0.75rem; cursor: pointer;
-    flex-shrink: 0; transition: border-color 0.15s; font-family: var(--font);
+  .map-cat-knoppen {
+    display: flex; align-items: center; flex-shrink: 0;
   }
-  .map-cat-select:focus { outline: none; border-color: var(--accent); }
+  .map-cat-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.12); color: var(--muted);
+    padding: 0.28rem 0.6rem; font-size: 0.72rem; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; font-family: var(--font);
+  }
+  .map-cat-btn:first-child { border-radius: 6px 0 0 6px; }
+  .map-cat-btn:last-child  { border-radius: 0 6px 6px 0; }
+  .map-cat-btn:not(:first-child) { border-left: none; }
+  .map-cat-btn:hover { border-color: rgba(255,255,255,0.3); color: var(--text); z-index: 1; position: relative; }
+  .map-cat-btn.actief {
+    background: rgba(255,107,0,0.15); border-color: var(--accent);
+    color: var(--accent); font-weight: 600; z-index: 1; position: relative;
+  }
+  .map-cat-btn.actief + .map-cat-btn { border-left: none; }
 
   /* LABELS */
   .label-chip {
@@ -634,8 +645,9 @@
     #mappen-acties { flex-direction: column; align-items: stretch !important; }
 
     /* Map-header: controls naar tweede rij */
-    .map-controls { width: 100%; }
-    .map-cat-select { flex: 1; }
+    .map-controls { width: 100%; flex-wrap: wrap; }
+    .map-cat-knoppen { flex: 1; }
+    .map-cat-btn { flex: 1; justify-content: center; }
     .map-datum-input { width: 110px; }
   }
 
