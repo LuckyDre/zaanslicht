@@ -568,6 +568,7 @@ async function laadPagina() {
     } catch {}
 
     for (const map of mappen) {
+      if (map.opEigenPagina === false) continue;
       const fotosRes  = await fetch(`${WORKER}/fotograaf/fotos?id=${fg.id}&categorie=${encodeURIComponent(map.categorie)}`);
       const fotosData = await fotosRes.json();
       const fotos     = (fotosData.fotos || []).filter(f => {
