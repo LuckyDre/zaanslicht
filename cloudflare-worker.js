@@ -632,7 +632,7 @@ async function handleFotoUpload(request, env) {
   const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
   const bestaand = mappen.find(m => m.map === map && m.categorie === categorie);
   if (!bestaand) {
-    mappen.push({ map, categorie, ts: Date.now(), labels });
+    mappen.push({ map, categorie, ts: Date.now(), labels, opVoetbal: true, opNosports: false, opEigenPagina: true });
     await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
   } else if (labels.length && JSON.stringify(bestaand.labels) !== JSON.stringify(labels)) {
     // Update labels als ze zijn veranderd
