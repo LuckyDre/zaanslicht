@@ -732,33 +732,73 @@ function planSave() {
 let activeTab = 'voetbal';
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────
+function opslaanToken(t) {
+  try { localStorage.setItem('zl_token', t); } catch {}
+  try { sessionStorage.setItem('zl_token', t); } catch {}
+}
+function leesToken() {
+  try { const t = localStorage.getItem('zl_token'); if (t) return t; } catch {}
+  try { return sessionStorage.getItem('zl_token'); } catch {}
+  return null;
+}
+function verwijderToken() {
+  try { localStorage.removeItem('zl_token'); } catch {}
+  try { sessionStorage.removeItem('zl_token'); } catch {}
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
-  const saved = localStorage.getItem('zl_token');
+  const saved = leesToken();
   if (saved) {
     token = saved;
     try {
       await loadManifest();
       startApp();
     } catch {
-      // Token verlopen of ongeldig — terug naar loginscherm
-      localStorage.removeItem('zl_token');
+      verwijderToken();
       token = '';
     }
   }
 });
 
-async function doLogin() {
-  token = document.getElementById('token-input').value.trim();
-  if (!token) return;
-  document.getElementById('login-fout').style.display = 'none';
+async function doLoginStap1() {
+  const pw = document.getElementById('pw1-input').value;
+  const fout = document.getElementById('login-fout1');
+  fout.style.display = 'none';
+  if (!pw) return;
   try {
-    // Test of het token werkt door manifest te laden
+    const res = await fetch(WORKER_URL + '/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stap: 1, wachtwoord: pw }),
+    });
+    if (!res.ok) { fout.style.display = 'block'; return; }
+    document.getElementById('login-stap1').style.display = 'none';
+    document.getElementById('login-stap2').style.display = 'flex';
+    document.getElementById('pw2-input').focus();
+  } catch {
+    fout.style.display = 'block';
+  }
+}
+
+async function doLoginStap2() {
+  const pw = document.getElementById('pw2-input').value;
+  const fout = document.getElementById('login-fout2');
+  fout.style.display = 'none';
+  if (!pw) return;
+  try {
+    const res = await fetch(WORKER_URL + '/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stap: 2, wachtwoord: pw }),
+    });
+    if (!res.ok) { fout.style.display = 'block'; return; }
+    const data = await res.json();
+    token = data.githubToken;
+    opslaanToken(token);
     await loadManifest();
-    localStorage.setItem('zl_token', token);
     startApp();
   } catch {
-    document.getElementById('login-fout').style.display = 'block';
-    token = '';
+    fout.style.display = 'block';
   }
 }
 
