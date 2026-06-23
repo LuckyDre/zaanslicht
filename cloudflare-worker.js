@@ -571,9 +571,9 @@ const GH_API    = 'https://api.github.com';
 
 async function githubGet(path, env) {
   const r = await fetch(`${GH_API}${path}`, {
-    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json' }
+    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'User-Agent': 'ZaansLicht-Worker/1.0' }
   });
-  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  if (!r.ok) { const msg = await r.text().catch(() => ''); throw new Error(`GitHub ${r.status}: ${msg.slice(0,200)}`); }
   return r.json();
 }
 
