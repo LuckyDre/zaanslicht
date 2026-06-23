@@ -548,6 +548,22 @@ async function handleLoginLog(request, env) {
   return json({ log: raw ? JSON.parse(raw) : [] });
 }
 
+// ── ADMIN LOGIN (tweestaps wachtwoord) ────────────────────────────────────
+async function handleAdminLogin(request, env) {
+  const { stap, wachtwoord } = await request.json().catch(() => ({}));
+  if (!stap || !wachtwoord) return json({ error: 'Ongeldige aanvraag' }, 400);
+
+  if (stap === 1) {
+    if (wachtwoord !== env.ADMIN_PASSWORD_1) return json({ error: 'Onjuist wachtwoord' }, 401);
+    return json({ ok: true });
+  }
+  if (stap === 2) {
+    if (wachtwoord !== env.ADMIN_PASSWORD_2) return json({ error: 'Onjuiste pincode' }, 401);
+    return json({ ok: true, githubToken: env.GITHUB_TOKEN });
+  }
+  return json({ error: 'Ongeldige stap' }, 400);
+}
+
 // ── REVIEW-MODUS (admin kijkt mee als fotograaf) ───────────────────────────
 async function handleReviewWachtwoord(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
@@ -1572,6 +1588,7 @@ export default {
     if (url.pathname === '/fotograaf/map-naam'         && request.method === 'POST') return handleMapNaam(request, env);
     if (url.pathname === '/fotograaf/map-eigen-pagina' && request.method === 'POST') return handleMapPaginas(request, env);
     if (url.pathname === '/fotograaf/map-paginas'      && request.method === 'POST') return handleMapPaginas(request, env);
+    if (url.pathname === '/admin/login'               && request.method === 'POST') return handleAdminLogin(request, env);
     if (url.pathname === '/admin/review-wachtwoord'   && request.method === 'POST') return handleReviewWachtwoord(request, env);
     if (url.pathname === '/admin/review-sessie'       && request.method === 'POST') return handleReviewSessie(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
