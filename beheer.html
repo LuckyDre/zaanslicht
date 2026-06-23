@@ -396,16 +396,24 @@
 <!-- LOGIN SCHERM -->
 <div id="login-scherm">
   <h1>Zaans <span>Licht</span></h1>
-  <p>Online beheer — voer je GitHub-token in om in te loggen.<br>
-     Het token wordt alleen lokaal in je browser opgeslagen.</p>
-  <div class="login-box">
-    <label>GitHub Personal Access Token</label>
-    <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
-    <p id="login-fout">Ongeldig token of geen toegang tot de repository.</p>
-    <button class="btn btn-oranje" onclick="doLogin()">Inloggen →</button>
-    <a href="https://github.com/settings/tokens/new?description=ZaansLicht+Beheer&scopes=repo" target="_blank">
-      → Token aanmaken op GitHub (vink "repo" aan)
-    </a>
+  <p>Online beheer</p>
+
+  <!-- Stap 1 -->
+  <div class="login-box" id="login-stap1">
+    <label>Wachtwoord</label>
+    <input type="password" id="pw1-input" placeholder="••••••••••" autocomplete="off"
+           onkeydown="if(event.key==='Enter')doLoginStap1()" />
+    <p id="login-fout1" style="color:var(--rood);font-size:0.85rem;display:none">Onjuist wachtwoord.</p>
+    <button class="btn btn-oranje" onclick="doLoginStap1()">Volgende →</button>
+  </div>
+
+  <!-- Stap 2 -->
+  <div class="login-box" id="login-stap2" style="display:none">
+    <label>Pincode</label>
+    <input type="password" id="pw2-input" placeholder="••••" autocomplete="off"
+           onkeydown="if(event.key==='Enter')doLoginStap2()" />
+    <p id="login-fout2" style="color:var(--rood);font-size:0.85rem;display:none">Onjuiste pincode.</p>
+    <button class="btn btn-oranje" onclick="doLoginStap2()">Inloggen →</button>
   </div>
 </div>
 
