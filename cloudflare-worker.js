@@ -1664,6 +1664,10 @@ export default {
     if (url.pathname === '/fotograaf/map-eigen-pagina' && request.method === 'POST') return handleMapPaginas(request, env);
     if (url.pathname === '/fotograaf/map-paginas'      && request.method === 'POST') return handleMapPaginas(request, env);
     if (url.pathname === '/admin/login'               && request.method === 'POST') return handleAdminLogin(request, env);
+    if (url.pathname === '/admin/manifest'            && request.method === 'GET')  return handleAdminManifestGet(request, env);
+    if (url.pathname === '/admin/manifest'            && request.method === 'POST') return handleAdminManifestSave(request, env);
+    if (url.pathname === '/admin/github-file'         && request.method === 'GET')  return handleAdminGithubFileGet(request, env);
+    if (url.pathname === '/admin/github-file'         && request.method === 'POST') return handleAdminGithubFilePut(request, env);
     if (url.pathname === '/admin/review-wachtwoord'   && request.method === 'POST') return handleReviewWachtwoord(request, env);
     if (url.pathname === '/admin/review-sessie'       && request.method === 'POST') return handleReviewSessie(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
