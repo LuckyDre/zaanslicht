@@ -785,6 +785,7 @@ async function doLoginStap2() {
   const fout = document.getElementById('login-fout2');
   fout.style.display = 'none';
   if (!pw) return;
+  let data;
   try {
     const res = await fetch(WORKER_URL + '/admin/login', {
       method: 'POST',
@@ -792,14 +793,15 @@ async function doLoginStap2() {
       body: JSON.stringify({ stap: 2, wachtwoord: pw }),
     });
     if (!res.ok) { fout.style.display = 'block'; return; }
-    const data = await res.json();
-    token = data.githubToken;
-    opslaanToken(token);
-    await loadManifest();
-    startApp();
+    data = await res.json();
   } catch {
     fout.style.display = 'block';
+    return;
   }
+  token = data.githubToken;
+  opslaanToken(token);
+  await loadManifest();
+  startApp();
 }
 
 function toggleTheme() {
