@@ -862,21 +862,11 @@ async function loadManifest() {
 async function doSave() {
   updateManifestFromDOM();
   try {
-    // Altijd verse SHA ophalen zodat auto-sync commits geen conflict geven
-    const huidig = await ghGet(`/repos/${REPO}/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
-    fileSHA = huidig.sha;
-
     const now     = new Date();
     const ts      = now.toLocaleDateString('nl-NL') + ' ' + now.toTimeString().slice(0,5);
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(manifest, null, 2))));
-    const result  = await ghPut(`/repos/${REPO}/contents/manifest.json`, {
-      message: `Beheer sync: ${ts}`,
-      content,
-      sha: fileSHA,
-      branch: BRANCH
-    });
-    fileSHA = result.content.sha;
-    dirty   = false;
+    await workerPost('/admin/manifest', { message: `Beheer sync: ${ts}`, content });
+    dirty = false;
     document.getElementById('badge-status').textContent = '✓ Opgeslagen';
   } catch (e) {
     document.getElementById('badge-status').textContent = '❌ Opslaan mislukt';
