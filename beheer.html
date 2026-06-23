@@ -726,31 +726,30 @@ function planSave() {
 }
 let activeTab = 'voetbal';
 
-// ── LOGIN ─────────────────────────────────────────────────────────────────
-function opslaanToken(t) {
-  try { localStorage.setItem('zl_token', t); } catch {}
-  try { sessionStorage.setItem('zl_token', t); } catch {}
-}
-function leesToken() {
-  try { const t = localStorage.getItem('zl_token'); if (t) return t; } catch {}
-  try { return sessionStorage.getItem('zl_token'); } catch {}
+// ── AUTH HELPERS ──────────────────────────────────────────────────────────
+function getWorkerSecret() {
+  try { const s = localStorage.getItem('zl_worker_secret'); if (s) return s; } catch {}
+  try { return sessionStorage.getItem('zl_worker_secret'); } catch {}
   return null;
 }
-function verwijderToken() {
-  try { localStorage.removeItem('zl_token'); } catch {}
-  try { sessionStorage.removeItem('zl_token'); } catch {}
+function slaWorkerSecretOp(s) {
+  try { localStorage.setItem('zl_worker_secret', s); } catch {}
+  try { sessionStorage.setItem('zl_worker_secret', s); } catch {}
+}
+function verwijderWorkerSecret() {
+  try { localStorage.removeItem('zl_worker_secret'); } catch {}
+  try { sessionStorage.removeItem('zl_worker_secret'); } catch {}
 }
 
+// ── LOGIN ─────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  const saved = leesToken();
-  if (saved) {
-    token = saved;
+  const secret = getWorkerSecret();
+  if (secret) {
     try {
       await loadManifest();
       startApp();
     } catch {
-      verwijderToken();
-      token = '';
+      verwijderWorkerSecret();
     }
   }
 });
