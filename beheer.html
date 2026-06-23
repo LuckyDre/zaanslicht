@@ -817,11 +817,14 @@ function toggleTheme() {
 
 function doLogout() {
   if (dirty && !confirm('Er zijn nog wijzigingen die worden opgeslagen. Toch uitloggen?')) return;
-  localStorage.removeItem('zl_token');
+  verwijderToken();
   token = '';
   document.getElementById('app').style.display = 'none';
+  document.getElementById('login-stap1').style.display = 'flex';
+  document.getElementById('login-stap2').style.display = 'none';
+  document.getElementById('pw1-input').value = '';
+  document.getElementById('pw2-input').value = '';
   document.getElementById('login-scherm').style.display = 'flex';
-  document.getElementById('token-input').value = '';
 }
 
 function startApp() {
