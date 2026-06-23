@@ -812,8 +812,7 @@ function toggleTheme() {
 
 function doLogout() {
   if (dirty && !confirm('Er zijn nog wijzigingen die worden opgeslagen. Toch uitloggen?')) return;
-  verwijderToken();
-  token = '';
+  verwijderWorkerSecret();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-stap1').style.display = 'flex';
   document.getElementById('login-stap2').style.display = 'none';
