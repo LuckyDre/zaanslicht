@@ -2550,11 +2550,10 @@ async function fotoNaarWebP(file, maxPx = 2200, kwaliteit = 0.82) {
 
 async function uploadFotoNaarGitHub(cat, mapNaam, naam, base64) {
   const pad = `images/${cat}/${encodeURIComponent(mapNaam)}/${naam}`;
-  let sha;
-  try { sha = (await ghGet(`/repos/${REPO}/contents/${pad}?ref=${BRANCH}`)).sha; } catch {}
-  const body = { message: `Upload: ${mapNaam}/${naam}`, content: base64, branch: BRANCH };
-  if (sha) body.sha = sha;
-  await ghPut(`/repos/${REPO}/contents/${pad}`, body);
+  const { sha } = await workerGet('/admin/github-file?path=' + encodeURIComponent(pad));
+  await workerPost('/admin/github-file', {
+    path: pad, content: base64, message: `Upload: ${mapNaam}/${naam}`, sha,
+  });
 }
 
 async function verwerkUploads(files, cat, mapNaam, li, progres) {
