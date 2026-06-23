@@ -580,7 +580,7 @@ async function githubGet(path, env) {
 async function githubPut(path, body, env) {
   const r = await fetch(`${GH_API}${path}`, {
     method: 'PUT',
-    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'ZaansLicht-Worker/1.0' },
     body: JSON.stringify(body),
   });
   if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.message || `GitHub ${r.status}`); }
