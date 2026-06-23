@@ -835,27 +835,26 @@ function startApp() {
 }
 
 // ── GITHUB API ────────────────────────────────────────────────────────────
-async function ghGet(path) {
-  const r = await fetch(`${API}${path}`, {
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
-  });
-  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+async function workerGet(endpoint) {
+  const secret = getWorkerSecret();
+  const r = await fetch(WORKER_URL + endpoint, { headers: { 'X-Worker-Secret': secret } });
+  if (!r.ok) throw new Error(`Worker ${r.status}`);
   return r.json();
 }
 
-async function ghPut(path, body) {
-  const r = await fetch(`${API}${path}`, {
-    method: 'PUT',
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+async function workerPost(endpoint, body) {
+  const secret = getWorkerSecret();
+  const r = await fetch(WORKER_URL + endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+    body: JSON.stringify(body),
   });
-  if (!r.ok) { const e = await r.json(); throw new Error(e.message || `GitHub ${r.status}`); }
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || `Worker ${r.status}`); }
   return r.json();
 }
 
 async function loadManifest() {
-  const data = await ghGet(`/repos/${REPO}/contents/manifest.json?ref=${BRANCH}&t=${Date.now()}`);
-  fileSHA  = data.sha;
+  const data = await workerGet('/admin/manifest?t=' + Date.now());
   manifest = JSON.parse(atob(data.content.replace(/\n/g, '')));
 }
 
