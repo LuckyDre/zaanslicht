@@ -559,9 +559,84 @@ async function handleAdminLogin(request, env) {
   }
   if (stap === 2) {
     if (wachtwoord !== env.ADMIN_PASSWORD_2) return json({ error: 'Onjuiste pincode' }, 401);
-    return json({ ok: true, githubToken: env.GITHUB_TOKEN });
+    return json({ ok: true, workerSecret: env.WORKER_SECRET });
   }
   return json({ error: 'Ongeldige stap' }, 400);
+}
+
+// ── GITHUB PROXY (manifest + bestanden via Worker) ────────────────────────
+const GH_REPO   = 'LuckyDre/zaanslicht';
+const GH_BRANCH = 'main';
+const GH_API    = 'https://api.github.com';
+
+async function githubGet(path, env) {
+  const r = await fetch(`${GH_API}${path}`, {
+    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json' }
+  });
+  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  return r.json();
+}
+
+async function githubPut(path, body, env) {
+  const r = await fetch(`${GH_API}${path}`, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.message || `GitHub ${r.status}`); }
+  return r.json();
+}
+
+async function handleAdminManifestGet(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  try {
+    const data = await githubGet(`/repos/${GH_REPO}/contents/manifest.json?ref=${GH_BRANCH}&t=${Date.now()}`, env);
+    return json({ sha: data.sha, content: data.content });
+  } catch (e) {
+    return json({ error: e.message }, 500);
+  }
+}
+
+async function handleAdminManifestSave(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { content, message } = await request.json().catch(() => ({}));
+  if (!content || !message) return json({ error: 'content en message verplicht' }, 400);
+  try {
+    const huidig = await githubGet(`/repos/${GH_REPO}/contents/manifest.json?ref=${GH_BRANCH}&t=${Date.now()}`, env);
+    const result = await githubPut(`/repos/${GH_REPO}/contents/manifest.json`, {
+      message, content, sha: huidig.sha, branch: GH_BRANCH,
+    }, env);
+    return json({ ok: true, sha: result.content?.sha });
+  } catch (e) {
+    return json({ error: e.message }, 500);
+  }
+}
+
+async function handleAdminGithubFileGet(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const url = new URL(request.url);
+  const path = url.searchParams.get('path');
+  if (!path) return json({ error: 'path ontbreekt' }, 400);
+  try {
+    const data = await githubGet(`/repos/${GH_REPO}/contents/${path}?ref=${GH_BRANCH}`, env);
+    return json({ sha: data.sha });
+  } catch {
+    return json({ sha: null });
+  }
+}
+
+async function handleAdminGithubFilePut(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { path, content, message, sha } = await request.json().catch(() => ({}));
+  if (!path || !content || !message) return json({ error: 'path, content en message verplicht' }, 400);
+  try {
+    const body = { message, content, branch: GH_BRANCH };
+    if (sha) body.sha = sha;
+    await githubPut(`/repos/${GH_REPO}/contents/${path}`, body, env);
+    return json({ ok: true });
+  } catch (e) {
+    return json({ error: e.message }, 500);
+  }
 }
 
 // ── REVIEW-MODUS (admin kijkt mee als fotograaf) ───────────────────────────
