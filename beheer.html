@@ -792,8 +792,7 @@ async function doLoginStap2() {
     fout.style.display = 'block';
     return;
   }
-  token = data.githubToken;
-  opslaanToken(token);
+  slaWorkerSecretOp(data.workerSecret);
   await loadManifest();
   startApp();
 }
