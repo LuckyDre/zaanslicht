@@ -1237,6 +1237,19 @@ async function toonDashboard(nieuwAangemeld = false) {
 
   function isAlWebp(f) { return f.name.toLowerCase().endsWith('.webp'); }
 
+  // Detecteer of deze browser WebP kan encoderen via Canvas.
+  // Safari/iOS ondersteunt dit niet en valt anders stilzwijgend terug op PNG-data
+  // terwijl het bestand toch .webp heet — de server verwerpt dat dan als "verkeerd formaat".
+  let _webpEncodeOndersteund = null;
+  function canvasKanWebp() {
+    if (_webpEncodeOndersteund === null) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 1;
+      _webpEncodeOndersteund = c.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+    }
+    return _webpEncodeOndersteund;
+  }
+
   function verwerkBestanden(files) {
     const raws = files.filter(isRaw);
     if (raws.length) {
