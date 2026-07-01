@@ -1266,7 +1266,8 @@ async function toonDashboard(nieuwAangemeld = false) {
     const btn   = document.getElementById('upload-btn');
     queue.innerHTML = bestanden.map((f, i) => {
       const webp = isAlWebp(f);
-      const tag  = webp ? '' : '<span style="font-size:0.65rem;background:rgba(255,107,0,0.2);color:var(--accent);border-radius:4px;padding:0.1rem 0.4rem;flex-shrink:0">→ WebP</span>';
+      const doel = canvasKanWebp() ? 'WebP' : 'JPEG';
+      const tag  = webp ? '' : `<span style="font-size:0.65rem;background:rgba(255,107,0,0.2);color:var(--accent);border-radius:4px;padding:0.1rem 0.4rem;flex-shrink:0">→ ${doel}</span>`;
       return `<div class="queue-item" id="qi-${i}">
         <div style="font-size:1.2rem">${webp ? '🌐' : '🖼️'}</div>
         <span class="queue-naam">${f.name}</span>
