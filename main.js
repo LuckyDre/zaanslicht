@@ -171,12 +171,7 @@ function setTilebg(elId, fotos) {
 // Haal top-gelikte foto's op uit Firebase (max N stuks)
 async function getTopLiked(fotos, maxN) {
   try {
-    if (typeof db === 'undefined') return shuffle(fotos).slice(0, maxN);
-    const snap   = await Promise.race([
-      db.ref('likes').once('value'),
-      new Promise(r => setTimeout(() => r(null), 200)),
-    ]);
-    const counts = snap?.val() || {};
+    const counts = (await fbGet('likes')) || {};
     const sorted = [...fotos]
       .map(f => ({ ...f, likes: counts[photoKeyMain(f.path)] || 0 }))
       .sort((a, b) => b.likes - a.likes);
