@@ -432,18 +432,12 @@ Promise.all([
     likeBtn.addEventListener('click', async e => {
       e.stopPropagation();
       const key = likeBtn.dataset.key;
-      if (!key || typeof db === 'undefined') return;
+      if (!key) return;
       const liked = isLiked(key);
-      const ref   = db.ref('likes/' + key);
-      if (liked) {
-        await ref.transaction(c => Math.max(0,(c||1)-1));
-        setLiked(key, false); likeBtn.classList.remove('geliked');
-      } else {
-        await ref.transaction(c => (c||0)+1);
-        setLiked(key, true); likeBtn.classList.add('geliked');
-      }
-      const snap = await ref.once('value');
-      const n = snap.val() || 0;
+      const delta = liked ? -1 : 1;
+      setLiked(key, !liked);
+      likeBtn.classList.toggle('geliked', !liked);
+      const n = await fbIncrement('likes/' + key, delta);
       document.getElementById('lb2-like-count').textContent = n > 0 ? n : '';
     });
 
