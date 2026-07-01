@@ -678,18 +678,11 @@ function initLikes() {
     e.stopPropagation();
     const key   = btn.dataset.key;
     const liked = isLikedLocally(key);
-    if (typeof db === 'undefined') return;
-    const ref = db.ref(`likes/${key}`);
     try {
-      if (liked) {
-        await ref.transaction(cur => Math.max(0, (cur||1) - 1));
-        setLikedLocally(key, false); btn.classList.remove('liked');
-      } else {
-        await ref.transaction(cur => (cur||0) + 1);
-        setLikedLocally(key, true); btn.classList.add('liked');
-      }
-      const snap = await ref.once('value');
-      const count = snap.val() || 0;
+      const delta = liked ? -1 : 1;
+      setLikedLocally(key, !liked);
+      btn.classList.toggle('liked', !liked);
+      const count = await fbIncrement(`likes/${key}`, delta);
       btn.querySelector('.like-count').textContent = count > 0 ? count : '';
     } catch {}
   });
