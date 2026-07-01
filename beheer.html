@@ -1264,6 +1264,32 @@ function toggleOpen(hdr) {
   }
 }
 function hernum(grid) { grid.querySelectorAll('.foto-nr').forEach((el, i) => el.textContent = i + 1); }
+
+function eigenUpdateFotoTeller(li) {
+  const item = (manifest[li.dataset.cat] || []).find(x => x.map === li.dataset.map);
+  const teller = li.querySelector('.slider-count.slider-ts');
+  if (item && teller) teller.textContent = `${item.fotos.length} foto's`;
+}
+
+function eigenFotoVerwijderen(event, btn) {
+  event.stopPropagation();
+  const thumb = btn.closest('.foto-thumb');
+  const li    = btn.closest('.slider-item');
+  const cat   = li.dataset.cat;
+  const mapNaam = li.dataset.map;
+  const naam  = thumb.dataset.foto;
+  if (!confirm(`Foto "${naam}" verwijderen uit deze slider?\n\nHet bestand blijft bewaard op GitHub Pages.`)) return;
+
+  const item = (manifest[cat] || []).find(x => x.map === mapNaam);
+  if (item) item.fotos = item.fotos.filter(f => f !== naam);
+
+  const grid = thumb.closest('.foto-grid');
+  thumb.remove();
+  hernum(grid);
+  eigenUpdateFotoTeller(li);
+  planSave();
+  setLog(`Foto "${naam}" verwijderd uit slider.`, 'success');
+}
 function switchTab(tab) {
   activeTab = tab;
   document.querySelectorAll('.tab').forEach((t, i) => {
