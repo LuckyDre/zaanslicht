@@ -757,18 +757,12 @@ function initLightbox() {
     lbLike.addEventListener('click', async e => {
       e.stopPropagation();
       const key = lbLike.dataset.key;
-      if (!key || typeof db === 'undefined') return;
+      if (!key) return;
       const liked = isLikedLocally(key);
-      const ref   = db.ref(`likes/${key}`);
-      if (liked) {
-        await ref.transaction(cur => Math.max(0,(cur||1)-1));
-        setLikedLocally(key,false); lbLike.classList.remove('liked');
-      } else {
-        await ref.transaction(cur => (cur||0)+1);
-        setLikedLocally(key,true); lbLike.classList.add('liked');
-      }
-      const snap = await ref.once('value');
-      const c = snap.val()||0;
+      const delta = liked ? -1 : 1;
+      setLikedLocally(key, !liked);
+      lbLike.classList.toggle('liked', !liked);
+      const c = await fbIncrement(`likes/${key}`, delta);
       lbLikeCount.textContent = c > 0 ? c : '';
       const smallBtn = document.querySelector(`.btn-like[data-key="${key}"]`);
       if (smallBtn) { smallBtn.classList.toggle('liked',!liked); smallBtn.querySelector('.like-count').textContent = c>0?c:''; }
