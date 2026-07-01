@@ -689,34 +689,40 @@ async function handleFotoUpload(request, env) {
   if (!file || !file.name) return json({ error: 'Geen bestand' }, 400);
   if (file.size > 15 * 1024 * 1024) return json({ error: 'Bestand te groot (max 15MB)' }, 400);
 
-  // Controleer magic bytes: WebP = RIFF....WEBP (bytes 0-3 en 8-11)
+  // Controleer magic bytes: WebP = RIFF....WEBP (bytes 0-3 en 8-11), JPEG = FF D8 FF
+  // JPEG wordt geaccepteerd omdat Safari/iOS geen WebP-encoding via Canvas ondersteunt —
+  // de fotograaf.html-upload valt daar terug op JPEG i.p.v. WebP.
   const header = await file.slice(0, 12).arrayBuffer();
   const b = new Uint8Array(header);
   const isWebP = b[0]===0x52&&b[1]===0x49&&b[2]===0x46&&b[3]===0x46&&
                  b[8]===0x57&&b[9]===0x45&&b[10]===0x42&&b[11]===0x50;
-  if (!isWebP) return json({ error: 'Alleen WebP-bestanden worden opgeslagen. Converteer eerst naar WebP.' }, 400);
+  const isJPEG = b[0]===0xFF&&b[1]===0xD8&&b[2]===0xFF;
+  if (!isWebP && !isJPEG) return json({ error: 'Alleen WebP- of JPEG-bestanden worden opgeslagen. Converteer eerst.' }, 400);
 
-  // Bestandsnaam altijd als .webp opslaan
+  const ext         = isWebP ? '.webp' : '.jpg';
+  const contentType = isWebP ? 'image/webp' : 'image/jpeg';
   const basisNaam  = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
-  const veiligNaam = basisNaam + '.webp';
+  const veiligNaam = basisNaam + ext;
   const r2Key = `fotografen/${fotograaf.id}/${categorie}/${encodeURIComponent(map)}/${veiligNaam}`;
 
   await env.FOTOS.put(r2Key, file.stream(), {
-    httpMetadata: { contentType: 'image/webp' },
+    httpMetadata: { contentType },
     customMetadata: { fotograafId: fotograaf.id, fotograafNaam: fotograaf.naam, map, categorie },
   });
 
-  // Thumbnail opslaan als die meegezonden is (en ook echt WebP is)
+  // Thumbnail opslaan als die meegezonden is (en ook echt WebP of JPEG is)
   const thumb = formData.get('thumbnail');
   if (thumb && thumb.size > 0) {
     const th = await thumb.slice(0, 12).arrayBuffer();
     const tb = new Uint8Array(th);
     const thumbIsWebP = tb[0]===0x52&&tb[1]===0x49&&tb[2]===0x46&&tb[3]===0x46&&
                         tb[8]===0x57&&tb[9]===0x45&&tb[10]===0x42&&tb[11]===0x50;
-    if (thumbIsWebP) {
-      const thumbKey = 'thumbs/' + r2Key.replace(/\.[^.]+$/, '-thumb.webp');
+    const thumbIsJPEG = tb[0]===0xFF&&tb[1]===0xD8&&tb[2]===0xFF;
+    if (thumbIsWebP || thumbIsJPEG) {
+      const thumbExt = thumbIsWebP ? '.webp' : '.jpg';
+      const thumbKey = 'thumbs/' + r2Key.replace(/\.[^.]+$/, '-thumb' + thumbExt);
       await env.FOTOS.put(thumbKey, thumb.stream(), {
-        httpMetadata: { contentType: 'image/webp' },
+        httpMetadata: { contentType: thumbIsWebP ? 'image/webp' : 'image/jpeg' },
       });
     }
   }
