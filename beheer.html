@@ -2594,13 +2594,14 @@ async function verwerkUploads(files, cat, mapNaam, li, progres) {
       thumb.className = 'foto-thumb';
       thumb.dataset.foto = naamWebP;
       const dataUrl = 'data:image/webp;base64,' + base64;
-      thumb.innerHTML = `<img src="${dataUrl}"><span class="foto-nr">${idx}</span>`;
+      thumb.innerHTML = `<img src="${dataUrl}"><span class="foto-nr">${idx}</span><button class="foto-verwijder-btn" onclick="eigenFotoVerwijderen(event,this)" title="Foto verwijderen uit slider">🗑</button>`;
       grid.appendChild(thumb);
 
       // Manifest bijwerken
       if (item && !item.fotos.includes(naamWebP)) {
         item.fotos.push(naamWebP);
       }
+      eigenUpdateFotoTeller(li);
       planSave();
       rij.querySelector('.uz-status').textContent = '✓';
       rij.style.color = 'var(--groen)';
