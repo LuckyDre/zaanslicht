@@ -312,16 +312,14 @@ async function laadGallery() {
 
     // Likes non-blocking laden: foto's direct tonen, tellers bijwerken zodra Firebase reageert
     let likeCounts = {};
-    if (typeof db !== 'undefined') {
-      db.ref('likes').once('value').then(snap => {
-        likeCounts = snap.val() || {};
-        container.querySelectorAll('.btn-like[data-key]').forEach(btn => {
-          const c = likeCounts[btn.dataset.key] || 0;
-          const sp = btn.querySelector('.like-count');
-          if (sp) sp.textContent = c > 0 ? c : '';
-        });
-      }).catch(() => {});
-    }
+    fbGet('likes').then(counts => {
+      likeCounts = counts || {};
+      container.querySelectorAll('.btn-like[data-key]').forEach(btn => {
+        const c = likeCounts[btn.dataset.key] || 0;
+        const sp = btn.querySelector('.like-count');
+        if (sp) sp.textContent = c > 0 ? c : '';
+      });
+    }).catch(() => {});
 
     // Bouw lookup voor gast-fotos
     const gastCache = {};
