@@ -1252,6 +1252,7 @@ function toggleOpen(hdr) {
         <div class="foto-thumb" data-foto="${f}">
           <img src="${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}" loading="lazy" />
           <span class="foto-nr">${i + 1}</span>
+          <button class="foto-verwijder-btn" onclick="eigenFotoVerwijderen(event,this)" title="Foto verwijderen uit slider">🗑</button>
         </div>`).join('');
       new Sortable(grid, {
         animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
