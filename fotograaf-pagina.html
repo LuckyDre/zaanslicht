@@ -716,12 +716,9 @@ function _lbToon(idx) {
   if (lbLike && f.key) {
     lbLike.dataset.key = f.key;
     lbLike.classList.toggle('liked', isLikedLocally(f.key));
-    if (typeof db !== 'undefined') {
-      db.ref(`likes/${f.key}`).once('value').then(s => {
-        const c = s.val() || 0;
-        document.getElementById('lb-like-count').textContent = c > 0 ? c : '';
-      });
-    }
+    fbGet(`likes/${f.key}`).then(c => {
+      document.getElementById('lb-like-count').textContent = (c || 0) > 0 ? c : '';
+    });
   }
 
   // Reacties teller bijwerken
