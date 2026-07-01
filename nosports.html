@@ -440,7 +440,7 @@ Promise.all([
     new MutationObserver(() => {
       const key = likeBtn.dataset.key; if (!key) return;
       likeBtn.classList.toggle('geliked', isLiked(key));
-      if (typeof db !== 'undefined') db.ref('likes/'+key).once('value').then(s=>{ const n=s.val()||0; document.getElementById('lb2-like-count').textContent=n>0?n:''; });
+      fbGet('likes/'+key).then(n=>{ document.getElementById('lb2-like-count').textContent=(n||0)>0?n:''; });
       fetch(WORKER+'/comments?key='+encodeURIComponent(key)).then(r=>r.json()).then(d=>{ document.getElementById('lb2-rc-count').textContent=(d.comments||[]).length>0?(d.comments||[]).length:''; }).catch(()=>{});
     }).observe(document.getElementById('lb2-img'), {attributes:true, attributeFilter:['src']});
   }
