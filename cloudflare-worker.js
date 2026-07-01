@@ -276,7 +276,7 @@ async function handleSubscribers(request, env) {
 //   fotograaf:token:{token}    → id  (sessie-token na inloggen)
 //   fotograaf:mappen:{id}      → [{ map, categorie, ts }]  (eigen mappen)
 
-// R2 keys:  fotografen/{id}/{categorie}/{map}/{filename}.webp
+// R2 keys:  fotografen/{id}/{categorie}/{map}/{filename}.webp (of .jpg — Safari/iOS-fallback)
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
 function randomToken(bytes = 24) {
