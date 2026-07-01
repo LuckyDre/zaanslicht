@@ -1556,9 +1556,11 @@ async function handleFotoServe(request, env) {
   if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
 
   // Thumbnail ophalen als ?thumb=1 meegegeven; valt terug op origineel
+  // Thumb-extensie volgt de extensie van het origineel (.webp of .jpg — zie handleFotoUpload)
   let object = null;
   if (url.searchParams.get('thumb') === '1') {
-    const thumbKey = 'thumbs/' + key.replace(/\.[^.]+$/, '-thumb.webp');
+    const keyExt   = key.match(/\.[^.]+$/)?.[0] || '.webp';
+    const thumbKey = 'thumbs/' + key.replace(/\.[^.]+$/, '-thumb' + keyExt);
     object = await env.FOTOS.get(thumbKey);
   }
   if (!object) object = await env.FOTOS.get(key);
