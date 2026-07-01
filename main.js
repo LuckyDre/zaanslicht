@@ -501,11 +501,10 @@ function escHtmlM(s) {
 
 async function loadRecentComments() {
   const widget = document.getElementById('recent-comments-widget');
-  if (!widget || typeof db === 'undefined') return;
+  if (!widget) return;
   try {
-    const snap = await db.ref('recent_comments').orderByChild('ts').limitToLast(3).once('value');
-    const items = [];
-    snap.forEach(c => items.push({id: c.key, ...c.val()}));
+    const data  = await fbGet('recent_comments', '?orderBy=%22ts%22&limitToLast=3');
+    const items = Object.entries(data || {}).map(([id, c]) => ({ id, ...c }));
     items.reverse(); // nieuwste eerst
     if (items.length === 0) return;
 
