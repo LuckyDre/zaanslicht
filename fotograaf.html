@@ -2239,11 +2239,13 @@ async function fgBulkVerwijder() {
   if (!confirm(`${alleKeys.length} foto${alleKeys.length !== 1 ? "'s" : ''} verwijderen?\nDeze actie kan niet ongedaan worden gemaakt.`)) return;
 
   for (const key of alleKeys) {
-    await fetch(WORKER + '/fotograaf/foto-delete', {
+    const delRes = await fetch(WORKER + '/fotograaf/foto-delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
       body: JSON.stringify({ key }),
     });
+    if (delRes.status === 401) { sessieVerlopen(); return; }
+    if (!delRes.ok) { alert(`Verwijderen mislukt (${delRes.status})`); return; }
     document.querySelectorAll('.foto-chip').forEach(c => {
       if (c.dataset.fotoKey === key) c.remove();
     });
@@ -2258,18 +2260,22 @@ async function _verwijderMapStil(mapNaam, s) {
     try { return decodeURIComponent(f.key).split('/')[3] === mapNaam; } catch { return false; }
   });
   for (const f of fotos) {
-    await fetch(WORKER + '/fotograaf/foto-delete', {
+    const delRes = await fetch(WORKER + '/fotograaf/foto-delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
       body: JSON.stringify({ key: f.key }),
     });
+    if (delRes.status === 401) { sessieVerlopen(); throw new Error('sessie-verlopen'); }
+    if (!delRes.ok) throw new Error(`Foto verwijderen mislukt (${delRes.status})`);
   }
   const nieuweMappen = _mappenData.filter(m => m.map !== mapNaam);
-  await fetch(WORKER + '/fotograaf/mappen-volgorde', {
+  const volgordeRes = await fetch(WORKER + '/fotograaf/mappen-volgorde', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
     body: JSON.stringify({ mappen: nieuweMappen }),
   });
+  if (volgordeRes.status === 401) { sessieVerlopen(); throw new Error('sessie-verlopen'); }
+  if (!volgordeRes.ok) throw new Error(`Map bijwerken mislukt (${volgordeRes.status})`);
   _mappenData = nieuweMappen;
   document.querySelectorAll('.map-item').forEach(el => {
     if (el.dataset.map === mapNaam) el.remove();
