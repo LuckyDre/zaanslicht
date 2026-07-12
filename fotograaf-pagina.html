@@ -573,10 +573,18 @@ async function laadPagina() {
       if (map.opEigenPagina === false) continue;
       const fotosRes  = await fetch(`${WORKER}/fotograaf/fotos?id=${fg.id}&categorie=${encodeURIComponent(map.categorie)}`);
       const fotosData = await fotosRes.json();
-      const fotos     = (fotosData.fotos || []).filter(f => {
+      let fotos       = (fotosData.fotos || []).filter(f => {
         try { return decodeURIComponent(f.key).includes(`/${map.map}/`); } catch { return false; }
       });
       if (!fotos.length) continue;
+
+      // Handmatige foto-volgorde van de fotograaf (nieuwe foto's zonder positie achteraan)
+      const volgorde = (fotosData.fotoVolgorde || {})[map.map];
+      if (Array.isArray(volgorde) && volgorde.length) {
+        const pos = new Map(volgorde.map((k, i) => [k, i]));
+        fotos = [...fotos].sort((a, b) =>
+          (pos.has(a.key) ? pos.get(a.key) : Infinity) - (pos.has(b.key) ? pos.get(b.key) : Infinity));
+      }
 
       totaalFotos += fotos.length;
       totaalSeries++;
