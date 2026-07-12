@@ -2221,8 +2221,13 @@ async function fgBulkVerwijder() {
   if (_selMappen.size > 0) {
     const n = _selMappen.size;
     if (!confirm(`${n} serie${n !== 1 ? 's' : ''} verwijderen inclusief alle foto's?\nDeze actie kan niet ongedaan worden gemaakt.`)) return;
-    for (const mapNaam of [..._selMappen]) {
-      await _verwijderMapStil(mapNaam, s);
+    try {
+      for (const mapNaam of [..._selMappen]) {
+        await _verwijderMapStil(mapNaam, s);
+      }
+    } catch (e) {
+      if (e.message !== 'sessie-verlopen') alert('Verwijderen mislukt: ' + e.message);
+      return;
     }
     fgBulkAnnuleer();
     return;
