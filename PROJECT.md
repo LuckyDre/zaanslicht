@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.12 — 12 juli 2026
+- 🔑 **Fix stille sessie-verloop fotograaf.html** (gemeld door Jan Kaper: kon mappen en foto's niet verwijderen terwijl beheer.html wel werkte)
+  - Oorzaak: sessietokens hebben in KV een TTL van 30 dagen, maar fotograaf.html herstelde de sessie uit localStorage zonder validatie. Lees-endpoints (`/fotograaf/fotos`, `/fotograaf/manifest`) vereisen geen token, dus het dashboard laadde gewoon — alleen mutaties (verwijderen etc.) gaven 401. In `verwijderMap()` en de bulk-functies werden fetch-responses bovendien niet gecontroleerd, waardoor de 401 stil verdween.
+  - Worker: schuivende vervaldatum in `getFotograafByToken` — elk geldig gebruik verlengt het token met 30 dagen (actieve fotografen worden nooit uitgelogd; per apparaat een eigen token, dus meerdere PC's tegelijk blijft werken)
+  - fotograaf.html: sessie-check bij het laden via `/fotograaf/verborgen-eigen`; bij 401 → sessie gewist + loginscherm met melding "Je sessie is verlopen. Log opnieuw in om verder te gaan." (alleen expliciete 401 logt uit, netwerkfouten niet)
+  - fotograaf.html: `res.ok`/401-checks in `verwijderFoto`, `verwijderMap`, `fgBulkVerwijder` en `_verwijderMapStil` — fouten geven nu een alert of de sessie-verlopen-melding
+  - fotograaf-handleiding.html: sectie "Ingelogd blijven" uitgebreid (meerdere apparaten, 30-dagen-verloop bij inactiviteit)
+
 ### v0.11 — 13 juni 2026
 - ✨ **NIEUW-badge op sliders**: pulserende badge op galerij-sliders waarvan de datum < 14 dagen oud is. Automatisch zichtbaar in `gallery-nieuw.js` via `isNieuw(datum)` + `ensureNieuwStyles()`. Verdwijnt vanzelf na 2 weken.
 - 🔀 **Hero-shuffle**: hero toonde altijd dezelfde top-5; nu wordt uit de top-20 meest gelikte foto's willekeurig 5 gekozen bij elke laad. Fix in `main.js` (`vulHeroEnStart`). Cache-buster naar `main.js?v=20260613b`.
