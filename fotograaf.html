@@ -444,6 +444,16 @@
   }
   .foto-chip-lbl.heeft-labels { background: var(--accent); color: #fff; opacity: 1; border-color: var(--bg); }
   .foto-chip:hover .foto-chip-lbl { opacity: 1; }
+  /* Sorteer-modus: overlays uit zodat tikken/slepen de foto zelf raakt */
+  .map-item.sorteer-modus .foto-chip-del,
+  .map-item.sorteer-modus .foto-chip-lbl,
+  .map-item.sorteer-modus .foto-chip-check { display: none !important; }
+  .map-item.sorteer-modus .foto-chip { cursor: grab; }
+  .foto-chip.sorteer-geselecteerd {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255,107,0,0.45);
+    transform: scale(1.08); z-index: 10;
+  }
   .foto-label-popup {
     position: fixed; z-index: 200; background: var(--surface);
     border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
