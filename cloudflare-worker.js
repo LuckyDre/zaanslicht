@@ -318,10 +318,14 @@ async function verifyPassword(password, stored) {
 }
 
 async function getFotograafByToken(token, env) {
+  if (!token) return null;
   const id  = await env.SUBSCRIBERS.get('fotograaf:token:' + token);
   if (!id) return null;
   const raw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+  // Schuivende vervaldatum: elk geldig gebruik verlengt de sessie met 30 dagen
+  await env.SUBSCRIBERS.put('fotograaf:token:' + token, id, { expirationTtl: 30 * 24 * 3600 });
+  return JSON.parse(raw);
 }
 
 // ── UITNODIGEN ─────────────────────────────────────────────────────────────
