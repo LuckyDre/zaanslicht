@@ -748,6 +748,22 @@ const inviteToken = params.get('invite');
 let sessie = JSON.parse(localStorage.getItem('zl_fotograaf') || 'null');
 function haalSessieOp() { return sessie; }
 
+function sessieVerlopen() {
+  localStorage.removeItem('zl_fotograaf');
+  sessie = null;
+  window.scrollTo(0, 0);
+  toonInloggen('Je sessie is verlopen. Log opnieuw in om verder te gaan.');
+}
+
+// Controleert bij het laden of het opgeslagen token nog geldig is.
+// Alleen een expliciete 401 logt uit — bij netwerkfouten blijft de sessie staan.
+async function controleerSessie() {
+  try {
+    const r = await fetch(WORKER + '/fotograaf/verborgen-eigen', { headers: { 'X-Fotograaf-Token': sessie.token } });
+    return r.status !== 401;
+  } catch { return true; }
+}
+
 // ── REALTIME PRESENCE ─────────────────────────────────────────────────────
 let _presRef = null;
 
