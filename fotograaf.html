@@ -2052,8 +2052,8 @@ window.toggleSorteerModus = function(btn) {
   btn.style.color = actief ? 'var(--orange)' : '';
   const hint = li.querySelector('.sorteer-hint');
   if (hint) hint.textContent = actief
-    ? 'Tik een foto en tik daarna de plek waar hij moet staan'
-    : 'Sleep foto\'s om de volgorde op je eigen pagina te bepalen';
+    ? 'Tik een foto en tik daarna de plek waar hij moet staan (slepen kan ook)'
+    : 'Klik 🔀 om de foto-volgorde voor je eigen pagina te wijzigen';
   if (!actief) li.querySelectorAll('.foto-chip.sorteer-geselecteerd').forEach(c => c.classList.remove('sorteer-geselecteerd'));
 };
 
