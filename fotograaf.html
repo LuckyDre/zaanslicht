@@ -2034,6 +2034,19 @@ window.toggleMapPagina = async function(mapNaam, pagina, btn) {
   btn.disabled = false;
 };
 
+window.toggleSorteerModus = function(btn) {
+  const li = btn.closest('.map-item');
+  const actief = li.classList.toggle('sorteer-modus');
+  btn.textContent = actief ? '✔ Klaar met sorteren' : '🔀 Volgorde wijzigen';
+  btn.style.borderColor = actief ? 'var(--orange)' : '';
+  btn.style.color = actief ? 'var(--orange)' : '';
+  const hint = li.querySelector('.sorteer-hint');
+  if (hint) hint.textContent = actief
+    ? 'Tik een foto en tik daarna de plek waar hij moet staan'
+    : 'Sleep foto\'s om de volgorde op je eigen pagina te bepalen';
+  if (!actief) li.querySelectorAll('.foto-chip.sorteer-geselecteerd').forEach(c => c.classList.remove('sorteer-geselecteerd'));
+};
+
 window.slaFotoVolgordeOp = async function(mapNaam, btn) {
   const s = haalSessieOp(); if (!s) return;
   const li = btn.closest('.map-item');
