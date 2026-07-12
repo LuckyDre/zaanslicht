@@ -1799,6 +1799,7 @@ async function laadMappenTab() {
 
     // Groepeer fotos per mapnaam
     const alleFotos = fotosData.fotos || [];
+    _fotoVolgorde = fotosData.fotoVolgorde || {};
     const fotoPerMap = {};
     for (const f of alleFotos) {
       if (f.key.includes('/profiel.')) continue;
@@ -1807,6 +1808,10 @@ async function laadMappenTab() {
       const mapNaam = delen[3];
       if (!fotoPerMap[mapNaam]) fotoPerMap[mapNaam] = [];
       fotoPerMap[mapNaam].push(f);
+    }
+    // Pas handmatige foto-volgorde toe (nieuwe foto's zonder positie komen achteraan)
+    for (const mapNaam of Object.keys(fotoPerMap)) {
+      fotoPerMap[mapNaam] = sorteerOpVolgorde(fotoPerMap[mapNaam], _fotoVolgorde[mapNaam]);
     }
 
     // Bouw een map-item element
