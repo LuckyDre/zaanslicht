@@ -319,16 +319,27 @@ async function verifyPassword(password, stored) {
 
 async function getFotograafByToken(token, env) {
   if (!token) return null;
-  const waarde = await env.SUBSCRIBERS.get('fotograaf:token:' + token);
+  const res = await env.SUBSCRIBERS.getWithMetadata('fotograaf:token:' + token);
+  const waarde = res && res.value;
   if (!waarde) return null;
   const isReview = waarde.startsWith('review:');
   const id  = isReview ? waarde.slice(7) : waarde;
   const raw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
   if (!raw) return null;
-  // Schuivende vervaldatum: elk geldig gebruik verlengt de sessie met 30 dagen.
+  // Schuivende vervaldatum: geldig gebruik verlengt de sessie met 30 dagen.
+  // Max 1x per 24 uur per token (KV-writes zijn gelimiteerd: 1000/dag op het gratis plan)
+  // en altijd best-effort: een mislukte verlenging mag een geldige sessie nooit breken.
   // Review-sessies niet verlengen — die horen na 2 uur te verlopen.
   if (!isReview) {
-    await env.SUBSCRIBERS.put('fotograaf:token:' + token, id, { expirationTtl: 30 * 24 * 3600 });
+    const laatstVerlengd = (res.metadata && res.metadata.verlengd) || 0;
+    if (Date.now() - laatstVerlengd > 24 * 3600 * 1000) {
+      try {
+        await env.SUBSCRIBERS.put('fotograaf:token:' + token, id, {
+          expirationTtl: 30 * 24 * 3600,
+          metadata: { verlengd: Date.now() },
+        });
+      } catch (e) { /* quota of storing — sessie blijft gewoon geldig */ }
+    }
   }
   return JSON.parse(raw);
 }
