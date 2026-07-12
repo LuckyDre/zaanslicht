@@ -819,11 +819,12 @@ window.stopReview = () => {
 // ══════════════════════════════════════════════════════
 // INLOGGEN
 // ══════════════════════════════════════════════════════
-function toonInloggen() {
+function toonInloggen(melding) {
   document.getElementById('main-content').innerHTML = `
     <div class="card">
       <p class="card-label">Fotograaf Portal</p>
       <h2>Inloggen</h2>
+      ${melding ? `<p style="background:rgba(255,107,0,0.1);border:1px solid rgba(255,107,0,0.4);border-radius:var(--radius);padding:0.7rem 1rem;font-size:0.85rem;color:#FF6B00;margin-bottom:1rem">${melding}</p>` : ''}
       <p class="card-sub">Log in met je e-mailadres en wachtwoord om foto's te uploaden.</p>
       <form id="login-form">
         <div class="form-group">
