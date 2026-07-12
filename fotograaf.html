@@ -2014,6 +2014,29 @@ window.toggleMapPagina = async function(mapNaam, pagina, btn) {
   btn.disabled = false;
 };
 
+window.slaFotoVolgordeOp = async function(mapNaam, btn) {
+  const s = haalSessieOp(); if (!s) return;
+  const li = btn.closest('.map-item');
+  const keys = [...li.querySelectorAll('.foto-chip')].map(c => c.dataset.fotoKey);
+  btn.disabled = true; btn.textContent = 'Opslaan…';
+  try {
+    const res = await fetch(WORKER + '/fotograaf/foto-volgorde', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+      body: JSON.stringify({ map: mapNaam, volgorde: keys }),
+    });
+    if (res.status === 401) { sessieVerlopen(); return; }
+    if (!res.ok) throw new Error(`Opslaan mislukt (${res.status})`);
+    _fotoVolgorde[mapNaam] = keys;
+    btn.textContent = '✓ Opgeslagen';
+    setTimeout(() => { btn.style.display = 'none'; }, 1800);
+  } catch (e) {
+    alert(e.message);
+    btn.textContent = '💾 Foto-volgorde opslaan';
+    btn.disabled = false;
+  }
+};
+
 async function verwijderFoto(key, delBtn) {
   const chip = delBtn.closest('.foto-chip');
   if (!confirm('Deze foto van de site verwijderen?')) return;
