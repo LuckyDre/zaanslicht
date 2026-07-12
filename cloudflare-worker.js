@@ -319,12 +319,17 @@ async function verifyPassword(password, stored) {
 
 async function getFotograafByToken(token, env) {
   if (!token) return null;
-  const id  = await env.SUBSCRIBERS.get('fotograaf:token:' + token);
-  if (!id) return null;
+  const waarde = await env.SUBSCRIBERS.get('fotograaf:token:' + token);
+  if (!waarde) return null;
+  const isReview = waarde.startsWith('review:');
+  const id  = isReview ? waarde.slice(7) : waarde;
   const raw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
   if (!raw) return null;
-  // Schuivende vervaldatum: elk geldig gebruik verlengt de sessie met 30 dagen
-  await env.SUBSCRIBERS.put('fotograaf:token:' + token, id, { expirationTtl: 30 * 24 * 3600 });
+  // Schuivende vervaldatum: elk geldig gebruik verlengt de sessie met 30 dagen.
+  // Review-sessies niet verlengen — die horen na 2 uur te verlopen.
+  if (!isReview) {
+    await env.SUBSCRIBERS.put('fotograaf:token:' + token, id, { expirationTtl: 30 * 24 * 3600 });
+  }
   return JSON.parse(raw);
 }
 
