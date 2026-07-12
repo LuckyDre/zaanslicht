@@ -174,6 +174,7 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
   - fotograaf.html: sessie-check bij het laden via `/fotograaf/verborgen-eigen`; bij 401 → sessie gewist + loginscherm met melding "Je sessie is verlopen. Log opnieuw in om verder te gaan." (alleen expliciete 401 logt uit, netwerkfouten niet)
   - fotograaf.html: `res.ok`/401-checks in `verwijderFoto`, `verwijderMap`, `fgBulkVerwijder` en `_verwijderMapStil` — fouten geven nu een alert of de sessie-verlopen-melding
   - fotograaf-handleiding.html: sectie "Ingelogd blijven" uitgebreid (meerdere apparaten, 30-dagen-verloop bij inactiviteit)
+  - Review-tokens uitgezonderd van de schuivende vervaldatum: KV-waarde krijgt `review:`-prefix (`fotograaf:token:{token}` → `review:{id}`), `getFotograafByToken` verlengt die niet — review-sessies verlopen na 2 uur zoals bedoeld
 
 ### v0.11 — 13 juni 2026
 - ✨ **NIEUW-badge op sliders**: pulserende badge op galerij-sliders waarvan de datum < 14 dagen oud is. Automatisch zichtbaar in `gallery-nieuw.js` via `isNieuw(datum)` + `ensureNieuwStyles()`. Verdwijnt vanzelf na 2 weken.
