@@ -665,9 +665,10 @@ async function handleReviewSessie(request, env) {
   if (!raw) return json({ error: 'Fotograaf niet gevonden' }, 404);
   const account = JSON.parse(raw);
 
-  // Korte sessie (2 uur) — zelfde token-mechanisme als een gewone login
+  // Korte sessie (2 uur) — zelfde token-mechanisme als een gewone login.
+  // Waarde krijgt 'review:'-prefix zodat getFotograafByToken de TTL niet verlengt.
   const token = randomToken();
-  await env.SUBSCRIBERS.put('fotograaf:token:' + token, account.id, { expirationTtl: 2 * 3600 });
+  await env.SUBSCRIBERS.put('fotograaf:token:' + token, 'review:' + account.id, { expirationTtl: 2 * 3600 });
   return json({ ok: true, token, naam: account.naam, kleur: account.kleur, id: account.id });
 }
 
