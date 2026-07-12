@@ -767,10 +767,11 @@ async function handleFotosLijst(request, env) {
 
   const lijst   = await env.FOTOS.list({ prefix, limit: 500 });
 
-  // Haal verborgen mappen en fotos op
-  const [verborgenMappenRaw, verborgenFotosRaw] = await Promise.all([
+  // Haal verborgen mappen, fotos en handmatige foto-volgorde op
+  const [verborgenMappenRaw, verborgenFotosRaw, fotoVolgordeRaw] = await Promise.all([
     env.SUBSCRIBERS.get('fotograaf:verborgen-mappen:' + id),
     env.SUBSCRIBERS.get('fotograaf:verborgen-fotos:' + id),
+    env.SUBSCRIBERS.get('fotograaf:foto-volgorde:' + id),
   ]);
   const verborgenMappen = verborgenMappenRaw ? JSON.parse(verborgenMappenRaw) : [];
   const verborgenFotos  = verborgenFotosRaw  ? JSON.parse(verborgenFotosRaw)  : [];
