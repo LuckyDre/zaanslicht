@@ -1908,15 +1908,34 @@ async function laadMappenTab() {
         // Laad bestaande labels asynchroon
         laadFotoLabelBadge(chip, f.key);
       }
-      // Foto's versleepbaar maken; na een sleep verschijnt de opslaan-knop
+      // Foto's versleepbaar maken; na een sleep verschijnt de opslaan-knop.
+      // Op touch: lange druk (250ms) start de sleep, zodat gewoon scrollen blijft werken.
+      const toonVolgordeKnop = () => {
+        const knop = li.querySelector('.foto-volgorde-btn');
+        if (knop) { knop.style.display = ''; knop.textContent = '💾 Foto-volgorde opslaan'; knop.disabled = false; }
+      };
       if (fotos.length > 1) {
         new Sortable(grid, {
           animation: 150,
           handle: '.foto-chip-img',
-          onEnd: () => {
-            const knop = li.querySelector('.foto-volgorde-btn');
-            if (knop) { knop.style.display = ''; knop.textContent = '💾 Foto-volgorde opslaan'; knop.disabled = false; }
-          },
+          delay: 250,
+          delayOnTouchOnly: true,
+          touchStartThreshold: 4,
+          onEnd: toonVolgordeKnop,
+        });
+        // Tik-tik sorteren (mobiel-vriendelijk alternatief voor slepen):
+        // in sorteer-modus tik je eerst een foto, daarna de foto op de doelplek.
+        grid.addEventListener('click', e => {
+          if (!li.classList.contains('sorteer-modus')) return;
+          const chip = e.target.closest('.foto-chip');
+          if (!chip) return;
+          const sel = grid.querySelector('.foto-chip.sorteer-geselecteerd');
+          if (!sel) { chip.classList.add('sorteer-geselecteerd'); return; }
+          if (sel === chip) { chip.classList.remove('sorteer-geselecteerd'); return; }
+          const alle = [...grid.querySelectorAll('.foto-chip')];
+          if (alle.indexOf(sel) < alle.indexOf(chip)) chip.after(sel); else chip.before(sel);
+          sel.classList.remove('sorteer-geselecteerd');
+          toonVolgordeKnop();
         });
       }
       return li;
