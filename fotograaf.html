@@ -1907,6 +1907,17 @@ async function laadMappenTab() {
         // Laad bestaande labels asynchroon
         laadFotoLabelBadge(chip, f.key);
       }
+      // Foto's versleepbaar maken; na een sleep verschijnt de opslaan-knop
+      if (fotos.length > 1) {
+        new Sortable(grid, {
+          animation: 150,
+          handle: '.foto-chip-img',
+          onEnd: () => {
+            const knop = li.querySelector('.foto-volgorde-btn');
+            if (knop) { knop.style.display = ''; knop.textContent = '💾 Foto-volgorde opslaan'; knop.disabled = false; }
+          },
+        });
+      }
       return li;
     }
 
