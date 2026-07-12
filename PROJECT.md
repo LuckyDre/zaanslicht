@@ -177,6 +177,11 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
   - Eigen (Andreas) series op fotograaf-pagina.html gebruiken de manifest-volgorde zoals voorheen
   - End-to-end geverifieerd in browser: slepen → opslaan → herladen → publieke pagina respecteert volgorde; testdata daarna gereset
   - fotograaf-handleiding.html: stap "Foto-volgorde aanpassen" gecorrigeerd (beschreef eerder auto-opslaan dat niet bestond) + uitleg waar de volgorde geldt
+- 🔀 **Sorteer-modus (mobiel-vriendelijk, zelfde dag toegevoegd)**
+  - Knop "🔀 Volgorde wijzigen" per map → tik-tik verplaatsen: tik de foto (oranje rand + scale), tik daarna de doelplek; werkt op telefoon én desktop. "✔ Klaar met sorteren" sluit de modus
+  - In sorteer-modus zijn de 🗑/🏷/checkbox-overlays verborgen (CSS `.map-item.sorteer-modus`) — nodig omdat de 🗑-overlay (`inset:0`) anders alle clicks/drags op de chip afvangt; direct slepen buiten de modus werkte daardoor feitelijk niet
+  - SortableJS: `delay: 250, delayOnTouchOnly: true` zodat slepen op touch niet botst met scrollen
+  - Hintteksten aangepast: sorteren loopt via de 🔀-modus
 
 ### v0.12 — 12 juli 2026
 - 🔑 **Fix stille sessie-verloop fotograaf.html** (gemeld door Jan Kaper: kon mappen en foto's niet verwijderen terwijl beheer.html wel werkte)
