@@ -1766,6 +1766,16 @@ document.getElementById('up-map-select')?.addEventListener('change', function() 
 // ══════════════════════════════════════════════════════
 
 let _mappenData = []; // huidige volgorde
+let _fotoVolgorde = {}; // handmatige foto-volgorde per map: { mapNaam: [keys...] }
+
+// Sorteert een foto-array volgens een opgeslagen key-volgorde.
+// Keys zonder positie (nieuwe uploads) blijven achteraan in bestandsnaam-volgorde.
+function sorteerOpVolgorde(fotos, volgorde) {
+  if (!Array.isArray(volgorde) || !volgorde.length) return fotos;
+  const pos = new Map(volgorde.map((k, i) => [k, i]));
+  return [...fotos].sort((a, b) =>
+    (pos.has(a.key) ? pos.get(a.key) : Infinity) - (pos.has(b.key) ? pos.get(b.key) : Infinity));
+}
 
 async function laadMappenTab() {
   if (!sessie) return;
