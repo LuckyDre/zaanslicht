@@ -787,7 +787,24 @@ async function handleFotosLijst(request, env) {
       ts:   o.uploaded?.getTime() || 0,
     }));
 
-  return json({ fotos, verborgenMappen, verborgenFotos });
+  return json({ fotos, verborgenMappen, verborgenFotos, fotoVolgorde: fotoVolgordeRaw ? JSON.parse(fotoVolgordeRaw) : {} });
+}
+
+// ── HANDMATIGE FOTO-VOLGORDE PER MAP (fotograaf zelf) ─────────────────────
+async function handleFotoVolgorde(request, env) {
+  const fotograaf = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+  const { map, volgorde } = await request.json().catch(() => ({}));
+  if (!map || !Array.isArray(volgorde)) return json({ error: 'map en volgorde verplicht' }, 400);
+  if (volgorde.some(k => typeof k !== 'string' || !k.startsWith(`fotografen/${fotograaf.id}/`))) {
+    return json({ error: 'Ongeldige keys' }, 400);
+  }
+  const raw  = await env.SUBSCRIBERS.get('fotograaf:foto-volgorde:' + fotograaf.id);
+  const data = raw ? JSON.parse(raw) : {};
+  if (volgorde.length === 0) delete data[map];
+  else data[map] = volgorde;
+  await env.SUBSCRIBERS.put('fotograaf:foto-volgorde:' + fotograaf.id, JSON.stringify(data));
+  return json({ ok: true });
 }
 
 // ── MANIFEST VOOR GASTFOTOGRAFEN ───────────────────────────────────────────
