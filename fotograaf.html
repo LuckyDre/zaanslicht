@@ -1874,10 +1874,11 @@ async function laadMappenTab() {
         <div class="map-fotos-paneel">
           <div class="map-fotos-paneel-acties" style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;flex-wrap:wrap">
             <button class="groep-selecteer-btn" onclick="fgSelecteerAlleFotos('${m.map.replace(/'/g,"\\'")}', this)">Selecteer alles</button>
+            <button class="groep-selecteer-btn sorteer-modus-btn" onclick="toggleSorteerModus(this)">🔀 Volgorde wijzigen</button>
             <button class="groep-selecteer-btn foto-volgorde-btn" style="display:none;border-color:var(--orange);color:var(--orange)"
               onclick="slaFotoVolgordeOp('${m.map.replace(/'/g,"\\'")}', this)">💾 Foto-volgorde opslaan</button>
             <span class="foto-selectie-tel" style="font-size:0.75rem;color:#666"></span>
-            <span style="font-size:0.72rem;color:#666;margin-left:auto">Sleep foto's om de volgorde op je eigen pagina te bepalen</span>
+            <span class="sorteer-hint" style="font-size:0.72rem;color:#666;margin-left:auto">Sleep foto's om de volgorde op je eigen pagina te bepalen</span>
           </div>
           <div class="map-fotos-grid"></div>
           <div style="display:flex;gap:0.6rem;margin-top:0.6rem;flex-wrap:wrap">
