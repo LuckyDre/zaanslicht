@@ -167,6 +167,17 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.13 — 12 juli 2026
+- 🔀 **Handmatige foto-volgorde per map** (gastfotografen)
+  - fotograaf.html Mijn mappen: foto-chips in een geopende map zijn versleepbaar (SortableJS, handle = de afbeelding); na een sleep verschijnt "💾 Foto-volgorde opslaan"
+  - Worker: `POST /fotograaf/foto-volgorde` (token-auth) `{ map, volgorde: [keys] }` → KV `fotograaf:foto-volgorde:{id}` = `{ mapNaam: [keys] }`; lege volgorde verwijdert de entry; keys van een andere fotograaf worden geweigerd (400)
+  - `GET /fotograaf/fotos` geeft nu ook `fotoVolgorde` terug
+  - fotograaf.html én fotograaf-pagina.html passen de handmatige volgorde toe; foto's zonder positie (nieuwe uploads) komen achteraan in bestandsnaam-volgorde
+  - **Bewust NIET aangepast:** galerij-sliders (voetbal/nosports, likes-sortering), hero (top-20 shuffle), index-tegels — de publieke automaat blijft leidend; eigen pagina = eigen keuze
+  - Eigen (Andreas) series op fotograaf-pagina.html gebruiken de manifest-volgorde zoals voorheen
+  - End-to-end geverifieerd in browser: slepen → opslaan → herladen → publieke pagina respecteert volgorde; testdata daarna gereset
+  - fotograaf-handleiding.html: stap "Foto-volgorde aanpassen" gecorrigeerd (beschreef eerder auto-opslaan dat niet bestond) + uitleg waar de volgorde geldt
+
 ### v0.12 — 12 juli 2026
 - 🔑 **Fix stille sessie-verloop fotograaf.html** (gemeld door Jan Kaper: kon mappen en foto's niet verwijderen terwijl beheer.html wel werkte)
   - Oorzaak: sessietokens hebben in KV een TTL van 30 dagen, maar fotograaf.html herstelde de sessie uit localStorage zonder validatie. Lees-endpoints (`/fotograaf/fotos`, `/fotograaf/manifest`) vereisen geen token, dus het dashboard laadde gewoon — alleen mutaties (verwijderen etc.) gaven 401. In `verwijderMap()` en de bulk-functies werden fetch-responses bovendien niet gecontroleerd, waardoor de 401 stil verdween.
