@@ -801,8 +801,9 @@ async function stopPresence() {
   _presRef = null;
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   if (sessie?.token) {
+    if (!(await controleerSessie())) { sessieVerlopen(); return; }
     toonDashboard();
     checkPositieBeheer();
     toonReviewBanner();
