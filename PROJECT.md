@@ -177,6 +177,11 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
   - Eigen (Andreas) series op fotograaf-pagina.html gebruiken de manifest-volgorde zoals voorheen
   - End-to-end geverifieerd in browser: slepen → opslaan → herladen → publieke pagina respecteert volgorde; testdata daarna gereset
   - fotograaf-handleiding.html: stap "Foto-volgorde aanpassen" gecorrigeerd (beschreef eerder auto-opslaan dat niet bestond) + uitleg waar de volgorde geldt
+- 🚨 **Incident: KV-schrijflimiet bereikt (zelfde dag, opgelost)**
+  - De eerste versie van de schuivende vervaldatum schreef het token bij élk geauthenticeerd verzoek opnieuw naar KV → dagquota van het gratis plan (1000 writes/dag) op → nieuwe logins en review-sessies faalden ("kan niet inloggen via beheer") én bestaande sessies kregen 500 (put-exception in `getFotograafByToken`)
+  - Fix: verlenging max 1× per 24 uur per token (tijdstip in KV-metadata `verlengd`, gelezen via `getWithMetadata`) en altijd in try/catch — een mislukte verlenging breekt een geldige sessie nooit meer
+  - KV-quota reset om middernacht UTC (02:00 NL in de zomer); tot die tijd falen alle KV-writes (nieuwe logins, review-sessies, labels opslaan, volgorde opslaan)
+  - **Les:** KV-writes zijn schaars op het gratis plan — nooit schrijven op het request-pad zonder throttle + try/catch
 - 🔀 **Sorteer-modus (mobiel-vriendelijk, zelfde dag toegevoegd)**
   - Knop "🔀 Volgorde wijzigen" per map → tik-tik verplaatsen: tik de foto (oranje rand + scale), tik daarna de doelplek; werkt op telefoon én desktop. "✔ Klaar met sorteren" sluit de modus
   - In sorteer-modus zijn de 🗑/🏷/checkbox-overlays verborgen (CSS `.map-item.sorteer-modus`) — nodig omdat de 🗑-overlay (`inset:0`) anders alle clicks/drags op de chip afvangt; direct slepen buiten de modus werkte daardoor feitelijk niet
