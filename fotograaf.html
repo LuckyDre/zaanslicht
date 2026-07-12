@@ -1995,6 +1995,7 @@ async function verwijderFoto(key, delBtn) {
       headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
       body: JSON.stringify({ key }),
     });
+    if (res.status === 401) { sessieVerlopen(); return; }
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Fout');
     chip.remove();
