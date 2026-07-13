@@ -1887,6 +1887,7 @@ async function laadMappenTab() {
         <div class="map-fotos-paneel">
           <div class="map-fotos-paneel-acties" style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;flex-wrap:wrap">
             <button class="groep-selecteer-btn" onclick="fgSelecteerAlleFotos('${m.map.replace(/'/g,"\\'")}', this)">Selecteer alles</button>
+            <button class="groep-selecteer-btn deselecteer-btn" style="display:none" onclick="fgDeselecteerAlleFotos('${m.map.replace(/'/g,"\\'")}', this)">✕ Deselecteer alles</button>
             <button class="groep-selecteer-btn sorteer-modus-btn" onclick="toggleSorteerModus(this)">🔀 Volgorde wijzigen</button>
             <button class="groep-selecteer-btn foto-volgorde-btn" style="display:none;border-color:var(--orange);color:var(--orange)"
               onclick="slaFotoVolgordeOp('${m.map.replace(/'/g,"\\'")}', this)">💾 Foto-volgorde opslaan</button>
