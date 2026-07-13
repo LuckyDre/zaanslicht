@@ -167,6 +167,19 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.18 — 13 juli 2026
+- 🏷 **Labels per individuele eigen foto** (gemeld door Andreas: kon labels alleen per hele map zetten, niet per foto — beheer.html had dit nog nooit gehad, in tegenstelling tot fotograaf.html voor gastfotografen)
+  - Nieuwe 🏷-knop linksboven op elke foto-thumbnail (naast 🗑 rechtsboven) in de geopende slider-view; oranje "heeft-labels" staat permanent zichtbaar
+  - Popup met expliciete **💾 Opslaan**/**✕ Annuleren** (zelfde les als bij fotograaf.html: nooit direct opslaan bij een klik)
+  - Sleutel-formaat `eigen-foto/{cat}/{map}/{naam}`, admin-auth via bestaand `/foto-labels` endpoint (geen Worker-wijziging nodig — accepteerde al vrije keys voor admin). Reverse index (`label:fotos:{label}`) gebruikt de thumbnail-URL, net als bij map-labels, zodat clubpagina's licht blijven laden
+  - Labels laden per map in parallel (`Promise.all`) en worden gecachet in `_bhFotoLabelsCache`
+  - End-to-end op de live site geverifieerd: annuleren liet niets achter, opslaan zette het label + badge + reverse-index entry correct, weer uitzetten haalde alles precies terug — inclusief verwijdering uit de reverse index
+- 🐛 **Fix: hover-preview overdekte de foto-grid** (zelfde melding): de preview volgde continu de muis (`mousemove`) en verscheen al na 50ms — bij normaal over de grid bewegen (bv. op weg naar een knop op een andere foto) sprong de 574×480px preview steeds in de weg
+  - Preview verschijnt nu pas na 350ms stilhouden (i.p.v. 50ms) — snel doorbewegen naar een knop triggert 'm niet meer
+  - Preview positioneert zich één keer naast de gehoverde foto (rechts, of links als daar geen ruimte is) i.p.v. continu de cursor te volgen — `mousemove`-listener verwijderd, nieuwe functie `positionPreviewBijThumb(thumb)` vervangt `positionPreview(e)`
+  - Geverifieerd: snel over meerdere thumbnails bewegen (<350ms) toont geen preview; blijven hangen toont 'm stabiel naast de foto zonder te springen
+- ⚠️ **Git-divergentie tijdens dit werk:** terwijl ik lokaal aan beheer.html werkte, deed Andreas tegelijk een wijziging via de live beheer-UI (commit "Beheer sync" naar `manifest.json`). Branches liepen uiteen; opgelost met een schone merge (geen overlappende bestanden — ik raakte alleen `beheer.html`, de live wijziging raakte alleen `manifest.json`) en gepusht zonder dataverlies
+
 ### v0.17 — 13 juli 2026
 - 🐢→⚡ **Fix trage beheerpagina bij eigen foto's** (gemeld door Andreas: laadtijd bij eigen foto's veel langzamer dan bij gastfotografen)
   - Oorzaak: beheer.html laadde overal het volledige origineel (~1.5MB/foto) i.p.v. de al bestaande `-thumb.webp` (~20KB, 400px q72) — de thumbnails bestonden al sinds 21-06-2026 maar werden hier nooit gebruikt
