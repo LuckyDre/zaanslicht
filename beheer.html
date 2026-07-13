@@ -2818,15 +2818,17 @@ document.addEventListener('mouseout', e => {
   setTimeout(() => { if (!preview.classList.contains('visible')) preview.style.display = 'none'; }, 160);
 });
 
-document.addEventListener('mousemove', e => {
-  if (preview.style.display === 'block') positionPreview(e);
-});
-
-function positionPreview(e) {
+// Preview volgt de cursor NIET meer — hij wordt één keer naast de foto gepositioneerd
+// (rechts als daar ruimte is, anders links) en blijft daar staan. Zo kun je de muis
+// vrij over de rest van de grid bewegen (bv. naar de 🏷 of 🗑 knop van een andere foto)
+// zonder dat de grote preview steeds in de weg springt.
+function positionPreviewBijThumb(thumb) {
   const pw = 574, ph = 480, margin = 16;
-  let x = e.clientX + 20;
-  let y = e.clientY - 20;
-  if (x + pw > window.innerWidth  - margin) x = e.clientX - pw - 16;
+  const r = thumb.getBoundingClientRect();
+  let x = r.right + 14;
+  if (x + pw > window.innerWidth - margin) x = r.left - pw - 14;
+  if (x < margin) x = margin;
+  let y = r.top;
   if (y + ph > window.innerHeight - margin) y = window.innerHeight - ph - margin;
   if (y < margin) y = margin;
   preview.style.left = x + 'px';
