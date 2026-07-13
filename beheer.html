@@ -1281,9 +1281,11 @@ function toggleOpen(hdr) {
         <div class="foto-thumb" data-foto="${f}">
           <img src="${thumb}" loading="lazy" onerror="if(this.src!=='${volledig}')this.src='${volledig}'" />
           <span class="foto-nr">${i + 1}</span>
+          <button class="foto-label-btn" onclick="bhOpenFotoLabelPopup(event,this,'${cat}','${mapNaam.replace(/'/g,"\\'")}','${f.replace(/'/g,"\\'")}')" title="Labels voor deze foto">🏷</button>
           <button class="foto-verwijder-btn" onclick="eigenFotoVerwijderen(event,this)" title="Foto verwijderen uit slider">🗑</button>
         </div>`;
       }).join('');
+      bhLaadFotoLabelBadges(grid, cat, mapNaam, item.fotos);
       new Sortable(grid, {
         animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
         onEnd() { hernum(grid); planSave(); }
