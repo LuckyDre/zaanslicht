@@ -472,6 +472,17 @@
   }
   .foto-label-popup-chip:hover { border-color: var(--accent); color: var(--accent); }
   .foto-label-popup-chip.actief { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  .foto-label-popup-acties { display: flex; gap: 0.5rem; margin-top: 0.7rem; justify-content: flex-end; }
+  .foto-label-popup-btn {
+    font-size: 0.75rem; padding: 0.35rem 0.9rem; border-radius: 6px;
+    cursor: pointer; font-family: inherit; transition: all 0.12s;
+  }
+  .foto-label-popup-annuleer { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #aaa; }
+  .foto-label-popup-annuleer:hover { border-color: #888; color: #ddd; }
+  .foto-label-popup-opslaan { background: var(--accent); border: 1px solid var(--accent); color: #fff; font-weight: 700; }
+  .foto-label-popup-opslaan:hover { background: #e56000; }
+  .foto-label-popup-opslaan:disabled { opacity: 0.6; cursor: wait; }
+  html.light-mode .foto-label-popup-annuleer { border-color: rgba(0,0,0,0.25); color: #555; }
   .foto-label-popup-sluiten {
     margin-top: 0.5rem; font-size: 0.7rem; color: var(--muted);
     text-align: right; cursor: pointer;
