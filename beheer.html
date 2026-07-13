@@ -1360,7 +1360,7 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
   if (_bhActiefeLabelPopup) { _bhActiefeLabelPopup.remove(); _bhActiefeLabelPopup = null; }
 
   const secret = getWorkerSecret();
-  if (!secret) { alert('Niet ingelogd.'); return; }
+  if (!secret) { setLog('Niet ingelogd.', 'error'); return; }
 
   await bhLaadAlleLabels();
 
