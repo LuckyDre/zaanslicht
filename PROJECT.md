@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.19 — 13 juli 2026
+- 🚨 **Incident: "ik kan nergens meer klikken" op beheer.html** — meteen na het uitbrengen van v0.18 (labels per eigen foto)
+  - Directe oorzaak: KV-schrijfquota was **opnieuw** vol (1000 writes/dag gratis plan, zelfde als v0.12) — bevestigd via `wrangler kv key put` (foutcode 10048). Al het testen van vandaag (labels, foto-volgorde, sessies) had de dagquota opgebruikt
+  - **Eigen bug bovenop:** de catch bij een mislukte label-opslag riep `alert()` aan — een blokkerend browser-dialoogvenster dat de HELE pagina bevriest tot je 'm wegklikt. Dat verklaart exact de melding "ik kan nergens selecteren klikken, werkt voor geen meter" — niet de labels waren stuk, de hele pagina zat vast achter een onzichtbare/genegeerde alert
+  - Fix: `alert()` vervangen door een foutmelding **in de popup zelf** (blijft in beeld, ook als het logpaneel onderaan buiten beeld staat) + het bestaande `setLog()`-logpaneel, met een tekst die de kans op een quotaprobleem meldt ("mogelijk de dagelijkse opslaglimiet bereikt... na middernacht opnieuw"). Opslaan-knop blijft klikbaar na een mislukte poging, popup sluit niet automatisch
+  - Geverifieerd met échte muisklikken (niet synthetisch `.click()`, dat maskeerde het probleem eerder): label kiezen → Opslaan → nette foutmelding verschijnt, verder klikken (Annuleren, sliders selecteren) werkt gewoon door — geen bevriezing meer
+  - **Zelfde soort bug ontdekt in fotograaf.html (nog niet gefixt, apart getaskt):** `slaFotoLabelsOp` slikt fouten silent in en de aanroeper toont altijd "✓ Opgeslagen" ongeacht of het écht lukte — een gastfotograaf zou dus een valse succesmelding kunnen zien tijdens een quota-storing
+
 ### v0.18 — 13 juli 2026
 - 🏷 **Labels per individuele eigen foto** (gemeld door Andreas: kon labels alleen per hele map zetten, niet per foto — beheer.html had dit nog nooit gehad, in tegenstelling tot fotograaf.html voor gastfotografen)
   - Nieuwe 🏷-knop linksboven op elke foto-thumbnail (naast 🗑 rechtsboven) in de geopende slider-view; oranje "heeft-labels" staat permanent zichtbaar
