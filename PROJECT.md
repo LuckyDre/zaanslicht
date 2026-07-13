@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.17 — 13 juli 2026
+- 🐢→⚡ **Fix trage beheerpagina bij eigen foto's** (gemeld door Andreas: laadtijd bij eigen foto's veel langzamer dan bij gastfotografen)
+  - Oorzaak: beheer.html laadde overal het volledige origineel (~1.5MB/foto) i.p.v. de al bestaande `-thumb.webp` (~20KB, 400px q72) — de thumbnails bestonden al sinds 21-06-2026 maar werden hier nooit gebruikt
+  - Gefixed op 3 plekken: foto-grid bij het openen van een map (`toggleOpen`), map-kaartjes in de Labels-tab (`bhRenderMapLabelLijst`) — beide met `onerror`-fallback naar het origineel voor oudere foto's zonder thumb
+  - **Bewust ONGEWIJZIGD (moet hoge kwaliteit blijven tonen):** `deelOpFacebook` (download voor social sharing) bouwt de foto-URLs nu altijd zelf uit het manifest i.p.v. de gerenderde thumb-`<img>` te hergebruiken — anders was dit stilletjes ook thumbnails gaan downloaden; foto-hover-preview (toont op 570px, groter dan de 400px-thumb) laadt nu expliciet het origineel via `li.dataset.cat`/`dataset.map`, niet de thumb-`img.src`
+  - Gemeten: map met 68 foto's ging van ~102MB (68× ~1.5MB origineel) naar 1,7MB (68× ~20-25KB thumb) — geverifieerd via `performance.getEntriesByType('resource')` op de live site
+  - End-to-end in browser geverifieerd: thumbnails laden (0 volledige foto's in de resource-lijst), 404-fallback naar origineel werkt, Facebook-deel bouwt nog steeds volledige-kwaliteit URLs, hover-preview toont het origineel
+
 ### v0.16 — 13 juli 2026
 - 🐛 **Fix: gemixte labels bij meerdere foto's onzichtbaar + niet overal te deselecteren** (gemeld door Andreas, terecht — mijn eigen fout uit v0.15)
   - Oorzaak: `heeftLabel = l => doelKeys.every(...)` toonde een label alleen als "aan" wanneer ÉCHT ALLE geselecteerde foto's het hadden. Bij een gedeeltelijke toekenning (bv. 1 van de 3 foto's) stond de chip gewoon "uit" — niet te onderscheiden van "geen enkele foto heeft dit label". En omdat een gemixt label altijd als "uit" werd getoond, betekende erop klikken altijd "toevoegen aan iedereen" — er was geen weg terug naar "verwijderen bij iedereen" vanuit een gemixte staat
