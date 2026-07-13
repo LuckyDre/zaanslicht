@@ -167,6 +167,13 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.20 — 13 juli 2026
+- 🐛 **Fix: fotograaf.html toonde altijd "✓ Opgeslagen" bij labels, ook als opslaan mislukte** (vervolg op de bug gesignaleerd in v0.19: "nog niet gefixt, apart getaskt")
+  - Oorzaak: `slaFotoLabelsOp` ving fetch-fouten stil af (`catch {}`) en gaf nooit een resultaat terug aan de aanroeper. De Opslaan-handler in `openLabelPopupVoor` toonde daardoor altijd "✓ Opgeslagen" zodra de loop over `doelKeys` klaar was — ongeacht of de onderliggende KV-writes daadwerkelijk lukten. Bij een KV-schrijflimiet-uitval (zie v0.12/v0.19, deze week al twee keer voorgekomen) kreeg een gastfotograaf zo een valse bevestiging terwijl de labelwijziging stilletjes verdween
+  - Fix: `slaFotoLabelsOp` geeft nu true/false terug op basis van `data.ok`; de Opslaan-handler telt mislukkingen over de loop heen. Bij ≥1 mislukking toont de titel een foutmelding ("❌ Opslaan mislukt (n/X) — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later opnieuw.") via hetzelfde `titelEl.textContent`-mechanisme als de bestaande voortgangsindicator ("Opslaan… n/X"), en blijft de popup open (geen `setTimeout(sluit, 900)`, knop weer enabled) zodat de fotograaf opnieuw kan proberen
+  - Geen `alert()` — zelfde les als in v0.19 al toegepast op beheer.html's `bhOpenFotoLabelPopup`, dat dit patroon (foutmelding + laten openstaan) al goed had; alleen fotograaf.html miste het nog
+  - Statische bestanden, geen build-stap — wijziging gecontroleerd via grep in het bestand, geen dev server nodig
+
 ### v0.19 — 13 juli 2026
 - 🚨 **Incident: "ik kan nergens meer klikken" op beheer.html** — meteen na het uitbrengen van v0.18 (labels per eigen foto)
   - Directe oorzaak: KV-schrijfquota was **opnieuw** vol (1000 writes/dag gratis plan, zelfde als v0.12) — bevestigd via `wrangler kv key put` (foutcode 10048). Al het testen van vandaag (labels, foto-volgorde, sessies) had de dagquota opgebruikt
