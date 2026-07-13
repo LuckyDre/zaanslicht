@@ -2794,8 +2794,13 @@ document.addEventListener('mouseover', e => {
   previewTimer = setTimeout(() => {
     const img = thumb.querySelector('img');
     if (!img) return;
-    previewImg.src          = img.src;
-    previewNaam.textContent = thumb.dataset.foto || '';
+    // Preview toont op 570px breed — groter dan de 400px-thumbnail, dus altijd het origineel laden
+    const li  = thumb.closest('.slider-item');
+    const naam = thumb.dataset.foto || '';
+    previewImg.src = (li && naam)
+      ? `${SITE}/images/${li.dataset.cat}/${encodeURIComponent(li.dataset.map)}/${encodeURIComponent(naam)}`
+      : img.src;
+    previewNaam.textContent = naam;
     preview.style.display   = 'block';
     positionPreview(e);
     requestAnimationFrame(() => preview.classList.add('visible'));
