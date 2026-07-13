@@ -2239,6 +2239,15 @@ window.fgSelecteerAlleMappen = function() {
   fgUpdateBulkBalk();
 };
 
+// Teller + zichtbaarheid van de "✕ Deselecteer alles"-knop bijwerken voor één paneel
+function fgUpdatePaneelSelectie(paneel) {
+  const n = paneel.querySelectorAll('.foto-chip-check:checked').length;
+  const telEl = paneel.querySelector('.foto-selectie-tel');
+  if (telEl) telEl.textContent = n > 0 ? `${n} geselecteerd` : '';
+  const deselBtn = paneel.querySelector('.deselecteer-btn');
+  if (deselBtn) deselBtn.style.display = n > 0 ? '' : 'none';
+}
+
 window.fgToggleFotoSelectie = function(cb, mapNaam) {
   const key = cb.dataset.key;
   if (!_selFotos.has(mapNaam)) _selFotos.set(mapNaam, new Set());
@@ -2246,13 +2255,8 @@ window.fgToggleFotoSelectie = function(cb, mapNaam) {
   if (cb.checked) set.add(key); else set.delete(key);
   if (set.size === 0) _selFotos.delete(mapNaam);
   cb.closest('.foto-chip').classList.toggle('geselecteerd', cb.checked);
-  // Teller in paneel bijwerken
   const paneel = cb.closest('.map-fotos-paneel');
-  if (paneel) {
-    const n = paneel.querySelectorAll('.foto-chip-check:checked').length;
-    const telEl = paneel.querySelector('.foto-selectie-tel');
-    if (telEl) telEl.textContent = n > 0 ? `${n} geselecteerd` : '';
-  }
+  if (paneel) fgUpdatePaneelSelectie(paneel);
   fgUpdateBulkBalk();
 };
 
@@ -2268,9 +2272,18 @@ window.fgSelecteerAlleFotos = function(mapNaam, btn) {
     c.closest('.foto-chip').classList.toggle('geselecteerd', !alleAan);
   });
   if (set.size === 0) _selFotos.delete(mapNaam);
-  const n = alleAan ? 0 : cbs.length;
-  const telEl = paneel.querySelector('.foto-selectie-tel');
-  if (telEl) telEl.textContent = n > 0 ? `${n} geselecteerd` : '';
+  fgUpdatePaneelSelectie(paneel);
+  fgUpdateBulkBalk();
+};
+
+window.fgDeselecteerAlleFotos = function(mapNaam, btn) {
+  const paneel = btn.closest('.map-fotos-paneel');
+  paneel.querySelectorAll('.foto-chip-check').forEach(c => {
+    c.checked = false;
+    c.closest('.foto-chip').classList.remove('geselecteerd');
+  });
+  _selFotos.delete(mapNaam);
+  fgUpdatePaneelSelectie(paneel);
   fgUpdateBulkBalk();
 };
 
