@@ -2900,18 +2900,21 @@ async function bhRenderMapLabelLijst() {
   for (const item of items) {
     const key      = 'eigen-map/' + _bhActieveCat + '/' + item.map;
     const huidig   = _bhMapLabelsCache[key] || [];
-    const thumbSrc = item.fotos?.[0]
+    const volledig = item.fotos?.[0]
       ? `${SITE}/images/${_bhActieveCat}/${encodeURIComponent(item.map)}/${encodeURIComponent(item.fotos[0])}`
       : '';
-    const thumbUrl  = thumbSrc;
-    const fotoUrl   = thumbSrc; // voor de reverse index: thumbnail van de map
+    const thumbSrc = item.fotos?.[0]
+      ? `${SITE}/images/${_bhActieveCat}/${encodeURIComponent(item.map)}/${encodeURIComponent(item.fotos[0].replace(/\.webp$/i, '-thumb.webp'))}`
+      : '';
+    const thumbUrl  = thumbSrc || volledig;
+    const fotoUrl   = thumbSrc || volledig; // voor de reverse index: thumbnail van de map
 
     const card = document.createElement('div');
     card.className = 'bh-map-card';
     card.dataset.key = key;
     card.innerHTML = `
       <div class="bh-map-thumb">
-        ${thumbSrc ? `<img src="${thumbSrc}" loading="lazy" />` : '<div style="width:100%;height:100%;background:#222;display:flex;align-items:center;justify-content:center;font-size:1.4rem">📁</div>'}
+        ${thumbSrc ? `<img src="${thumbSrc}" loading="lazy" onerror="if(this.src!=='${volledig}')this.src='${volledig}'" />` : '<div style="width:100%;height:100%;background:#222;display:flex;align-items:center;justify-content:center;font-size:1.4rem">📁</div>'}
       </div>
       <div style="flex:1;min-width:0">
         <div class="bh-map-naam">${escB(item.map)}</div>
