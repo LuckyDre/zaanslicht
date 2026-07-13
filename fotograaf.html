@@ -2264,12 +2264,14 @@ function fgUpdateBulkBalk() {
     tel.textContent = `${mapAantal} serie${mapAantal !== 1 ? 's' : ''} geselecteerd`;
     document.getElementById('fg-bulk-verberg').style.display = '';
     document.getElementById('fg-bulk-toon').style.display = 'none';
+    document.getElementById('fg-bulk-label').style.display = 'none';
     document.getElementById('fg-bulk-del').style.display = '';
     balk.classList.add('actief');
   } else if (fotoTotaal > 0) {
     tel.textContent = `${fotoTotaal} foto${fotoTotaal !== 1 ? "'s" : ''} geselecteerd`;
     document.getElementById('fg-bulk-verberg').style.display = 'none';
     document.getElementById('fg-bulk-toon').style.display = 'none';
+    document.getElementById('fg-bulk-label').style.display = '';
     document.getElementById('fg-bulk-del').style.display = '';
     balk.classList.add('actief');
   } else {
