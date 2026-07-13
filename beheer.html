@@ -1322,6 +1322,124 @@ function eigenFotoVerwijderen(event, btn) {
   planSave();
   setLog(`Foto "${naam}" verwijderd uit slider.`, 'success');
 }
+
+// ── LABELS PER INDIVIDUELE EIGEN FOTO ───────────────────────────────────────
+// Zelfde sleutel-opbouw als de bestaande map-labels ('eigen-map/...'), maar dan
+// per foto. Gebruikt hetzelfde /foto-labels endpoint met de Worker Secret.
+const _bhFotoLabelsCache = {};
+let _bhAlleLabelsGeladen = false;
+
+function bhFotoLabelKey(cat, mapNaam, naam) {
+  return `eigen-foto/${cat}/${mapNaam}/${naam}`;
+}
+
+async function bhLaadFotoLabelBadges(grid, cat, mapNaam, fotos) {
+  const secret = getWorkerSecret();
+  if (!secret) return;
+  await Promise.all(fotos.map(async f => {
+    const key = bhFotoLabelKey(cat, mapNaam, f);
+    if (_bhFotoLabelsCache[key] === undefined) {
+      try {
+        const res  = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(key), { headers: { 'X-Worker-Secret': secret } });
+        const data = await res.json();
+        _bhFotoLabelsCache[key] = data.labels || [];
+      } catch { _bhFotoLabelsCache[key] = []; }
+    }
+    if (_bhFotoLabelsCache[key].length) {
+      const thumb = grid.querySelector(`.foto-thumb[data-foto="${CSS.escape(f)}"]`);
+      thumb?.querySelector('.foto-label-btn')?.classList.add('heeft-labels');
+    }
+  }));
+}
+
+let _bhActiefeLabelPopup = null;
+
+// Popup met expliciet opslaan (geen direct-opslaan-bij-klik — dat bleek voor
+// fotografen verwarrend: je zag niet zeker wat er al toegekend was).
+window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
+  event.stopPropagation();
+  if (_bhActiefeLabelPopup) { _bhActiefeLabelPopup.remove(); _bhActiefeLabelPopup = null; }
+
+  const secret = getWorkerSecret();
+  if (!secret) { alert('Niet ingelogd.'); return; }
+
+  if (!_bhAlleLabelsGeladen) { await bhLaadAlleLabels(); _bhAlleLabelsGeladen = true; }
+
+  const key = bhFotoLabelKey(cat, mapNaam, naam);
+  if (_bhFotoLabelsCache[key] === undefined) {
+    try {
+      const res  = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(key), { headers: { 'X-Worker-Secret': secret } });
+      const data = await res.json();
+      _bhFotoLabelsCache[key] = data.labels || [];
+    } catch { _bhFotoLabelsCache[key] = []; }
+  }
+  const huidig = _bhFotoLabelsCache[key] || [];
+
+  const popup = document.createElement('div');
+  popup.className = 'foto-label-popup';
+  popup.innerHTML = `
+    <div class="foto-label-popup-titel">Labels voor deze foto</div>
+    <div class="foto-label-popup-chips">
+      ${_bhAlleLabels.map(l => `<span class="bh-label-chip${huidig.includes(l) ? ' actief' : ''}"
+        data-label="${l.replace(/"/g,'&quot;')}" data-start="${huidig.includes(l) ? '1' : '0'}">${escB(l)}</span>`).join('')}
+    </div>
+    <div class="foto-label-popup-acties">
+      <button class="foto-label-popup-btn foto-label-popup-annuleer">✕ Annuleren</button>
+      <button class="foto-label-popup-btn foto-label-popup-opslaan">💾 Opslaan</button>
+    </div>`;
+
+  document.body.appendChild(popup);
+  _bhActiefeLabelPopup = popup;
+  const rect = badge.getBoundingClientRect();
+  let top  = rect.bottom + 6;
+  let left = rect.left - 100;
+  if (left < 8) left = 8;
+  if (left + popup.offsetWidth > window.innerWidth - 8) left = window.innerWidth - popup.offsetWidth - 8;
+  if (top + popup.offsetHeight > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
+  if (top < 8) top = 8;
+  popup.style.top  = top  + 'px';
+  popup.style.left = left + 'px';
+
+  popup.querySelectorAll('.bh-label-chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('actief'));
+  });
+
+  const sluit = () => { popup.remove(); _bhActiefeLabelPopup = null; };
+  popup.querySelector('.foto-label-popup-annuleer').addEventListener('click', sluit);
+
+  popup.querySelector('.foto-label-popup-opslaan').addEventListener('click', async () => {
+    const opslaanBtn = popup.querySelector('.foto-label-popup-opslaan');
+    opslaanBtn.disabled = true;
+    const nieuw = [...popup.querySelectorAll('.bh-label-chip.actief')].map(c => c.dataset.label);
+    try {
+      const volledig = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam)}`;
+      const thumbUrl = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam.replace(/\.webp$/i, '-thumb.webp'))}`;
+      const res = await fetch(WORKER_URL + '/foto-labels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+        body: JSON.stringify({ key, labels: nieuw, url: thumbUrl || volledig, mapNaam, type: 'foto', cat }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error('Opslaan mislukt');
+      _bhFotoLabelsCache[key] = data.labels;
+      badge.classList.toggle('heeft-labels', data.labels.length > 0);
+      sluit();
+    } catch {
+      alert('Labels opslaan mislukt.');
+      opslaanBtn.disabled = false;
+    }
+  });
+
+  setTimeout(() => {
+    document.addEventListener('click', function buiten(e) {
+      if (!popup.contains(e.target) && e.target !== badge) {
+        sluit();
+        document.removeEventListener('click', buiten);
+      }
+    });
+  }, 0);
+};
+
 function switchTab(tab) {
   activeTab = tab;
   document.querySelectorAll('.tab').forEach((t, i) => {
