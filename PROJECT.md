@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.15 — 13 juli 2026
+- 💾 **Expliciet opslaan bij labels** (gemeld door Andreas: labels wijzigden direct bij het aanklikken, zonder enige bevestiging — niet duidelijk dat er iets gebeurde)
+  - Label-popup togglet chips nu alleen visueel; pas op **💾 Opslaan** worden de wijzigingen weggeschreven. **✕ Annuleren** (of buiten de popup klikken) sluit zonder iets op te slaan
+  - Alleen daadwerkelijk aangeraakte labels worden toegepast (toegevoegd/weggehaald t.o.v. de startstand) — overige labels per foto blijven ongemoeid, ook al verschillen ze tussen de geselecteerde foto's
+  - **Nieuwe 🏷 Labels-knop** in de bulk-selectiebalk naast 🗑 Verwijder: opent de labelpopup voor de hele actieve foto-selectie (`fgBulkLabels`), niet alleen voor foto's die je via één 🏷-badge selecteert
+  - Popup toont tijdens opslaan voortgang ("Opslaan… n/X") en sluit vanzelf na "✓ Opgeslagen"
+  - End-to-end geverifieerd: aanvinken+annuleren liet KV ongewijzigd; aanvinken+opslaan zette het label op alle 3 geselecteerde foto's; opnieuw uitzetten+opslaan herstelde de oorspronkelijke (lege) staat
+
 ### v0.14 — 13 juli 2026
 - 🏷 **Bulk-labelen**: is een foto onderdeel van een selectie (≥2 aangevinkt) en open je daar de label-popup, dan gelden label-wijzigingen voor álle geselecteerde foto's
   - Popup-titel toont "Labels voor X geselecteerde foto's"; tijdens opslaan een voortgang "Opslaan… (n/X)"
