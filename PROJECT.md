@@ -167,6 +167,11 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.14 — 13 juli 2026
+- ✕ **"Deselecteer alles"-knop** in fotograaf.html foto-paneel: verschijnt zodra ≥1 foto is aangevinkt, wist de hele selectie van die map in één klik (gemeld door Andreas: "Selecteer alles" toggle'de alleen als álles al aan stond)
+  - Nieuwe helper `fgUpdatePaneelSelectie(paneel)` (teller + knop-zichtbaarheid), gebruikt door `fgToggleFotoSelectie`, `fgSelecteerAlleFotos`, `fgDeselecteerAlleFotos` en `fgBulkAnnuleer`
+- 🏷 **Fix onleesbare label-popup**: `.foto-label-popup` gebruikte `var(--surface)` — die variabele bestaat niet in fotograaf.html (vars heten `--s1`/`--s2`) → transparante achtergrond, tekst zweefde onleesbaar over de foto's. Nu `var(--s2)` + labeltekst `#ccc` + light-mode overrides (witte popup, donkere tekst)
+
 ### v0.13 — 12 juli 2026
 - 🔀 **Handmatige foto-volgorde per map** (gastfotografen)
   - fotograaf.html Mijn mappen: foto-chips in een geopende map zijn versleepbaar (SortableJS, handle = de afbeelding); na een sleep verschijnt "💾 Foto-volgorde opslaan"
