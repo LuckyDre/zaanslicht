@@ -2406,6 +2406,7 @@ function fgBulkAnnuleer() {
     c.closest('.foto-chip')?.classList.remove('geselecteerd');
   });
   document.querySelectorAll('.foto-selectie-tel').forEach(el => el.textContent = '');
+  document.querySelectorAll('.deselecteer-btn').forEach(el => el.style.display = 'none');
   fgUpdateBulkBalk();
 }
 
