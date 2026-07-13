@@ -1327,7 +1327,6 @@ function eigenFotoVerwijderen(event, btn) {
 // Zelfde sleutel-opbouw als de bestaande map-labels ('eigen-map/...'), maar dan
 // per foto. Gebruikt hetzelfde /foto-labels endpoint met de Worker Secret.
 const _bhFotoLabelsCache = {};
-let _bhAlleLabelsGeladen = false;
 
 function bhFotoLabelKey(cat, mapNaam, naam) {
   return `eigen-foto/${cat}/${mapNaam}/${naam}`;
@@ -1363,7 +1362,7 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
   const secret = getWorkerSecret();
   if (!secret) { alert('Niet ingelogd.'); return; }
 
-  if (!_bhAlleLabelsGeladen) { await bhLaadAlleLabels(); _bhAlleLabelsGeladen = true; }
+  await bhLaadAlleLabels();
 
   const key = bhFotoLabelKey(cat, mapNaam, naam);
   if (_bhFotoLabelsCache[key] === undefined) {
