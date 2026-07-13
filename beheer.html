@@ -1248,12 +1248,16 @@ function toggleOpen(hdr) {
     const item    = (manifest[cat] || []).find(x => x.map === mapNaam);
     if (item) {
       const grid = li.querySelector('.foto-grid');
-      grid.innerHTML = item.fotos.map((f, i) => `
+      grid.innerHTML = item.fotos.map((f, i) => {
+        const volledig = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`;
+        const thumb    = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`;
+        return `
         <div class="foto-thumb" data-foto="${f}">
-          <img src="${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}" loading="lazy" />
+          <img src="${thumb}" loading="lazy" onerror="if(this.src!=='${volledig}')this.src='${volledig}'" />
           <span class="foto-nr">${i + 1}</span>
           <button class="foto-verwijder-btn" onclick="eigenFotoVerwijderen(event,this)" title="Foto verwijderen uit slider">🗑</button>
-        </div>`).join('');
+        </div>`;
+      }).join('');
       new Sortable(grid, {
         animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
         onEnd() { hernum(grid); planSave(); }
