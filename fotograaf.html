@@ -1662,16 +1662,25 @@ async function openLabelPopupVoor(doelKeys, anchor) {
     const opslaanBtn = popup.querySelector('.foto-label-popup-opslaan');
     opslaanBtn.disabled = true;
     let n = 0;
+    let mislukt = 0;
     for (const k of doelKeys) {
       n++;
       if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
       const huidige = _fotoLabelsCache[k] || [];
       const nieuwe = [...new Set([...huidige.filter(l => !weghalen.includes(l)), ...toevoegen])];
       const chipEl = document.querySelector(`.foto-chip[data-foto-key="${(window.CSS && CSS.escape) ? CSS.escape(k) : k}"]`);
-      await slaFotoLabelsOp(k, nieuwe, chipEl);
+      const gelukt = await slaFotoLabelsOp(k, nieuwe, chipEl);
+      if (!gelukt) mislukt++;
     }
-    titelEl.textContent = '✓ Opgeslagen';
-    setTimeout(sluit, 900);
+    if (mislukt) {
+      // Geen alert() — blokkeert de hele pagina. Popup blijft open zodat de fotograaf kan navigeren.
+      titelEl.textContent = `❌ Opslaan mislukt (${mislukt}/${doelKeys.length}) — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later opnieuw.`;
+      opslaanBtn.disabled = false;
+      bezig = false;
+    } else {
+      titelEl.textContent = '✓ Opgeslagen';
+      setTimeout(sluit, 900);
+    }
   });
 
   // Klik buiten popup sluit hem (zonder op te slaan)
