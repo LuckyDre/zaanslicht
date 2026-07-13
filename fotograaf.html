@@ -1534,13 +1534,26 @@ window.openFotoLabelPopup = async function(key, badge) {
 
   if (!_alleLabels.length) await laadLabels();
 
-  const huidig = _fotoLabelsCache[key] || [];
+  // Doelgroep: is deze foto onderdeel van een selectie (checkboxes) met meer
+  // foto's, dan gelden de label-wijzigingen voor ALLE geselecteerde foto's.
+  const paneel = badge.closest('.map-fotos-paneel');
+  let doelKeys = [key];
+  if (paneel) {
+    const geselecteerd = [...paneel.querySelectorAll('.foto-chip-check:checked')].map(c => c.dataset.key);
+    if (geselecteerd.length > 1 && geselecteerd.includes(key)) doelKeys = geselecteerd;
+  }
+  const multi = doelKeys.length > 1;
+  const titelTekst = multi ? `Labels voor ${doelKeys.length} geselecteerde foto's` : 'Labels voor deze foto';
+
+  // Actief = alle doel-foto's hebben het label (bij multi)
+  const heeftLabel = l => doelKeys.every(k => (_fotoLabelsCache[k] || []).includes(l));
+
   const popup = document.createElement('div');
   popup.className = 'foto-label-popup';
   popup.innerHTML = `
-    <div class="foto-label-popup-titel">Labels voor deze foto</div>
+    <div class="foto-label-popup-titel">${titelTekst}</div>
     <div class="foto-label-popup-chips">
-      ${_alleLabels.map(l => `<span class="foto-label-popup-chip${huidig.includes(l) ? ' actief' : ''}"
+      ${_alleLabels.map(l => `<span class="foto-label-popup-chip${heeftLabel(l) ? ' actief' : ''}"
         data-label="${l.replace(/"/g,'&quot;')}">${l}</span>`).join('')}
     </div>
     <div class="foto-label-popup-sluiten">✕ Sluiten</div>`;
@@ -1556,12 +1569,29 @@ window.openFotoLabelPopup = async function(key, badge) {
   popup.style.top  = top  + 'px';
   popup.style.left = left + 'px';
 
+  const titelEl = popup.querySelector('.foto-label-popup-titel');
+  let bezig = false;
+
   popup.querySelectorAll('.foto-label-popup-chip').forEach(chip => {
     chip.addEventListener('click', async () => {
+      if (bezig) return;
       const label = chip.dataset.label;
+      const wordtActief = !chip.classList.contains('actief');
       chip.classList.toggle('actief');
-      const actief = [...popup.querySelectorAll('.foto-label-popup-chip.actief')].map(c => c.dataset.label);
-      await slaFotoLabelsOp(key, actief, badge.closest('.foto-chip'));
+      bezig = true;
+      let n = 0;
+      for (const k of doelKeys) {
+        n++;
+        if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
+        const huidige = _fotoLabelsCache[k] || [];
+        const nieuwe = wordtActief
+          ? [...new Set([...huidige, label])]
+          : huidige.filter(l => l !== label);
+        const chipEl = paneel?.querySelector(`.foto-chip[data-foto-key="${(window.CSS && CSS.escape) ? CSS.escape(k) : k}"]`) || (k === key ? badge.closest('.foto-chip') : null);
+        await slaFotoLabelsOp(k, nieuwe, chipEl);
+      }
+      titelEl.textContent = titelTekst;
+      bezig = false;
     });
   });
 
