@@ -1423,9 +1423,12 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
       _bhFotoLabelsCache[key] = data.labels;
       badge.classList.toggle('heeft-labels', data.labels.length > 0);
       sluit();
+      setLog('✓ Labels opgeslagen', 'success');
     } catch {
-      alert('Labels opslaan mislukt.');
+      // Geen alert() — dat is een blokkerend dialoogvenster dat de hele pagina
+      // bevriest totdat je 'm wegklikt. Melding via het bestaande logpaneel i.p.v.
       opslaanBtn.disabled = false;
+      setLog('❌ Labels opslaan mislukt — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later (na middernacht) opnieuw.', 'error');
     }
   });
 
