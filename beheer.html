@@ -191,6 +191,32 @@
     }
     .foto-thumb:hover .foto-verwijder-btn { opacity: 1; }
     .foto-verwijder-btn:hover { background: #ef4444; color: #fff; }
+    .foto-label-btn {
+      position: absolute; top: 2px; left: 2px; z-index: 2;
+      background: rgba(0,0,0,0.6); border: none; border-radius: 3px;
+      color: #ccc; font-size: 0.7rem; line-height: 1; padding: 2px 5px; cursor: pointer;
+      opacity: 0; transition: opacity 0.15s, background 0.15s, color 0.15s;
+    }
+    .foto-thumb:hover .foto-label-btn { opacity: 1; }
+    .foto-label-btn.heeft-labels { opacity: 1; background: var(--oranje); color: #fff; }
+    .foto-label-btn:hover { background: var(--oranje); color: #fff; }
+
+    /* FOTO-LABEL POPUP (per individuele eigen foto) */
+    .foto-label-popup {
+      position: fixed; z-index: 10000; background: #181818;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+      padding: 0.7rem; min-width: 220px; max-width: 280px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    }
+    .foto-label-popup-titel { font-size: 0.72rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .foto-label-popup-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .foto-label-popup-acties { display: flex; gap: 0.5rem; margin-top: 0.7rem; justify-content: flex-end; }
+    .foto-label-popup-btn { font-size: 0.75rem; padding: 0.35rem 0.9rem; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+    .foto-label-popup-annuleer { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #aaa; }
+    .foto-label-popup-annuleer:hover { border-color: #888; color: #ddd; }
+    .foto-label-popup-opslaan { background: var(--oranje); border: 1px solid var(--oranje); color: #fff; font-weight: 700; }
+    .foto-label-popup-opslaan:hover { background: #e56000; }
+    .foto-label-popup-opslaan:disabled { opacity: 0.6; cursor: wait; }
 
     /* MAP LABEL SECTIE IN LABELS TAB */
     .bh-map-card {
