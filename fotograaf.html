@@ -1529,11 +1529,6 @@ function updateLabelBadge(chipEl, labels) {
 }
 
 window.openFotoLabelPopup = async function(key, badge) {
-  // Sluit eerder open popup
-  if (_actiefeLabelPopup) { _actiefeLabelPopup.remove(); _actiefeLabelPopup = null; }
-
-  if (!_alleLabels.length) await laadLabels();
-
   // Doelgroep: is deze foto onderdeel van een selectie (checkboxes) met meer
   // foto's, dan gelden de label-wijzigingen voor ALLE geselecteerde foto's.
   const paneel = badge.closest('.map-fotos-paneel');
@@ -1542,10 +1537,28 @@ window.openFotoLabelPopup = async function(key, badge) {
     const geselecteerd = [...paneel.querySelectorAll('.foto-chip-check:checked')].map(c => c.dataset.key);
     if (geselecteerd.length > 1 && geselecteerd.includes(key)) doelKeys = geselecteerd;
   }
+  openLabelPopupVoor(doelKeys, badge);
+};
+
+// Vanuit de selectiebalk: labels voor de volledige foto-selectie (alle mappen samen)
+window.fgBulkLabels = function(btn) {
+  const alleKeys = [];
+  for (const set of _selFotos.values()) for (const k of set) alleKeys.push(k);
+  if (!alleKeys.length) return;
+  openLabelPopupVoor(alleKeys, btn);
+};
+
+// Label-popup met expliciet opslaan: chips aan/uit zetten wijzigt pas iets
+// na een klik op 💾 Opslaan. Alleen aangeraakte labels worden toegepast,
+// zodat per-foto verschillen in overige labels behouden blijven.
+async function openLabelPopupVoor(doelKeys, anchor) {
+  if (_actiefeLabelPopup) { _actiefeLabelPopup.remove(); _actiefeLabelPopup = null; }
+  if (!_alleLabels.length) await laadLabels();
+
   const multi = doelKeys.length > 1;
   const titelTekst = multi ? `Labels voor ${doelKeys.length} geselecteerde foto's` : 'Labels voor deze foto';
 
-  // Actief = alle doel-foto's hebben het label (bij multi)
+  // Actief = alle doel-foto's hebben het label
   const heeftLabel = l => doelKeys.every(k => (_fotoLabelsCache[k] || []).includes(l));
 
   const popup = document.createElement('div');
@@ -1553,71 +1566,79 @@ window.openFotoLabelPopup = async function(key, badge) {
   popup.innerHTML = `
     <div class="foto-label-popup-titel">${titelTekst}</div>
     <div class="foto-label-popup-chips">
-      ${_alleLabels.map(l => `<span class="foto-label-popup-chip${heeftLabel(l) ? ' actief' : ''}"
-        data-label="${l.replace(/"/g,'&quot;')}">${l}</span>`).join('')}
+      ${_alleLabels.map(l => { const aan = heeftLabel(l); return `<span class="foto-label-popup-chip${aan ? ' actief' : ''}"
+        data-label="${l.replace(/"/g,'&quot;')}" data-start="${aan ? '1' : '0'}">${l}</span>`; }).join('')}
     </div>
-    <div class="foto-label-popup-sluiten">✕ Sluiten</div>`;
+    <div class="foto-label-popup-acties">
+      <button class="foto-label-popup-btn foto-label-popup-annuleer">✕ Annuleren</button>
+      <button class="foto-label-popup-btn foto-label-popup-opslaan">💾 Opslaan</button>
+    </div>`;
 
-  // Positie naast de badge
+  // Positie naast het anker (label-badge of balk-knop)
   document.body.appendChild(popup);
   _actiefeLabelPopup = popup;
-  const rect = badge.getBoundingClientRect();
+  const rect = anchor.getBoundingClientRect();
   let top  = rect.bottom + 6;
   let left = rect.left - 100;
   if (left < 8) left = 8;
-  if (top + 200 > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
+  if (left + popup.offsetWidth > window.innerWidth - 8) left = window.innerWidth - popup.offsetWidth - 8;
+  if (top + popup.offsetHeight > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
+  if (top < 8) top = 8;
   popup.style.top  = top  + 'px';
   popup.style.left = left + 'px';
 
   const titelEl = popup.querySelector('.foto-label-popup-titel');
   let bezig = false;
 
+  // Chips togglen alleen visueel — opslaan gebeurt pas via de knop
   popup.querySelectorAll('.foto-label-popup-chip').forEach(chip => {
-    chip.addEventListener('click', async () => {
-      if (bezig) return;
-      const label = chip.dataset.label;
-      const wordtActief = !chip.classList.contains('actief');
-      chip.classList.toggle('actief');
-      bezig = true;
-      let n = 0;
-      for (const k of doelKeys) {
-        n++;
-        if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
-        // Bestaande labels eerst ophalen als ze nog niet in de cache staan,
-        // anders zouden we ze per ongeluk overschrijven
-        if (_fotoLabelsCache[k] === undefined) {
-          try {
-            const r = await fetch(WORKER + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Fotograaf-Token': sessie?.token || '' } });
-            const d = await r.json();
-            _fotoLabelsCache[k] = d.labels || [];
-          } catch { _fotoLabelsCache[k] = []; }
-        }
-        const huidige = _fotoLabelsCache[k] || [];
-        const nieuwe = wordtActief
-          ? [...new Set([...huidige, label])]
-          : huidige.filter(l => l !== label);
-        const chipEl = paneel?.querySelector(`.foto-chip[data-foto-key="${(window.CSS && CSS.escape) ? CSS.escape(k) : k}"]`) || (k === key ? badge.closest('.foto-chip') : null);
-        await slaFotoLabelsOp(k, nieuwe, chipEl);
+    chip.addEventListener('click', () => { if (!bezig) chip.classList.toggle('actief'); });
+  });
+
+  const sluit = () => { popup.remove(); _actiefeLabelPopup = null; };
+  popup.querySelector('.foto-label-popup-annuleer').addEventListener('click', sluit);
+
+  popup.querySelector('.foto-label-popup-opslaan').addEventListener('click', async () => {
+    if (bezig) return;
+    const chips = [...popup.querySelectorAll('.foto-label-popup-chip')];
+    const toevoegen = chips.filter(c => c.classList.contains('actief')  && c.dataset.start === '0').map(c => c.dataset.label);
+    const weghalen  = chips.filter(c => !c.classList.contains('actief') && c.dataset.start === '1').map(c => c.dataset.label);
+    if (!toevoegen.length && !weghalen.length) { sluit(); return; }
+
+    bezig = true;
+    const opslaanBtn = popup.querySelector('.foto-label-popup-opslaan');
+    opslaanBtn.disabled = true;
+    let n = 0;
+    for (const k of doelKeys) {
+      n++;
+      if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
+      // Bestaande labels eerst ophalen als ze nog niet in de cache staan,
+      // anders zouden we ze per ongeluk overschrijven
+      if (_fotoLabelsCache[k] === undefined) {
+        try {
+          const r = await fetch(WORKER + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Fotograaf-Token': sessie?.token || '' } });
+          _fotoLabelsCache[k] = (await r.json()).labels || [];
+        } catch { _fotoLabelsCache[k] = []; }
       }
-      titelEl.textContent = titelTekst;
-      bezig = false;
-    });
+      const huidige = _fotoLabelsCache[k] || [];
+      const nieuwe = [...new Set([...huidige.filter(l => !weghalen.includes(l)), ...toevoegen])];
+      const chipEl = document.querySelector(`.foto-chip[data-foto-key="${(window.CSS && CSS.escape) ? CSS.escape(k) : k}"]`);
+      await slaFotoLabelsOp(k, nieuwe, chipEl);
+    }
+    titelEl.textContent = '✓ Opgeslagen';
+    setTimeout(sluit, 900);
   });
 
-  popup.querySelector('.foto-label-popup-sluiten').addEventListener('click', () => {
-    popup.remove(); _actiefeLabelPopup = null;
-  });
-
-  // Klik buiten popup sluit hem
+  // Klik buiten popup sluit hem (zonder op te slaan)
   setTimeout(() => {
     document.addEventListener('click', function buiten(e) {
-      if (!popup.contains(e.target) && e.target !== badge) {
-        popup.remove(); _actiefeLabelPopup = null;
+      if (!popup.contains(e.target) && e.target !== anchor) {
+        sluit();
         document.removeEventListener('click', buiten);
       }
     });
   }, 0);
-};
+}
 
 async function slaFotoLabelsOp(key, labels, chipEl) {
   try {
