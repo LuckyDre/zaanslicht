@@ -1427,9 +1427,14 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
       setLog('✓ Labels opgeslagen', 'success');
     } catch {
       // Geen alert() — dat is een blokkerend dialoogvenster dat de hele pagina
-      // bevriest totdat je 'm wegklikt. Melding via het bestaande logpaneel i.p.v.
+      // bevriest totdat je 'm wegklikt (kon je daardoor nergens anders meer klikken).
+      // Foutmelding direct in de popup (blijft in beeld, ook als het logpaneel onderaan
+      // buiten beeld staat) + in het logpaneel voor consistentie met de rest van de site.
       opslaanBtn.disabled = false;
-      setLog('❌ Labels opslaan mislukt — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later (na middernacht) opnieuw.', 'error');
+      const foutTekst = '❌ Opslaan mislukt — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later (na middernacht) opnieuw.';
+      const foutEl = popup.querySelector('.foto-label-popup-fout');
+      if (foutEl) { foutEl.textContent = foutTekst; foutEl.style.display = ''; }
+      setLog(foutTekst, 'error');
     }
   });
 
