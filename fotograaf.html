@@ -1562,24 +1562,49 @@ window.fgBulkLabels = function(btn) {
 // Label-popup met expliciet opslaan: chips aan/uit zetten wijzigt pas iets
 // na een klik op 💾 Opslaan. Alleen aangeraakte labels worden toegepast,
 // zodat per-foto verschillen in overige labels behouden blijven.
+//
+// Bij meerdere foto's kan een label op een deel van de selectie staan
+// ("gemixt") — dat moet zichtbaar zijn (anders lijkt het net of er niets
+// is toegekend) én in één klik voor de HELE selectie aan of uit te zetten
+// (anders kun je een label dat niet overal staat nooit overal weghalen).
 async function openLabelPopupVoor(doelKeys, anchor) {
   if (_actiefeLabelPopup) { _actiefeLabelPopup.remove(); _actiefeLabelPopup = null; }
   if (!_alleLabels.length) await laadLabels();
 
+  // Zorg dat de cache compleet is vóór we de aan/uit/gemixt-status berekenen —
+  // anders lijkt een label "uit" terwijl de data alleen nog niet geladen is.
+  const ontbrekend = doelKeys.filter(k => _fotoLabelsCache[k] === undefined);
+  if (ontbrekend.length) {
+    await Promise.all(ontbrekend.map(async k => {
+      try {
+        const r = await fetch(WORKER + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Fotograaf-Token': sessie?.token || '' } });
+        _fotoLabelsCache[k] = (await r.json()).labels || [];
+      } catch { _fotoLabelsCache[k] = []; }
+    }));
+  }
+
   const multi = doelKeys.length > 1;
   const titelTekst = multi ? `Labels voor ${doelKeys.length} geselecteerde foto's` : 'Labels voor deze foto';
 
-  // Actief = alle doel-foto's hebben het label
-  const heeftLabel = l => doelKeys.every(k => (_fotoLabelsCache[k] || []).includes(l));
+  // Status per label: 'aan' (alle foto's hebben het), 'uit' (geen enkele), 'gemixt' (een deel)
+  const statusVan = l => {
+    const n = doelKeys.filter(k => (_fotoLabelsCache[k] || []).includes(l)).length;
+    return n === 0 ? 'uit' : n === doelKeys.length ? 'aan' : 'gemixt';
+  };
 
   const popup = document.createElement('div');
   popup.className = 'foto-label-popup';
   popup.innerHTML = `
     <div class="foto-label-popup-titel">${titelTekst}</div>
     <div class="foto-label-popup-chips">
-      ${_alleLabels.map(l => { const aan = heeftLabel(l); return `<span class="foto-label-popup-chip${aan ? ' actief' : ''}"
-        data-label="${l.replace(/"/g,'&quot;')}" data-start="${aan ? '1' : '0'}">${l}</span>`; }).join('')}
+      ${_alleLabels.map(l => {
+        const status = statusVan(l);
+        const n = doelKeys.filter(k => (_fotoLabelsCache[k] || []).includes(l)).length;
+        const suffix = status === 'gemixt' ? ` <span class="foto-label-popup-count">${n}/${doelKeys.length}</span>` : '';
+        return `<span class="foto-label-popup-chip ${status}" data-label="${l.replace(/"/g,'&quot;')}" data-start="${status}" data-state="${status}">${l}${suffix}</span>`;
+      }).join('')}
     </div>
+    ${multi ? '<div class="foto-label-popup-uitleg">Gestreept = op een deel van de selectie. Klik om overal aan of uit te zetten.</div>' : ''}
     <div class="foto-label-popup-acties">
       <button class="foto-label-popup-btn foto-label-popup-annuleer">✕ Annuleren</button>
       <button class="foto-label-popup-btn foto-label-popup-opslaan">💾 Opslaan</button>
@@ -1601,9 +1626,18 @@ async function openLabelPopupVoor(doelKeys, anchor) {
   const titelEl = popup.querySelector('.foto-label-popup-titel');
   let bezig = false;
 
-  // Chips togglen alleen visueel — opslaan gebeurt pas via de knop
+  // Klik cyclus: gemixt of uit → aan (voor iedereen); aan → uit (voor iedereen).
+  // Zo is een label altijd in één klik voor de hele selectie te (de)selecteren.
   popup.querySelectorAll('.foto-label-popup-chip').forEach(chip => {
-    chip.addEventListener('click', () => { if (!bezig) chip.classList.toggle('actief'); });
+    chip.addEventListener('click', () => {
+      if (bezig) return;
+      const nieuw = chip.dataset.state === 'aan' ? 'uit' : 'aan';
+      chip.dataset.state = nieuw;
+      chip.classList.remove('aan', 'uit', 'gemixt');
+      chip.classList.add(nieuw);
+      const countEl = chip.querySelector('.foto-label-popup-count');
+      if (countEl) countEl.remove();
+    });
   });
 
   const sluit = () => { popup.remove(); _actiefeLabelPopup = null; };
@@ -1612,8 +1646,9 @@ async function openLabelPopupVoor(doelKeys, anchor) {
   popup.querySelector('.foto-label-popup-opslaan').addEventListener('click', async () => {
     if (bezig) return;
     const chips = [...popup.querySelectorAll('.foto-label-popup-chip')];
-    const toevoegen = chips.filter(c => c.classList.contains('actief')  && c.dataset.start === '0').map(c => c.dataset.label);
-    const weghalen  = chips.filter(c => !c.classList.contains('actief') && c.dataset.start === '1').map(c => c.dataset.label);
+    // Alleen labels waarvan de status daadwerkelijk is aangeklikt (state !== start) worden toegepast
+    const toevoegen = chips.filter(c => c.dataset.state === 'aan' && c.dataset.state !== c.dataset.start).map(c => c.dataset.label);
+    const weghalen  = chips.filter(c => c.dataset.state === 'uit' && c.dataset.state !== c.dataset.start).map(c => c.dataset.label);
     if (!toevoegen.length && !weghalen.length) { sluit(); return; }
 
     bezig = true;
@@ -1623,14 +1658,6 @@ async function openLabelPopupVoor(doelKeys, anchor) {
     for (const k of doelKeys) {
       n++;
       if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
-      // Bestaande labels eerst ophalen als ze nog niet in de cache staan,
-      // anders zouden we ze per ongeluk overschrijven
-      if (_fotoLabelsCache[k] === undefined) {
-        try {
-          const r = await fetch(WORKER + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Fotograaf-Token': sessie?.token || '' } });
-          _fotoLabelsCache[k] = (await r.json()).labels || [];
-        } catch { _fotoLabelsCache[k] = []; }
-      }
       const huidige = _fotoLabelsCache[k] || [];
       const nieuwe = [...new Set([...huidige.filter(l => !weghalen.includes(l)), ...toevoegen])];
       const chipEl = document.querySelector(`.foto-chip[data-foto-key="${(window.CSS && CSS.escape) ? CSS.escape(k) : k}"]`);
