@@ -1696,8 +1696,10 @@ async function slaFotoLabelsOp(key, labels, chipEl) {
     if (data.ok) {
       _fotoLabelsCache[key] = data.labels;
       if (chipEl) updateLabelBadge(chipEl, data.labels);
+      return true;
     }
-  } catch {}
+    return false;
+  } catch { return false; }
 }
 
 // ══════════════════════════════════════════════════════
