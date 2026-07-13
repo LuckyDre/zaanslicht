@@ -167,7 +167,12 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
-### v0.15 — 13 juli 2026
+### v0.16 — 13 juli 2026
+- 🐛 **Fix: gemixte labels bij meerdere foto's onzichtbaar + niet overal te deselecteren** (gemeld door Andreas, terecht — mijn eigen fout uit v0.15)
+  - Oorzaak: `heeftLabel = l => doelKeys.every(...)` toonde een label alleen als "aan" wanneer ÉCHT ALLE geselecteerde foto's het hadden. Bij een gedeeltelijke toekenning (bv. 1 van de 3 foto's) stond de chip gewoon "uit" — niet te onderscheiden van "geen enkele foto heeft dit label". En omdat een gemixt label altijd als "uit" werd getoond, betekende erop klikken altijd "toevoegen aan iedereen" — er was geen weg terug naar "verwijderen bij iedereen" vanuit een gemixte staat
+  - Fix: echte driestand per label — **aan** (allemaal), **uit** (geen enkele), **gemixt** (een deel, met teller "n/totaal" en gestreepte chip-styling). Klik-logica: gemixt of uit → wordt aan (voor iedereen); aan → wordt uit (voor iedereen). Zo is een label altijd in één klik voor de hele selectie te zetten of te wissen
+  - Cache wordt nu vóór het tekenen van de popup compleet opgehaald (`Promise.all` voor ontbrekende keys) i.p.v. pas bij opslaan — voorkomt dat een label als "uit" oogt terwijl de data nog niet geladen was
+  - End-to-end geverifieerd: kunstmatige gemixte staat (1 van 3 foto's had het label) → popup toonde correct "gemixt, 1/3" met gestreepte chip → 1 klik + opslaan zette het bij alle 3 → heropenen toonde "aan" → 1 klik + opslaan haalde het bij alle 3 weg. Testdata na afloop hersteld
 - 💾 **Expliciet opslaan bij labels** (gemeld door Andreas: labels wijzigden direct bij het aanklikken, zonder enige bevestiging — niet duidelijk dat er iets gebeurde)
   - Label-popup togglet chips nu alleen visueel; pas op **💾 Opslaan** worden de wijzigingen weggeschreven. **✕ Annuleren** (of buiten de popup klikken) sluit zonder iets op te slaan
   - Alleen daadwerkelijk aangeraakte labels worden toegepast (toegevoegd/weggehaald t.o.v. de startstand) — overige labels per foto blijven ongemoeid, ook al verschillen ze tussen de geselecteerde foto's
