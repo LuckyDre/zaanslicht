@@ -168,6 +168,11 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 ## Changelog
 
 ### v0.14 — 13 juli 2026
+- 🏷 **Bulk-labelen**: is een foto onderdeel van een selectie (≥2 aangevinkt) en open je daar de label-popup, dan gelden label-wijzigingen voor álle geselecteerde foto's
+  - Popup-titel toont "Labels voor X geselecteerde foto's"; tijdens opslaan een voortgang "Opslaan… (n/X)"
+  - Label actief in de popup = alle geselecteerde foto's hebben het; aanklikken voegt toe aan allemaal / haalt bij allemaal weg (overige labels per foto blijven behouden; cache-misses worden eerst opgehaald zodat niets overschreven wordt)
+  - Zonder selectie (of popup op een niet-geselecteerde foto) werkt het zoals voorheen: alleen die ene foto
+  - Let op: 1 KV-write per foto per label-wijziging (telt mee in de 1000/dag)
 - ✕ **"Deselecteer alles"-knop** in fotograaf.html foto-paneel: verschijnt zodra ≥1 foto is aangevinkt, wist de hele selectie van die map in één klik (gemeld door Andreas: "Selecteer alles" toggle'de alleen als álles al aan stond)
   - Nieuwe helper `fgUpdatePaneelSelectie(paneel)` (teller + knop-zichtbaarheid), gebruikt door `fgToggleFotoSelectie`, `fgSelecteerAlleFotos`, `fgDeselecteerAlleFotos` en `fgBulkAnnuleer`
 - 🏷 **Fix onleesbare label-popup**: `.foto-label-popup` gebruikte `var(--surface)` — die variabele bestaat niet in fotograaf.html (vars heten `--s1`/`--s2`) → transparante achtergrond, tekst zweefde onleesbaar over de foto's. Nu `var(--s2)` + labeltekst `#ccc` + light-mode overrides (witte popup, donkere tekst)
