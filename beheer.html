@@ -2973,17 +2973,13 @@ function deelOpFacebook(event, btn) {
   document.getElementById('fb-foto-teller').textContent = '0 / 5';
   document.getElementById('fb-download-btn').style.display = 'none';
 
-  // Haal foto-URLs op: eerst uit geladen thumbs, anders uit manifest
+  // Foto-URLs altijd in volledige kwaliteit opbouwen uit het manifest —
+  // niet uit eventueel al gerenderde thumbnails (die zijn met opzet laagresolutie).
   let fotoUrls = [];
-  const thumbs = Array.from(li.querySelectorAll('.foto-thumb img'));
-  if (thumbs.length > 0) {
-    fotoUrls = thumbs.map(img => img.src);
-  } else {
-    const item = (manifest[cat] || []).find(x => x.map === mapNaam);
-    if (item && item.fotos) {
-      fotoUrls = item.fotos.map(f =>
-        `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`);
-    }
+  const item = (manifest[cat] || []).find(x => x.map === mapNaam);
+  if (item && item.fotos) {
+    fotoUrls = item.fotos.map(f =>
+      `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`);
   }
 
   if (fotoUrls.length > 0) {
