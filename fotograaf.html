@@ -1583,6 +1583,15 @@ window.openFotoLabelPopup = async function(key, badge) {
       for (const k of doelKeys) {
         n++;
         if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
+        // Bestaande labels eerst ophalen als ze nog niet in de cache staan,
+        // anders zouden we ze per ongeluk overschrijven
+        if (_fotoLabelsCache[k] === undefined) {
+          try {
+            const r = await fetch(WORKER + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Fotograaf-Token': sessie?.token || '' } });
+            const d = await r.json();
+            _fotoLabelsCache[k] = d.labels || [];
+          } catch { _fotoLabelsCache[k] = []; }
+        }
         const huidige = _fotoLabelsCache[k] || [];
         const nieuwe = wordtActief
           ? [...new Set([...huidige, label])]
