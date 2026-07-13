@@ -2791,6 +2791,8 @@ document.addEventListener('mouseover', e => {
   if (!thumb) return;
   if (thumb.contains(e.relatedTarget)) return;
   clearTimeout(previewTimer);
+  // Langere vertraging: bij normaal over de grid bewegen (bv. op weg naar een knop
+  // op een andere foto) verschijnt de grote preview dan niet storend in de weg.
   previewTimer = setTimeout(() => {
     const img = thumb.querySelector('img');
     if (!img) return;
@@ -2802,9 +2804,9 @@ document.addEventListener('mouseover', e => {
       : img.src;
     previewNaam.textContent = naam;
     preview.style.display   = 'block';
-    positionPreview(e);
+    positionPreviewBijThumb(thumb);
     requestAnimationFrame(() => preview.classList.add('visible'));
-  }, 50);
+  }, 350);
 });
 
 document.addEventListener('mouseout', e => {
