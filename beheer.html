@@ -1321,6 +1321,18 @@ function eigenFotoVerwijderen(event, btn) {
   eigenUpdateFotoTeller(li);
   planSave();
   setLog(`Foto "${naam}" verwijderd uit slider.`, 'success');
+
+  // Labels van deze foto opruimen (anders blijft er een wees-entry in de reverse
+  // index staan die naar een niet meer aan een slider gekoppelde foto wijst)
+  const labelKey = bhFotoLabelKey(cat, mapNaam, naam);
+  const secret = getWorkerSecret();
+  if (secret) {
+    fetch(WORKER_URL + '/foto-labels', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+      body: JSON.stringify({ key: labelKey, labels: [] }),
+    }).catch(() => {});
+  }
 }
 
 // ── LABELS PER INDIVIDUELE EIGEN FOTO ───────────────────────────────────────
