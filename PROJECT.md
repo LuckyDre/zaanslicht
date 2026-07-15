@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.27 — 16 juli 2026
+- 🎨 **fotograaf.html: knoppen strak wit in rust, accentkleur van de fotograaf bij aanwijzen/drukken**
+  - `.btn-primary`/`.btn-secondary` (nieuw gedefinieerd — bestond in HTML maar had nog geen CSS-regel)/`.btn-ghost`: was een solide gevulde `var(--accent)`-achtergrond, altijd. Nu: transparante achtergrond, witte rand + tekst in rust; bij `:hover`/`:active` vult de knop met `var(--accent)` (de accentkleur die de fotograaf zelf instelt bij Instellingen, per account verschillend)
+  - Kop-knoppen (☀️ thema, ❓ Handleiding, ← Terug naar site) hadden een aparte, ongerelateerde inline-stijl met **hardcoded `#FF6B00`** i.p.v. de dynamische `var(--accent)` — dus toonden altijd oranje, ook voor fotografen met een andere accentkleur. Samengevoegd tot één `.header-btn`-klasse met hetzelfde wit-in-rust/accent-bij-hover-patroon; bugfix inbegrepen
+  - **Bewuste uitzondering, geen gemiste knop**: 🗑 verwijderknoppen en "Uitloggen" blijven rood kleuren bij hover, niet de accentkleur van de fotograaf — zelfde veiligheidsconventie als overal elders op de site (rood = destructief/waarschuwing, mag niet verward worden met een neutrale kleuraccent)
+  - Light-mode-tegenhangers toegevoegd voor alle aangepaste klassen (donkere rand/tekst i.p.v. wit, anders onzichtbaar op een lichte achtergrond) — `var(--accent)` wordt al dynamisch via JS gezet (`documentElement.style`) en werkt daardoor identiek in beide standen
+  - Browser-geverifieerd in beide modi: knop kleurt bij hover correct in Jan Kapers eigen blauw (#3b82f6), niet het standaard-oranje; light-mode blijft goed leesbaar
+
 ### v0.26 — 16 juli 2026
 - 🎨 **Icoon-verduidelijking, vervolg: `.expand-btn` in beheer.html was gemist** — Andreas bedoelde met "voetbal en no sports" de tábbladen in beheer.html (niet voetbal.html/nosports.html, die al goed stonden). Daar stond nog een echte `▼`-driehoek als "Foto's tonen/verbergen"-knop, direct links van de Facebook-knop
   - Zelfde 2×2-grid SVG als overal elders, op beide plekken (bestaande sliders + net-aangemaakte-map-sjabloon). CSS aangepast: actieve staat toont nu een oranje kader i.p.v. 180°-rotatie
