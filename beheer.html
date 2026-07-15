@@ -1357,6 +1357,10 @@ function eigenFotoVerwijderen(event, btn) {
   planSave();
   setLog(`Foto "${naam}" verwijderd uit slider.`, 'success');
 
+  // Selectie-status opruimen als deze foto geselecteerd was
+  _bhSelFotos.get(li)?.delete(naam);
+  bhUpdateFotoBulkBalk(li);
+
   // Labels van deze foto opruimen (anders blijft er een wees-entry in de reverse
   // index staan die naar een niet meer aan een slider gekoppelde foto wijst)
   const labelKey = bhFotoLabelKey(cat, mapNaam, naam);
