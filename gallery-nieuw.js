@@ -114,7 +114,7 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   const ovBtn = document.createElement('button');
   ovBtn.className = 'pc-overzicht';
   ovBtn.title = 'Alle foto\'s als thumbnail';
-  ovBtn.textContent = '⊞';
+  ovBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>';
   ovBtn.addEventListener('click', e => { e.stopPropagation(); toonOverzicht(naam, fotos); });
   h3.querySelector('.pc-rechts').appendChild(ovBtn);
 
