@@ -167,6 +167,12 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.25 — 15 juli 2026
+- 🎨 **Icoon-verduidelijking (gemeld door Andreas: "gallery view"-icoon onherkenbaar, Facebook-knop te donker)**
+  - fotograaf.html "Mijn mappen": `.map-expand-btn` (foto's bekijken) was een simpele `▾`-pijl, las eerder als "open/dicht" dan als "bekijk foto's". Vervangen door een 2×2-grid SVG-icoon (herkenbare "galerij"-metafoor); actieve staat toont nu een lichte accent-achtergrond i.p.v. 180°-rotatie (roteren van een grid-icoon zou niks betekenen)
+  - beheer.html Facebook-deelknop: gebruikte het emoji 🇫 (vlagsymbool voor de letter F) in `#555` op een donkere achtergrond — nauwelijks leesbaar en herkende niet als Facebook. Vervangen door de officiële Facebook "f"-logo SVG in het merk-blauw (`#5b8fd6`, 75% dekking in rust, volledig blauw + `#1877f2` bij hover) — nu in één oogopslag herkenbaar. Op beide plekken aangepast (bestaande sliders + net-aangemaakte-map-sjabloon)
+  - Browser-geverifieerd op beide pagina's, inclusief de klik-werking van het grid-icoon (paneel opent/sluit nog steeds correct, actieve staat zichtbaar)
+
 ### v0.24 — 15 juli 2026
 - 🐛 **Fix: verwijderde foto's lieten wees-labels achter** (aangekondigd in v0.23, nu gefixt)
   - Nieuwe gedeelde Worker-functie `verwijderFotoLabels(key, env)`: leest `foto:labels:{key}`, ruimt de reverse index (`label:fotos:{label}`) op via de bestaande `updateReverseIndex`, verwijdert daarna `foto:labels:{key}` zelf
