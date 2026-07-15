@@ -167,6 +167,13 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.21 — 15 juli 2026
+- ✏️ **Duidelijkere tekst bij upload-vlakken**: gecheckt of alle upload-zones (fotograaf.html + beheer.html) al vermeldden dat je zowel kunt slepen als klikken om bestanden te kiezen
+  - beheer.html (nieuwe map + "Aanvullen" bij bestaande sliders): stond al goed — "Sleep foto's hierheen of *kies bestanden*"
+  - fotograaf.html hoofd-uploadvak (Uploaden-tab): stond nog op alleen "Sleep foto's hierheen" — de klik-optie werkte al technisch (het bestandsveld dekt het hele vlak af), maar was niet zichtbaar in de tekst. Nu: "Sleep foto's hierheen of *klik om te kiezen*"
+  - fotograaf-handleiding.html's mockup had deze tekst overigens al correct — alleen de echte pagina liep achter
+  - Browser-geverifieerd: tekst toont correct met onderstreepte "klik om te kiezen"
+
 ### v0.20 — 13 juli 2026
 - 🐛 **Fix: fotograaf.html toonde altijd "✓ Opgeslagen" bij labels, ook als opslaan mislukte** (vervolg op de bug gesignaleerd in v0.19: "nog niet gefixt, apart getaskt")
   - Oorzaak: `slaFotoLabelsOp` ving fetch-fouten stil af (`catch {}`) en gaf nooit een resultaat terug aan de aanroeper. De Opslaan-handler in `openLabelPopupVoor` toonde daardoor altijd "✓ Opgeslagen" zodra de loop over `doelKeys` klaar was — ongeacht of de onderliggende KV-writes daadwerkelijk lukten. Bij een KV-schrijflimiet-uitval (zie v0.12/v0.19, deze week al twee keer voorgekomen) kreeg een gastfotograaf zo een valse bevestiging terwijl de labelwijziging stilletjes verdween
