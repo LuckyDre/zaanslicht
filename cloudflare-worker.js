@@ -873,9 +873,12 @@ async function handleFotograafVerwijderen(request, env) {
   await env.SUBSCRIBERS.delete('fotograaf:account:' + id);
   await env.SUBSCRIBERS.delete('fotograaf:mappen:' + id);
 
-  // Verwijder alle R2 foto's van deze fotograaf
+  // Verwijder alle R2 foto's van deze fotograaf (+ bijbehorende labels/reverse index)
   const lijst = await env.FOTOS.list({ prefix: `fotografen/${id}/`, limit: 1000 });
-  for (const obj of lijst.objects) { await env.FOTOS.delete(obj.key); }
+  for (const obj of lijst.objects) {
+    await env.FOTOS.delete(obj.key);
+    await verwijderFotoLabels(obj.key, env);
+  }
 
   return json({ ok: true });
 }
