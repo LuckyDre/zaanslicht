@@ -167,6 +167,13 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.26 — 16 juli 2026
+- 🎨 **Icoon-verduidelijking, vervolg: `.expand-btn` in beheer.html was gemist** — Andreas bedoelde met "voetbal en no sports" de tábbladen in beheer.html (niet voetbal.html/nosports.html, die al goed stonden). Daar stond nog een echte `▼`-driehoek als "Foto's tonen/verbergen"-knop, direct links van de Facebook-knop
+  - Zelfde 2×2-grid SVG als overal elders, op beide plekken (bestaande sliders + net-aangemaakte-map-sjabloon). CSS aangepast: actieve staat toont nu een oranje kader i.p.v. 180°-rotatie
+  - Geldt automatisch voor zowel de Voetbal- als de No Sports-tab (delen dezelfde render-code, gefilterd op categorie) — één fix, browser-geverifieerd op beide tabs
+  - Volledige grep op driehoek-tekens (▼▾▲►◄) in beheer.html leverde daarna nul treffers op
+- 🔧 Cache-busting versie van `gallery-nieuw.js` opgehoogd (`?v=20260701a` → `?v=20260716a`) op voetbal.html/nosports.html — stond twee weken stil, waardoor browsers met een oude cache het oude icoon konden blijven zien ondanks een correct gedeployde server-versie
+
 ### v0.25 — 15 juli 2026
 - 🎨 **Icoon-verduidelijking (gemeld door Andreas: "gallery view"-icoon onherkenbaar, Facebook-knop te donker)**
   - fotograaf.html "Mijn mappen": `.map-expand-btn` (foto's bekijken) was een simpele `▾`-pijl, las eerder als "open/dicht" dan als "bekijk foto's". Vervangen door een 2×2-grid SVG-icoon (herkenbare "galerij"-metafoor); actieve staat toont nu een lichte accent-achtergrond i.p.v. 180°-rotatie (roteren van een grid-icoon zou niks betekenen)
