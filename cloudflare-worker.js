@@ -893,6 +893,7 @@ async function handleFotoVerwijderen(request, env) {
   if (!key.startsWith(`fotografen/${fotograaf.id}/`)) return json({ error: 'Geen toegang tot dit bestand' }, 403);
 
   await env.FOTOS.delete(key);
+  await verwijderFotoLabels(key, env);
   return json({ ok: true });
 }
 
@@ -906,6 +907,7 @@ async function handleAdminMapVerwijderen(request, env) {
   const enc   = encodeURIComponent(map);
   const targets = lijst.objects.filter(o => o.key.includes(`/${map}/`) || o.key.includes(`/${enc}/`));
   await Promise.all(targets.map(o => env.FOTOS.delete(o.key)));
+  await Promise.all(targets.map(o => verwijderFotoLabels(o.key, env)));
 
   // Verwijder map uit KV-index
   const raw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + id);
@@ -921,6 +923,7 @@ async function handleAdminFotoVerwijderen(request, env) {
   const { key } = await request.json().catch(() => ({}));
   if (!key || !key.startsWith('fotografen/')) return json({ error: 'Ongeldige key' }, 400);
   await env.FOTOS.delete(key);
+  await verwijderFotoLabels(key, env);
   return json({ ok: true });
 }
 
