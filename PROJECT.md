@@ -170,6 +170,8 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 ### v0.25 — 15 juli 2026
 - 🎨 **Icoon-verduidelijking (gemeld door Andreas: "gallery view"-icoon onherkenbaar, Facebook-knop te donker)**
   - fotograaf.html "Mijn mappen": `.map-expand-btn` (foto's bekijken) was een simpele `▾`-pijl, las eerder als "open/dicht" dan als "bekijk foto's". Vervangen door een 2×2-grid SVG-icoon (herkenbare "galerij"-metafoor); actieve staat toont nu een lichte accent-achtergrond i.p.v. 180°-rotatie (roteren van een grid-icoon zou niks betekenen)
+  - Zelfde grid-icoon ook op voetbal.html + nosports.html: de `.pc-overzicht`-knop ("Alle foto's als thumbnail") gebruikte het unicode-teken `⊞`, nu dezelfde SVG. Eén wijziging in het gedeelde `gallery-nieuw.js` volstond voor beide pagina's. Browser-geverifieerd op beide (oranje voetbal-thema en geel no-sports-thema), overzicht-functie zelf blijft ongewijzigd werken
+  - **Nog niet meegenomen:** fotograaf-pagina.html (de losse pagina per gastfotograaf) heeft een eigen, ongerelateerde `addOverzichtBtn`-functie met hetzelfde `⊞`-teken — niet gevraagd, dus niet aangepast, maar wel dezelfde inconsistentie als de rest
   - beheer.html Facebook-deelknop: gebruikte het emoji 🇫 (vlagsymbool voor de letter F) in `#555` op een donkere achtergrond — nauwelijks leesbaar en herkende niet als Facebook. Vervangen door de officiële Facebook "f"-logo SVG in het merk-blauw (`#5b8fd6`, 75% dekking in rust, volledig blauw + `#1877f2` bij hover) — nu in één oogopslag herkenbaar. Op beide plekken aangepast (bestaande sliders + net-aangemaakte-map-sjabloon)
   - Browser-geverifieerd op beide pagina's, inclusief de klik-werking van het grid-icoon (paneel opent/sluit nog steeds correct, actieve staat zichtbaar)
 
