@@ -1212,7 +1212,9 @@ function renderCategorie(cat) {
           onfocus="this.style.borderBottomColor='#FF6B00'" onblur="this.style.borderBottomColor='transparent'" />
         <span class="slider-count slider-ts">${item.fotos.length} foto's</span>
         ${item.ts ? `<span class="slider-count slider-ts" style="font-size:0.72rem">${fmtTsB(item.ts)}</span>` : ''}
-        <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
+        <button class="expand-btn" title="Foto's tonen/verbergen">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        </button>
         <button onclick="deelOpFacebook(event,this)" title="Delen op Facebook"
           style="background:transparent;border:none;color:#5b8fd6;opacity:0.75;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0;display:inline-flex;align-items:center;transition:opacity 0.15s,color 0.15s"
           onmouseover="this.style.color='#1877f2';this.style.opacity='1'" onmouseout="this.style.color='#5b8fd6';this.style.opacity='0.75'">
