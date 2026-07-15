@@ -1375,7 +1375,10 @@ async function toonDashboard(nieuwAangemeld = false) {
 
 window.startUpload = async () => {
     const btn  = document.getElementById('upload-btn');
-    const map  = document.getElementById('up-map').value.trim();
+    // Val terug op de dropdown-selectie als het tekstveld leeg is (bv. als de
+    // synchronisatie om wat voor reden dan ook niet is gelopen) — voorkomt dat
+    // een gekozen bestaande map ten onrechte als "geen mapnaam" wordt afgewezen.
+    const map  = document.getElementById('up-map').value.trim() || document.getElementById('up-map-select')?.value.trim() || '';
     const cat  = 'voetbal';
     const fb   = document.getElementById('upload-feedback');
 
