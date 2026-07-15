@@ -217,6 +217,31 @@
     .foto-label-popup-opslaan { background: var(--oranje); border: 1px solid var(--oranje); color: #fff; font-weight: 700; }
     .foto-label-popup-opslaan:hover { background: #e56000; }
     .foto-label-popup-opslaan:disabled { opacity: 0.6; cursor: wait; }
+    .foto-label-popup-count { opacity: 0.75; font-weight: 400; font-size: 0.65rem; }
+    .foto-label-popup-uitleg { font-size: 0.68rem; color: var(--dim); margin-top: 0.5rem; line-height: 1.4; }
+
+    /* FOTO-SELECTIE (bulk labelen binnen een geopende slider) */
+    .foto-thumb-check {
+      position: absolute; bottom: 2px; right: 2px; z-index: 3;
+      width: 15px; height: 15px; margin: 0; cursor: pointer;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .foto-thumb:hover .foto-thumb-check,
+    .foto-thumb-check:checked { opacity: 1; }
+    .foto-thumb.geselecteerd { border-color: var(--oranje); box-shadow: 0 0 0 2px rgba(255,107,0,0.35); }
+    .bh-foto-bulk-balk {
+      display: none; align-items: center; gap: 0.6rem;
+      background: #1a1a1a; border: 1px solid var(--oranje); border-radius: 8px;
+      padding: 0.5rem 0.7rem; margin-top: 0.6rem; font-size: 0.8rem; color: var(--dim);
+    }
+    .bh-foto-bulk-tel { flex: 1; }
+    .bh-foto-bulk-btn {
+      background: transparent; border: 1px solid #333; color: #ccc;
+      padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.75rem; cursor: pointer;
+      font-family: inherit; transition: all 0.12s;
+    }
+    .bh-foto-bulk-btn:hover { border-color: var(--oranje); color: var(--oranje); }
+    .bh-foto-bulk-btn.bh-foto-bulk-annuleer:hover { border-color: #888; color: #ddd; }
 
     /* MAP LABEL SECTIE IN LABELS TAB */
     .bh-map-card {
