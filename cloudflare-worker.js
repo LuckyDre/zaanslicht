@@ -1420,6 +1420,17 @@ async function updateReverseIndex(key, oudeLabels, schoneLabels, entry, env) {
   }
 }
 
+// Ruimt foto:labels + reverse index (label:fotos:{label}) op voor een verwijderde
+// foto. Aanroepen bij ELKE foto-verwijdering, anders blijven er wees-entries
+// achter die naar niet meer bestaande bestanden wijzen (zie PROJECT.md v0.23).
+async function verwijderFotoLabels(key, env) {
+  const raw = await env.SUBSCRIBERS.get('foto:labels:' + key);
+  if (!raw) return;
+  const labels = JSON.parse(raw);
+  await updateReverseIndex(key, labels, [], null, env);
+  await env.SUBSCRIBERS.delete('foto:labels:' + key);
+}
+
 async function handleGetFotoLabels(request, env) {
   const isAdmin = requireSecret(request, env);
   const key = new URL(request.url).searchParams.get('key');
