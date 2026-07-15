@@ -415,12 +415,11 @@
     border: 1px solid rgba(255,255,255,0.1); color: var(--muted); flex-shrink: 0;
   }
   .map-expand-btn {
-    background: none; border: none; color: var(--muted); cursor: pointer;
-    padding: 0.3rem 0.45rem; transition: color 0.15s, background-color 0.15s;
-    flex-shrink: 0; display: inline-flex; align-items: center; border-radius: 6px;
+    background: none; border: none; color: #fff; cursor: pointer;
+    padding: 0.3rem 0.45rem; transition: color 0.15s;
+    flex-shrink: 0; display: inline-flex; align-items: center;
   }
-  .map-expand-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
-  .map-expand-btn.open { color: var(--accent); background: rgba(255,107,0,0.1); }
+  .map-expand-btn:hover, .map-expand-btn.open { color: var(--accent); }
   .map-fotos-paneel {
     display: none; border-top: 1px solid rgba(255,255,255,0.06);
     padding: 0.8rem 1rem; background: #0f0f0f;
