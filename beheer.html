@@ -1313,6 +1313,7 @@ function toggleOpen(hdr) {
         const thumb    = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`;
         return `
         <div class="foto-thumb" data-foto="${f}">
+          <input type="checkbox" class="foto-thumb-check" onclick="event.stopPropagation();bhToggleFotoSelectie(this)" />
           <img src="${thumb}" loading="lazy" onerror="if(this.src!=='${volledig}')this.src='${volledig}'" />
           <span class="foto-nr">${i + 1}</span>
           <button class="foto-label-btn" onclick="bhOpenFotoLabelPopup(event,this,'${cat}','${mapNaam.replace(/'/g,"\\'")}','${f.replace(/'/g,"\\'")}')" title="Labels voor deze foto">🏷</button>
