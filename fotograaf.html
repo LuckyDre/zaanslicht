@@ -409,10 +409,11 @@
   }
   .map-expand-btn {
     background: none; border: none; color: var(--muted); cursor: pointer;
-    font-size: 0.85rem; padding: 0.2rem 0.4rem; transition: color 0.15s, transform 0.2s;
-    flex-shrink: 0;
+    padding: 0.3rem 0.45rem; transition: color 0.15s, background-color 0.15s;
+    flex-shrink: 0; display: inline-flex; align-items: center; border-radius: 6px;
   }
-  .map-expand-btn.open { transform: rotate(180deg); color: var(--accent); }
+  .map-expand-btn:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+  .map-expand-btn.open { color: var(--accent); background: rgba(255,107,0,0.1); }
   .map-fotos-paneel {
     display: none; border-top: 1px solid rgba(255,255,255,0.06);
     padding: 0.8rem 1rem; background: #0f0f0f;
