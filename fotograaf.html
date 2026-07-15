@@ -229,41 +229,33 @@
     width: 100%;
     padding: 0.85rem;
     border-radius: var(--radius);
-    border: 1.5px solid #fff;
+    border: none;
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.5px;
     transition: all 0.2s;
     margin-top: 0.5rem;
-    background: transparent;
-    color: #fff;
   }
-  /* Strak wit in rust; kleurt op bij drukken/aanwijzen in de accentkleur van de
-     fotograaf (--accent, per account ingesteld bij Instellingen). */
   .btn-primary {
-    background: transparent;
-    border-color: #fff;
+    background: var(--accent);
     color: #fff;
   }
-  .btn-primary:hover,
-  .btn-primary:active { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-1px); }
-  .btn-primary:disabled { background: transparent; border-color: #333; color: var(--muted); transform: none; cursor: not-allowed; }
+  .btn-primary:hover { background: #ff8c33; transform: translateY(-1px); }
+  .btn-primary:disabled { background: #333; color: var(--muted); transform: none; cursor: not-allowed; }
 
   .btn-secondary {
     background: transparent;
-    border: 1.5px solid #fff;
-    color: #fff;
+    border: 1px solid var(--border);
+    color: var(--text);
   }
-  .btn-secondary:hover,
-  .btn-secondary:active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
   .btn-ghost {
     background: transparent;
-    border: 1px solid #fff;
-    color: #fff;
+    border: 1px solid var(--border);
+    color: var(--muted);
   }
-  .btn-ghost:hover,
-  .btn-ghost:active { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
 
   .feedback {
     margin-top: 1rem;
