@@ -1214,8 +1214,10 @@ function renderCategorie(cat) {
         ${item.ts ? `<span class="slider-count slider-ts" style="font-size:0.72rem">${fmtTsB(item.ts)}</span>` : ''}
         <button class="expand-btn" title="Foto's tonen/verbergen">▼</button>
         <button onclick="deelOpFacebook(event,this)" title="Delen op Facebook"
-          style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
-          onmouseover="this.style.color='#1877f2'" onmouseout="this.style.color='#555'">🇫</button>
+          style="background:transparent;border:none;color:#5b8fd6;opacity:0.75;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0;display:inline-flex;align-items:center;transition:opacity 0.15s,color 0.15s"
+          onmouseover="this.style.color='#1877f2';this.style.opacity='1'" onmouseout="this.style.color='#5b8fd6';this.style.opacity='0.75'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.53 17.52 2 12 2S2 6.53 2 12.06c0 5 3.66 9.13 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.91h-2.33V22c4.78-.81 8.44-4.94 8.44-9.94Z"/></svg>
+        </button>
         <button onclick="eigenToggleVerberg(event,this)" title="${item.verborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers'}"
           data-verborgen="${item.verborgen ? 'true' : 'false'}"
           style="background:transparent;border:none;color:${item.verborgen ? '#FF6B00' : '#555'};font-size:0.85rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
