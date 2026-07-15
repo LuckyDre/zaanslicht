@@ -1365,10 +1365,69 @@ async function bhLaadFotoLabelBadges(grid, cat, mapNaam, fotos) {
 
 let _bhActiefeLabelPopup = null;
 
+// ── FOTO-SELECTIE (bulk) ────────────────────────────────────────────────────
+// Per geopende slider (li) een eigen selectie-set, net als bij fotografen.
+const _bhSelFotos = new Map(); // slider-item (li) -> Set<foto-naam>
+
+window.bhToggleFotoSelectie = function(cb) {
+  const thumb = cb.closest('.foto-thumb');
+  const li    = cb.closest('.slider-item');
+  const naam  = thumb.dataset.foto;
+  if (!_bhSelFotos.has(li)) _bhSelFotos.set(li, new Set());
+  const set = _bhSelFotos.get(li);
+  if (cb.checked) set.add(naam); else set.delete(naam);
+  if (set.size === 0) _bhSelFotos.delete(li);
+  thumb.classList.toggle('geselecteerd', cb.checked);
+  bhUpdateFotoBulkBalk(li);
+};
+
+function bhUpdateFotoBulkBalk(li) {
+  const balk = li.querySelector('.bh-foto-bulk-balk');
+  if (!balk) return;
+  const n = _bhSelFotos.get(li)?.size || 0;
+  balk.style.display = n > 0 ? 'flex' : 'none';
+  const tel = balk.querySelector('.bh-foto-bulk-tel');
+  if (tel) tel.textContent = `${n} foto${n !== 1 ? "'s" : ''} geselecteerd`;
+}
+
+window.bhDeselecteerFotos = function(btn) {
+  const li = btn.closest('.slider-item');
+  li.querySelectorAll('.foto-thumb-check:checked').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.foto-thumb').classList.remove('geselecteerd');
+  });
+  _bhSelFotos.delete(li);
+  bhUpdateFotoBulkBalk(li);
+};
+
+window.bhBulkLabels = function(btn) {
+  const li = btn.closest('.slider-item');
+  const set = _bhSelFotos.get(li);
+  if (!set || !set.size) return;
+  const cat = li.dataset.cat, mapNaam = li.dataset.map;
+  const doelKeys = [...set].map(naam => bhFotoLabelKey(cat, mapNaam, naam));
+  bhOpenFotoLabelPopupVoor(doelKeys, btn, cat, mapNaam);
+};
+
 // Popup met expliciet opslaan (geen direct-opslaan-bij-klik — dat bleek voor
 // fotografen verwarrend: je zag niet zeker wat er al toegekend was).
 window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
   event.stopPropagation();
+  const li  = badge.closest('.slider-item');
+  const sel = _bhSelFotos.get(li);
+  // Is deze foto onderdeel van een selectie van meer dan 1? Dan gelden wijzigingen
+  // voor de hele selectie — zelfde gedrag als bij fotografen.
+  const doelKeys = (sel && sel.size > 1 && sel.has(naam))
+    ? [...sel].map(n => bhFotoLabelKey(cat, mapNaam, n))
+    : [bhFotoLabelKey(cat, mapNaam, naam)];
+  await bhOpenFotoLabelPopupVoor(doelKeys, badge, cat, mapNaam);
+};
+
+// Generieke popup (1 of meerdere foto's) met driestand aan/uit/gemixt — zelfde
+// aanpak als het al werkende fotograaf.html-systeem: gemixt/uit -> 1 klik -> aan
+// voor iedereen; aan -> 1 klik -> uit voor iedereen. Zo is een label altijd in
+// één klik voor de hele selectie te zetten of te wissen.
+async function bhOpenFotoLabelPopupVoor(doelKeys, anchor, cat, mapNaam) {
   if (_bhActiefeLabelPopup) { _bhActiefeLabelPopup.remove(); _bhActiefeLabelPopup = null; }
 
   const secret = getWorkerSecret();
@@ -1376,24 +1435,39 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
 
   await bhLaadAlleLabels();
 
-  const key = bhFotoLabelKey(cat, mapNaam, naam);
-  if (_bhFotoLabelsCache[key] === undefined) {
-    try {
-      const res  = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(key), { headers: { 'X-Worker-Secret': secret } });
-      const data = await res.json();
-      _bhFotoLabelsCache[key] = data.labels || [];
-    } catch { _bhFotoLabelsCache[key] = []; }
+  const ontbrekend = doelKeys.filter(k => _bhFotoLabelsCache[k] === undefined);
+  if (ontbrekend.length) {
+    await Promise.all(ontbrekend.map(async k => {
+      try {
+        const res  = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Worker-Secret': secret } });
+        const data = await res.json();
+        _bhFotoLabelsCache[k] = data.labels || [];
+      } catch { _bhFotoLabelsCache[k] = []; }
+    }));
   }
-  const huidig = _bhFotoLabelsCache[key] || [];
+
+  const multi = doelKeys.length > 1;
+  const titelTekst = multi ? `Labels voor ${doelKeys.length} geselecteerde foto's` : 'Labels voor deze foto';
+
+  const statusVan = l => {
+    const n = doelKeys.filter(k => (_bhFotoLabelsCache[k] || []).includes(l)).length;
+    return n === 0 ? 'uit' : n === doelKeys.length ? 'aan' : 'gemixt';
+  };
 
   const popup = document.createElement('div');
   popup.className = 'foto-label-popup';
   popup.innerHTML = `
-    <div class="foto-label-popup-titel">Labels voor deze foto</div>
+    <div class="foto-label-popup-titel">${titelTekst}</div>
     <div class="foto-label-popup-chips">
-      ${_bhAlleLabels.map(l => `<span class="bh-label-chip${huidig.includes(l) ? ' actief' : ''}"
-        data-label="${l.replace(/"/g,'&quot;')}" data-start="${huidig.includes(l) ? '1' : '0'}">${escB(l)}</span>`).join('')}
+      ${_bhAlleLabels.map(l => {
+        const status = statusVan(l);
+        const n = doelKeys.filter(k => (_bhFotoLabelsCache[k] || []).includes(l)).length;
+        const suffix = status === 'gemixt' ? ` <span class="foto-label-popup-count">${n}/${doelKeys.length}</span>` : '';
+        return `<span class="bh-label-chip ${status === 'aan' ? 'actief' : ''} ${status === 'gemixt' ? 'gemixt' : ''}"
+          data-label="${l.replace(/"/g,'&quot;')}" data-start="${status}" data-state="${status}">${escB(l)}${suffix}</span>`;
+      }).join('')}
     </div>
+    ${multi ? '<div class="foto-label-popup-uitleg">Gestreept = op een deel van de selectie. Klik om overal aan of uit te zetten.</div>' : ''}
     <div class="foto-label-popup-fout" style="display:none;color:var(--rood);font-size:0.72rem;margin-top:0.5rem;line-height:1.4"></div>
     <div class="foto-label-popup-acties">
       <button class="foto-label-popup-btn foto-label-popup-annuleer">✕ Annuleren</button>
@@ -1402,7 +1476,7 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
 
   document.body.appendChild(popup);
   _bhActiefeLabelPopup = popup;
-  const rect = badge.getBoundingClientRect();
+  const rect = anchor.getBoundingClientRect();
   let top  = rect.bottom + 6;
   let left = rect.left - 100;
   if (left < 8) left = 8;
@@ -1412,53 +1486,79 @@ window.bhOpenFotoLabelPopup = async function(event, badge, cat, mapNaam, naam) {
   popup.style.top  = top  + 'px';
   popup.style.left = left + 'px';
 
+  const titelEl = popup.querySelector('.foto-label-popup-titel');
+  let bezig = false;
+
   popup.querySelectorAll('.bh-label-chip').forEach(chip => {
-    chip.addEventListener('click', () => chip.classList.toggle('actief'));
+    chip.addEventListener('click', () => {
+      if (bezig) return;
+      const nieuw = chip.dataset.state === 'aan' ? 'uit' : 'aan';
+      chip.dataset.state = nieuw;
+      chip.classList.toggle('actief', nieuw === 'aan');
+      chip.classList.remove('gemixt');
+      chip.querySelector('.foto-label-popup-count')?.remove();
+    });
   });
 
   const sluit = () => { popup.remove(); _bhActiefeLabelPopup = null; };
   popup.querySelector('.foto-label-popup-annuleer').addEventListener('click', sluit);
 
   popup.querySelector('.foto-label-popup-opslaan').addEventListener('click', async () => {
+    if (bezig) return;
+    const chips = [...popup.querySelectorAll('.bh-label-chip')];
+    const toevoegen = chips.filter(c => c.dataset.state === 'aan' && c.dataset.state !== c.dataset.start).map(c => c.dataset.label);
+    const weghalen  = chips.filter(c => c.dataset.state === 'uit' && c.dataset.state !== c.dataset.start).map(c => c.dataset.label);
+    if (!toevoegen.length && !weghalen.length) { sluit(); return; }
+
+    bezig = true;
     const opslaanBtn = popup.querySelector('.foto-label-popup-opslaan');
     opslaanBtn.disabled = true;
-    const nieuw = [...popup.querySelectorAll('.bh-label-chip.actief')].map(c => c.dataset.label);
-    try {
-      const volledig = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam)}`;
-      const thumbUrl = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam.replace(/\.webp$/i, '-thumb.webp'))}`;
-      const res = await fetch(WORKER_URL + '/foto-labels', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
-        body: JSON.stringify({ key, labels: nieuw, url: thumbUrl || volledig, mapNaam, type: 'foto', cat }),
-      });
-      const data = await res.json();
-      if (!data.ok) throw new Error('Opslaan mislukt');
-      _bhFotoLabelsCache[key] = data.labels;
-      badge.classList.toggle('heeft-labels', data.labels.length > 0);
-      sluit();
-      setLog('✓ Labels opgeslagen', 'success');
-    } catch {
-      // Geen alert() — dat is een blokkerend dialoogvenster dat de hele pagina
-      // bevriest totdat je 'm wegklikt (kon je daardoor nergens anders meer klikken).
-      // Foutmelding direct in de popup (blijft in beeld, ook als het logpaneel onderaan
-      // buiten beeld staat) + in het logpaneel voor consistentie met de rest van de site.
+    let mislukt = 0, n = 0;
+    for (const key of doelKeys) {
+      n++;
+      if (multi) titelEl.textContent = `Opslaan… (${n}/${doelKeys.length})`;
+      const huidige = _bhFotoLabelsCache[key] || [];
+      const nieuw   = [...new Set([...huidige.filter(l => !weghalen.includes(l)), ...toevoegen])];
+      const naam    = key.split('/').pop();
+      try {
+        const volledig = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam)}`;
+        const thumbUrl = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam.replace(/\.webp$/i, '-thumb.webp'))}`;
+        const res = await fetch(WORKER_URL + '/foto-labels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
+          body: JSON.stringify({ key, labels: nieuw, url: thumbUrl || volledig, mapNaam, type: 'foto', cat }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error('mislukt');
+        _bhFotoLabelsCache[key] = data.labels;
+        const thumb = document.querySelector(`.foto-thumb[data-foto="${CSS.escape(naam)}"]`);
+        thumb?.querySelector('.foto-label-btn')?.classList.toggle('heeft-labels', data.labels.length > 0);
+      } catch { mislukt++; }
+    }
+
+    if (mislukt) {
       opslaanBtn.disabled = false;
-      const foutTekst = '❌ Opslaan mislukt — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later (na middernacht) opnieuw.';
+      bezig = false;
+      const foutTekst = `❌ Opslaan mislukt (${mislukt}/${doelKeys.length}) — mogelijk de dagelijkse opslaglimiet bereikt. Probeer het later (na middernacht) opnieuw.`;
       const foutEl = popup.querySelector('.foto-label-popup-fout');
       if (foutEl) { foutEl.textContent = foutTekst; foutEl.style.display = ''; }
       setLog(foutTekst, 'error');
+    } else {
+      titelEl.textContent = '✓ Opgeslagen';
+      setLog('✓ Labels opgeslagen', 'success');
+      setTimeout(sluit, 900);
     }
   });
 
   setTimeout(() => {
     document.addEventListener('click', function buiten(e) {
-      if (!popup.contains(e.target) && e.target !== badge) {
+      if (!popup.contains(e.target) && e.target !== anchor) {
         sluit();
         document.removeEventListener('click', buiten);
       }
     });
   }, 0);
-};
+}
 
 function switchTab(tab) {
   activeTab = tab;
