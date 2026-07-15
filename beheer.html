@@ -3016,7 +3016,12 @@ async function nieuweEigenMap(cat) {
         placeholder="Kort wedstrijdverslag of beschrijving (goed voor Google)..."
       ></textarea>
     </div>
-    <div class="foto-grid" style="display:flex"></div>`;
+    <div class="foto-grid" style="display:flex"></div>
+    <div class="bh-foto-bulk-balk">
+      <span class="bh-foto-bulk-tel">0 foto's geselecteerd</span>
+      <button class="bh-foto-bulk-btn" onclick="bhBulkLabels(this)">🏷 Labels</button>
+      <button class="bh-foto-bulk-btn bh-foto-bulk-annuleer" onclick="bhDeselecteerFotos(this)">✕ Deselecteer alles</button>
+    </div>`;
 
   lijst.insertBefore(li, lijst.firstChild);
   const progres = document.createElement('div');
