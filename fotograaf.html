@@ -1872,14 +1872,20 @@ async function vulMappenSelect() {
   });
 }
 
-// Synchroniseer select met text input
-document.getElementById('up-map-select')?.addEventListener('change', function() {
+// Synchroniseer select met text input.
+// Let op: #up-map-select bestaat nog niet bij page-load (wordt pas ingevoegd
+// door toonDashboard() na inloggen) — een addEventListener op het element zelf
+// zou hier stil falen. Event delegation op document werkt ongeacht wanneer
+// het element verschijnt of opnieuw wordt getekend.
+document.addEventListener('change', function(e) {
+  if (e.target.id !== 'up-map-select') return;
+  const select = e.target;
   const mapInput = document.getElementById('up-map');
-  if (mapInput) mapInput.value = this.value;
+  if (mapInput) mapInput.value = select.value;
 
   // Laad bestaande labels van deze map
-  if (this.value && _mappenData.length) {
-    const map = _mappenData.find(m => m.map === this.value);
+  if (select.value && _mappenData.length) {
+    const map = _mappenData.find(m => m.map === select.value);
     if (map?.labels?.length) {
       _geselecteerdeLabels = [...map.labels];
       renderLabelChips();
