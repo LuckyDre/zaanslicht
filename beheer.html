@@ -2924,7 +2924,11 @@ async function verwerkUploads(files, cat, mapNaam, li, progres) {
       thumb.className = 'foto-thumb';
       thumb.dataset.foto = naamWebP;
       const dataUrl = 'data:image/webp;base64,' + base64;
-      thumb.innerHTML = `<img src="${dataUrl}"><span class="foto-nr">${idx}</span><button class="foto-verwijder-btn" onclick="eigenFotoVerwijderen(event,this)" title="Foto verwijderen uit slider">🗑</button>`;
+      const escNaam = naamWebP.replace(/'/g,"\\'");
+      thumb.innerHTML = `<input type="checkbox" class="foto-thumb-check" onclick="event.stopPropagation();bhToggleFotoSelectie(this)" />
+        <img src="${dataUrl}"><span class="foto-nr">${idx}</span>
+        <button class="foto-label-btn" onclick="bhOpenFotoLabelPopup(event,this,'${cat}','${mapNaam.replace(/'/g,"\\'")}','${escNaam}')" title="Labels voor deze foto">🏷</button>
+        <button class="foto-verwijder-btn" onclick="eigenFotoVerwijderen(event,this)" title="Foto verwijderen uit slider">🗑</button>`;
       grid.appendChild(thumb);
 
       // Manifest bijwerken
