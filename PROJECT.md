@@ -168,12 +168,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 ## Changelog
 
 ### v0.27 — 16 juli 2026
-- 🎨 **fotograaf.html: knoppen strak wit in rust, accentkleur van de fotograaf bij aanwijzen/drukken**
-  - `.btn-primary`/`.btn-secondary` (nieuw gedefinieerd — bestond in HTML maar had nog geen CSS-regel)/`.btn-ghost`: was een solide gevulde `var(--accent)`-achtergrond, altijd. Nu: transparante achtergrond, witte rand + tekst in rust; bij `:hover`/`:active` vult de knop met `var(--accent)` (de accentkleur die de fotograaf zelf instelt bij Instellingen, per account verschillend)
-  - Kop-knoppen (☀️ thema, ❓ Handleiding, ← Terug naar site) hadden een aparte, ongerelateerde inline-stijl met **hardcoded `#FF6B00`** i.p.v. de dynamische `var(--accent)` — dus toonden altijd oranje, ook voor fotografen met een andere accentkleur. Samengevoegd tot één `.header-btn`-klasse met hetzelfde wit-in-rust/accent-bij-hover-patroon; bugfix inbegrepen
-  - **Bewuste uitzondering, geen gemiste knop**: 🗑 verwijderknoppen en "Uitloggen" blijven rood kleuren bij hover, niet de accentkleur van de fotograaf — zelfde veiligheidsconventie als overal elders op de site (rood = destructief/waarschuwing, mag niet verward worden met een neutrale kleuraccent)
-  - Light-mode-tegenhangers toegevoegd voor alle aangepaste klassen (donkere rand/tekst i.p.v. wit, anders onzichtbaar op een lichte achtergrond) — `var(--accent)` wordt al dynamisch via JS gezet (`documentElement.style`) en werkt daardoor identiek in beide standen
-  - Browser-geverifieerd in beide modi: knop kleurt bij hover correct in Jan Kapers eigen blauw (#3b82f6), niet het standaard-oranje; light-mode blijft goed leesbaar
+- 🎨 **fotograaf.html: kleine icoon-knoppen wit in rust, reageren in de accentkleur van de fotograaf** (bijgesteld na verkeerde interpretatie — zie hieronder)
+  - **Eerste poging (teruggedraaid):** ik voegde witte ránden toe rond alle grote knoppen (Kleur opslaan, Handleiding, Uitloggen, etc.) — Andreas bedoelde dat niet, dat maakte de pagina "el cheapo". Volledig teruggedraaid naar de originele knopstijlen (`.btn-primary` weer solide `var(--accent)`-achtergrond, `.btn-ghost`/kop-knoppen weer subtiele `rgba(255,255,255,0.1)`-rand)
+  - **Wat wél bedoeld was:** de kleur van kleine icoon-knoppen zelf (het gallery/grid-icoon, de 🗑/🏷-badges per foto) feller wit maken, zonder randen of vakjes — puur de icoonkleur
+  - `.map-expand-btn` (gallery-icoon in Mijn mappen): van `var(--muted)` (dofgrijs) naar wit; bij aanwijzen/open naar `var(--accent)`, geen achtergrond-vakje meer
+  - `.foto-chip-del` (🗑) en `.foto-chip-lbl` (🏷) op individuele foto's in een geopende map: waren voorheen **onzichtbaar** (`opacity: 0`) tot je de hele foto hoverde — 🗑 was zelfs een volledige rode overlay over de foto heen. Omgebouwd tot permanent zichtbare kleine ronde badges (net als 🏷 al deed qua vorm): 🗑 linksonder, 🏷 rechtsboven, wit in rust. 🗑 kleurt rood bij aanwijzen (verwijderen blijft rood — bewuste uitzondering, niet de accentkleur), 🏷 kleurt in `var(--accent)` van de fotograaf
+  - Positionering afgestemd op de al bestaande selectie-checkbox (linksboven) om overlap te voorkomen
+  - Kop-knoppen (☀️/❓/←) behielden wél de bugfix uit de eerste poging: gebruikten hardcoded `#FF6B00` i.p.v. `var(--accent)` — nu opgelost, tonen de eigen kleur van de ingelogde fotograaf, met de originele subtiele styling
+  - Browser-geverifieerd: gallery-icoon wit → blauw (Jans kleur) bij hover; 🗑-badge wit → rood bij hover; 🏷-badge wit → blauw bij hover; geen overlap met de checkbox
 
 ### v0.26 — 16 juli 2026
 - 🎨 **Icoon-verduidelijking, vervolg: `.expand-btn` in beheer.html was gemist** — Andreas bedoelde met "voetbal en no sports" de tábbladen in beheer.html (niet voetbal.html/nosports.html, die al goed stonden). Daar stond nog een echte `▼`-driehoek als "Foto's tonen/verbergen"-knop, direct links van de Facebook-knop
