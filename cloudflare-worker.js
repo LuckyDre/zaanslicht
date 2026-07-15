@@ -761,6 +761,15 @@ async function handleFotoUpload(request, env) {
     await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
   }
 
+  // Labels gekozen tijdens uploaden ook echt toepassen op déze foto (net als het
+  // bestaande 🏷-systeem per foto) — anders landen ze alleen op de map-metadata
+  // en komen ze nooit in de reverse index terecht die clubs.html gebruikt.
+  if (labels.length) {
+    await env.SUBSCRIBERS.put('foto:labels:' + r2Key, JSON.stringify(labels));
+    const entry = { key: r2Key, url: '', fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() };
+    await updateReverseIndex(r2Key, [], labels, entry, env);
+  }
+
   return json({ ok: true, key: r2Key, naam: veiligNaam });
 }
 
