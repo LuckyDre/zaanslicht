@@ -434,23 +434,29 @@
   }
   .foto-chip-img { position: absolute; inset: 0; overflow: hidden; border-radius: 2px; }
   .foto-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .foto-chip:hover .foto-chip-del { opacity: 1; }
+  /* 🗑 en 🏷 zijn altijd zichtbare kleine badges (geen volledige overlay meer over
+     de foto — dat maakte de foto onzichtbaar zolang je 'm zag). Wit in rust; 🗑
+     kleurt rood bij aanwijzen (verwijderen = gevaar), 🏷 kleurt in de accentkleur
+     van de fotograaf. */
   .foto-chip-del {
-    position: absolute; inset: 0; background: rgba(239,68,68,0.85);
+    position: absolute; top: -6px; left: -6px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(30,30,30,0.9); border: 1.5px solid rgba(255,255,255,0.2);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; opacity: 0; transition: opacity 0.15s;
-    border-radius: 2px; z-index: 5;
+    font-size: 0.65rem; cursor: pointer; z-index: 20;
+    transition: background-color 0.15s, border-color 0.15s; color: #fff; line-height: 1;
   }
+  .foto-chip-del:hover { background: #ef4444; border-color: #ef4444; }
   .foto-chip-lbl {
     position: absolute; top: -6px; right: -6px;
     width: 18px; height: 18px; border-radius: 50%;
     background: rgba(30,30,30,0.9); border: 1.5px solid rgba(255,255,255,0.2);
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.6rem; cursor: pointer; z-index: 20; opacity: 0;
-    transition: opacity 0.15s; color: var(--muted); line-height: 1;
+    font-size: 0.6rem; cursor: pointer; z-index: 20;
+    transition: background-color 0.15s, border-color 0.15s; color: #fff; line-height: 1;
   }
-  .foto-chip-lbl.heeft-labels { background: var(--accent); color: #fff; opacity: 1; border-color: var(--bg); }
-  .foto-chip:hover .foto-chip-lbl { opacity: 1; }
+  .foto-chip-lbl:hover { background: var(--accent); border-color: var(--accent); }
+  .foto-chip-lbl.heeft-labels { background: var(--accent); color: #fff; border-color: var(--bg); }
   /* Sorteer-modus: overlays uit zodat tikken/slepen de foto zelf raakt */
   .map-item.sorteer-modus .foto-chip-del,
   .map-item.sorteer-modus .foto-chip-lbl,
