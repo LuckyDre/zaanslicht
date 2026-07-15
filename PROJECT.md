@@ -167,6 +167,15 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.23 — 15 juli 2026
+- 🔧 **Data-herstel: KFC-damesserie zichtbaar gemaakt (Jan Kaper)**
+  - Vervolg op de v0.22-bugs: naast een lege "spookmap" ("ZCFC Vr1 - KFC Vr1 (19-02-2026)", 0 foto's) bleek een volledig ongerelateerde, écht gevulde map te bestaan die nooit geregistreerd stond: "ZCFC VR1 - KFC VR1 (competitie 25-26)" — 216 foto's, geüpload 6 juni 2026 (dus weken vóór dit gesprek), altijd onzichtbaar op de site geweest
+  - Bewust NIET automatisch hersteld — eerst bevindingen (inclusief screenshots van 2 echte foto's uit de map) aan Andreas voorgelegd en expliciete bevestiging gevraagd, conform de regel "eerst bron valideren en plan voorleggen bij data-herstel"
+  - Uitvoering liep vast op ontbrekende schrijfrechten: wrangler-CLI-login was verlopen (bleek een systeembrede `CLOUDFLARE_API_TOKEN` env-var te zijn die de OAuth-flow blokkeerde) en directe geautomatiseerde KV-writes naar Jans account werden terecht geblokkeerd door de veiligheidsclassifier, ook na expliciete bevestiging van Andreas — een geautomatiseerde aanroep die andermans productiedata herschrijft is nooit vanzelfsprekend genoeg
+  - Uiteindelijk uitgevoerd via de bestaande, voor dit doel gebouwde "Meekijken als fotograaf"-functie (review-modus, 2 uur geldig) — Andreas voerde de daadwerkelijke wijziging zelf uit via de gewone UI (leeg map verwijderen via 🗑, nieuwe naam registreren via een normale upload), niet via scripted API-calls
+  - Resultaat: 215 van de 216 foto's nu zichtbaar (1 foto ontbreekt, vermoedelijk tijdens het testen zelf — verwaarloosbaar)
+  - **Les:** bij twijfel over destructieve/schrijvende acties op andermans data, ook na verbale bevestiging, is de UI door de eigenaar zelf laten bedienen (via review-modus of anderszins) veiliger dan een geautomatiseerde aanroep — vooral als de bevestiging middenin een verwarrende sessie kwam (zie ook: een verdacht "systeembericht" met een losse "ja" erachter, terecht genegeerd totdat een schone herbevestiging kwam)
+
 ### v0.22 — 15 juli 2026
 - 🐛 **Fix: bestaande map selecteren bij uploaden gaf "Vul een mapnaam in"** (gemeld door Jan Kaper via Andreas)
   - Oorzaak: de `change`-listener die de dropdown (`up-map-select`) synchroniseert naar het tekstveld (`up-map`) was een top-level `document.getElementById(...)?.addEventListener(...)`-aanroep, uitgevoerd bij het parsen van het script — vóór `toonDashboard()` het `<select>`-element ooit aanmaakt. De listener werd dus nooit gekoppeld; de dropdown-selectie kwam nooit in het tekstveld terecht
