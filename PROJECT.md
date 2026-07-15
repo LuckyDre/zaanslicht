@@ -167,6 +167,19 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.24 — 15 juli 2026
+- 🐛 **Fix: verwijderde foto's lieten wees-labels achter** (aangekondigd in v0.23, nu gefixt)
+  - Nieuwe gedeelde Worker-functie `verwijderFotoLabels(key, env)`: leest `foto:labels:{key}`, ruimt de reverse index (`label:fotos:{label}`) op via de bestaande `updateReverseIndex`, verwijdert daarna `foto:labels:{key}` zelf
+  - Aangeroepen vanuit alle vier de verwijder-paden: `handleFotoVerwijderen` (fotograaf eigen foto), `handleAdminFotoVerwijderen`, `handleAdminMapVerwijderen` (per foto in de map), `handleFotograafVerwijderen` (volledig account)
+  - beheer.html's `eigenFotoVerwijderen` (eigen foto's, geen Worker-call voor het bestand zelf — dat blijft op GitHub Pages) roept nu apart `/foto-labels` met `labels:[]` aan om dezelfde opruiming te forceren via het bestaande endpoint
+  - End-to-end geverifieerd met een wegwerp-testfoto: label gezet → bevestigd in reverse index → foto verwijderd → **zowel** `foto:labels` **als** de reverse index correct leeg. Belangrijke les tijdens het testen: per ongeluk eerst een écht bestaande foto van Jan gebruikt voor de test — direct hersteld vóórdat er iets verwijderd werd; voortaan altijd een aparte wegwerp-testmap/-foto gebruiken, nooit bestaande productiedata "lenen" voor een test
+- ✨ **Bulk-labelen met OK-knop nu ook in beheer.html** (eigen foto's) — bestond al in fotograaf.html, nu ook hier
+  - Checkbox op elke foto-thumbnail (rechtsonder, subtiel — verschijnt duidelijk bij hover/selectie) in een geopende slider; een balk met teller + **"🏷 Labels"** + **"✕ Deselecteer alles"** verschijnt zodra ≥1 foto is aangevinkt
+  - Labelpopup hergebruikt/generaliseert de bestaande single-foto-popup (`bhOpenFotoLabelPopupVoor(doelKeys, anchor, cat, mapNaam)`) met dezelfde driestand-logica (aan/uit/gemixt, 1 klik = overal aan of overal uit) als het al werkende fotograaf.html-systeem (v0.16) — **geen directe opslag bij aanklikken**, pas na expliciete **💾 Opslaan**
+  - Klikken op de 🏷 van één foto die deel uitmaakt van een selectie van >1 werkt automatisch op de hele selectie (zelfde gedrag als fotograaf.html)
+  - Bijvangst: vers geüploade foto's (zelfde sessie, vóór herladen) misten de 🏷-knop en checkbox helemaal — dat sjabloon (`verwerkUploads`) stond nog op de oude, kalere opzet. Nu gelijkgetrokken met het hoofdsjabloon
+  - End-to-end op de live site getest: 3 foto's geselecteerd → bulk-balk toont "3 foto's geselecteerd" → 🏷 Labels → label aangeklikt → Opslaan → alle 3 foto's + reverse index correct bijgewerkt → daarna in 1 klik weer overal gedeselecteerd → reverse index weer leeg
+
 ### v0.23 — 15 juli 2026
 - 🔧 **Data-herstel: KFC-damesserie zichtbaar gemaakt (Jan Kaper)**
   - Vervolg op de v0.22-bugs: naast een lege "spookmap" ("ZCFC Vr1 - KFC Vr1 (19-02-2026)", 0 foto's) bleek een volledig ongerelateerde, écht gevulde map te bestaan die nooit geregistreerd stond: "ZCFC VR1 - KFC VR1 (competitie 25-26)" — 216 foto's, geüpload 6 juni 2026 (dus weken vóór dit gesprek), altijd onzichtbaar op de site geweest
