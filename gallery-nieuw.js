@@ -187,10 +187,7 @@ function toonOverzicht(titel, fotos) {
       img.loading = 'lazy';
       img.alt = '';
       d.appendChild(img);
-      d.addEventListener('click', () => {
-        sluitOverzicht();
-        setTimeout(() => lbOpen(fotos, absIdx), 50);
-      });
+      d.addEventListener('click', () => lbOpen(fotos, absIdx));
       grid.appendChild(d);
     });
     rendered += batch.length;
