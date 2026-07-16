@@ -226,16 +226,17 @@ function toonOverzicht(titel, fotos, scrollNaarIdx = -1) {
 
   renderBatch();
 
+  modal.classList.add('ov-open');
+  document.body.style.overflow = 'hidden';
+
   // Geopend vanuit een slider-foto: render door tot die foto in het grid zit en
   // scroll ernaartoe, zodat het sluiten van de foto op de juiste plek terugkomt.
+  // Ná het openen van het grid (display:flex), anders kan scrollIntoView niets meten.
   if (scrollNaarIdx >= 0) {
     while (rendered <= scrollNaarIdx && rendered < fotos.length) renderBatch();
     const doel = grid.querySelectorAll('.ov-thumb')[scrollNaarIdx];
     if (doel) doel.scrollIntoView({ block: 'center' });
   }
-
-  modal.classList.add('ov-open');
-  document.body.style.overflow = 'hidden';
 }
 
 function sluitOverzicht() {
