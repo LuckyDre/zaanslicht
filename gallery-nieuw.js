@@ -163,7 +163,11 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
 // ── OVERZICHT GRID (lazy-load: 20 thumbnails, meer bij scrollen) ───────────
 const OV_PAGE = 30;
 
-function toonOverzicht(titel, fotos) {
+// Onthoudt de huidig geopende serie zodat lbSluit naar de laatst bekeken foto
+// in het grid kan terugscrollen.
+let _ov_fotos = [];
+
+function toonOverzicht(titel, fotos, scrollNaarIdx = -1) {
   const modal = document.getElementById('ov');
   const grid  = document.getElementById('ov-grid');
 
@@ -173,10 +177,17 @@ function toonOverzicht(titel, fotos) {
   document.getElementById('ov-titel').textContent = `${titel} (${fotos.length})`;
   grid.innerHTML = '';
   grid.scrollTop = 0;
+  _ov_fotos = fotos;
 
   let rendered = 0;
+  let sentinel = null;
 
   function renderBatch() {
+    // Loop-veilig: ruim de vorige sentinel/observer op vóór we verder renderen,
+    // zodat vooruit-renderen (scrollNaarIdx) geen losse sentinels achterlaat.
+    if (_ovObserver) { _ovObserver.disconnect(); _ovObserver = null; }
+    if (sentinel) { sentinel.remove(); sentinel = null; }
+
     const batch = fotos.slice(rendered, rendered + OV_PAGE);
     batch.forEach((f, i) => {
       const absIdx = rendered + i;
@@ -192,18 +203,14 @@ function toonOverzicht(titel, fotos) {
     });
     rendered += batch.length;
 
-    // Sentinel voor volgende batch
+    // Sentinel voor volgende batch (lazy-load bij scrollen)
     if (rendered < fotos.length) {
-      const sentinel = document.createElement('div');
+      sentinel = document.createElement('div');
       sentinel.style.cssText = 'grid-column:1/-1;height:1px;';
       grid.appendChild(sentinel);
 
       _ovObserver = new IntersectionObserver(entries => {
-        if (!entries[0].isIntersecting) return;
-        _ovObserver.disconnect();
-        _ovObserver = null;
-        sentinel.remove();
-        renderBatch();
+        if (entries[0].isIntersecting) renderBatch();
       }, { root: grid, rootMargin: '0px 0px 300px 0px' });
 
       _ovObserver.observe(sentinel);
@@ -211,6 +218,14 @@ function toonOverzicht(titel, fotos) {
   }
 
   renderBatch();
+
+  // Geopend vanuit een slider-foto: render door tot die foto in het grid zit en
+  // scroll ernaartoe, zodat het sluiten van de foto op de juiste plek terugkomt.
+  if (scrollNaarIdx >= 0) {
+    while (rendered <= scrollNaarIdx && rendered < fotos.length) renderBatch();
+    const doel = grid.querySelectorAll('.ov-thumb')[scrollNaarIdx];
+    if (doel) doel.scrollIntoView({ block: 'center' });
+  }
 
   modal.classList.add('ov-open');
   document.body.style.overflow = 'hidden';
