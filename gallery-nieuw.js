@@ -34,7 +34,12 @@ function lbToon(idx) {
 
 function lbSluit() {
   document.getElementById('lb2').classList.add('lb2-hidden');
-  document.body.style.overflow = '';
+  // Een foto wordt altijd bekeken bínnen het overzicht-grid van de serie.
+  // Sluit je de foto, dan blijft dat grid open (kijker kiest de volgende foto);
+  // pas het sluiten van het grid brengt je terug naar de sliderpagina. Body-scroll
+  // dus alleen vrijgeven als het grid óók dicht is.
+  const ovOpen = document.getElementById('ov').classList.contains('ov-open');
+  if (!ovOpen) document.body.style.overflow = '';
 }
 
 function initLightbox() {
