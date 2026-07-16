@@ -39,7 +39,11 @@ function lbSluit() {
   // pas het sluiten van het grid brengt je terug naar de sliderpagina. Body-scroll
   // dus alleen vrijgeven als het grid óók dicht is.
   const ovOpen = document.getElementById('ov').classList.contains('ov-open');
-  if (!ovOpen) document.body.style.overflow = '';
+  if (!ovOpen) { document.body.style.overflow = ''; return; }
+  // Grid blijft open: scroll (indien al gerenderd) naar de laatst bekeken foto,
+  // zodat na vooruit/terug-bladeren de juiste thumbnail in beeld staat.
+  const doel = document.getElementById('ov-grid').querySelectorAll('.ov-thumb')[_lb_idx];
+  if (doel) doel.scrollIntoView({ block: 'center' });
 }
 
 function initLightbox() {
