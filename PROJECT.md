@@ -167,6 +167,16 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.28 — 16 juli 2026
+- 🟢 **Lifeline/presence-indicator gefixt (gemeld door Andreas: "wie is er nu online?")**
+  - De feature bestond al (`startPresence()` in fotograaf.html + `startPresenceWatcher()` in beheer.html) maar schreef nooit écht data weg: beide gebruikten de Firebase JS SDK's live verbinding (`.info/connected`-gate + `onDisconnect()` resp. `.on('value')`-listener). Diezelfde SDK-verbinding hangt/faalt al langer stil op de live site (zie `firebase-rest.js`-comment, HTTP 503 op de long-poll, vermoedelijk adblock/privacy-extensies bij bezoekers) — precies het probleem dat destijds al is opgelost voor likes/reacties door over te stappen op kale REST-calls
+  - **Root cause bevestigd via REST (ground truth):** zelfs met een écht actieve review-modus-sessie van Jan Kaper bleef `/online.json` `null` — dus niet slechts een weergaveprobleem, er kwam serverside helemaal niks binnen
+  - **Fix:** presence herschreven naar hetzelfde REST-patroon als likes/reacties (`firebase-rest.js`, nu ook geladen in fotograaf.html + beheer.html; `fbDelete()` toegevoegd)
+    - fotograaf.html: `startPresence()` stuurt direct + daarna elke 20s een heartbeat (`fbSet('online/{id}', {naam, kleur, sinds: Date.now()})`); `stopPresence()` doet een REST-DELETE bij uitloggen
+    - beheer.html: `startPresenceWatcher()` pollt elke 10s (`fbGet('online')`), filtert entries ouder dan 45s (gestopte/gecrashte sessies) er automatisch uit — geen `onDisconnect()` nodig, wat toch niet werkte zonder live verbinding
+  - **Browser-geverifieerd (16-07-2026):** met Jan Kapers echte review-sessie herladen verscheen binnen enkele seconden `/online.json` → `{"5aaa4a798ac6fc01":{"naam":"Jan Kaper","kleur":"#3b82f6","sinds":...}}`, en de chip "🔵 Jan Kaper · nu actief" verscheen live in beheer.html naast "✓ Online" ✅
+  - **Openstaand:** Andreas vindt de chip visueel niet opvallend genoeg ("Nergens opvallend te zien") — bewust nog niet geredesigned; eerst was de data-flow zelf kapot, een redesign zonder werkende data zou hetzelfde soort gok zijn geweest als de knoppen-episode in v0.27. Volgende stap: samen met Andreas bepalen hoe prominent het moet worden (grootte, plek, animatie?)
+
 ### v0.27 — 16 juli 2026
 - 🎨 **fotograaf.html: kleine icoon-knoppen wit in rust, reageren in de accentkleur van de fotograaf** (bijgesteld na verkeerde interpretatie — zie hieronder)
   - **Eerste poging (teruggedraaid):** ik voegde witte ránden toe rond alle grote knoppen (Kleur opslaan, Handleiding, Uitloggen, etc.) — Andreas bedoelde dat niet, dat maakte de pagina "el cheapo". Volledig teruggedraaid naar de originele knopstijlen (`.btn-primary` weer solide `var(--accent)`-achtergrond, `.btn-ghost`/kop-knoppen weer subtiele `rgba(255,255,255,0.1)`-rand)
