@@ -2712,7 +2712,7 @@ function startPresenceWatcher() {
       bar.innerHTML = fotografen.map(f => {
         const kleur = f.kleur || '#FF6B00';
         return `<span class="online-chip" title="Online in fotograaf-portaal">
-          <span class="online-dot" style="background:${kleur}"></span>
+          <span class="online-dot" style="background:${kleur};color:${kleur}"></span>
           ${f.naam} · nu actief
         </span>`;
       }).join('');
