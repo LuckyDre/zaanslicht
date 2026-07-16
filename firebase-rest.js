@@ -41,3 +41,12 @@ async function fbIncrement(path, delta) {
   await fbSet(path, next);
   return next;
 }
+
+async function fbDelete(path) {
+  try {
+    const res = await fetch(`${FIREBASE_DB_URL}/${path}.json`, { method: 'DELETE' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
