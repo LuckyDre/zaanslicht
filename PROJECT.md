@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.29 — 16 juli 2026
+- 🐛 **Terugkerende lege "spookmap" op voetbal.html gefixt (gemeld door Andreas: map met 0 foto's komt na verwijderen steeds terug)**
+  - **Oorzaak:** fotograaf.html stuurt bij map-verwijderen, bulk-verwijderen én volgorde-opslaan de complete mappenlijst uit het browsergeheugen naar `POST /fotograaf/mappen-volgorde`, en de Worker schreef die lijst blind over KV heen. Een verouderd openstaand fotograaf-portaal-tabblad (met de oude lijst nog in het geheugen) zette een elders verwijderde map zo weer terug — de foto's waren al uit R2 verwijderd, dus de map kwam leeg (0 foto's) terug op de site. Elke keer opnieuw verwijderen hielp niets zolang dat verouderde tabblad open bleef
+  - **Fix (Worker, `handleMappenVolgorde` fotograaf-tak):** ingestuurde lijst wordt gefilterd op mapnamen die nú in KV bestaan — herordenen en verwijderen werken ongewijzigd, her-toevoegen van een verdwenen map wordt genegeerd. Nieuwe mappen ontstaan uitsluitend via upload (`handleFotoUpload`), die tak is ongemoeid. De admin-tak had dit gedrag al
+  - **End-to-end geverifieerd** met een wegwerp-nepfotograaf (`claudetest_niet_echt_fg`, na afloop volledig opgeruimd): spookmap her-toevoegen → genegeerd ✅; herordenen → werkt ✅; verwijderen → werkt ✅
+  - Opruiming en passant: een achtergebleven testtoken uit een eerdere sessie (`fotograaf:token:claudetest07c6…`, wees naar Jans id) gevonden en verwijderd
+  - **Losse observatie (geen actie ondernomen):** in R2 staat een niet-geregistreerde map "ZCFC 1 - Wieringermeer 1 (competitie 25-26)" met 96 foto's — onzichtbaar op de site, neemt wel opslag in. Eerst met Andreas overleggen wat hiermee moet
+
 ### v0.28 — 16 juli 2026
 - 🟢 **Lifeline/presence-indicator gefixt (gemeld door Andreas: "wie is er nu online?")**
   - De feature bestond al (`startPresence()` in fotograaf.html + `startPresenceWatcher()` in beheer.html) maar schreef nooit écht data weg: beide gebruikten de Firebase JS SDK's live verbinding (`.info/connected`-gate + `onDisconnect()` resp. `.on('value')`-listener). Diezelfde SDK-verbinding hangt/faalt al langer stil op de live site (zie `firebase-rest.js`-comment, HTTP 503 op de long-poll, vermoedelijk adblock/privacy-extensies bij bezoekers) — precies het probleem dat destijds al is opgelost voor likes/reacties door over te stappen op kale REST-calls
