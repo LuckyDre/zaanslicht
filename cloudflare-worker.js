@@ -1566,6 +1566,46 @@ async function handleLabelsOpschonen(request, env) {
   });
 }
 
+// Registreert een R2-map die wél foto's bevat maar (door een oude upload-bug)
+// nooit in fotograaf:mappen:{id} kwam te staan, waardoor die onzichtbaar bleef
+// op de site. Valideert eerst tegen R2 dat de map echt foto's heeft. Admin-only.
+// Idempotent: als de map al geregistreerd is, verandert er niets.
+async function handleMapRegistreren(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const { id, map, categorie = 'voetbal', datum = '', labels = [] } = await request.json().catch(() => ({}));
+  if (!id || !map) return json({ error: 'id en map verplicht' }, 400);
+
+  // Bestaat de fotograaf?
+  const fgRaw = await env.SUBSCRIBERS.get('fotograaf:' + id);
+  if (!fgRaw) return json({ error: 'Fotograaf niet gevonden' }, 404);
+
+  // Valideer tegen R2: bevat de map daadwerkelijk foto's?
+  const prefix = `fotografen/${id}/${categorie}/${encodeURIComponent(map)}/`;
+  const lijst = await env.FOTOS.list({ prefix, limit: 1 });
+  if (!lijst.objects.length) {
+    return json({ error: 'Geen foto\'s in R2 voor deze map — niets te registreren', prefix }, 400);
+  }
+
+  const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + id);
+  const mappen = mappenRaw ? JSON.parse(mappenRaw) : [];
+  if (mappen.some(m => m.map === map)) {
+    return json({ ok: true, alBestond: true, aantalMappen: mappen.length });
+  }
+
+  mappen.push({
+    map,
+    categorie,
+    ts: Date.now(),
+    labels: Array.isArray(labels) ? labels.slice(0, 10) : [],
+    opVoetbal: categorie === 'voetbal',
+    opNosports: categorie === 'nosports',
+    opEigenPagina: true,
+    datum: datum || '',
+  });
+  await env.SUBSCRIBERS.put('fotograaf:mappen:' + id, JSON.stringify(mappen));
+  return json({ ok: true, geregistreerd: map, aantalMappen: mappen.length });
+}
+
 async function handleDeleteComment(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
   const { id, photoKey } = await request.json().catch(() => ({}));
@@ -1818,6 +1858,7 @@ export default {
     if (url.pathname === '/admin/github-file'         && request.method === 'GET')  return handleAdminGithubFileGet(request, env);
     if (url.pathname === '/admin/github-file'         && request.method === 'POST') return handleAdminGithubFilePut(request, env);
     if (url.pathname === '/admin/labels-opschonen'    && request.method === 'POST') return handleLabelsOpschonen(request, env);
+    if (url.pathname === '/admin/map-registreren'     && request.method === 'POST') return handleMapRegistreren(request, env);
     if (url.pathname === '/admin/review-wachtwoord'   && request.method === 'POST') return handleReviewWachtwoord(request, env);
     if (url.pathname === '/admin/review-sessie'       && request.method === 'POST') return handleReviewSessie(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
