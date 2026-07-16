@@ -248,7 +248,10 @@ function initOverzicht() {
   const modal = document.getElementById('ov');
   modal.addEventListener('click', e => { if (e.target === modal) sluitOverzicht(); });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && modal.classList.contains('ov-open')) sluitOverzicht();
+    // Alleen sluiten als het grid open is én er geen foto bovenop staat —
+    // anders sluit Escape eerst de foto (de lightbox-handler doet dat).
+    const lbOpen = !document.getElementById('lb2').classList.contains('lb2-hidden');
+    if (e.key === 'Escape' && modal.classList.contains('ov-open') && !lbOpen) sluitOverzicht();
   });
 }
 
