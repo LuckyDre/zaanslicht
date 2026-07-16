@@ -58,6 +58,9 @@ function initLightbox() {
   });
   document.addEventListener('keydown', e => {
     if (document.getElementById('lb2').classList.contains('lb2-hidden')) return;
+    // Staat er een foto open, dan handelt de lightbox de toets af — voorkom dat
+    // de overzicht-handler dezelfde Escape óók verwerkt en het grid meesluit.
+    if (['Escape', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.stopImmediatePropagation();
     if (e.key === 'Escape')      lbSluit();
     if (e.key === 'ArrowLeft')   lbToon(_lb_idx - 1);
     if (e.key === 'ArrowRight')  lbToon(_lb_idx + 1);
