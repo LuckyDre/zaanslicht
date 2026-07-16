@@ -893,7 +893,7 @@ function startApp() {
   } catch(e) {
     setLog('❌ Fout bij laden: ' + e.message + ' — ververs de pagina.', 'error');
   }
-  laadFirebase().then(startPresenceWatcher).catch(() => {});
+  startPresenceWatcher();
   refreshLocalStatus();
 }
 
