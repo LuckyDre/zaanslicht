@@ -167,6 +167,16 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.31 — 16 juli 2026
+- 🖼 **Galerij-navigatie: foto sluiten keert terug naar het grid, niet naar de sliderpagina** (gemeld door Andreas)
+  - **Probleem:** het overzicht-grid ("gallery view") sloot zichzelf zodra je een foto opende (`sluitOverzicht()` + `setTimeout(lbOpen)`), dus na het sluiten van één foto stond je weer op de sliderpagina i.p.v. terug in de galerij om de volgende foto te kiezen. Onhandig bij elke slider
+  - **Fix (`gallery-nieuw.js`):** twee-lagen-stapel. (1) Klik op een thumbnail in het grid opent de lightbox er nu bovenop zonder het grid te sluiten. (2) Klik op een foto in de horizontale slider opent nu óók eerst het grid (gescrolld naar díe foto via nieuwe 3e param `scrollNaarIdx` van `toonOverzicht`) en dan de lightbox. (3) `lbSluit` geeft de body-scroll alleen vrij als het grid dicht is, en scrollt best-effort naar de laatst bekeken foto. Zo: **foto sluiten → terug in grid; grid sluiten → terug naar sliderpagina**
+  - **Escape-dubbelsluit-bug onderweg gevonden en gefixt:** met foto én grid open vuurden beide keydown-handlers; sloot de lightbox-handler eerst de foto, dan zag de grid-handler "geen foto open" en sloot het grid mee. Opgelost met `e.stopImmediatePropagation()` in de lightbox-handler (die is vóór de grid-handler geregistreerd), plus een `!lbOpen`-guard in de grid-handler
+  - **CSS (voetbal.html + nosports.html):** lightbox `.lb2` z-index 2000→2200 (boven het grid op 2000), reacties-drawer 2100→2300 (blijft boven de lightbox). Cache-buster `gallery-nieuw.js?v=…c/…d`
+  - Geverifieerd: eerst lokaal met de echte functies + CSS (mock-foto's, alle stappen incl. scroll-naar-foto en Escape), daarna **end-to-end op de live site** met de echte Wieringermeer-serie: sliderfoto → grid(96)+foto(4/96) → foto sluiten → terug in grid → grid sluiten → sliderpagina met vrije scroll ✅
+  - **Nog niet meegenomen:** fotograaf-pagina.html heeft een eigen overzicht/lightbox-implementatie met hetzelfde gedrag — daar staat deze fix nog niet in (Andreas noemde alleen de voetbalpagina). Kandidaat voor een volgende ronde als hij dat ook wil
+  - **Deploy-les:** de `?v=`-cache-buster wérkt (Cloudflare respecteert de query-string: verse query = MISS = verse fetch) en de HTML is `cf-cache-status: DYNAMIC` (Cloudflare cachet 'm niet) — dus géén Cloudflare-purge nodig. De echte vertraging is **GitHub Pages die achterloopt** doordat de auto-sync (watch.js) heel vaak commit en Pages de builds throttelt (liep hier ~2u achter, trok daarna vanzelf bij). **Curl nooit de echte `?v=`-URL terwijl de origin nog oud is** — dat cachet de oude versie onder de productie-sleutel (deed dat per ongeluk met `?v=…c`; die self-healde later via `cf-cache-status: EXPIRED`). Poll met wegwerp-random-queries.
+
 ### v0.30 — 16 juli 2026
 Openstaande punten uit v0.28/v0.29 afgehandeld (verzoek Andreas: "alles nu afhandelen").
 - 🖼 **Jan Kapers ontbrekende thumbnails aangemaakt** — `maak-gast-thumbs.py` opnieuw gedraaid: 474 thumbnails gemaakt, 3 mislukten door netwerk-timeouts en zijn daarna handmatig hergemaakt. Alle 477 gastfoto's hebben nu een `-thumb.webp` in R2.
