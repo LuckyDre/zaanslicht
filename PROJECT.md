@@ -175,7 +175,9 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
     - fotograaf.html: `startPresence()` stuurt direct + daarna elke 20s een heartbeat (`fbSet('online/{id}', {naam, kleur, sinds: Date.now()})`); `stopPresence()` doet een REST-DELETE bij uitloggen
     - beheer.html: `startPresenceWatcher()` pollt elke 10s (`fbGet('online')`), filtert entries ouder dan 45s (gestopte/gecrashte sessies) er automatisch uit — geen `onDisconnect()` nodig, wat toch niet werkte zonder live verbinding
   - **Browser-geverifieerd (16-07-2026):** met Jan Kapers echte review-sessie herladen verscheen binnen enkele seconden `/online.json` → `{"5aaa4a798ac6fc01":{"naam":"Jan Kaper","kleur":"#3b82f6","sinds":...}}`, en de chip "🔵 Jan Kaper · nu actief" verscheen live in beheer.html naast "✓ Online" ✅
-  - **Openstaand:** Andreas vindt de chip visueel niet opvallend genoeg ("Nergens opvallend te zien") — bewust nog niet geredesigned; eerst was de data-flow zelf kapot, een redesign zonder werkende data zou hetzelfde soort gok zijn geweest als de knoppen-episode in v0.27. Volgende stap: samen met Andreas bepalen hoe prominent het moet worden (grootte, plek, animatie?)
+  - **Chip prominenter gemaakt (keuze Andreas: "groter in de header"):** grotere tekst (0.9rem, vet), duidelijker groene rand/achtergrond, grotere pulserende kleur-dot (11px) met gloed in de accentkleur van de fotograaf
+  - **Licht-modus-fix (gemeld door Andreas: "alle teksten te licht"):** de light-mode-override zette wel achtergrond/rand van de chip om maar niet de tekstkleur — lichtgrijze tekst (#aaa/#e6e6e6) was op wit vrijwel onzichtbaar. `color: #1a1a1a` toegevoegd aan `html.light-mode .online-chip`. Browser-geverifieerd in lichte modus met Jans echte sessie actief ✅
+  - beheer-handleiding.html bijgewerkt: nieuwe stap "Wie is er nu online?" onder Fotografen
 
 ### v0.27 — 16 juli 2026
 - 🎨 **fotograaf.html: kleine icoon-knoppen wit in rust, reageren in de accentkleur van de fotograaf** (bijgesteld na verkeerde interpretatie — zie hieronder)
