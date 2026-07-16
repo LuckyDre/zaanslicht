@@ -310,9 +310,15 @@ async function laadGallery() {
 
     container.innerHTML = '';
 
-    // Likes non-blocking laden: foto's direct tonen, tellers bijwerken zodra Firebase reageert
+    // Likes laden met korte deadline: kort wachten zodat de eerste series al
+    // gesorteerd renderen, maar de galerij nooit blokkeren als Firebase traag/stuk is
     let likeCounts = {};
-    fbGet('likes').then(counts => {
+    const likesPromise = fbGet('likes');
+    likeCounts = (await Promise.race([
+      likesPromise,
+      new Promise(r => setTimeout(() => r(null), 800)),
+    ]).catch(() => null)) || {};
+    likesPromise.then(counts => {
       likeCounts = counts || {};
       container.querySelectorAll('.btn-like[data-key]').forEach(btn => {
         const c = likeCounts[btn.dataset.key] || 0;
