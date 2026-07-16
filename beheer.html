@@ -2686,32 +2686,41 @@ function updateKaartPresence() {
   });
 }
 
+// Presence via firebase-rest.js (polling) i.p.v. live SDK-listener — de SDK's
+// long-polling verbinding hangt/faalt stil op de live site (zie firebase-rest.js).
+// Fotografen sturen elke 20s een heartbeat; entries ouder dan 45s tellen als offline.
+const PRESENCE_STALE_MS = 45000;
+
 function startPresenceWatcher() {
-  const db = window._fbdb;
-  if (!db) return;
   const bar = document.getElementById('online-bar');
 
-  db.ref('online').on('value', snap => {
-    const data = snap.val() || {};
-    window._onlineFg = data;
-    const fotografen = Object.values(data);
+  async function tick() {
+    const data = (await fbGet('online')) || {};
+    const now = Date.now();
+    const fotografen = Object.entries(data)
+      .filter(([, f]) => f?.sinds && (now - f.sinds) < PRESENCE_STALE_MS)
+      .map(([id, f]) => ({ id, ...f }));
+
+    window._onlineFg = {};
+    fotografen.forEach(f => { window._onlineFg[f.id] = f; });
 
     if (!fotografen.length) {
       bar.innerHTML = '';
     } else {
       bar.innerHTML = fotografen.map(f => {
         const kleur = f.kleur || '#FF6B00';
-        const mins  = f.sinds ? Math.floor((Date.now() - f.sinds) / 60000) : null;
-        const tijd  = mins === null ? '' : mins < 1 ? ' · nu actief' : ` · ${mins} min`;
         return `<span class="online-chip" title="Online in fotograaf-portaal">
           <span class="online-dot" style="background:${kleur}"></span>
-          ${f.naam}${tijd}
+          ${f.naam} · nu actief
         </span>`;
       }).join('');
     }
 
     updateKaartPresence();
-  });
+  }
+
+  tick();
+  setInterval(tick, 10000);
 }
 
 // ── FIREBASE LAZY LOADER ──────────────────────────────────────────────────
