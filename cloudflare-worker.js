@@ -1498,6 +1498,74 @@ async function handleFotosBijLabel(request, env) {
   return json({ fotos: raw ? JSON.parse(raw) : [] });
 }
 
+// Ruimt wees-label-verwijzingen op die naar niet meer bestaande gastfoto's wijzen.
+// Ontstaan doordat verwijderen/hernoemen van mappen vroeger de reverse index
+// (label:fotos:*) en foto:labels:* niet meebijwerkte (zie PROJECT.md v0.22-v0.24).
+// Alleen gast-keys (fotografen/…) worden tegen R2 gevalideerd; eigen-map-entries
+// blijven ongemoeid. Standaard dry-run; ?uitvoeren=1 schrijft daadwerkelijk weg.
+// Admin-only. Efficiënt: bouwt de R2-keyset één keer, herschrijft elke index max 1×.
+async function handleLabelsOpschonen(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const uitvoeren = new URL(request.url).searchParams.get('uitvoeren') === '1';
+
+  // 1) Alle bestaande gastfoto-keys uit R2 verzamelen (ground truth)
+  const bestaat = new Set();
+  let cursor;
+  do {
+    const res = await env.FOTOS.list({ prefix: 'fotografen/', limit: 1000, cursor });
+    for (const o of res.objects) bestaat.add(o.key);
+    cursor = res.truncated ? res.cursor : undefined;
+  } while (cursor);
+
+  const dood = key => key.startsWith('fotografen/') && !bestaat.has(key);
+
+  // 2) Reverse indexes (label:fotos:*) opschonen
+  const indexReport = {};
+  let indexCursor;
+  do {
+    const res = await env.SUBSCRIBERS.list({ prefix: 'label:fotos:', cursor: indexCursor, limit: 1000 });
+    for (const k of res.keys) {
+      const raw = await env.SUBSCRIBERS.get(k.name);
+      if (!raw) continue;
+      let entries;
+      try { entries = JSON.parse(raw); } catch { continue; }
+      if (!Array.isArray(entries)) continue;
+      const schoon = entries.filter(e => !dood(e.key || ''));
+      const verwijderd = entries.length - schoon.length;
+      if (verwijderd > 0) {
+        indexReport[k.name.replace('label:fotos:', '')] = { voor: entries.length, na: schoon.length, verwijderd };
+        if (uitvoeren) {
+          if (schoon.length) await env.SUBSCRIBERS.put(k.name, JSON.stringify(schoon));
+          else await env.SUBSCRIBERS.delete(k.name);
+        }
+      }
+    }
+    indexCursor = res.list_complete ? undefined : res.cursor;
+  } while (indexCursor);
+
+  // 3) Wees foto:labels:{key} (per-foto labels van verdwenen gastfoto's) opruimen
+  let fotoLabelsVerwijderd = 0;
+  let flCursor;
+  do {
+    const res = await env.SUBSCRIBERS.list({ prefix: 'foto:labels:', cursor: flCursor, limit: 1000 });
+    for (const k of res.keys) {
+      const key = k.name.replace('foto:labels:', '');
+      if (dood(key)) {
+        fotoLabelsVerwijderd++;
+        if (uitvoeren) await env.SUBSCRIBERS.delete(k.name);
+      }
+    }
+    flCursor = res.list_complete ? undefined : res.cursor;
+  } while (flCursor);
+
+  return json({
+    uitgevoerd: uitvoeren,
+    r2KeysBekeken: bestaat.size,
+    indexes: indexReport,
+    weesFotoLabelsVerwijderd: fotoLabelsVerwijderd,
+  });
+}
+
 async function handleDeleteComment(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
   const { id, photoKey } = await request.json().catch(() => ({}));
@@ -1749,6 +1817,7 @@ export default {
     if (url.pathname === '/admin/manifest'            && request.method === 'POST') return handleAdminManifestSave(request, env);
     if (url.pathname === '/admin/github-file'         && request.method === 'GET')  return handleAdminGithubFileGet(request, env);
     if (url.pathname === '/admin/github-file'         && request.method === 'POST') return handleAdminGithubFilePut(request, env);
+    if (url.pathname === '/admin/labels-opschonen'    && request.method === 'POST') return handleLabelsOpschonen(request, env);
     if (url.pathname === '/admin/review-wachtwoord'   && request.method === 'POST') return handleReviewWachtwoord(request, env);
     if (url.pathname === '/admin/review-sessie'       && request.method === 'POST') return handleReviewSessie(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
