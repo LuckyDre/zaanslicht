@@ -1576,7 +1576,7 @@ async function handleMapRegistreren(request, env) {
   if (!id || !map) return json({ error: 'id en map verplicht' }, 400);
 
   // Bestaat de fotograaf?
-  const fgRaw = await env.SUBSCRIBERS.get('fotograaf:' + id);
+  const fgRaw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
   if (!fgRaw) return json({ error: 'Fotograaf niet gevonden' }, 404);
 
   // Valideer tegen R2: bevat de map daadwerkelijk foto's?
