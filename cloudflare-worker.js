@@ -1130,6 +1130,13 @@ async function handleMappenVolgorde(request, env) {
     const body = await request.json().catch(() => ({}));
     mappen = body.mappen;
     if (!Array.isArray(mappen)) return json({ error: 'mappen verplicht' }, 400);
+    // Alleen bestaande mappen accepteren: herordenen en verwijderen mag, maar
+    // een verouderd tabblad mag een (elders) verwijderde map niet her-toevoegen —
+    // die zou dan zonder foto's als lege spookmap op de site terugkomen.
+    // Nieuwe mappen ontstaan uitsluitend via handleFotoUpload.
+    const huidigeRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograafId);
+    const huidigeNamen = new Set((huidigeRaw ? JSON.parse(huidigeRaw) : []).map(m => m.map));
+    mappen = mappen.filter(m => huidigeNamen.has(m.map));
   }
 
   await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograafId, JSON.stringify(mappen));
