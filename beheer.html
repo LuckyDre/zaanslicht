@@ -3184,10 +3184,6 @@ function bhLbOpen(thumb) {
   bhLbToon(idx);
   document.getElementById('bh-lb').classList.remove('bh-lb-hidden');
   document.body.style.overflow = 'hidden';
-  // Hover-preview opruimen — die hoort niet over de lightbox heen te zweven
-  clearTimeout(previewTimer);
-  preview.classList.remove('visible');
-  preview.style.display = 'none';
 }
 
 function bhLbSluit() {
