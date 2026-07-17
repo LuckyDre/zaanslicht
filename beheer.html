@@ -3224,23 +3224,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') bhLbToon(_bhLbIdx + 1);
 });
 
-// Preview volgt de cursor NIET meer — hij wordt één keer naast de foto gepositioneerd
-// (rechts als daar ruimte is, anders links) en blijft daar staan. Zo kun je de muis
-// vrij over de rest van de grid bewegen (bv. naar de 🏷 of 🗑 knop van een andere foto)
-// zonder dat de grote preview steeds in de weg springt.
-function positionPreviewBijThumb(thumb) {
-  const pw = 574, ph = 480, margin = 16;
-  const r = thumb.getBoundingClientRect();
-  let x = r.right + 14;
-  if (x + pw > window.innerWidth - margin) x = r.left - pw - 14;
-  if (x < margin) x = margin;
-  let y = r.top;
-  if (y + ph > window.innerHeight - margin) y = window.innerHeight - ph - margin;
-  if (y < margin) y = margin;
-  preview.style.left = x + 'px';
-  preview.style.top  = y + 'px';
-}
-
 window.bhLaadManifestEnRender = async function() {
   const cont = document.getElementById('bh-map-label-lijst');
   cont.innerHTML = '<p style="color:#555;font-size:0.85rem">Mappen laden…</p>';
