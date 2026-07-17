@@ -2287,9 +2287,10 @@ window.toggleMapPagina = async function(mapNaam, pagina, btn) {
   if (!sessie) return;
   btn.disabled = true;
   const payload = {};
-  if (pagina === 'voetbal')  payload.opVoetbal    = wordtAan;
-  if (pagina === 'nosports') payload.opNosports   = wordtAan;
-  if (pagina === 'eigen')    payload.opEigenPagina = wordtAan;
+  if (pagina === 'voetbal')     payload.opVoetbal     = wordtAan;
+  if (pagina === 'nosports')    payload.opNosports    = wordtAan;
+  if (pagina === 'othersports') payload.opOthersports = wordtAan;
+  if (pagina === 'eigen')       payload.opEigenPagina = wordtAan;
   payload.map = mapNaam;
   try {
     const r = await fetch(WORKER + '/fotograaf/map-paginas', {
