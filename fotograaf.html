@@ -2656,7 +2656,9 @@ async function _verwijderMapStil(mapNaam, s) {
   const fotos = (data.fotos || []).filter(f => {
     try { return decodeURIComponent(f.key).split('/')[3] === mapNaam; } catch { return false; }
   });
+  let g = 0;
   for (const f of fotos) {
+    toonVerwijderVoortgang(++g, fotos.length, 'Serie');
     const delRes = await fetch(WORKER + '/fotograaf/foto-delete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
