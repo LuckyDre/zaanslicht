@@ -1092,7 +1092,10 @@ async function laadAndreasPagina(container) {
         swiperEl.querySelectorAll('.foto-open-btn').forEach(btn => {
           btn.addEventListener('click', e => {
             e.stopPropagation();
-            _openLightboxFotograaf(fotoUrls, parseInt(btn.dataset.idx));
+            // Zie hierboven: foto opent binnen het overzicht-grid.
+            const idx = parseInt(btn.dataset.idx);
+            toonOverzicht(item.naam || item.map, fotoUrls, idx);
+            _openLightboxFotograaf(fotoUrls, idx);
           });
         });
         addOverzichtBtn(div.querySelector('h3'), item.naam || item.map, fotoUrls);
