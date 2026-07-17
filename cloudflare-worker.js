@@ -1325,8 +1325,9 @@ async function handleMapPaginas(request, env) {
   const entry = mappen.find(m => m.map === map);
   if (!entry) return json({ error: 'map niet gevonden' }, 404);
 
-  if (opVoetbal    !== undefined) entry.opVoetbal    = Boolean(opVoetbal);
-  if (opNosports   !== undefined) entry.opNosports   = Boolean(opNosports);
+  if (opVoetbal     !== undefined) entry.opVoetbal     = Boolean(opVoetbal);
+  if (opNosports    !== undefined) entry.opNosports    = Boolean(opNosports);
+  if (opOthersports !== undefined) entry.opOthersports = Boolean(opOthersports);
   if (opEigenPagina !== undefined) entry.opEigenPagina = Boolean(opEigenPagina);
 
   await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograafId, JSON.stringify(mappen));
@@ -1670,6 +1671,7 @@ async function handleMapRegistreren(request, env) {
     labels: Array.isArray(labels) ? labels.slice(0, 10) : [],
     opVoetbal: categorie === 'voetbal',
     opNosports: categorie === 'nosports',
+    opOthersports: categorie === 'othersports',
     opEigenPagina: true,
     datum: datum || '',
   });
