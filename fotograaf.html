@@ -2373,6 +2373,23 @@ async function verwijderFoto(key, delBtn) {
   }
 }
 
+// Verwijderen gaat foto-voor-foto; bij grote series (Jan had er een van 361) duurt
+// dat minuten waarin er zonder deze indicator niets zichtbaar gebeurt — het leek
+// hangen. Toont een vaste voortgangsbalk onderin.
+function toonVerwijderVoortgang(huidig, totaal, wat) {
+  let el = document.getElementById('verwijder-voortgang');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'verwijder-voortgang';
+    el.style.cssText = 'position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);z-index:700;background:#1a1a1a;border:1px solid var(--accent);color:#fff;padding:0.7rem 1.2rem;border-radius:10px;font-size:0.85rem;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.5)';
+    document.body.appendChild(el);
+  }
+  el.textContent = `🗑 ${wat} verwijderen… ${huidig} van ${totaal}`;
+}
+function verbergVerwijderVoortgang() {
+  document.getElementById('verwijder-voortgang')?.remove();
+}
+
 async function verwijderMap(mapNaam, aantalFotos) {
   const vraag = aantalFotos > 0
     ? `Weet je zeker dat je "${mapNaam}" wilt verwijderen?\n\nAlle ${aantalFotos} foto's worden permanent van de site verwijderd.`
