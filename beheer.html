@@ -3190,6 +3190,99 @@ document.addEventListener('mouseout', e => {
   setTimeout(() => { if (!preview.classList.contains('visible')) preview.style.display = 'none'; }, 160);
 });
 
+// ── FOTO LIGHTBOX ───────────────────────────────────────────────────────────
+// Klik een thumbnail in een geopende map om 'm groot te bekijken. Het foto-grid
+// staat inline op de pagina (geen modal), dus het sluiten van de foto landt
+// vanzelf terug in het grid — daar is geen extra laag voor nodig.
+let _bhLbFotos = [];
+let _bhLbIdx   = 0;
+
+function bhLbIsOpen() {
+  return !document.getElementById('bh-lb').classList.contains('bh-lb-hidden');
+}
+
+function bhLbBouwLijst(grid) {
+  const li = grid.closest('.slider-item');
+  if (!li) return [];
+  return [...grid.querySelectorAll('.foto-thumb')].map(t => {
+    const naam     = t.dataset.foto || '';
+    const thumbSrc = t.querySelector('img')?.src || '';
+    // Groot tonen = altijd het origineel laden, niet de 400px-thumbnail (zelfde
+    // patroon als de hover-preview). Fallback op de thumb-src voor vers geüploade
+    // foto's die nog niet op GitHub Pages staan.
+    const src = naam
+      ? `${SITE}/images/${li.dataset.cat}/${encodeURIComponent(li.dataset.map)}/${encodeURIComponent(naam)}`
+      : thumbSrc;
+    return { src, naam, fallback: thumbSrc };
+  });
+}
+
+function bhLbToon(idx) {
+  _bhLbIdx = Math.max(0, Math.min(idx, _bhLbFotos.length - 1));
+  const f = _bhLbFotos[_bhLbIdx];
+  if (!f) return;
+  const img = document.getElementById('bh-lb-img');
+  img.onerror = () => { if (f.fallback && img.src !== f.fallback) img.src = f.fallback; };
+  img.src = f.src;
+  document.getElementById('bh-lb-naam').textContent   = f.naam;
+  document.getElementById('bh-lb-teller').textContent = `${_bhLbIdx + 1} / ${_bhLbFotos.length}`;
+  document.getElementById('bh-lb-prev').style.opacity = _bhLbIdx === 0 ? '0.25' : '1';
+  document.getElementById('bh-lb-next').style.opacity = _bhLbIdx === _bhLbFotos.length - 1 ? '0.25' : '1';
+}
+
+function bhLbOpen(thumb) {
+  const grid = thumb.closest('.foto-grid');
+  if (!grid) return;
+  _bhLbFotos = bhLbBouwLijst(grid);
+  const idx  = [...grid.querySelectorAll('.foto-thumb')].indexOf(thumb);
+  if (!_bhLbFotos.length || idx < 0) return;
+  bhLbToon(idx);
+  document.getElementById('bh-lb').classList.remove('bh-lb-hidden');
+  document.body.style.overflow = 'hidden';
+  // Hover-preview opruimen — die hoort niet over de lightbox heen te zweven
+  clearTimeout(previewTimer);
+  preview.classList.remove('visible');
+  preview.style.display = 'none';
+}
+
+function bhLbSluit() {
+  document.getElementById('bh-lb').classList.add('bh-lb-hidden');
+  document.body.style.overflow = '';
+}
+
+// Klik-vs-sleep: thumbnails zijn óók versleepbaar (SortableJS) om de volgorde te
+// wijzigen. Alleen openen als de muis nauwelijks bewoog — anders was het een sleep.
+let _bhLbDown = null;
+document.addEventListener('mousedown', e => {
+  const thumb = e.target.closest('.foto-thumb');
+  _bhLbDown = thumb ? { x: e.clientX, y: e.clientY, thumb } : null;
+});
+
+document.addEventListener('click', e => {
+  const thumb = e.target.closest('.foto-thumb');
+  if (!thumb) return;
+  // Checkbox en de 🏷/🗑-knoppen hebben hun eigen actie
+  if (e.target.closest('.foto-thumb-check, .foto-label-btn, .foto-verwijder-btn')) return;
+  const down = _bhLbDown;
+  _bhLbDown = null;
+  if (!down || down.thumb !== thumb) return;
+  if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return; // was een sleep
+  bhLbOpen(thumb);
+});
+
+document.getElementById('bh-lb-sluit').addEventListener('click', bhLbSluit);
+document.getElementById('bh-lb-prev').addEventListener('click', e => { e.stopPropagation(); bhLbToon(_bhLbIdx - 1); });
+document.getElementById('bh-lb-next').addEventListener('click', e => { e.stopPropagation(); bhLbToon(_bhLbIdx + 1); });
+document.getElementById('bh-lb').addEventListener('click', e => {
+  if (e.target.id === 'bh-lb' || e.target.id === 'bh-lb-img') bhLbSluit();
+});
+document.addEventListener('keydown', e => {
+  if (!bhLbIsOpen()) return;
+  if (e.key === 'Escape')     bhLbSluit();
+  if (e.key === 'ArrowLeft')  bhLbToon(_bhLbIdx - 1);
+  if (e.key === 'ArrowRight') bhLbToon(_bhLbIdx + 1);
+});
+
 // Preview volgt de cursor NIET meer — hij wordt één keer naast de foto gepositioneerd
 // (rechts als daar ruimte is, anders links) en blijft daar staan. Zo kun je de muis
 // vrij over de rest van de grid bewegen (bv. naar de 🏷 of 🗑 knop van een andere foto)
