@@ -117,7 +117,7 @@
     const toon = () => {
       if (getoond) return; getoond = true;
       try { sessionStorage.setItem('zl_nb_shown', '1'); } catch {}
-      requestAnimationFrame(() => el.classList.add('zl-in'));
+      el.classList.add('zl-in');
       window.removeEventListener('scroll', onScroll);
     };
     const onScroll = () => {
