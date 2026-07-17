@@ -3152,9 +3152,9 @@ function bhLbBouwLijst(grid) {
   return [...grid.querySelectorAll('.foto-thumb')].map(t => {
     const naam     = t.dataset.foto || '';
     const thumbSrc = t.querySelector('img')?.src || '';
-    // Groot tonen = altijd het origineel laden, niet de 400px-thumbnail (zelfde
-    // patroon als de hover-preview). Fallback op de thumb-src voor vers geüploade
-    // foto's die nog niet op GitHub Pages staan.
+    // Groot tonen = altijd het origineel laden, niet de 400px-thumbnail.
+    // Fallback op de thumb-src voor vers geüploade foto's die nog niet op
+    // GitHub Pages staan.
     const src = naam
       ? `${SITE}/images/${li.dataset.cat}/${encodeURIComponent(li.dataset.map)}/${encodeURIComponent(naam)}`
       : thumbSrc;
