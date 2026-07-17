@@ -3162,6 +3162,7 @@ document.addEventListener('mouseover', e => {
   const thumb = e.target.closest('.foto-thumb');
   if (!thumb) return;
   if (thumb.contains(e.relatedTarget)) return;
+  if (typeof bhLbIsOpen === 'function' && bhLbIsOpen()) return; // foto staat al groot open
   clearTimeout(previewTimer);
   // Langere vertraging: bij normaal over de grid bewegen (bv. op weg naar een knop
   // op een andere foto) verschijnt de grote preview dan niet storend in de weg.
