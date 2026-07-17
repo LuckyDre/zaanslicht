@@ -3135,45 +3135,6 @@ window.addEventListener('beforeunload', e => {
   if (dirty) { e.preventDefault(); e.returnValue = ''; }
 });
 
-// ── FOTO HOVER PREVIEW ────────────────────────────────────────────────────
-const preview     = document.getElementById('foto-preview');
-const previewImg  = document.getElementById('preview-img');
-const previewNaam = document.getElementById('preview-naam');
-let previewTimer  = null;
-
-document.addEventListener('mouseover', e => {
-  const thumb = e.target.closest('.foto-thumb');
-  if (!thumb) return;
-  if (thumb.contains(e.relatedTarget)) return;
-  if (typeof bhLbIsOpen === 'function' && bhLbIsOpen()) return; // foto staat al groot open
-  clearTimeout(previewTimer);
-  // Langere vertraging: bij normaal over de grid bewegen (bv. op weg naar een knop
-  // op een andere foto) verschijnt de grote preview dan niet storend in de weg.
-  previewTimer = setTimeout(() => {
-    const img = thumb.querySelector('img');
-    if (!img) return;
-    // Preview toont op 570px breed — groter dan de 400px-thumbnail, dus altijd het origineel laden
-    const li  = thumb.closest('.slider-item');
-    const naam = thumb.dataset.foto || '';
-    previewImg.src = (li && naam)
-      ? `${SITE}/images/${li.dataset.cat}/${encodeURIComponent(li.dataset.map)}/${encodeURIComponent(naam)}`
-      : img.src;
-    previewNaam.textContent = naam;
-    preview.style.display   = 'block';
-    positionPreviewBijThumb(thumb);
-    requestAnimationFrame(() => preview.classList.add('visible'));
-  }, 350);
-});
-
-document.addEventListener('mouseout', e => {
-  const thumb = e.target.closest('.foto-thumb');
-  if (!thumb) return;
-  if (thumb.contains(e.relatedTarget)) return;
-  clearTimeout(previewTimer);
-  preview.classList.remove('visible');
-  setTimeout(() => { if (!preview.classList.contains('visible')) preview.style.display = 'none'; }, 160);
-});
-
 // ── FOTO LIGHTBOX ───────────────────────────────────────────────────────────
 // Klik een thumbnail in een geopende map om 'm groot te bekijken. Het foto-grid
 // staat inline op de pagina (geen modal), dus het sluiten van de foto landt
