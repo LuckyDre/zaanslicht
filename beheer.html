@@ -954,6 +954,9 @@ async function workerPost(endpoint, body) {
 async function loadManifest() {
   const data = await workerGet('/admin/manifest?t=' + Date.now());
   manifest = JSON.parse(atob(data.content.replace(/\n/g, '')));
+  manifest.voetbal     = manifest.voetbal     || [];
+  manifest.nosports    = manifest.nosports    || [];
+  manifest.othersports = manifest.othersports || [];
 }
 
 // ── OPSLAAN → COMMIT ──────────────────────────────────────────────────────
@@ -974,7 +977,7 @@ async function doSave() {
 
 // ── MANIFEST UIT DOM ──────────────────────────────────────────────────────
 function updateManifestFromDOM() {
-  ['voetbal', 'nosports'].forEach(cat => {
+  ['voetbal', 'nosports', 'othersports'].forEach(cat => {
     const lijst = document.getElementById('lijst-' + cat);
     manifest[cat] = Array.from(lijst.querySelectorAll('.slider-item:not([data-type="gast"])')).map((el, i) => {
       const mapNaam = el.dataset.map;
@@ -998,6 +1001,7 @@ function updateManifestFromDOM() {
 function renderAll() {
   renderCategorie('voetbal');
   renderCategorie('nosports');
+  renderCategorie('othersports');
   switchTab(activeTab);
   laadGastSeries();
 }
@@ -1018,8 +1022,8 @@ async function laadGastSeries() {
     if (!fotografen.length) return;
 
     // Bouw een snelle lookup: welke mappen staan al in de opgeslagen volgorde?
-    const inVolgorde = { voetbal: new Set(), nosports: new Set() };
-    for (const cat of ['voetbal', 'nosports']) {
+    const inVolgorde = { voetbal: new Set(), nosports: new Set(), othersports: new Set() };
+    for (const cat of ['voetbal', 'nosports', 'othersports']) {
       for (const e of (volgordeData[cat] || [])) {
         if (e.type === 'gast') inVolgorde[cat].add(e.fgId + '::' + e.map);
       }
@@ -1045,7 +1049,7 @@ async function laadGastSeries() {
     const fgById = Object.fromEntries(fotografen.map(fg => [fg.id, fg]));
 
     // Voeg eerst de gast-items toe op hun opgeslagen positie
-    for (const cat of ['voetbal', 'nosports']) {
+    for (const cat of ['voetbal', 'nosports', 'othersports']) {
       const lijst = document.getElementById('lijst-' + cat);
       if (!lijst) continue;
 
@@ -2071,7 +2075,7 @@ async function qrVulDoelen() {
       const manifest = await manRes.json();
       const gastData = await gastRes.json();
       const opties = [];
-      for (const cat of ['voetbal', 'nosports']) {
+      for (const cat of ['voetbal', 'nosports', 'othersports']) {
         for (const item of (manifest[cat] || [])) {
           const naam = item.naam || item.map;
           opties.push({ naam: naam + ' (Andreas)', url: `https://zaanslicht.com/${cat}.html#serie=${encodeURIComponent(naam)}` });
