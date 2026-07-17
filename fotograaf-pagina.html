@@ -649,7 +649,11 @@ async function laadPagina() {
       swiperEl.querySelectorAll('.foto-open-btn').forEach(btn => {
         btn.addEventListener('click', e => {
           e.stopPropagation();
-          _openLightboxFotograaf(fotoUrls, parseInt(btn.dataset.idx));
+          // Open de foto binnen het overzicht-grid, zodat sluiten terugkeert naar
+          // het grid (volgende foto kiezen) i.p.v. meteen naar de pagina.
+          const idx = parseInt(btn.dataset.idx);
+          toonOverzicht(map.map, fotoUrls, idx);
+          _openLightboxFotograaf(fotoUrls, idx);
         });
       });
 
