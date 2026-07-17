@@ -760,6 +760,17 @@
   <div class="preview-naam" id="preview-naam"></div>
 </div>
 
+<!-- FOTO LIGHTBOX — klik een foto in een geopende map om 'm groot te bekijken.
+     Het foto-grid staat inline op de pagina, dus sluiten landt vanzelf terug in het grid. -->
+<div id="bh-lb" class="bh-lb-hidden">
+  <span id="bh-lb-teller"></span>
+  <button id="bh-lb-sluit" class="bh-lb-rond" title="Sluiten (Esc)">✕</button>
+  <button id="bh-lb-prev" class="bh-lb-rond" title="Vorige (←)">←</button>
+  <button id="bh-lb-next" class="bh-lb-rond" title="Volgende (→)">→</button>
+  <img id="bh-lb-img" src="" alt="" />
+  <div id="bh-lb-naam"></div>
+</div>
+
 <script>
 const SITE       = 'https://zaanslicht.com';
 const WORKER_URL = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
