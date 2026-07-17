@@ -1780,6 +1780,9 @@ async function handleViewDashboard(request, env, id) {
   const nosportsRaw = await env.SUBSCRIBERS.get('nosports');
   const nosports = nosportsRaw ? JSON.parse(nosportsRaw) : [];
 
+  const othersportsRaw = await env.SUBSCRIBERS.get('othersports');
+  const othersports = othersportsRaw ? JSON.parse(othersportsRaw) : [];
+
   // Filter galerij naar foto's van deze fotograaf
   const filterByFotograaf = (items) => items.filter(item => item.fotos?.some(f => f.fotograaf === id));
 
@@ -1798,6 +1801,7 @@ async function handleViewDashboard(request, env, id) {
     galerij: {
       voetbal: filterByFotograaf(voetbal),
       nosports: filterByFotograaf(nosports),
+      othersports: filterByFotograaf(othersports),
     },
   });
 }
