@@ -1390,11 +1390,20 @@ window.startUpload = async () => {
     const cat  = 'voetbal';
     const fb   = document.getElementById('upload-feedback');
 
-    if (!map) { fb.textContent = 'Vul een mapnaam in.'; fb.className = 'feedback err'; return; }
-    if (!bestanden.length) return;
+    // Wis eerst de vorige melding: anders blijft die staan als deze poging er zelf
+    // geen zet, en leest de fotograaf hem als antwoord op de nieuwe klik.
+    fb.textContent = ''; fb.innerHTML = ''; fb.className = 'feedback';
+
+    if (!map) {
+      fb.textContent = 'Kies hierboven een bestaande map of typ een naam voor een nieuwe map.';
+      fb.className = 'feedback err'; return;
+    }
+    if (!bestanden.length) {
+      fb.textContent = 'Kies eerst foto\'s: sleep ze in het vak of klik erop om ze te selecteren.';
+      fb.className = 'feedback err'; return;
+    }
 
     btn.disabled = true; btn.textContent = 'Bezig met uploaden…';
-    fb.className = 'feedback';
 
     let ok = 0, fout = 0;
     for (let i = 0; i < bestanden.length; i++) {
