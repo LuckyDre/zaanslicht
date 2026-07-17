@@ -167,6 +167,20 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.32 — 16 juli 2026
+Vervolg op v0.31 (verzoek Andreas: "gedrag standaard maken voor de gallery view, ook bij de beheer pagina").
+- 🖼 **fotograaf-pagina.html: zelfde galerij-gedrag als voetbal/nosports** — had een eigen kopie van dezelfde bug (`sluitOverzicht()` + `setTimeout(_openLightboxFotograaf)`). Nu identiek aan v0.31: grid blijft open onder de foto, `toonOverzicht` kreeg de 3e param `scrollNaarIdx`, beide slider-klikplekken (gast-mappen én Andreas' eigen series) openen de foto binnen het grid, `closeLightbox` houdt de body-scroll vast zolang het grid open is en scrollt terug naar de laatst bekeken foto. CSS: `.lightbox` z-index 2000→2200, reacties-drawer 2100→2300
+  - **Escape-afhandeling volgorde-onafhankelijk gemaakt:** hier registreert `initOverzicht()` juist vóór `initLightbox()` (die zit ná awaits in `laadPagina()`) — omgekeerd aan gallery-nieuw.js. Daarom nu beide mechanismen: `stopImmediatePropagation()` in de lightbox-handler én een `!lbOpen`-guard in de grid-handler. Werkt ongeacht registratievolgorde
+  - Geverifieerd op `?id=andreas` met echte data (20 series, 964 foto's): gallery-knop → grid(30 lazy) → thumb → foto 8/119 met grid open ✅; Escape sluit alleen de foto, 2e Escape het grid ✅; sliderfoto #80 → grid rendert door tot 119 en scrollt naar #80, foto 81/119 ✅
+- ✨ **beheer.html: foto-lightbox toegevoegd** (nieuw — bestond daar nog niet)
+  - Beheer had géén fotoviewer: thumbnails waren alleen versleepbaar (SortableJS) met een hover-preview. Nu opent een klik op een thumbnail de foto schermvullend in **volledige kwaliteit** (`${SITE}/images/{cat}/{map}/{naam}` — niet de 400px-thumb; zelfde patroon als de hover-preview, met `onerror`-fallback naar de thumb-src voor vers geüploade foto's die nog niet op GitHub Pages staan)
+  - **Geen twee-lagen-stapel nodig:** het foto-grid staat hier inline op de pagina (geen modal), dus sluiten landt vanzelf terug in het grid
+  - **Klik-vs-sleep-guard:** thumbnails blijven versleepbaar om te sorteren. Een `mousedown`-positie wordt onthouden; alleen als de muis <5px bewoog geldt het als klik. Klikken op de checkbox/🏷/🗑 opent de foto niet (die houden hun eigen actie)
+  - Fotolijst komt uit de **DOM-volgorde** van het grid, dus de ←/→-navigatie volgt de volgorde zoals Andreas 'm ziet (inclusief net gesleepte wijzigingen). Hover-preview wordt onderdrukt zolang de lightbox open staat
+  - Geverifieerd met een nagebootst grid: klik → 3/6 ✅; ←/→ ✅; Escape sluit terug naar grid ✅; sleep van 40px opent níét ✅; klik op 🗑 opent níét ✅
+  - beheer-handleiding.html bijgewerkt met "Foto groot bekijken"
+- ℹ️ **fotograaf.html (fotografenportaal) bewust ongemoeid:** heeft net als beheer geen viewer, maar Andreas vroeg alleen om beheer. Kandidaat voor later.
+
 ### v0.31 — 16 juli 2026
 - 🖼 **Galerij-navigatie: foto sluiten keert terug naar het grid, niet naar de sliderpagina** (gemeld door Andreas)
   - **Probleem:** het overzicht-grid ("gallery view") sloot zichzelf zodra je een foto opende (`sluitOverzicht()` + `setTimeout(lbOpen)`), dus na het sluiten van één foto stond je weer op de sliderpagina i.p.v. terug in de galerij om de volgende foto te kiezen. Onhandig bij elke slider
