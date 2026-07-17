@@ -527,6 +527,7 @@
   <div class="tabs">
     <div class="tab active" onclick="switchTab('voetbal')">⚽ Voetbal</div>
     <div class="tab"        onclick="switchTab('nosports')">🌄 No Sports</div>
+    <div class="tab"        onclick="switchTab('othersports')">🏅 Other Sports</div>
     <div class="tab"        onclick="switchTab('reacties')">💬 Reacties</div>
     <div class="tab"        onclick="switchTab('abonnees')">📧 Abonnees</div>
     <div class="tab"        onclick="switchTab('fotografen')">📸 Fotografen</div>
@@ -551,6 +552,14 @@
         <button class="btn btn-dim" onclick="bhSelecteerAlle('nosports')" id="sel-alle-nosports">☐ Selecteer alles</button>
       </div>
       <ul class="slider-lijst" id="lijst-nosports"></ul>
+    </div>
+    <div id="tab-othersports" class="tab-panel">
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem">
+        <button class="nieuwe-map-btn" style="margin-bottom:0;width:auto;flex:1" onclick="nieuweEigenMap('othersports')">＋ Nieuwe map (other sports)</button>
+        <button class="btn btn-dim" onclick="sorteerOpDatum('othersports')" title="Sorteer alle mappen van nieuw naar oud op basis van de datumvelden">📅 Sorteer op datum</button>
+        <button class="btn btn-dim" onclick="bhSelecteerAlle('othersports')" id="sel-alle-othersports">☐ Selecteer alles</button>
+      </div>
+      <ul class="slider-lijst" id="lijst-othersports"></ul>
     </div>
     <div id="tab-abonnees" class="tab-panel">
       <div style="padding:1.5rem 0">
