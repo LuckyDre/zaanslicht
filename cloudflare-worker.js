@@ -88,6 +88,28 @@ async function handleCount(request, env) {
   return json({ count });
 }
 
+// ── PUBLIEKE ABONNEE-TELLING (voor de nieuwsbrief-kaart) ───────────────────
+// Publiek (geen secret): geeft alleen een geheel getal terug, geen e-mailadressen.
+// Gecachet in meta:subcount en hooguit 1×/uur echt herteld — de kaart wordt op
+// elke paginaweergave geladen, dus we willen niet elke keer heel KV doorlopen.
+async function handlePublicCount(request, env) {
+  const raw = await env.SUBSCRIBERS.get('meta:subcount');
+  let cache = null;
+  try { cache = raw ? JSON.parse(raw) : null; } catch {}
+  const nu = Date.now();
+  if (!cache || nu - cache.ts > 3600000) {
+    let count = 0, cursor;
+    do {
+      const r = await env.SUBSCRIBERS.list({ prefix: 'sub:', cursor, limit: 1000 });
+      count += r.keys.length;
+      cursor = r.list_complete ? undefined : r.cursor;
+    } while (cursor);
+    cache = { count, ts: nu };
+    try { await env.SUBSCRIBERS.put('meta:subcount', JSON.stringify(cache)); } catch {}
+  }
+  return json({ count: cache.count });
+}
+
 // ── VERSTUUR NIEUWSBRIEF ───────────────────────────────────────────────────
 async function handleSend(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
@@ -1862,6 +1884,7 @@ export default {
     if (url.pathname === '/subscribe'   && request.method === 'POST') return handleSubscribe(request, env);
     if (url.pathname === '/unsubscribe' && request.method === 'POST') return handleUnsubscribe(request, env);
     if (url.pathname === '/count'       && request.method === 'GET')  return handleCount(request, env);
+    if (url.pathname === '/aantal'      && request.method === 'GET')  return handlePublicCount(request, env);
     if (url.pathname === '/subscribers'        && request.method === 'GET')    return handleSubscribers(request, env);
     if (url.pathname === '/delete-subscriber'  && request.method === 'POST')   return handleDeleteSubscriber(request, env);
     if (url.pathname === '/ban'                && request.method === 'POST')   return handleBan(request, env);
