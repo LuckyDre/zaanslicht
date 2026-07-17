@@ -8,7 +8,7 @@
   async function heeftInhoud() {
     try {
       const [man, gast] = await Promise.all([
-        fetch('manifest.json?v=' + Date.now()).then(r => r.json()).catch(() => ({})),
+        fetch('/manifest.json?v=' + Date.now()).then(r => r.json()).catch(() => ({})),
         fetch(WORKER + '/fotograaf/manifest').then(r => r.json()).catch(() => ({})),
       ]);
       if ((man.othersports || []).length) return true;
