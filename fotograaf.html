@@ -1528,6 +1528,10 @@ window.startUpload = async () => {
       fb.className = 'feedback ok';
     }
 
+    if (labelsSyncFout) {
+      fb.insertAdjacentHTML('beforeend', '<br/><span style="color:#fbbf24">⚠ De labels konden niet worden bijgewerkt (verbinding). De foto\'s staan wél op de site; koppel de labels zo nodig later opnieuw.</span>');
+    }
+
     bestanden = mislukt;
     toonQueue();
   };
