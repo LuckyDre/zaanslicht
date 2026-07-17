@@ -380,13 +380,13 @@ Promise.all([
   fetch('manifest.json?v=' + Date.now()).then(r => r.json()).catch(() => ({})),
   fetch('https://zaanslicht-updates.ntxzjzzg8m.workers.dev/fotograaf/manifest').then(r => r.json()).catch(() => ({})),
 ]).then(([manifest, gastData]) => {
-  const eigenMappen = manifest.nosports || [];
+  const eigenMappen = manifest.othersports || [];
   const eigenFotos  = eigenMappen.reduce((s, x) => s + (x.fotos||[]).length, 0);
   const eigenSeries = eigenMappen.length;
   let gastSeries = 0;
   for (const fg of (gastData.fotografen || []))
     for (const map of (fg.mappen || []))
-      if (map.categorie === 'nosports') gastSeries++;
+      if (map.opOthersports === true) gastSeries++;
   document.getElementById('meta-fotos').textContent  = eigenFotos.toLocaleString('nl-NL');
   document.getElementById('meta-mappen').textContent = eigenSeries + gastSeries;
 });
