@@ -847,7 +847,51 @@ async function stopPresence() {
   if (sessie?.id) await fbDelete('online/' + sessie.id).catch(() => {});
 }
 
+// ── VERSIECHECK ───────────────────────────────────────────────────────────────
+// Het fotografenportaal blijft bij fotografen vaak dagenlang in een openstaand
+// tabblad draaien. Ze klikken dan tussen de tabs (dat herlaadt data van de Worker),
+// maar herladen de pagina zélf nooit — dus draaien ze oude JS en melden ze bugs die
+// allang gefixt zijn. Deze check haalt de live pagina op, leest de APP_VERSIE eruit
+// en toont een vernieuw-balk als die afwijkt van de versie die nu draait.
+let _versieBannerGetoond = false;
+let _laatsteVersieCheck   = 0;
+
+async function checkNieuweVersie() {
+  if (_versieBannerGetoond) return;
+  try {
+    // Wegwerp-query + no-store: nooit de echte ?v=-cachesleutel vervuilen (zie
+    // deploy-notities). HTML is toch DYNAMIC bij Cloudflare, dus geen cache-druk.
+    const res = await fetch('fotograaf.html?vc=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const txt = await res.text();
+    const m = txt.match(/APP_VERSIE\s*=\s*['"]([^'"]+)['"]/);
+    if (m && m[1] && m[1] !== APP_VERSIE) toonVersieBanner();
+  } catch { /* offline / netwerkfout — stil negeren, gewoon later opnieuw proberen */ }
+}
+
+function toonVersieBanner() {
+  if (_versieBannerGetoond) return;
+  _versieBannerGetoond = true;
+  const b = document.createElement('div');
+  b.id = 'versie-banner';
+  b.style.cssText = 'position:sticky;top:0;z-index:600;background:#166534;border-bottom:2px solid #22c55e;color:#fff;padding:0.7rem 1rem;display:flex;align-items:center;justify-content:center;gap:0.6rem;font-size:0.85rem;font-weight:700;cursor:pointer;text-align:center';
+  b.innerHTML = '🔄 Er is een nieuwere versie van deze pagina. <u>Klik hier om te vernieuwen</u>';
+  b.onclick = () => location.reload();
+  document.body.prepend(b);
+}
+
+// Bij laden even wachten (login/dashboard eerst laten renderen), en daarna telkens
+// als het tabblad weer zichtbaar wordt — hooguit 1× per 3 minuten.
+function misschienVersieCheck() {
+  const nu = Date.now();
+  if (nu - _laatsteVersieCheck < 180000) return;
+  _laatsteVersieCheck = nu;
+  checkNieuweVersie();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) misschienVersieCheck(); });
+
 window.addEventListener('DOMContentLoaded', async () => {
+  setTimeout(misschienVersieCheck, 3000);
   if (sessie?.token) {
     if (!(await controleerSessie())) { sessieVerlopen(); return; }
     toonDashboard();
