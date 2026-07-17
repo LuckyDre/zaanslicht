@@ -761,7 +761,17 @@ function initLightbox() {
     });
   }
 
-  function closeLightbox() { lightbox.classList.add('hidden'); document.body.style.overflow = ''; }
+  function closeLightbox() {
+    lightbox.classList.add('hidden');
+    // Een foto wordt altijd bekeken bínnen het overzicht-grid van de serie.
+    // Staat dat grid nog open, dan landt de kijker daar terug (volgende foto
+    // kiezen) en blijft de body-scroll geblokkeerd; pas het sluiten van het grid
+    // gaat terug naar de pagina.
+    const ov = document.getElementById('ov');
+    if (!ov || !ov.classList.contains('ov-open')) { document.body.style.overflow = ''; return; }
+    const doel = document.getElementById('ov-grid').querySelectorAll('.ov-thumb')[_lbIdx];
+    if (doel) doel.scrollIntoView({ block: 'center' });
+  }
 
   if (lbLike) {
     lbLike.addEventListener('click', async e => {
