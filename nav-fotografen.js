@@ -102,13 +102,60 @@
     return new URLSearchParams(location.search).get('id') === id;
   }
 
+  // ── SYNCHROON: "..." groeperen + Andreas invoegen ────────────────────────
+  // Dit gebeurt meteen bij laden, zonder op de fetch hieronder te wachten.
+  // Voorheen gebeurde de hele herindeling (Tools/Clubs/Over ons/Contact
+  // verdwijnen in "...", Andreas + gastfotografen verschijnen) pas ná de
+  // async fetch — op een trage verbinding zag je dus eerst het onbewerkte
+  // menu, waarna het in één klap "flipte" naar de definitieve vorm. Precies
+  // op het moment dat je naar een naam (bijv. Jan) klikte, kon het menu
+  // onder je cursor vandaan springen. Andreas' link heeft geen fetch nodig
+  // (staat vast), dus die en de groepering gebeuren nu synchroon; alleen
+  // gastfotografen (die wél uit de Worker komen) worden later toegevoegd —
+  // dat is een kleine aanvulling, geen herindeling van het hele menu.
+  const nav = document.querySelector('header nav');
+  let dropdown_wrapper = null;
+  if (nav) {
+    const groepeernamen = ['Tools', 'Clubs', 'Over ons', 'Contact'];
+    const teGroeperen = Array.from(nav.querySelectorAll('a')).filter(a =>
+      groepeernamen.includes(a.textContent.trim())
+    );
+    if (teGroeperen.length) {
+      dropdown_wrapper = document.createElement('div');
+      dropdown_wrapper.className = 'nav-meer';
+      dropdown_wrapper.innerHTML = `<span class="nav-meer-trigger">&#9776;</span><div class="nav-meer-dropdown"><div class="nav-meer-dropdown-inner"></div></div>`;
+      const dropdown = dropdown_wrapper.querySelector('.nav-meer-dropdown-inner');
+      teGroeperen[0].parentNode.insertBefore(dropdown_wrapper, teGroeperen[0]);
+      teGroeperen.forEach(a => dropdown.appendChild(a));
+    }
+
+    const aAndreas = maakNavLink('Andreas', 'Luckfiel', 'fotograaf-pagina.html?id=andreas', '#FF6B00', isActiefPagina('andreas'));
+    if (dropdown_wrapper) nav.insertBefore(aAndreas, dropdown_wrapper);
+    else nav.appendChild(aAndreas);
+  }
+
+  const mobileNav = document.getElementById('nav-mobile');
+  let mobileTarget = null, mobileContact = null;
+  if (mobileNav) {
+    mobileTarget = mobileNav.querySelector('.mobile-links') || mobileNav;
+    mobileContact = Array.from(mobileTarget.querySelectorAll('a'))
+      .find(a => a.textContent.trim() === 'Contact');
+
+    const mAndreas = document.createElement('a');
+    mAndreas.href = 'fotograaf-pagina.html?id=andreas';
+    mAndreas.textContent = 'Andreas Luckfiel';
+    mAndreas.style.color = '#FF6B00';
+    if (mobileContact) mobileTarget.insertBefore(mAndreas, mobileContact);
+    else mobileTarget.appendChild(mAndreas);
+  }
+
+  // ── ASYNC: alleen gastfotografen + "& Co."-tekstvervanging ───────────────
   try {
     const res = await fetch(WORKER + '/fotograaf/manifest');
     const { fotografen } = await res.json();
 
     const actief = (fotografen || []).filter(fg => fg.mappen?.length > 0);
 
-    // ── Namen string bouwen en "& Co." overal vervangen ──────────────────
     const namenStr = actief.length
       ? 'Andreas Luckfiel & ' + actief.map(fg => fg.naam).join(' & ')
       : 'Andreas Luckfiel';
@@ -124,32 +171,7 @@
     }
     vervangTekst(document.body);
 
-    // ── Clubs / Over ons / Contact groeperen in "..." dropdown ───────────
-    const nav = document.querySelector('header nav');
     if (nav) {
-      const groepeernamen = ['Tools', 'Clubs', 'Over ons', 'Contact'];
-      const teGroeperen = Array.from(nav.querySelectorAll('a')).filter(a =>
-        groepeernamen.includes(a.textContent.trim())
-      );
-      let dropdown_wrapper = null;
-      if (teGroeperen.length) {
-        dropdown_wrapper = document.createElement('div');
-        dropdown_wrapper.className = 'nav-meer';
-        dropdown_wrapper.innerHTML = `<span class="nav-meer-trigger">&#9776;</span><div class="nav-meer-dropdown"><div class="nav-meer-dropdown-inner"></div></div>`;
-        const dropdown = dropdown_wrapper.querySelector('.nav-meer-dropdown-inner');
-        teGroeperen[0].parentNode.insertBefore(dropdown_wrapper, teGroeperen[0]);
-        teGroeperen.forEach(a => dropdown.appendChild(a));
-      }
-
-      // Fotografen-links invoegen vóór de "..." wrapper
-      const invoegpunt = dropdown_wrapper;
-
-      // Andreas altijd als eerste (vóór de "..." wrapper)
-      const aAndreas = maakNavLink('Andreas', 'Luckfiel', 'fotograaf-pagina.html?id=andreas', '#FF6B00', isActiefPagina('andreas'));
-      if (invoegpunt) nav.insertBefore(aAndreas, invoegpunt);
-      else nav.appendChild(aAndreas);
-
-      // Gastfotografen (ook vóór de "..." wrapper)
       for (const fg of actief) {
         const [voornaam, ...rest] = fg.naam.split(' ');
         const achternaam = rest.join(' ');
@@ -157,36 +179,23 @@
         const a = maakNavLink(voornaam, achternaam, `fotograaf-pagina.html?id=${fg.id}`, kleur, isActiefPagina(fg.id));
         a.dataset.fgId    = fg.id;
         a.dataset.fgKleur = kleur;
-        if (invoegpunt) nav.insertBefore(a, invoegpunt);
+        if (dropdown_wrapper) nav.insertBefore(a, dropdown_wrapper);
         else nav.appendChild(a);
       }
     }
 
-    // ── Mobiel nav ────────────────────────────────────────────────────────
-    const mobileNav = document.getElementById('nav-mobile');
-    if (mobileNav) {
-      const target = mobileNav.querySelector('.mobile-links') || mobileNav;
-      const mobileContact = Array.from(target.querySelectorAll('a'))
-        .find(a => a.textContent.trim() === 'Contact');
-
-      const mAndreas = document.createElement('a');
-      mAndreas.href = 'fotograaf-pagina.html?id=andreas';
-      mAndreas.textContent = 'Andreas Luckfiel';
-      mAndreas.style.color = '#FF6B00';
-      if (mobileContact) target.insertBefore(mAndreas, mobileContact);
-      else target.appendChild(mAndreas);
-
+    if (mobileTarget) {
       for (const fg of actief) {
         const a = document.createElement('a');
         a.href = `fotograaf-pagina.html?id=${fg.id}`;
         a.textContent = fg.naam;
         a.style.color = fg.kleur || '#FF6B00';
-        if (mobileContact) target.insertBefore(a, mobileContact);
-        else target.appendChild(a);
+        if (mobileContact) mobileTarget.insertBefore(a, mobileContact);
+        else mobileTarget.appendChild(a);
       }
     }
   } catch (e) {
-    // Stille fout — nav werkt zonder fotografen-links
+    // Stille fout — nav werkt met Andreas' link, alleen gastfotografen ontbreken
   }
 })();
 
