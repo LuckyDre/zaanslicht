@@ -167,6 +167,17 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.37 — 17 juli 2026 (avond) — Nieuwe categorie "Other Sports"
+Volwaardige derde fotocategorie naast Voetbal en No Sports, voor overige sporten (handbal, hockey, atletiek…). Kleur **violet #8B5CF6 / #A78BFA**, icoon 🏅. Zelfde op-vlaggen-model als de andere twee. **End-to-end browser-geverifieerd** met een wegwerp-testfotograaf (serie op Other Sports gezet → verscheen op de pagina, gate opende op home/voetbal, verscheen NIET op voetbal; daarna volledig opgeruimd).
+- 📄 **`othersports.html`** — kloon van nosports.html; violet accent (`--or`/`--or2`), titel/kop "Other Sports", `data-category="othersports"`, tel-logica op `manifest.othersports` + `opOthersports`.
+- 🖼 **`gallery-nieuw.js`** — filterregel `CATEGORY==='othersports' → m.opOthersports===true`. Eigen-content-pad was al generiek op `CATEGORY` (`manifest[CATEGORY]`, `images/${CATEGORY}/`). Cache-buster overal `?v=20260717o`.
+- 🚩 **Op-vlag `opOthersports`** (default false) — Worker: toegevoegd aan `handleMapPaginas` (per-serie toggle), `handleMapRegistreren` en het fotograaf-profiel-galerij-object. Gedeployd.
+- 📸 **fotograaf.html** — 4e knop per serie in Mijn mappen: **🏅 Other Sports** (naast ⚽/🌿/🏠); `toggleMapPagina('othersports')` → `opOthersports`. Ook de positie-beheer-tab loopt nu 3 categorieën. `APP_VERSIE → 2026-07-17-c`.
+- 🛠 **beheer.html** — nieuw tabblad **🏅 Other Sports** met eigen serielijst (Nieuwe map / sorteren / selecteren), `renderCategorie('othersports')`, `manifest.othersports` default, alle `['voetbal','nosports']`-arrays → 3-waardig. **LET OP-fix:** de positie-gebaseerde tab-index-array in `switchTab` moest 'othersports' op index 2 krijgen, anders verschoof de actieve-tab-markering (browser-geverifieerd dat het nu klopt).
+- 🏠 **Homepage + navigatie (voorwaardelijk):** nieuw scriptje **`othersports-gate.js`** toont de Other Sports-ingangen (`.othersports-link`: navlinks desktop+mobiel + homepage-tegel) pas zodra er inhoud is (een gastserie met `opOthersports`, of een eigen serie in `manifest.othersports`). Op othersports.html zelf altijd zichtbaar. Toegevoegd aan index, voetbal, nosports, clubs, contact, tools, fotograaf-pagina en `/m/`. `manifest`-fetch absoluut (`/manifest.json`) zodat het ook in `/m/` werkt.
+- 📖 **Handleidingen** bijgewerkt (jouw vaste regel): beheer-handleiding (3e tab), fotograaf-handleiding (stap 5 herschreven naar alle 4 de pagina-knoppen incl. 🏅).
+- ⏳ **Kandidaat voor later:** random/"meest geliked"-companion-tegels voor Other Sports op de homepage (main.js) — nu alleen de hoofd-tegel, om scope klein te houden.
+
 ### v0.36 — 17 juli 2026 (avond)
 **Jans "verloren" damesserie teruggevonden + de root cause van alle onzichtbare-mappen-mysteries gefixt.**
 - 🔍 **Root cause: R2-listing zonder paginering.** `handleFotosLijst` deed `list({limit: 500})` zonder cursor-lus. Zodra een fotograaf >500 objecten had, vielen de alfabetisch laatste mappen stilletjes uit élke weergave (fotograaf.html, beheer.html, de site) terwijl de foto's gewoon in R2 stonden. Dit verklaart met terugwerkende kracht: de "onzichtbare" KFC-serie uit v0.23, de Wieringermeer-map uit v0.30, én Jans "lege" damesmap van vanochtend. Ook drie verwijder-handlers (fotograaf-, admin-map- en account-verwijderen, limit 1000) hadden dezelfde afkap → wees-objecten bij grote accounts.
