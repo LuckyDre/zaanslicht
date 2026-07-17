@@ -1316,7 +1316,7 @@ async function slaGastVolgordeOp(lijst) {
   if (!secret) return;
 
   // Bepaal categorie van deze lijst
-  const cat = lijst.id === 'lijst-voetbal' ? 'voetbal' : 'nosports';
+  const cat = lijst.id.replace('lijst-', '');
 
   // Bouw gecombineerde volgorde: elk item is eigen of gast
   const gecombineerd = Array.from(lijst.querySelectorAll('.slider-item')).map(li => {
@@ -1645,7 +1645,7 @@ async function bhOpenFotoLabelPopupVoor(doelKeys, anchor, cat, mapNaam) {
 function switchTab(tab) {
   activeTab = tab;
   document.querySelectorAll('.tab').forEach((t, i) => {
-    const isActief = ['voetbal','nosports','reacties','abonnees','fotografen','labels','mijn-profiel'][i] === tab;
+    const isActief = ['voetbal','nosports','othersports','reacties','abonnees','fotografen','labels','mijn-profiel'][i] === tab;
     t.classList.toggle('active', isActief);
     if (isActief) t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   });
