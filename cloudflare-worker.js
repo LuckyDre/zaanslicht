@@ -1307,7 +1307,7 @@ async function handleMapNaam(request, env) {
 async function handleMapPaginas(request, env) {
   const isAdmin = requireSecret(request, env);
   const body = await request.json().catch(() => ({}));
-  const { map, opVoetbal, opNosports, opEigenPagina } = body;
+  const { map, opVoetbal, opNosports, opOthersports, opEigenPagina } = body;
   if (!map) return json({ error: 'map verplicht' }, 400);
 
   let fotograafId;
