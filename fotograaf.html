@@ -2100,6 +2100,7 @@ async function laadMappenTab() {
       // Bepaal pagina-flags met backwards-compat fallback op categorie
       const opVoetbal    = m.opVoetbal   !== undefined ? m.opVoetbal   : (m.categorie === 'voetbal');
       const opNosports   = m.opNosports  !== undefined ? m.opNosports  : (m.categorie === 'nosports');
+      const opOthersports = m.opOthersports === true;
       const opEigenPagina = m.opEigenPagina !== false;
       li.innerHTML = `
         <div class="map-header">
