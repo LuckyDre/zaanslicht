@@ -821,6 +821,34 @@ async function handleLabelsSync(request, env) {
 }
 
 // ── FOTO'S OPHALEN ─────────────────────────────────────────────────────────
+// Lijst ALLE R2-objecten onder een prefix, met paginering. R2's list geeft max
+// 1000 objecten per aanroep; zonder cursor-lus valt alles daarboven stilletjes
+// uit de lijst. Dat veroorzaakte de "onzichtbare mappen"-mysteries: zodra een
+// fotograaf >500 foto's had, verdwenen de alfabetisch laatste mappen uit élke
+// weergave (fotograaf.html, beheer.html, de site) terwijl de foto's gewoon in
+// R2 stonden — en verwijder-handlers misten dan diezelfde staart (wees-objecten).
+async function lijstAlleR2(env, prefix) {
+  const objects = [];
+  let cursor;
+  do {
+    const res = await env.FOTOS.list({ prefix, limit: 1000, cursor });
+    objects.push(...res.objects);
+    cursor = res.truncated ? res.cursor : undefined;
+  } while (cursor);
+  return objects;
+}
+
+// Verwijdert R2-objecten in kleine batches. Eén grote Promise.all over honderden
+// deletes overschrijdt de gelijktijdigheids-/subrequest-limieten van Workers
+// (bleek in de praktijk: 361 tegelijk strandde halverwege); batches van 20 niet.
+async function verwijderR2Batch(env, keys, metLabels) {
+  for (let i = 0; i < keys.length; i += 20) {
+    const batch = keys.slice(i, i + 20);
+    await Promise.all(batch.map(k => env.FOTOS.delete(k)));
+    if (metLabels) await Promise.all(batch.map(k => verwijderFotoLabels(k, env)));
+  }
+}
+
 async function handleFotosLijst(request, env) {
   const url       = new URL(request.url);
   const id        = url.searchParams.get('id');
@@ -832,7 +860,7 @@ async function handleFotosLijst(request, env) {
     ? `fotografen/${id}/${categorie}/`
     : `fotografen/${id}/`;
 
-  const lijst   = await env.FOTOS.list({ prefix, limit: 500 });
+  const lijst   = { objects: await lijstAlleR2(env, prefix) };
 
   // Haal verborgen mappen, fotos en handmatige foto-volgorde op
   const [verborgenMappenRaw, verborgenFotosRaw, fotoVolgordeRaw] = await Promise.all([
