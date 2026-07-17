@@ -1873,6 +1873,13 @@ async function vulMappenSelect() {
     }
   }
 
+  // Onthoud de huidige keuze: deze functie draait bij élke tabwissel naar Upload
+  // en bouwt de lijst opnieuw op. Zonder herstel valt de keuze uit de dropdown
+  // terwijl #up-map de naam vasthoudt — dan toont de dropdown "Nieuwe map" maar
+  // gaat de upload alsnog naar de oude map (of andersom bij een lege #up-map:
+  // een terechte maar onbegrijpelijke "Vul een mapnaam in").
+  const gekozen = select.value || document.getElementById('up-map')?.value.trim() || '';
+
   // Vul select met bestaande mappen
   select.innerHTML = '<option value="">— Nieuwe map —</option>';
   _mappenData.forEach(m => {
@@ -1881,6 +1888,8 @@ async function vulMappenSelect() {
     optie.textContent = m.map;
     select.appendChild(optie);
   });
+
+  if (gekozen && _mappenData.some(m => m.map === gekozen)) select.value = gekozen;
 }
 
 // Synchroniseer select met text input.
