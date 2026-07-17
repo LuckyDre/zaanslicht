@@ -761,16 +761,63 @@ async function handleFotoUpload(request, env) {
     await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
   }
 
-  // Labels gekozen tijdens uploaden ook echt toepassen op déze foto (net als het
-  // bestaande 🏷-systeem per foto) — anders landen ze alleen op de map-metadata
-  // en komen ze nooit in de reverse index terecht die clubs.html gebruikt.
+  // Labels per foto opslaan (foto:labels:{key} — unieke sleutel per foto, dus geen
+  // schrijf-contentie). De reverse index (label:fotos:{label}) NIET hier per foto
+  // bijwerken: dat is een read-modify-write op één gedeelde sleutel, en bij snelle
+  // opeenvolgende uploads verloor die onder KV's eventual consistency vrijwel alle
+  // entries (index hield ~1 i.p.v. alle foto's). De client roept ná de upload-lus
+  // één keer /fotograaf/labels-sync aan, die de index in één keer per label opbouwt.
   if (labels.length) {
     await env.SUBSCRIBERS.put('foto:labels:' + r2Key, JSON.stringify(labels));
-    const entry = { key: r2Key, url: '', fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() };
-    await updateReverseIndex(r2Key, [], labels, entry, env);
   }
 
   return json({ ok: true, key: r2Key, naam: veiligNaam });
+}
+
+// Bouwt de reverse index (label:fotos:{label}) voor één map op in ÉÉN read-modify-
+// write per label, met R2 als waarheid. Vervangt de oude per-foto-updates in
+// handleFotoUpload die schrijfacties verloren onder KV's eventual consistency.
+// Idempotent en veilig om meerdere keren aan te roepen (voegt alleen ontbrekende
+// foto's toe). De client roept dit één keer aan ná de upload-lus.
+async function handleLabelsSync(request, env) {
+  const fotograaf = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { map, categorie, labels } = await request.json().catch(() => ({}));
+  if (!map || !categorie || !Array.isArray(labels)) {
+    return json({ error: 'map, categorie en labels verplicht' }, 400);
+  }
+  if (!labels.length) return json({ ok: true, toegevoegd: 0 });
+
+  // Alle huidige foto-keys van deze map uit R2 (waarheid), volledig gepagineerd.
+  // Thumbnails staan onder de aparte thumbs/-prefix, dus die komen hier niet mee.
+  const prefix = `fotografen/${fotograaf.id}/${categorie}/${encodeURIComponent(map)}/`;
+  const keys = [];
+  let cursor;
+  do {
+    const res = await env.FOTOS.list({ prefix, limit: 1000, cursor });
+    for (const o of res.objects) keys.push(o.key);
+    cursor = res.truncated ? res.cursor : undefined;
+  } while (cursor);
+  if (!keys.length) return json({ ok: true, toegevoegd: 0 });
+
+  let toegevoegd = 0;
+  for (const label of labels) {
+    const idxRaw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+    const idx = idxRaw ? JSON.parse(idxRaw) : [];
+    const aanwezig = new Set(idx.map(f => f.key));
+    let gewijzigd = false;
+    for (const key of keys) {
+      if (!aanwezig.has(key)) {
+        idx.push({ key, url: '', fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() });
+        aanwezig.add(key);
+        gewijzigd = true;
+        toegevoegd++;
+      }
+    }
+    if (gewijzigd) await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(idx));
+  }
+  return json({ ok: true, toegevoegd });
 }
 
 // ── FOTO'S OPHALEN ─────────────────────────────────────────────────────────
@@ -1799,6 +1846,7 @@ export default {
     if (url.pathname === '/fotograaf/register'    && request.method === 'POST') return handleFotograafRegister(request, env);
     if (url.pathname === '/fotograaf/login'       && request.method === 'POST') return handleFotograafLogin(request, env);
     if (url.pathname === '/fotograaf/upload'      && request.method === 'POST') return handleFotoUpload(request, env);
+    if (url.pathname === '/fotograaf/labels-sync' && request.method === 'POST') return handleLabelsSync(request, env);
     if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
     if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return handleFotograafManifest(request, env);
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
