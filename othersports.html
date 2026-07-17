@@ -32,7 +32,7 @@
     display:flex; align-items:center; justify-content:space-between;
     padding: 1.2rem 3rem;
     background: rgba(13,13,13,0.85); backdrop-filter:blur(10px);
-    border-bottom: 1px solid rgba(240,192,64,0.15); transition:background .3s;
+    border-bottom: 1px solid rgba(139,92,246,0.15); transition:background .3s;
   }
   .logo { display:flex; align-items:center; gap:.6rem; font-size:3.2rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--or); }
   .logo-img { display:inline-block; width:80px; height:80px; flex-shrink:0; background-color:var(--or,#FF6B00); -webkit-mask:url('images/logo-oranje.png') center/contain no-repeat; mask:url('images/logo-oranje.png') center/contain no-repeat; transition:background-color .4s ease; vertical-align:middle; }
@@ -48,8 +48,8 @@
     border-bottom: 1px solid var(--rand); position:relative; overflow:hidden;
   }
   .page-hero::before {
-    content:'NO SPORTS'; position:absolute; right:-.05em; bottom:-.1em;
-    font-size:clamp(8rem,20vw,18rem); font-weight:700; color:rgba(240,192,64,0.04);
+    content:'OTHER SPORTS'; position:absolute; right:-.05em; bottom:-.1em;
+    font-size:clamp(8rem,20vw,18rem); font-weight:700; color:rgba(139,92,246,0.04);
     pointer-events:none; letter-spacing:-4px; font-family:var(--mono); user-select:none;
   }
   .hero-label { font-family:var(--mono); font-size:.72rem; letter-spacing:4px; text-transform:uppercase; color:var(--or); margin-bottom:.8rem; display:flex; align-items:center; gap:.6rem; }
@@ -78,7 +78,7 @@
   .pc-rechts { margin-left:auto; display:flex; align-items:center; gap:.5rem; flex-shrink:0; }
   .pc-count { font-size:.72rem; font-family:var(--mono); letter-spacing:2px; color:var(--dim); background:var(--s2); border:1px solid var(--rand); padding:.25rem .7rem; border-radius:100px; }
   .pc-overzicht { background:none; border:1px solid rgba(255,255,255,.12); color:#666; width:28px; height:28px; border-radius:4px; font-size:.9rem; cursor:pointer; transition:all .18s; padding:0; display:inline-flex; align-items:center; justify-content:center; }
-  .pc-overzicht:hover { border-color:var(--or); color:var(--or); background:rgba(240,192,64,.08); }
+  .pc-overzicht:hover { border-color:var(--or); color:var(--or); background:rgba(139,92,246,.08); }
 
   /* FOTO GRID */
   /* FOTO SLIDER — HORIZONTAAL SCROLL */
@@ -93,8 +93,8 @@
   }
   .foto-grid::-webkit-scrollbar { height: 6px; }
   .foto-grid::-webkit-scrollbar-track { background: rgba(255,255,255,.04); border-radius: 3px; }
-  .foto-grid::-webkit-scrollbar-thumb { background: rgba(255,107,0,.3); border-radius: 3px; }
-  .foto-grid::-webkit-scrollbar-thumb:hover { background: rgba(255,107,0,.6); }
+  .foto-grid::-webkit-scrollbar-thumb { background: rgba(139,92,246,.3); border-radius: 3px; }
+  .foto-grid::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,.6); }
 
   .foto-cel {
     flex: 0 0 280px;
@@ -126,7 +126,7 @@
   .serie-labels { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.8rem; }
   .serie-label-chip {
     font-size:0.72rem; padding:0.2rem 0.6rem; border-radius:100px;
-    border:1px solid rgba(245,192,0,0.35); color:var(--geel,#F5C000); background:rgba(245,192,0,0.07);
+    border:1px solid rgba(139,92,246,0.35); color:var(--or); background:rgba(139,92,246,0.07);
   }
 
   /* LIGHTBOX */
