@@ -1095,8 +1095,8 @@ async function handleAccountVerwijderen(request, env) {
   if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
 
   // Verwijder alle R2 foto's
-  const lijst = await env.FOTOS.list({ prefix: `fotografen/${fotograaf.id}/`, limit: 1000 });
-  for (const obj of lijst.objects) { await env.FOTOS.delete(obj.key); }
+  const objecten = await lijstAlleR2(env, `fotografen/${fotograaf.id}/`);
+  await verwijderR2Batch(env, objecten.map(o => o.key), false);
 
   // Verwijder KV data
   await env.SUBSCRIBERS.delete('fotograaf:account:' + fotograaf.id);
