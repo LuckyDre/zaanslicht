@@ -899,7 +899,7 @@ function sluitMenu() { document.getElementById('nav-mobile').classList.remove('o
 let _ovObserver = null;
 const OV_PAGE = 30;
 
-function toonOverzicht(titel, fotos) {
+function toonOverzicht(titel, fotos, scrollNaarIdx = -1) {
   const modal = document.getElementById('ov');
   const grid  = document.getElementById('ov-grid');
 
@@ -910,8 +910,14 @@ function toonOverzicht(titel, fotos) {
   grid.scrollTop = 0;
 
   let rendered = 0;
+  let sentinel = null;
 
   function renderBatch() {
+    // Loop-veilig: ruim de vorige sentinel/observer op vóór we verder renderen,
+    // zodat vooruit-renderen (scrollNaarIdx) geen losse sentinels achterlaat.
+    if (_ovObserver) { _ovObserver.disconnect(); _ovObserver = null; }
+    if (sentinel) { sentinel.remove(); sentinel = null; }
+
     const batch = fotos.slice(rendered, rendered + OV_PAGE);
     batch.forEach((f, i) => {
       const absIdx = rendered + i;
@@ -922,25 +928,20 @@ function toonOverzicht(titel, fotos) {
       img.loading = 'lazy';
       img.alt = '';
       d.appendChild(img);
-      d.addEventListener('click', () => {
-        sluitOverzicht();
-        setTimeout(() => _openLightboxFotograaf(fotos, absIdx), 50);
-      });
+      // Grid blijft open onder de foto: sluiten van de foto keert terug naar
+      // het grid, pas het sluiten van het grid gaat terug naar de pagina.
+      d.addEventListener('click', () => _openLightboxFotograaf(fotos, absIdx));
       grid.appendChild(d);
     });
     rendered += batch.length;
 
     if (rendered < fotos.length) {
-      const sentinel = document.createElement('div');
+      sentinel = document.createElement('div');
       sentinel.style.cssText = 'grid-column:1/-1;height:1px;';
       grid.appendChild(sentinel);
 
       _ovObserver = new IntersectionObserver(entries => {
-        if (!entries[0].isIntersecting) return;
-        _ovObserver.disconnect();
-        _ovObserver = null;
-        sentinel.remove();
-        renderBatch();
+        if (entries[0].isIntersecting) renderBatch();
       }, { root: grid, rootMargin: '0px 0px 300px 0px' });
 
       _ovObserver.observe(sentinel);
@@ -950,6 +951,15 @@ function toonOverzicht(titel, fotos) {
   renderBatch();
   modal.classList.add('ov-open');
   document.body.style.overflow = 'hidden';
+
+  // Geopend vanuit een slider-foto: render door tot die foto in het grid zit en
+  // scroll ernaartoe, zodat het sluiten van de foto op de juiste plek terugkomt.
+  // Ná het openen van het grid (display:flex), anders kan scrollIntoView niets meten.
+  if (scrollNaarIdx >= 0) {
+    while (rendered <= scrollNaarIdx && rendered < fotos.length) renderBatch();
+    const doel = grid.querySelectorAll('.ov-thumb')[scrollNaarIdx];
+    if (doel) doel.scrollIntoView({ block: 'center' });
+  }
 }
 
 function sluitOverzicht() {
