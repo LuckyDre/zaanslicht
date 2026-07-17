@@ -2615,11 +2615,12 @@ async function fgBulkVerwijder() {
       for (const mapNaam of [..._selMappen]) {
         await _verwijderMapStil(mapNaam, s);
       }
+      fgBulkAnnuleer();
     } catch (e) {
       if (e.message !== 'sessie-verlopen') alert('Verwijderen mislukt: ' + e.message);
-      return;
+    } finally {
+      verbergVerwijderVoortgang();
     }
-    fgBulkAnnuleer();
     return;
   }
 
@@ -2628,19 +2629,25 @@ async function fgBulkVerwijder() {
   if (alleKeys.length === 0) return;
   if (!confirm(`${alleKeys.length} foto${alleKeys.length !== 1 ? "'s" : ''} verwijderen?\nDeze actie kan niet ongedaan worden gemaakt.`)) return;
 
-  for (const key of alleKeys) {
-    const delRes = await fetch(WORKER + '/fotograaf/foto-delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
-      body: JSON.stringify({ key }),
-    });
-    if (delRes.status === 401) { sessieVerlopen(); return; }
-    if (!delRes.ok) { alert(`Verwijderen mislukt (${delRes.status})`); return; }
-    document.querySelectorAll('.foto-chip').forEach(c => {
-      if (c.dataset.fotoKey === key) c.remove();
-    });
+  try {
+    let g = 0;
+    for (const key of alleKeys) {
+      toonVerwijderVoortgang(++g, alleKeys.length, "Foto's");
+      const delRes = await fetch(WORKER + '/fotograaf/foto-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': s.token },
+        body: JSON.stringify({ key }),
+      });
+      if (delRes.status === 401) { sessieVerlopen(); return; }
+      if (!delRes.ok) { alert(`Verwijderen mislukt (${delRes.status})`); return; }
+      document.querySelectorAll('.foto-chip').forEach(c => {
+        if (c.dataset.fotoKey === key) c.remove();
+      });
+    }
+    fgBulkAnnuleer();
+  } finally {
+    verbergVerwijderVoortgang();
   }
-  fgBulkAnnuleer();
 }
 
 async function _verwijderMapStil(mapNaam, s) {
