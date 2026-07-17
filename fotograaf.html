@@ -1492,6 +1492,22 @@ window.startUpload = async () => {
       }
     }
 
+    // Reverse-index voor clubs.html in één keer bijwerken voor de gekozen labels.
+    // Bewust ná de lus en met R2 als waarheid (de Worker leest de map opnieuw uit),
+    // zodat ook een gedeeltelijk geslaagde upload een kloppende index krijgt. Dit
+    // vervangt de oude per-foto-index-schrijf die entries verloor. Zie handleLabelsSync.
+    let labelsSyncFout = false;
+    if (ok > 0 && _geselecteerdeLabels.length) {
+      try {
+        const syncRes = await fetch(WORKER + '/fotograaf/labels-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+          body: JSON.stringify({ map, categorie: cat, labels: _geselecteerdeLabels }),
+        });
+        if (!syncRes.ok) labelsSyncFout = true;
+      } catch { labelsSyncFout = true; }
+    }
+
     btn.disabled = false; btn.textContent = '📤 Uploaden starten';
 
     // Houd de mislukte foto's klaar voor een nieuwe poging. Dit moet vóór toonQueue()
