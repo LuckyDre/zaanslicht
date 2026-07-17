@@ -2121,6 +2121,7 @@ async function laadMappenTab() {
             <div class="map-cat-knoppen">
               <button class="map-cat-btn${opVoetbal    ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','voetbal',this)"   title="Tonen op voetbalpagina">⚽ Voetbal</button>
               <button class="map-cat-btn${opNosports   ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','nosports',this)"  title="Tonen op No Sports pagina">🌿 No Sports</button>
+              <button class="map-cat-btn${opOthersports ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','othersports',this)" title="Tonen op Other Sports pagina">🏅 Other Sports</button>
               <button class="map-cat-btn${opEigenPagina ? ' actief' : ''}" onclick="toggleMapPagina('${escMap}','eigen',this)"    title="Tonen op jouw eigen pagina">🏠 Eigen</button>
             </div>
             <input type="date" class="map-datum-input" value="${m.datum || ''}" title="Datum van deze serie"
