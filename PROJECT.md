@@ -167,6 +167,14 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.33 — 17 juli 2026
+- 🧹 **Hover-preview uit beheer.html verwijderd** (voorstel Andreas: "overbodig nu er een viewer is" — mee eens)
+  - De grote preview-bij-aanwijzen (570px, `#foto-preview`) was een noodoplossing zolang beheer géén fotoviewer had. Sinds de lightbox (v0.32) dekt die het gebruik beter af: één klik en dan met ←/→ door de hele map, schermvullend i.p.v. 570px, en zonder precies met de muis op elke thumbnail te hoeven mikken. De bestandsnaam die de preview toonde, toont de lightbox ook
+  - Bijkomend voordeel: de preview zát vooral in de weg — in v0.18 moest die al getemd worden (350ms vertraging, niet meer de cursor volgen) omdat hij over het grid heen sprong bij het bewegen naar de 🏷/🗑-knop van een andere foto. Dat probleem is nu structureel weg
+  - Volledig verwijderd: markup (`#foto-preview`), CSS (4 regels), en JS (`preview`/`previewImg`/`previewNaam`/`previewTimer`, de `mouseover`/`mouseout`-handlers, `positionPreviewBijThumb()`), plus de opruim-aanroep die de lightbox nog deed. Grep op "preview" in beheer.html leverde daarna alleen nog lightbox-code op; een stale comment die naar de hover-preview verwees is bijgewerkt
+  - Geverifieerd: pagina laadt zonder JS-fouten, `preview`-variabele/element/functie bestaan niet meer, lightbox opent nog gewoon (2/4) en hover doet niets meer
+  - beheer-handleiding.html: tip "Grote preview bij aanwijzen" verwijderd (de "Foto groot bekijken"-tip uit v0.32 blijft). De kleur-preview in Mijn profiel is ongemoeid — die staat los
+
 ### v0.32 — 16 juli 2026
 Vervolg op v0.31 (verzoek Andreas: "gedrag standaard maken voor de gallery view, ook bij de beheer pagina").
 - 🖼 **fotograaf-pagina.html: zelfde galerij-gedrag als voetbal/nosports** — had een eigen kopie van dezelfde bug (`sluitOverzicht()` + `setTimeout(_openLightboxFotograaf)`). Nu identiek aan v0.31: grid blijft open onder de foto, `toonOverzicht` kreeg de 3e param `scrollNaarIdx`, beide slider-klikplekken (gast-mappen én Andreas' eigen series) openen de foto binnen het grid, `closeLightbox` houdt de body-scroll vast zolang het grid open is en scrollt terug naar de laatst bekeken foto. CSS: `.lightbox` z-index 2000→2200, reacties-drawer 2100→2300
