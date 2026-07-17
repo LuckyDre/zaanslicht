@@ -1498,14 +1498,20 @@ window.klikLabel = function(chip, label) {
     chip.style.color         = '';
     chip.style.fontWeight    = '';
   }
-  const st = document.getElementById('labels-geselecteerd');
-  if (st) {
-    st.textContent = _geselecteerdeLabels.length
-      ? '✓ Geselecteerd: ' + _geselecteerdeLabels.join(', ')
-      : 'Geen labels geselecteerd';
-    st.style.color = _geselecteerdeLabels.length ? 'var(--accent)' : 'var(--muted)';
-  }
+  werkLabelStatusBij();
 };
+
+// Het statusregeltje onder de chips. Wordt óók aangeroepen als de labels vanuit een
+// gekozen map worden gevuld — anders bleef er "Geen labels geselecteerd" staan
+// terwijl de chips wél opgelicht waren.
+function werkLabelStatusBij() {
+  const st = document.getElementById('labels-geselecteerd');
+  if (!st) return;
+  st.textContent = _geselecteerdeLabels.length
+    ? '✓ Geselecteerd: ' + _geselecteerdeLabels.join(', ')
+    : 'Geen labels geselecteerd';
+  st.style.color = _geselecteerdeLabels.length ? 'var(--accent)' : 'var(--muted)';
+}
 
 async function laadLabels() {
   const container = document.getElementById('labels-chips');
@@ -1931,13 +1937,9 @@ document.addEventListener('change', function(e) {
   // Laad bestaande labels van deze map
   if (select.value && _mappenData.length) {
     const map = _mappenData.find(m => m.map === select.value);
-    if (map?.labels?.length) {
-      _geselecteerdeLabels = [...map.labels];
-      renderLabelChips();
-    } else {
-      _geselecteerdeLabels = [];
-      renderLabelChips();
-    }
+    _geselecteerdeLabels = map?.labels?.length ? [...map.labels] : [];
+    renderLabelChips();
+    werkLabelStatusBij();
   }
 });
 
