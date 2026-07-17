@@ -2768,8 +2768,8 @@ async function laadPositieTab() {
       eigenManifest = await mr.json();
     } catch {}
 
-    for (const cat of ['voetbal', 'nosports']) {
-      const catLabel = cat === 'voetbal' ? '⚽ Voetbal' : '🌿 No Sports';
+    for (const cat of ['voetbal', 'nosports', 'othersports']) {
+      const catLabel = { voetbal: '⚽ Voetbal', nosports: '🌿 No Sports', othersports: '🏅 Other Sports' }[cat];
 
       // Als er geen opgeslagen volgorde is, bouw een standaard op uit manifest + gast-mappen
       let volgorde = volData[cat];
@@ -2832,7 +2832,9 @@ async function laadPositieTab() {
       const eigenMappen = (_mappenData || []).filter(m => {
         const opCat = cat === 'voetbal'
           ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
-          : (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports');
+          : cat === 'nosports'
+          ? (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports')
+          : (m.opOthersports === true);
         return opCat && !eigenInVolgorde.has(m.map);
       });
       for (const m of eigenMappen) {
@@ -2881,7 +2883,7 @@ window.slaPositieOp = async () => {
   btn.disabled = true; btn.textContent = 'Opslaan…';
 
   try {
-    for (const cat of ['voetbal', 'nosports']) {
+    for (const cat of ['voetbal', 'nosports', 'othersports']) {
       const lijst = document.querySelector(`.positie-lijst[data-categorie="${cat}"]`);
       if (!lijst) continue;
 
