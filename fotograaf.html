@@ -2033,6 +2033,15 @@ async function laadMappenTab() {
   if (!sessie) return;
   const inhoud = document.getElementById('mappen-inhoud');
   const acties = document.getElementById('mappen-acties');
+
+  // Selectie leegmaken vóór het hertekenen: de checkboxes worden zo opnieuw en
+  // leeg opgebouwd, maar de _selMappen/_selFotos-Sets bleven anders gevuld met de
+  // oude keuze. Dat gaf o.a. "2 series verwijderen" terwijl er nog maar 1 map
+  // aangevinkt was (gemeld door Jan). fgUpdateBulkBalk() verbergt daarna de balk.
+  _selMappen.clear();
+  _selFotos.clear();
+  fgUpdateBulkBalk();
+
   inhoud.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Laden…</p>';
   acties.style.display = 'none';
 
