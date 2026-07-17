@@ -978,11 +978,10 @@ async function handleAdminMapVerwijderen(request, env) {
   if (!id || !map) return json({ error: 'id en map verplicht' }, 400);
 
   // Verwijder alle R2 foto's in deze map
-  const lijst = await env.FOTOS.list({ prefix: `fotografen/${id}/`, limit: 1000 });
+  const objecten = await lijstAlleR2(env, `fotografen/${id}/`);
   const enc   = encodeURIComponent(map);
-  const targets = lijst.objects.filter(o => o.key.includes(`/${map}/`) || o.key.includes(`/${enc}/`));
-  await Promise.all(targets.map(o => env.FOTOS.delete(o.key)));
-  await Promise.all(targets.map(o => verwijderFotoLabels(o.key, env)));
+  const targets = objecten.filter(o => o.key.includes(`/${map}/`) || o.key.includes(`/${enc}/`));
+  await verwijderR2Batch(env, targets.map(o => o.key), true);
 
   // Verwijder map uit KV-index
   const raw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + id);
