@@ -2404,7 +2404,9 @@ async function verwijderMap(mapNaam, aantalFotos) {
       try { return decodeURIComponent(f.key).split('/')[3] === mapNaam; } catch { return false; }
     });
 
+    let g = 0;
     for (const f of fotos) {
+      toonVerwijderVoortgang(++g, fotos.length, 'Serie');
       const delRes = await fetch(WORKER + '/fotograaf/foto-delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
@@ -2428,6 +2430,8 @@ async function verwijderMap(mapNaam, aantalFotos) {
     await laadMappenTab();
   } catch (e) {
     alert('Verwijderen mislukt: ' + e.message);
+  } finally {
+    verbergVerwijderVoortgang();
   }
 }
 
