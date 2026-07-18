@@ -341,6 +341,33 @@
       transition: border-color 0.15s, color 0.15s; white-space: nowrap; font-family: inherit;
     }
     .fg-btn:hover { border-color: var(--oranje); color: var(--oranje); }
+
+    /* WEERGAVE-TELLERS (tab Fotografen) */
+    .views-dash {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem;
+    }
+    .views-tile {
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 1rem 1.2rem; position: relative; overflow: hidden;
+    }
+    .views-tile::after {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--oranje); opacity: 0.55;
+    }
+    .views-tile.totaal {
+      border-color: rgba(255,107,0,0.4);
+      background: linear-gradient(135deg, #1a1a1a, rgba(255,107,0,0.08));
+    }
+    .views-getal {
+      font-size: 1.9rem; font-weight: 800; color: var(--oranje);
+      line-height: 1.1; font-variant-numeric: tabular-nums;
+    }
+    .views-label {
+      font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+      color: #777; margin-top: 0.35rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    html.light-mode .views-tile { background: #fff; border-color: #ddd; }
+    html.light-mode .views-tile.totaal { background: linear-gradient(135deg, #fff, rgba(255,107,0,0.07)); }
     .fg-btn-accent { border-color: var(--oranje); color: var(--oranje); font-weight: 600; }
     .fg-btn-accent:hover { background: rgba(255,107,0,0.1); }
     .fg-btn-danger { color: #ef4444; border-color: #3a1a1a; background: #3a1a1a; }
@@ -696,6 +723,15 @@
     <!-- ═══ FOTOGRAFEN TAB ═══ -->
     <div id="tab-fotografen" class="tab-panel">
       <div style="padding:1.5rem 2rem;max-width:900px">
+
+        <!-- Weergave-tellers -->
+        <div style="margin-bottom:2rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
+            <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888" title="Paginaweergaven tellen 1x per bezoeker per sessie. Fotoweergaven tellen elke foto die groot in beeld komt. Jijzelf en ingelogde fotografen tellen niet mee.">👁 Weergaven</h3>
+            <button onclick="bhLaadViews();bhVulFotografenViews()" style="background:none;border:1px solid #333;color:#666;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.75rem;cursor:pointer">↺ Vernieuwen</button>
+          </div>
+          <div id="views-dash" class="views-dash"><p style="color:#555;font-size:0.82rem">Laden…</p></div>
+        </div>
 
         <!-- Uitnodigen -->
         <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.5rem;margin-bottom:2rem">
@@ -1584,7 +1620,7 @@ function switchTab(tab) {
     window._reactiesInterval = null;
   }
   if (tab === 'abonnees')   { abLaadConfig(); if (typeof QRCode !== 'undefined') qrVulDoelen(); }
-  if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); }
+  if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); bhLaadViews(); }
   if (tab === 'labels')       { laadLabelsBeheer(); bhRenderMapLabelLijst(); }
   if (tab === 'mijn-profiel') { laadAndreasKleur(); }
 }
@@ -1692,6 +1728,71 @@ async function reviewWachtwoordOpslaan() {
   }
 }
 
+// ── WEERGAVE-TELLERS (tab Fotografen) ───────────────────────────────────────
+// Data komt uit Firebase pad 'views/', gevuld door views-teller.js op de site.
+const VIEWS_PAGINA_LABELS = {
+  voetbal: '⚽ Voetbal', nosports: '🌿 No Sports', othersports: '🏅 Other Sports',
+  index: '🏠 Home', clubs: '🛡 Clubs', tools: '🧰 Tools', contact: '✉️ Contact',
+  'fotograaf-pagina': "📷 Fotograafpagina's",
+};
+
+function bhTelOmhoog(el, doel) {
+  const duur = 900, start = performance.now();
+  function stap(nu) {
+    const t = Math.min(1, (nu - start) / duur);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out
+    el.textContent = Math.round(doel * eased).toLocaleString('nl-NL');
+    if (t < 1) requestAnimationFrame(stap);
+  }
+  requestAnimationFrame(stap);
+}
+
+async function bhLaadViews() {
+  const dash = document.getElementById('views-dash');
+  if (!dash) return;
+  dash.innerHTML = '<p style="color:#555;font-size:0.82rem">Laden…</p>';
+
+  const data          = (await fbGet('views')) || {};
+  const paginas       = data.pagina    || {};
+  const perFotograaf  = data.fotograaf || {};
+  const totaalFoto    = Object.values(perFotograaf).reduce((a, b) => a + (b || 0), 0);
+
+  const tegels = [{ label: '👁 Fotoweergaven totaal', waarde: totaalFoto, totaal: true }];
+
+  const bekend = Object.keys(VIEWS_PAGINA_LABELS);
+  const paginaKeys = Object.keys(paginas).sort((a, b) => {
+    const ia = bekend.indexOf(a), ib = bekend.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+  });
+  for (const p of paginaKeys) {
+    tegels.push({ label: VIEWS_PAGINA_LABELS[p] || '📄 ' + p, waarde: paginas[p] || 0 });
+  }
+
+  if (!paginaKeys.length && totaalFoto === 0) {
+    dash.innerHTML = '<p style="color:#555;font-size:0.82rem">Nog geen weergaven geteld. De tellers gaan lopen zodra bezoekers de site bekijken.</p>';
+    return;
+  }
+
+  dash.innerHTML = tegels.map(t => `
+    <div class="views-tile${t.totaal ? ' totaal' : ''}">
+      <div class="views-getal">0</div>
+      <div class="views-label" title="${t.label.replace(/"/g, '&quot;')}">${t.label}</div>
+    </div>`).join('');
+  [...dash.querySelectorAll('.views-getal')].forEach((el, i) => bhTelOmhoog(el, tegels[i].waarde));
+}
+
+// Vult de fotoweergaven-badge op elke fotograaf-kaart
+async function bhVulFotografenViews() {
+  const perFotograaf = (await fbGet('views/fotograaf')) || {};
+  for (const [id, n] of Object.entries(perFotograaf)) {
+    const el = document.getElementById('fg-views-' + id);
+    if (el && n > 0) {
+      el.innerHTML = ' &middot; <span style="color:var(--oranje);font-weight:600">👁 ' +
+        n.toLocaleString('nl-NL') + ' fotoweergave' + (n !== 1 ? 'n' : '') + '</span>';
+    }
+  }
+}
+
 async function fgLaadLijst() {
   const url    = localStorage.getItem('zl_worker_url') || WORKER_URL;
   const secret = localStorage.getItem('zl_worker_secret');
@@ -1730,7 +1831,7 @@ async function fgLaadLijst() {
                 <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;animation:onlinepulse 1.5s infinite"></span> ONLINE
               </span>
             </div>
-            <div style="font-size:0.75rem;color:#555;margin-top:0.1rem">${escB(fg.email)} &middot; ${fg.aantalMappen} map${fg.aantalMappen !== 1 ? 'pen' : ''} &middot; aangemeld ${fmtTsB(fg.ts)}${fg.last_login ? ' &middot; <span style="color:' + (Date.now() - fg.last_login < 15*60*1000 ? '#22c55e' : '#666') + '">ingelogd ' + fmtTsB(fg.last_login) + '</span>' : ' &middot; <span style="color:#444">nog nooit ingelogd</span>'}</div>
+            <div style="font-size:0.75rem;color:#555;margin-top:0.1rem">${escB(fg.email)} &middot; ${fg.aantalMappen} map${fg.aantalMappen !== 1 ? 'pen' : ''} &middot; aangemeld ${fmtTsB(fg.ts)}${fg.last_login ? ' &middot; <span style="color:' + (Date.now() - fg.last_login < 15*60*1000 ? '#22c55e' : '#666') + '">ingelogd ' + fmtTsB(fg.last_login) + '</span>' : ' &middot; <span style="color:#444">nog nooit ingelogd</span>'}<span id="fg-views-${fg.id}"></span></div>
           </div>
         </div>
         <!-- Knoppen rij: wrapping op mobiel -->
@@ -1769,6 +1870,7 @@ async function fgLaadLijst() {
 
     // Laad blokkeer-status voor alle fotografen
     for (const fg of list) { fgLaadStatus(fg.id); }
+    bhVulFotografenViews();
   } catch(e) {
     cont.innerHTML = `<p style="color:#ef4444;font-size:0.85rem">Fout: ${e.message}</p>`;
   }

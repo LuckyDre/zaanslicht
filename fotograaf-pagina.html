@@ -735,6 +735,9 @@ function _lbToon(idx) {
 
   // Reacties teller bijwerken
   if (window._setCommentPhoto) window._setCommentPhoto(f.key, f.src);
+
+  // Fotoweergave tellen voor de views-teller in beheer
+  if (window.zlTelFotoView && FOTOGRAAF_ID) window.zlTelFotoView(FOTOGRAAF_ID);
 }
 
 function initLightbox() {
@@ -1136,5 +1139,6 @@ async function laadAndreasPagina(container) {
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "91d7fa5e1b4b4a289dab9187cfe38a95"}'></script>
 <script src="othersports-gate.js?v=20260717o"></script>
 <script src="nieuwsbrief-kaart.js?v=20260717o"></script>
+<script src="views-teller.js?v=1"></script>
 </body>
 </html>

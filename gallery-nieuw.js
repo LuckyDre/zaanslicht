@@ -30,6 +30,11 @@ function lbToon(idx) {
   // Stel key in voor like/reacties script
   const likeEl = document.getElementById('lb2-like');
   if (likeEl) likeEl.dataset.key = f.key || '';
+  // Fotoweergave tellen voor de views-teller in beheer (eigenaar uit de foto-key)
+  if (window.zlTelFotoView) {
+    const key = f.key || '';
+    window.zlTelFotoView(key.startsWith('gast__') ? key.split('__')[1] : 'eigen');
+  }
 }
 
 function lbSluit() {
