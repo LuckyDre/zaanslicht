@@ -167,6 +167,12 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.40 — 18 juli 2026 — Beheer: foto's selecteren vanuit de lightbox
+Gebouwd op de PC (commit `90663d3`); changelog + handleiding op de Mac aangevuld.
+- ☑ **Selecteer-knop in de beheer-lightbox** — naast de ✕ staat nu een ☐/☑-knop; ook de **spatiebalk** togglet de selectie van de foto die groot in beeld staat. Zo kun je op je gemak door een map bladeren (←/→) en meteen aanvinken welke foto's je wilt verwijderen of labelen.
+- 🔁 **Hergebruikt de bestaande grid-selectielogica** (`bhToggleFotoSelectie` via de checkbox van de bijbehorende thumbnail, opgezocht met `_bhLbGrid` + `CSS.escape(naam)`): selectie-set, oranje rand en bulk-balk blijven in sync, en de selectie staat er nog als de lightbox sluit. Knop verbergt zichzelf als de foto geen checkbox heeft.
+- 📖 beheer-handleiding.html: tip "Foto groot bekijken" uitgebreid met de selecteer-knop/spatiebalk.
+
 ### v0.39 — 18 juli 2026 — Menu "flipte" bij klikken tussen fotografen (nav-fotografen.js)
 Andreas meldde: klik je op "Andreas" in het menu (klapt mooi open), en probeer je daarna snel op "Jan" te klikken, dan "flipte" het menu ineens.
 - 🔍 **Root cause: het HELE menu werd pas na een async fetch opgebouwd, niet alleen de fotografen-namen.** De statische HTML-nav bevat vóór het laden van `nav-fotografen.js` alleen Home/Voetbal/No Sports/Tools/Clubs/Over ons/Contact — geen Andreas/Jan-links, geen "..."-groepering. Al die logica (Tools/Clubs/Over ons/Contact groeperen in "...", Andreas + gastfotografen invoegen) zat in hetzelfde `try { await fetch(...) ... }`-blok. Op een moment dat de fetch naar de Worker een fractie trager was, zag je eerst de kale 7-links-nav en klapte die daarna in één klap om naar de definitieve vorm — precies wanneer je op een naam probeerde te klikken. **Niet** de hover/active-CSS-reflow van de achternaam-uitklap (die eerste hypothese is getest en verworpen: geen positieverschuiving aangetoond).
