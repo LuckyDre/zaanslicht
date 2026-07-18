@@ -293,6 +293,10 @@
     }
     .bh-lb-rond:hover { background: var(--oranje); border-color: var(--oranje); color: #fff; }
     #bh-lb-sluit { top: 1.5rem; right: 1.5rem; }
+    #bh-lb-selecteer { top: 1.5rem; right: 5rem; font-size: 1rem; }
+    #bh-lb-selecteer.geselecteerd {
+      background: var(--oranje); border-color: var(--oranje); color: #fff;
+    }
     #bh-lb-prev  { top: 50%; transform: translateY(-50%); left: 1.5rem; }
     #bh-lb-next  { top: 50%; transform: translateY(-50%); right: 1.5rem; }
     #bh-lb-teller {
@@ -786,6 +790,7 @@
      Het foto-grid staat inline op de pagina, dus sluiten landt vanzelf terug in het grid. -->
 <div id="bh-lb" class="bh-lb-hidden">
   <span id="bh-lb-teller"></span>
+  <button id="bh-lb-selecteer" class="bh-lb-rond" title="Selecteer foto (Spatie)">☐</button>
   <button id="bh-lb-sluit" class="bh-lb-rond" title="Sluiten (Esc)">✕</button>
   <button id="bh-lb-prev" class="bh-lb-rond" title="Vorige (←)">←</button>
   <button id="bh-lb-next" class="bh-lb-rond" title="Volgende (→)">→</button>
@@ -3154,6 +3159,36 @@ window.addEventListener('beforeunload', e => {
 // vanzelf terug in het grid — daar is geen extra laag voor nodig.
 let _bhLbFotos = [];
 let _bhLbIdx   = 0;
+let _bhLbGrid  = null; // foto-grid waaruit de lightbox geopend is
+
+// De thumbnail in het grid die hoort bij de foto die nu groot in beeld staat
+function bhLbHuidigeThumb() {
+  const f = _bhLbFotos[_bhLbIdx];
+  if (!f || !f.naam || !_bhLbGrid) return null;
+  return _bhLbGrid.querySelector(`.foto-thumb[data-foto="${CSS.escape(f.naam)}"]`);
+}
+
+function bhLbUpdateSelecteerKnop() {
+  const btn   = document.getElementById('bh-lb-selecteer');
+  const thumb = bhLbHuidigeThumb();
+  const cb    = thumb?.querySelector('.foto-thumb-check');
+  if (!cb) { btn.style.display = 'none'; return; }
+  btn.style.display = 'flex';
+  btn.classList.toggle('geselecteerd', cb.checked);
+  btn.textContent = cb.checked ? '☑' : '☐';
+  btn.title = cb.checked ? 'Deselecteer foto (Spatie)' : 'Selecteer foto (Spatie)';
+}
+
+function bhLbToggleSelectie() {
+  const thumb = bhLbHuidigeThumb();
+  const cb    = thumb?.querySelector('.foto-thumb-check');
+  if (!cb) return;
+  cb.checked = !cb.checked;
+  // Hergebruik de bestaande grid-logica: selectie-set, oranje rand en bulk-balk
+  // blijven zo in sync, dus de selectie staat er nog als de lightbox sluit.
+  bhToggleFotoSelectie(cb);
+  bhLbUpdateSelecteerKnop();
+}
 
 function bhLbIsOpen() {
   return !document.getElementById('bh-lb').classList.contains('bh-lb-hidden');
@@ -3186,11 +3221,13 @@ function bhLbToon(idx) {
   document.getElementById('bh-lb-teller').textContent = `${_bhLbIdx + 1} / ${_bhLbFotos.length}`;
   document.getElementById('bh-lb-prev').style.opacity = _bhLbIdx === 0 ? '0.25' : '1';
   document.getElementById('bh-lb-next').style.opacity = _bhLbIdx === _bhLbFotos.length - 1 ? '0.25' : '1';
+  bhLbUpdateSelecteerKnop();
 }
 
 function bhLbOpen(thumb) {
   const grid = thumb.closest('.foto-grid');
   if (!grid) return;
+  _bhLbGrid  = grid;
   _bhLbFotos = bhLbBouwLijst(grid);
   const idx  = [...grid.querySelectorAll('.foto-thumb')].indexOf(thumb);
   if (!_bhLbFotos.length || idx < 0) return;
@@ -3225,6 +3262,7 @@ document.addEventListener('click', e => {
 });
 
 document.getElementById('bh-lb-sluit').addEventListener('click', bhLbSluit);
+document.getElementById('bh-lb-selecteer').addEventListener('click', e => { e.stopPropagation(); bhLbToggleSelectie(); });
 document.getElementById('bh-lb-prev').addEventListener('click', e => { e.stopPropagation(); bhLbToon(_bhLbIdx - 1); });
 document.getElementById('bh-lb-next').addEventListener('click', e => { e.stopPropagation(); bhLbToon(_bhLbIdx + 1); });
 document.getElementById('bh-lb').addEventListener('click', e => {
@@ -3235,6 +3273,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape')     bhLbSluit();
   if (e.key === 'ArrowLeft')  bhLbToon(_bhLbIdx - 1);
   if (e.key === 'ArrowRight') bhLbToon(_bhLbIdx + 1);
+  if (e.key === ' ')          { e.preventDefault(); bhLbToggleSelectie(); }
 });
 
 window.bhLaadManifestEnRender = async function() {
