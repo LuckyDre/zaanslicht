@@ -806,9 +806,9 @@ let manifest = null;
 let dirty    = false;
 let saveTimer = null;
 
-function sorteerOpDatum(cat) {
-  const lijst = document.getElementById('lijst-' + cat);
-  if (!lijst) return;
+// Sorteert een lijst op het datumveld, nieuwste eerst, zonder datum achteraan.
+// Dit is exact de volgorde waarin de site (gallery-nieuw.js) de series toont.
+function sorteerLijstOpDatum(lijst) {
   const items = Array.from(lijst.querySelectorAll('.slider-item'));
   items.sort((a, b) => {
     const da = a.dataset.datum || a.querySelector('input[type="date"]')?.value || '';
@@ -816,8 +816,13 @@ function sorteerOpDatum(cat) {
     return db.localeCompare(da); // nieuwste eerst
   });
   items.forEach(el => lijst.appendChild(el));
+}
+
+function sorteerOpDatum(cat) {
+  const lijst = document.getElementById('lijst-' + cat);
+  if (!lijst) return;
+  sorteerLijstOpDatum(lijst);
   planSave();
-  slaGastVolgordeOp(lijst);
   setLog('✓ Volgorde gesorteerd op datum (nieuwste eerst)', 'success');
 }
 
@@ -1013,26 +1018,11 @@ function renderAll() {
 
 // ── GAST-FOTOGRAAF SERIES ─────────────────────────────────────────────────
 async function laadGastSeries() {
-  const secret = localStorage.getItem('zl_worker_secret');
-
   try {
-    // Laad manifest + gecombineerde volgorde parallel
-    const [manifestRes, volgordeRes] = await Promise.all([
-      fetch(WORKER_URL + '/fotograaf/manifest'),
-      fetch(WORKER_URL + '/gallery/volgorde').catch(() => ({ json: () => ({}) })),
-    ]);
-    const manifestData  = await manifestRes.json();
-    const volgordeData  = await volgordeRes.json().catch(() => ({}));
-    const fotografen    = (manifestData.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
+    const manifestRes  = await fetch(WORKER_URL + '/fotograaf/manifest');
+    const manifestData = await manifestRes.json();
+    const fotografen   = (manifestData.fotografen || []).filter(fg => fg.mappen && fg.mappen.length > 0);
     if (!fotografen.length) return;
-
-    // Bouw een snelle lookup: welke mappen staan al in de opgeslagen volgorde?
-    const inVolgorde = { voetbal: new Set(), nosports: new Set(), othersports: new Set() };
-    for (const cat of ['voetbal', 'nosports', 'othersports']) {
-      for (const e of (volgordeData[cat] || [])) {
-        if (e.type === 'gast') inVolgorde[cat].add(e.fgId + '::' + e.map);
-      }
-    }
 
     // Laad foto-tellingen voor alle fotografen parallel
     const fotoTellingen = {};
@@ -1050,63 +1040,21 @@ async function laadGastSeries() {
       } catch {}
     }));
 
-    // Maak een snelle lookup fotograaf op id
-    const fgById = Object.fromEntries(fotografen.map(fg => [fg.id, fg]));
-
-    // Voeg eerst de gast-items toe op hun opgeslagen positie
-    for (const cat of ['voetbal', 'nosports', 'othersports']) {
-      const lijst = document.getElementById('lijst-' + cat);
-      if (!lijst) continue;
-
-      // Bouw een geordende lijst van alle items (eigen + gast) op basis van opgeslagen volgorde
-      const eigenItems = Array.from(lijst.querySelectorAll('.slider-item[data-cat]'));
-      const eigenByMap = Object.fromEntries(eigenItems.map(el => [el.dataset.map, el]));
-
-      // Rebuild lijst in de gecombineerde volgorde
-      const gecombVolgorde = volgordeData[cat] || [];
-      if (!gecombVolgorde.length) continue;
-
-      // Leeg de lijst en vul opnieuw in opgeslagen volgorde
-      lijst.innerHTML = '';
-      const toegevoegd = new Set();
-
-      for (const entry of gecombVolgorde) {
-        if (entry.type === 'eigen') {
-          const el = eigenByMap[entry.map];
-          if (el) { lijst.appendChild(el); toegevoegd.add('eigen::' + entry.map); }
-        } else if (entry.type === 'gast') {
-          const fg = fgById[entry.fgId];
-          if (fg) {
-            const aantalFotos = fotoTellingen[fg.id]?.[entry.map] || 0;
-            const mapMeta = (fg.mappen || []).find(m => m.map === entry.map);
-            const li = maakGastLijstItem(fg, entry.map, entry.fgCat || 'voetbal', aantalFotos, mapMeta?.ts, mapMeta?.datum, mapMeta?.beschrijving, mapMeta?.naam);
-            lijst.appendChild(li);
-            toegevoegd.add(entry.fgId + '::' + entry.map);
-            inVolgorde[cat].add(entry.fgId + '::' + entry.map);
-          }
-        }
-      }
-
-      // Eigen items die niet in de volgorde staan → achteraan
-      for (const [map, el] of Object.entries(eigenByMap)) {
-        if (!toegevoegd.has('eigen::' + map)) lijst.appendChild(el);
+    // Voeg alle gast-mappen toe aan hun categorie-lijst
+    for (const fg of fotografen) {
+      for (const m of (fg.mappen || [])) {
+        const cat   = m.categorie === 'eigen' ? 'voetbal' : m.categorie;
+        const lijst = document.getElementById('lijst-' + cat);
+        if (!lijst) continue;
+        const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
+        lijst.appendChild(maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving, m.naam));
       }
     }
 
-    // Voeg gast-mappen toe die nog NIET in de opgeslagen volgorde staan
-    for (const fg of fotografen) {
-      for (const m of (fg.mappen || [])) {
-        const cat = m.categorie === 'eigen' ? 'voetbal' : m.categorie;
-        const key = fg.id + '::' + m.map;
-        if (inVolgorde[cat]?.has(key)) continue;
-
-        const lijst = document.getElementById('lijst-' + cat);
-        if (!lijst) continue;
-
-        const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
-        const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving, m.naam);
-        lijst.appendChild(li);
-      }
+    // Toon elke lijst in dezelfde volgorde als de site: op datumveld, nieuwste eerst
+    for (const cat of ['voetbal', 'nosports', 'othersports']) {
+      const lijst = document.getElementById('lijst-' + cat);
+      if (lijst) sorteerLijstOpDatum(lijst);
     }
 
     window._gastFotografen = fotografen;
@@ -1311,37 +1259,8 @@ function renderCategorie(cat) {
     ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
     onEnd() {
       planSave();
-      slaGastVolgordeOp(lijst);
     }
   });
-}
-
-async function slaGastVolgordeOp(lijst) {
-  const secret = localStorage.getItem('zl_worker_secret');
-  if (!secret) return;
-
-  // Bepaal categorie van deze lijst
-  const cat = lijst.id.replace('lijst-', '');
-
-  // Bouw gecombineerde volgorde: elk item is eigen of gast
-  const gecombineerd = Array.from(lijst.querySelectorAll('.slider-item')).map(li => {
-    if (li.dataset.type === 'gast') {
-      return { type: 'gast', fgId: li.dataset.fgId, fgCat: li.dataset.fgCat, map: li.dataset.map };
-    } else {
-      return { type: 'eigen', map: li.dataset.map };
-    }
-  });
-
-  try {
-    await fetch(WORKER_URL + '/gallery/volgorde', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
-      body: JSON.stringify({ [cat]: gecombineerd })
-    });
-    setLog(`✓ Volgorde opgeslagen`, 'success');
-  } catch(e) {
-    setLog('❌ Volgorde opslaan mislukt', 'error');
-  }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────

@@ -1214,13 +1214,11 @@ async function toonDashboard(nieuwAangemeld = false) {
       <!-- TAB: POSITIE OP PAGINA -->
       <div class="tab-panel" id="tab-positie">
         <p style="color:var(--muted);font-size:0.82rem;margin-bottom:1.2rem">
-          Sleep jouw series naar de gewenste positie. Grijze series zijn van anderen en kunnen niet worden verplaatst.
+          Dit is de volgorde zoals bezoekers de series op de site zien. De volgorde wordt automatisch bepaald
+          door de datum van elke serie, de nieuwste staat bovenaan. Wil je jouw serie op een andere plek?
+          Pas dan de datum aan bij 📁 Mijn mappen.
         </p>
         <div id="positie-inhoud"><p style="color:var(--muted);font-size:0.85rem">Laden…</p></div>
-        <div id="positie-acties" style="display:none;margin-top:1rem;gap:0.8rem;align-items:center">
-          <button class="btn btn-primary" onclick="slaPositieOp()" id="btn-positie-opslaan">Positie opslaan</button>
-          <span id="positie-feedback" style="font-size:0.82rem"></span>
-        </div>
       </div>
 
       <!-- TAB: PROFIEL -->
@@ -2738,28 +2736,17 @@ window.slaMappenVolgordeOp = async () => {
 // POSITIE OP PAGINA
 // ══════════════════════════════════════════════════════
 
+// Read-only weergave van de werkelijke sitevolgorde: alle series (eigen + gast)
+// per categorie, gesorteerd op datum zoals gallery-nieuw.js dat op de site doet.
 async function laadPositieTab() {
   if (!sessie) return;
   const inhoud = document.getElementById('positie-inhoud');
-  const acties = document.getElementById('positie-acties');
   inhoud.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Laden…</p>';
-  acties.style.display = 'none';
 
   try {
-    const [volRes, manifestRes] = await Promise.all([
-      fetch(WORKER + '/gallery/volgorde'),
-      fetch(WORKER + '/fotograaf/manifest'),
-    ]);
-    const volData      = await volRes.json();
+    const manifestRes  = await fetch(WORKER + '/fotograaf/manifest');
     const manifestData = await manifestRes.json();
-
-    // Bouw een naam-lookup voor alle fotografen
-    const fgById = {};
-    for (const fg of (manifestData.fotografen || [])) {
-      fgById[fg.id] = fg;
-    }
-
-    const wrapper = document.createElement('div');
+    const fotografen   = manifestData.fotografen || [];
 
     // Laad ook manifest.json voor eigen (Andreas) series
     let eigenManifest = {};
@@ -2768,26 +2755,37 @@ async function laadPositieTab() {
       eigenManifest = await mr.json();
     } catch {}
 
+    const wrapper = document.createElement('div');
+
     for (const cat of ['voetbal', 'nosports', 'othersports']) {
       const catLabel = { voetbal: '⚽ Voetbal', nosports: '🌿 No Sports', othersports: '🏅 Other Sports' }[cat];
 
-      // Als er geen opgeslagen volgorde is, bouw een standaard op uit manifest + gast-mappen
-      let volgorde = volData[cat];
-      if (!volgorde?.length) {
-        volgorde = [
-          ...(eigenManifest[cat] || []).map(item => ({ type: 'eigen', map: item.map })),
-          ...(Object.values(fgById)).flatMap(fg =>
-            (fg.mappen || [])
-              .filter(m => {
-                const opCat = cat === 'voetbal'
-                  ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
-                  : (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports');
-                return opCat;
-              })
-              .map(m => ({ type: 'gast', fgId: fg.id, fgCat: m.categorie, map: m.map }))
-          )
-        ];
+      // Verzamel alle series die de site op deze pagina toont
+      const series = [];
+      for (const item of (eigenManifest[cat] || [])) {
+        if (item.verborgen) continue;
+        series.push({ naam: item.naam || item.map, meta: item.fotograaf || 'Andreas Luckfiel', datum: item.datum || '', eigen: false });
       }
+      for (const fg of fotografen) {
+        for (const m of (fg.mappen || [])) {
+          const zichtbaar = cat === 'voetbal'
+            ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
+            : cat === 'nosports'
+            ? (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports')
+            : (m.opOthersports === true);
+          if (!zichtbaar) continue;
+          series.push({ naam: m.map, meta: fg.naam, datum: m.datum || '', eigen: fg.id === sessie.id });
+        }
+      }
+      if (!series.length) continue;
+
+      // Zelfde sortering als de site: datum aflopend, series zonder datum achteraan
+      series.sort((a, b) => {
+        if (!a.datum && !b.datum) return 0;
+        if (!a.datum) return 1;
+        if (!b.datum) return -1;
+        return b.datum.localeCompare(a.datum);
+      });
 
       const sectie = document.createElement('div');
       sectie.className = 'positie-groep';
@@ -2795,69 +2793,26 @@ async function laadPositieTab() {
 
       const lijst = document.createElement('div');
       lijst.className = 'positie-lijst';
-      lijst.dataset.categorie = cat;
 
-      for (const entry of volgorde) {
-        const isEigen = entry.type === 'gast' && entry.fgId === sessie.id;
-        const isAnder = !isEigen;
-
-        let naam, meta, ts;
-        if (entry.type === 'eigen') {
-          naam = entry.map;
-          meta = 'Andreas Luckfiel';
-        } else {
-          const fg = fgById[entry.fgId];
-          naam = entry.map;
-          meta = fg ? fg.naam : 'Fotograaf';
-          // Zoek ts van deze map
-          const mapMeta = (fg?.mappen || []).find(m => m.map === entry.map);
-          ts = mapMeta?.ts;
-        }
-
+      series.forEach((s, i) => {
         const item = document.createElement('div');
-        item.className = 'positie-item ' + (isEigen ? 'eigen' : 'ander');
-        item.dataset.type  = entry.type;
-        item.dataset.map   = entry.map;
-        item.dataset.fgId  = entry.fgId || '';
-        item.dataset.fgCat = entry.fgCat || cat;
-        item.innerHTML = `
-          ${isEigen ? '<span class="drag-handle">⠿</span>' : '<span style="width:1.3rem;flex-shrink:0"></span>'}
-          <span class="positie-naam" title="${naam}">${naam}</span>
-          <span class="positie-meta">${meta}${ts ? ' · ' + fmtDatum(ts) : ''}</span>`;
-        lijst.appendChild(item);
-      }
+        item.className = 'positie-item ' + (s.eigen ? 'eigen' : 'ander');
 
-      // Eigen mappen die nog niet in de volgorde staan → achteraan
-      const eigenInVolgorde = new Set(volgorde.filter(e => e.type === 'gast' && e.fgId === sessie.id).map(e => e.map));
-      const eigenMappen = (_mappenData || []).filter(m => {
-        const opCat = cat === 'voetbal'
-          ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
-          : cat === 'nosports'
-          ? (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports')
-          : (m.opOthersports === true);
-        return opCat && !eigenInVolgorde.has(m.map);
-      });
-      for (const m of eigenMappen) {
-        const item = document.createElement('div');
-        item.className = 'positie-item eigen';
-        item.dataset.type  = 'gast';
-        item.dataset.map   = m.map;
-        item.dataset.fgId  = sessie.id;
-        item.dataset.fgCat = m.categorie;
-        item.innerHTML = `
-          <span class="drag-handle">⠿</span>
-          <span class="positie-naam" title="${m.map}">${m.map}</span>
-          <span class="positie-meta">${sessie.naam}${m.ts ? ' · ' + fmtDatum(m.ts) : ''}</span>`;
-        lijst.appendChild(item);
-      }
+        const nr = document.createElement('span');
+        nr.style.cssText = 'width:2rem;flex-shrink:0;color:var(--muted);font-size:0.78rem;text-align:right;padding-right:0.5rem';
+        nr.textContent = (i + 1) + '.';
 
-      new Sortable(lijst, {
-        animation: 200,
-        handle: '.drag-handle',
-        filter: '.ander',
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        onEnd() { document.getElementById('positie-feedback').textContent = ''; }
+        const naamEl = document.createElement('span');
+        naamEl.className = 'positie-naam';
+        naamEl.title = s.naam;
+        naamEl.textContent = s.naam;
+
+        const metaEl = document.createElement('span');
+        metaEl.className = 'positie-meta';
+        metaEl.textContent = s.meta + (s.datum ? ' · ' + fmtSerieDatum(s.datum) : '');
+
+        item.append(nr, naamEl, metaEl);
+        lijst.appendChild(item);
       });
 
       sectie.appendChild(lijst);
@@ -2866,48 +2821,16 @@ async function laadPositieTab() {
 
     inhoud.innerHTML = '';
     inhoud.appendChild(wrapper);
-    acties.style.display = 'flex';
   } catch(e) {
     inhoud.innerHTML = '<p style="color:#ef4444">Fout: ' + e.message + '</p>';
   }
 }
 
-function fmtDatum(ts) {
-  if (!ts) return '';
-  return new Date(ts).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
+function fmtSerieDatum(datum) {
+  const d = new Date(datum + 'T00:00:00');
+  if (isNaN(d.getTime())) return datum;
+  return d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' });
 }
-
-window.slaPositieOp = async () => {
-  const btn = document.getElementById('btn-positie-opslaan');
-  const fb  = document.getElementById('positie-feedback');
-  btn.disabled = true; btn.textContent = 'Opslaan…';
-
-  try {
-    for (const cat of ['voetbal', 'nosports', 'othersports']) {
-      const lijst = document.querySelector(`.positie-lijst[data-categorie="${cat}"]`);
-      if (!lijst) continue;
-
-      const volgorde = Array.from(lijst.querySelectorAll('.positie-item')).map(el => {
-        if (el.dataset.type === 'eigen') return { type: 'eigen', map: el.dataset.map };
-        return { type: 'gast', fgId: el.dataset.fgId, fgCat: el.dataset.fgCat, map: el.dataset.map };
-      });
-
-      const res = await fetch(WORKER + '/fotograaf/gallery-volgorde', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
-        body: JSON.stringify({ categorie: cat, volgorde }),
-      });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'Fout');
-    }
-    fb.textContent = '✓ Positie opgeslagen';
-    fb.style.color = '#22c55e';
-  } catch(e) {
-    fb.textContent = '✕ ' + e.message;
-    fb.style.color = '#ef4444';
-  }
-  btn.disabled = false; btn.textContent = 'Positie opslaan';
-};
 
 window.uitloggen = async () => {
   await stopPresence();
