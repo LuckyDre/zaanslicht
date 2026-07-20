@@ -122,6 +122,15 @@
     "use strict";
     var WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
+    // De vaste header wordt hoger als logo/nav bij smallere vensters afbreken.
+    // Houd de bovenruimte gelijk aan de echte header-hoogte, zodat de titel er nooit achter valt.
+    var _main = document.querySelector('.comp-page');
+    var _header = document.querySelector('header');
+    function fixTop() { if (_header && _main) _main.style.paddingTop = (_header.offsetHeight + 28) + 'px'; }
+    window.addEventListener('resize', fixTop);
+    window.addEventListener('load', fixTop);
+    fixTop();
+
     // Club → poule (2026/2027). Zelfde mapping als op clubs.html.
     var CLUBS = [
       { naam: 'ZCFC', poule: 'west-1/za/5a' },
