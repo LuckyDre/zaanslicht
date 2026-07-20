@@ -153,14 +153,15 @@
       $('statusTekst').textContent = tekst;
     }
 
-    // Dropdown vullen; ZCFC standaard geselecteerd
+    // Dropdown vullen; ZCFC standaard geselecteerd (deterministisch ná het vullen)
     var sel = $('clubSelect');
     CLUBS.forEach(function (c, i) {
       var o = document.createElement('option');
       o.value = String(i); o.textContent = c.naam;
-      if (c.naam === 'ZCFC') o.selected = true;
       sel.appendChild(o);
     });
+    var zcfcIndex = CLUBS.findIndex(function (c) { return c.naam === 'ZCFC'; });
+    sel.value = String(zcfcIndex >= 0 ? zcfcIndex : 0);
 
     function huidig() { return CLUBS[+sel.value] || CLUBS[0]; }
 
