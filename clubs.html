@@ -753,6 +753,87 @@
     }
   };
 
+  // ── Programma & Standen (via de gecachete worker) ──────────────────
+  window.verversComp = function(el) {
+    var card = el.closest('.club-card');
+    window.toggleClubComp(card.querySelector('.club-comp-btn'), true);
+  };
+
+  window.toggleClubComp = async function(btn, force) {
+    var card   = btn.closest('.club-card');
+    var paneel = card.querySelector('.club-comp-paneel');
+    var poule  = card.dataset.poule;
+    var club   = card.dataset.club;
+
+    if (!force && paneel.classList.contains('open')) {
+      paneel.classList.remove('open');
+      btn.innerHTML = '📊 Programma &amp; Standen';
+      return;
+    }
+    paneel.classList.add('open');
+    btn.innerHTML = '▲ Sluiten';
+
+    if (paneel.dataset.geladen && !force) return;   // al geladen (cache in de pagina)
+    paneel.dataset.geladen = '1';
+    paneel.innerHTML = '<p class="club-comp-leeg">Laden…</p>';
+
+    try {
+      var url = WORKER + '/competitie?poule=' + encodeURIComponent(poule) + (force ? '&force=1' : '');
+      var res = await fetch(url);
+      var d   = await res.json();
+      if (d.error) { paneel.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">' + d.error + '</p>'; return; }
+      paneel.innerHTML = renderComp(d, club);
+    } catch (e) {
+      paneel.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">Fout: ' + e.message + '</p>';
+    }
+  };
+
+  function compEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c) {
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+
+  function renderComp(d, club) {
+    var mij = (club || '').toLowerCase();
+    var h = '<div class="club-comp-kop"><h4>' + compEsc(d.naam || 'Competitie') + '</h4>' +
+      '<button class="club-comp-ververs" onclick="verversComp(this)">🔄 Ververs</button></div>';
+
+    if (d.stand && d.stand.length) {
+      h += '<table class="club-comp-tabel"><thead><tr>' +
+        '<th class="l">#</th><th class="l">Club</th><th>W</th><th>G</th><th>V</th><th>+/-</th><th>Pnt</th>' +
+        '</tr></thead><tbody>';
+      d.stand.forEach(function(r) {
+        var is = mij && r.club && r.club.toLowerCase().indexOf(mij) !== -1;
+        h += '<tr class="' + (is ? 'mij' : '') + '">' +
+          '<td class="l">' + compEsc(r.rang) + '</td><td class="l">' + compEsc(r.club) + '</td>' +
+          '<td>' + compEsc(r.w) + '</td><td>' + compEsc(r.g) + '</td><td>' + compEsc(r.v) + '</td>' +
+          '<td>' + compEsc(r.saldo) + '</td><td class="pnt">' + compEsc(r.pnt) + '</td></tr>';
+      });
+      h += '</tbody></table>';
+    } else {
+      h += '<p class="club-comp-leeg">Nog geen stand beschikbaar.</p>';
+    }
+
+    h += '<div class="club-comp-sub">Programma</div>';
+    var prog = d.programma || [];
+    if (prog.length) {
+      prog.slice(0, 12).forEach(function(r) {
+        var rij = Array.isArray(r) ? r.join(' · ') : String(r);
+        var is  = mij && rij.toLowerCase().indexOf(mij) !== -1;
+        h += '<div class="club-comp-wed ' + (is ? 'mij' : '') + '">' + compEsc(rij) + '</div>';
+      });
+    } else {
+      h += '<p class="club-comp-leeg">Nog geen programma — de competitie is nog niet begonnen.</p>';
+    }
+
+    var dt = d.opgehaald ? new Date(d.opgehaald) : null;
+    h += '<p class="club-comp-bron">Bron: <a href="https://www.hollandsevelden.nl/" target="_blank" rel="noopener">HollandseVelden.nl</a>' +
+      (dt ? ' · bijgewerkt ' + dt.toLocaleString('nl-NL', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '') +
+      '</p>';
+    return h;
+  }
+
   // Deeplink vanuit zoekfunctie: ?club=X → scroll naar de club en open foto's
   (function() {
     var club = new URLSearchParams(location.search).get('club');
