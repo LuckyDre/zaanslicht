@@ -2060,4 +2060,9 @@ export default {
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
   },
+
+  // Cron (2×/dag, zie wrangler.toml): ververst alle poules in KV.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(Promise.allSettled(COMP_POULES.map((p) => refreshPoule(p, env))));
+  },
 };
