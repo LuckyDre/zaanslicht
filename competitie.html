@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: cdn.jsdelivr.net cdnjs.cloudflare.com www.gstatic.com static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net; img-src 'self' data: blob: https://zaanslicht-updates.ntxzjzzg8m.workers.dev; connect-src 'self' https://zaanslicht-updates.ntxzjzzg8m.workers.dev https://zaanslicht-0001-default-rtdb.europe-west1.firebasedatabase.app wss://zaanslicht-0001-default-rtdb.europe-west1.firebasedatabase.app https://static.cloudflareinsights.com https://cloudflareinsights.com https://formspree.io; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competitie — Zaans Licht</title>
+  <meta name="description" content="Stand en programma uit het amateurvoetbal voor de Zaanse clubs — via HollandseVelden." />
+  <link rel="canonical" href="https://zaanslicht.com/competitie.html" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css?v=20260613e" />
+  <style>
+    .comp-page { min-height: 100vh; padding: 120px 3rem 4rem; max-width: 760px; margin: 0 auto; }
+    .comp-page .section-header { margin-bottom: 1rem; }
+    .comp-page h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -1px; margin-bottom: 0.5rem; }
+    .comp-intro { color: var(--tekst-dim, #aaa); font-size: 1rem; line-height: 1.7; margin-bottom: 2rem; }
+
+    .comp-kies { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+    .comp-kies label { color: var(--tekst-dim, #aaa); font-size: 0.9rem; }
+    .comp-kies select {
+      font: inherit; font-size: 0.95rem; color: #fff; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--oranje-50, rgba(255,107,0,0.5)); border-radius: 8px;
+      padding: 0.5rem 0.9rem; cursor: pointer; min-width: 220px;
+    }
+    .comp-kies select:focus { outline: none; border-color: var(--oranje, #FF6B00); }
+
+    .comp-status { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--tekst-dim, #aaa); margin-bottom: 1.2rem; }
+    .comp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tekst-dim, #aaa); }
+    .comp-dot.live { background: #22c55e; }
+    .comp-dot.err { background: #ef4444; }
+
+    .comp-blok { margin-bottom: 2rem; }
+    .comp-blok-kop { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-bottom: 0.8rem; }
+    .comp-blok-kop h2 { font-size: 1.2rem; font-weight: 700; color: var(--oranje, #FF6B00); margin: 0; }
+    .comp-ververs {
+      font-size: 0.78rem; background: none; border: 1px solid var(--tekst-dim, #aaa); color: var(--tekst-dim, #aaa);
+      border-radius: 6px; padding: 0.3rem 0.7rem; cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .comp-ververs:hover { color: var(--oranje, #FF6B00); border-color: var(--oranje, #FF6B00); }
+
+    .comp-card { border: 1px solid var(--oranje-15, rgba(255,107,0,0.15)); border-radius: 12px; overflow-x: auto; background: rgba(255,255,255,0.02); }
+    table.comp-tabel { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .comp-tabel th { text-align: right; color: var(--tekst-dim, #aaa); font-weight: 600; padding: 0.7rem 0.6rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .comp-tabel th.l, .comp-tabel td.l { text-align: left; }
+    .comp-tabel td { text-align: right; padding: 0.7rem 0.6rem; white-space: nowrap; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .comp-tabel tbody tr:last-child td { border-bottom: none; }
+    .comp-tabel td.rang { color: var(--tekst-dim, #aaa); }
+    .comp-tabel td.pnt { font-weight: 700; }
+    .comp-tabel tr.mij td { background: rgba(255,107,0,0.14); color: #fff; font-weight: 700; box-shadow: inset 3px 0 0 var(--oranje, #FF6B00); }
+
+    .comp-wed { display: flex; justify-content: space-between; gap: 0.8rem; padding: 0.55rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.88rem; }
+    .comp-wed:last-child { border-bottom: none; }
+    .comp-wed.mij { background: rgba(255,107,0,0.12); }
+    .comp-leeg { padding: 1.4rem; text-align: center; color: var(--tekst-dim, #aaa); font-style: italic; font-size: 0.9rem; }
+    .comp-laden { padding: 2rem; text-align: center; color: var(--tekst-dim, #aaa); }
+    .comp-bron { font-size: 0.75rem; color: var(--tekst-dim, #aaa); margin-top: 1.2rem; line-height: 1.6; }
+    .comp-bron a { color: var(--oranje, #FF6B00); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-img" aria-label="Zaans Licht logo" role="img"></span>
+      <a href="index.html" style="color:inherit;text-decoration:none;">Zaans<span> Licht</span></a>
+    </div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="voetbal.html">Voetbal</a>
+      <a href="nosports.html">No Sports</a>
+      <a href="othersports.html" class="othersports-link" style="display:none">Other Sports</a>
+      <a href="clubs.html">Clubs</a>
+      <a href="index.html#over">Over ons</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu">&#9776;</button>
+  </header>
+
+  <main class="comp-page">
+    <div class="section-header">
+      <h1>Competitie</h1>
+      <div class="accent-line"></div>
+    </div>
+
+    <p class="comp-intro">
+      Stand en programma uit het amateurvoetbal voor de Zaanse clubs. Kies een club om
+      diens poule te bekijken. Gegevens via HollandseVelden, ververst enkele keren per dag.
+    </p>
+
+    <div class="comp-kies">
+      <label for="clubSelect">Club:</label>
+      <select id="clubSelect"></select>
+    </div>
+
+    <div class="comp-status"><span class="comp-dot" id="statusDot"></span><span id="statusTekst">Gegevens ophalen…</span></div>
+
+    <div class="comp-blok">
+      <div class="comp-blok-kop"><h2 id="standTitel">Stand</h2>
+        <button class="comp-ververs" id="verversBtn">🔄 Ververs</button></div>
+      <div class="comp-card" id="standCard"><div class="comp-laden">Laden…</div></div>
+    </div>
+
+    <div class="comp-blok">
+      <div class="comp-blok-kop"><h2>Programma</h2></div>
+      <div class="comp-card" id="programmaCard"><div class="comp-laden">Laden…</div></div>
+    </div>
+
+    <p class="comp-bron">
+      Gegevens via <a href="https://www.hollandsevelden.nl/" target="_blank" rel="noopener">HollandseVelden.nl</a>.
+      Niet-commerciële informatiepagina; bronvermelding conform hun voorwaarden.
+    </p>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Zaans Licht &mdash; Fotografie door Andreas Luckfiel &mdash; Alle rechten voorbehouden</p>
+    <p class="disclaimer">Alle foto's op deze website zijn eigendom van de fotograaf. Gebruik zonder toestemming is niet toegestaan. Staat er een foto op deze site waarvan u de verwijdering wenst? Neem dan contact op via het contactformulier.</p>
+  </footer>
+
+  <script>
+  (function () {
+    "use strict";
+    var WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+
+    // Club → poule (2026/2027). Zelfde mapping als op clubs.html.
+    var CLUBS = [
+      { naam: 'ZCFC', poule: 'west-1/za/5a' },
+      { naam: 'De Blokkers', poule: 'west-1/za/5a' },
+      { naam: 'SV DTS', poule: 'west-1/za/5a' },
+      { naam: 'SV Koedijk', poule: 'west-1/za/5a' },
+      { naam: 'SC Purmerland', poule: 'west-1/za/5a' },
+      { naam: 'Alcmaria Victrix', poule: 'west-1/za/3b' },
+      { naam: 'Fortuna Wormerveer', poule: 'west-1/za/3b' },
+      { naam: 'VV Saenden', poule: 'west-1/za/3b' },
+      { naam: 'Sporting Krommenie', poule: 'west-1/za/3b' },
+      { naam: 'OFC Oostzaan', poule: 'west-1/za/3c' },
+      { naam: 'VV Opperdoes', poule: 'west-1/za/4a' },
+      { naam: 'TOS Actief', poule: 'west-1/za/4c' },
+      { naam: 'AFC IJburg', poule: 'west-1/za/5c' },
+      { naam: 'KFC', poule: 'west-1/zo/2a' },
+      { naam: 'VV Assendelft', poule: 'west-1/zo/2a' },
+      { naam: 'ZVV Zaandijk', poule: 'west-1/zo/4b' }
+    ].sort(function (a, b) { return a.naam.localeCompare(b.naam, 'nl'); });
+
+    var $ = function (id) { return document.getElementById(id); };
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+      });
+    }
+    function setStatus(state, tekst) {
+      $('statusDot').className = 'comp-dot' + (state ? ' ' + state : '');
+      $('statusTekst').textContent = tekst;
+    }
+
+    // Dropdown vullen; ZCFC standaard geselecteerd
+    var sel = $('clubSelect');
+    CLUBS.forEach(function (c, i) {
+      var o = document.createElement('option');
+      o.value = String(i); o.textContent = c.naam;
+      if (c.naam === 'ZCFC') o.selected = true;
+      sel.appendChild(o);
+    });
+
+    function huidig() { return CLUBS[+sel.value] || CLUBS[0]; }
+
+    async function laad(force) {
+      var club = huidig();
+      setStatus('', 'Gegevens ophalen…');
+      $('standCard').innerHTML = '<div class="comp-laden">Laden…</div>';
+      $('programmaCard').innerHTML = '<div class="comp-laden">Laden…</div>';
+      try {
+        var url = WORKER + '/competitie?poule=' + encodeURIComponent(club.poule) + (force ? '&force=1' : '');
+        var res = await fetch(url);
+        var d = await res.json();
+        if (d.error) throw new Error(d.error);
+        render(d, club.naam);
+        var dt = d.opgehaald ? new Date(d.opgehaald) : null;
+        setStatus('live', 'Via HollandseVelden' + (dt ? ' · bijgewerkt ' + dt.toLocaleString('nl-NL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''));
+      } catch (e) {
+        setStatus('err', 'Ophalen mislukt');
+        var f = '<div class="comp-leeg">Kon de gegevens niet laden.</div>';
+        $('standCard').innerHTML = f;
+        $('programmaCard').innerHTML = f;
+      }
+    }
+
+    function render(d, clubNaam) {
+      var mij = (clubNaam || '').toLowerCase();
+      $('standTitel').textContent = d.naam || 'Stand';
+
+      // Stand
+      if (d.stand && d.stand.length) {
+        var h = '<table class="comp-tabel"><thead><tr>' +
+          '<th class="l">#</th><th class="l">Club</th><th>Wed</th><th>W</th><th>G</th><th>V</th>' +
+          '<th>DV</th><th>DT</th><th>+/-</th><th>Pnt</th></tr></thead><tbody>';
+        d.stand.forEach(function (r) {
+          var is = mij && r.club && r.club.toLowerCase().indexOf(mij) !== -1;
+          h += '<tr class="' + (is ? 'mij' : '') + '">' +
+            '<td class="l rang">' + esc(r.rang) + '</td><td class="l">' + esc(r.club) + '</td>' +
+            '<td>' + esc(r.wed) + '</td><td>' + esc(r.w) + '</td><td>' + esc(r.g) + '</td><td>' + esc(r.v) + '</td>' +
+            '<td>' + esc(r.dv) + '</td><td>' + esc(r.dt) + '</td><td>' + esc(r.saldo) + '</td>' +
+            '<td class="pnt">' + esc(r.pnt) + '</td></tr>';
+        });
+        h += '</tbody></table>';
+        $('standCard').innerHTML = h;
+      } else {
+        $('standCard').innerHTML = '<div class="comp-leeg">Nog geen stand beschikbaar.</div>';
+      }
+
+      // Programma
+      var prog = d.programma || [];
+      if (prog.length) {
+        var p = '';
+        prog.forEach(function (r) {
+          var rij = Array.isArray(r) ? r.join(' · ') : String(r);
+          var is = mij && rij.toLowerCase().indexOf(mij) !== -1;
+          p += '<div class="comp-wed ' + (is ? 'mij' : '') + '">' + esc(rij) + '</div>';
+        });
+        $('programmaCard').innerHTML = p;
+      } else {
+        $('programmaCard').innerHTML = '<div class="comp-leeg">Nog geen programma — de competitie is nog niet begonnen.</div>';
+      }
+    }
+
+    sel.addEventListener('change', function () { laad(false); });
+    $('verversBtn').addEventListener('click', function () { laad(true); });
+    laad(false);
+  })();
+  </script>
+
+<script src="othersports-gate.js?v=20260717o"></script>
+<script src="views-teller.js?v=1"></script>
+</body>
+</html>
