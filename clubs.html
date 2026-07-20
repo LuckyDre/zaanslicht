@@ -208,6 +208,40 @@
     .club-foto-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .club-fotos-naam { font-size: 0.7rem; color: var(--dim); margin-bottom: 0.4rem; }
     .club-fotos-leeg { font-size: 0.8rem; color: var(--dim); font-style: italic; }
+
+    /* Programma & Standen */
+    .club-comp-btn {
+      margin-top: 0.6rem; margin-left: 0.4rem; padding: 0.25rem 0.7rem; font-size: 0.75rem;
+      background: none; border: 1px solid rgba(255,107,0,0.4); color: var(--oranje);
+      border-radius: 4px; cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .club-comp-btn:hover { background: rgba(255,107,0,0.1); border-color: var(--oranje); }
+    .club-comp-paneel { display: none; margin-top: 0.8rem; grid-column: 1 / -1; }
+    .club-comp-paneel.open { display: block; }
+    .club-comp-kop { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .club-comp-kop h4 { font-size: 0.82rem; color: var(--oranje); font-weight: 700; margin: 0; }
+    .club-comp-ververs {
+      font-size: 0.68rem; background: none; border: 1px solid var(--dim); color: var(--dim);
+      border-radius: 4px; padding: 0.15rem 0.5rem; cursor: pointer; font-family: inherit; white-space: nowrap;
+    }
+    .club-comp-ververs:hover { color: var(--oranje); border-color: var(--oranje); }
+    .club-comp-tabel { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+    .club-comp-tabel th {
+      text-align: right; color: var(--dim); font-weight: 600; padding: 4px 5px;
+      text-transform: uppercase; font-size: 0.6rem; letter-spacing: 0.03em;
+      border-bottom: 1px solid rgba(255,255,255,0.12); white-space: nowrap;
+    }
+    .club-comp-tabel th.l, .club-comp-tabel td.l { text-align: left; }
+    .club-comp-tabel td { text-align: right; padding: 4px 5px; border-bottom: 1px solid rgba(255,255,255,0.06); white-space: nowrap; }
+    .club-comp-tabel tr:last-child td { border-bottom: none; }
+    .club-comp-tabel tr.mij td { background: rgba(255,107,0,0.15); color: #fff; font-weight: 700; }
+    .club-comp-tabel td.pnt { font-weight: 700; }
+    .club-comp-sub { font-size: 0.68rem; color: var(--dim); margin: 0.8rem 0 0.3rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .club-comp-wed { display: flex; justify-content: space-between; gap: 0.5rem; padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.72rem; }
+    .club-comp-wed.mij { background: rgba(255,107,0,0.15); border-radius: 3px; }
+    .club-comp-leeg { font-size: 0.78rem; color: var(--dim); font-style: italic; }
+    .club-comp-bron { font-size: 0.65rem; color: var(--dim); margin-top: 0.7rem; }
+    .club-comp-bron a { color: var(--oranje); text-decoration: none; }
   </style>
 </head>
 <body>
