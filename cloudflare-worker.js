@@ -1873,6 +1873,75 @@ async function handleFotoServe(request, env) {
 }
 
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════
+//  COMPETITIE-CACHE (HollandseVelden) — stand + programma per poule.
+//  Een cron ververst 2×/dag; page views tonen altijd het vorige resultaat
+//  uit KV (stale-while-revalidate) en wachten dus nooit op HollandseVelden.
+//  Alleen ?force=1 (de "Ververs"-knop) haalt live op.
+// ═══════════════════════════════════════════════════════════════════════
+const COMP_SEIZOEN  = '2026-2027';
+const COMP_POULE_RE = /^[a-z0-9-]+\/(za|zo)\/[0-9a-z]+$/;
+const COMP_POULES = [
+  'west-1/za/5a', 'west-1/za/3b', 'west-1/za/3c', 'west-1/za/4a',
+  'west-1/za/4c', 'west-1/za/5c', 'west-1/zo/2a', 'west-1/zo/4b',
+];
+
+// Parsen zonder DOM (Workers heeft geen DOMParser).
+function compTekst(html) {
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')
+             .replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+}
+function compSectie(html, naam) {
+  const start = html.search(new RegExp('<h[1-4][^>]*>\\s*' + naam, 'i'));
+  if (start < 0) return '';
+  const rest = html.slice(start + 1);
+  const next = rest.search(/<h[1-4][^>]*>\s*(Stand|Uitslagen|Programma)/i);
+  return next < 0 ? html.slice(start) : html.slice(start, start + 1 + next);
+}
+function compRijen(sectie) {
+  return (sectie.match(/<tr[\s\S]*?<\/tr>/gi) || []).map((tr) =>
+    (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/gi) || []).map((c) => compTekst(c))
+  );
+}
+function parseCompetitie(html) {
+  const naamM = html.match(/<h[1-4][^>]*>([^<]+)<\/h[1-4]>/i);
+  const stand = compRijen(compSectie(html, 'Stand'))
+    .filter((r) => r.length >= 9 && /^\d+$/.test(r[0]))
+    .map((r) => ({
+      rang: r[0], club: r[1],
+      wed: r[2], w: r[3], g: r[4], v: r[5],
+      dv: r[6], dt: r[7], saldo: r[8], pnt: r[9],
+    }));
+  const cellen = (naam) => compRijen(compSectie(html, naam))
+    .map((r) => r.filter((t) => t !== '')).filter((r) => r.length);
+  return { naam: naamM ? compTekst(naamM[1]) : '', stand,
+           uitslagen: cellen('Uitslagen'), programma: cellen('Programma') };
+}
+async function refreshPoule(poule, env) {
+  const res = await fetch(
+    `https://embed.hollandsevelden.nl/competities/${COMP_SEIZOEN}/${poule}/`,
+    { headers: { 'User-Agent': 'ZaansLicht/1.0' } }   // server-side: geen Referer -> geen blokkade
+  );
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = parseCompetitie(await res.text());
+  data.opgehaald = Date.now();
+  await env.SUBSCRIBERS.put('comp:' + poule, JSON.stringify(data));   // geen TTL: blijft staan tot volgende cron
+  return data;
+}
+async function handleCompetitie(request, env) {
+  const url   = new URL(request.url);
+  const poule = url.searchParams.get('poule');
+  if (!poule || !COMP_POULE_RE.test(poule)) return json({ error: 'ongeldige poule' }, 400);
+
+  if (url.searchParams.get('force') === '1') {
+    try { return json(await refreshPoule(poule, env)); } catch { /* val terug op cache */ }
+  }
+  const cached = await env.SUBSCRIBERS.get('comp:' + poule);
+  if (cached) return json(JSON.parse(cached));
+  try { return json(await refreshPoule(poule, env)); }        // cold start
+  catch { return json({ error: 'nog geen gegevens' }, 502); }
+}
+
 export default {
   async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') {
@@ -1922,6 +1991,7 @@ export default {
     if (url.pathname === '/foto-labels'   && request.method === 'GET')    return handleGetFotoLabels(request, env);
     if (url.pathname === '/foto-labels'   && request.method === 'POST')   return handleSetFotoLabels(request, env);
     if (url.pathname === '/fotos-bij-label' && request.method === 'GET')  return handleFotosBijLabel(request, env);
+    if (url.pathname === '/competitie'    && request.method === 'GET')    return handleCompetitie(request, env);
     if (url.pathname === '/labels'       && request.method === 'GET')    return handleGetLabels(request, env);
     if (url.pathname === '/labels'       && request.method === 'POST')   return handleAddLabel(request, env);
     if (url.pathname === '/labels'       && request.method === 'DELETE') {
