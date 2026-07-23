@@ -417,7 +417,8 @@ async function laadGallery() {
         datum: item.datum || '',
         render: () => renderSerie(container, {
           naam: item.naam, fotograaf: item.fotograaf,
-          fotos: eigenNaarFotos(item), labels: item.labels,
+          fotos: eigenNaarFotos(item),
+          labels: item.labels || eigenLabels[`${CATEGORY}/${item.map}`] || [],
           beschrijving: item.beschrijving, datum: item.datum,
         }),
       });
