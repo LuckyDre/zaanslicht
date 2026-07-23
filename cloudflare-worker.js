@@ -1592,6 +1592,40 @@ async function handleFotosBijLabel(request, env) {
   return json({ fotos: raw ? JSON.parse(raw) : [] });
 }
 
+// Bouwt een lookup van de labels van Andreas' eigen (admin) series, gegroepeerd
+// per "{cat}/{mapNaam}". Bron zijn de per-map-sleutels foto:labels:eigen-map/*,
+// die beheer.html schrijft. De galerij (gallery-nieuw.js) heeft deze nodig omdat
+// manifest.json géén labels-veld bevat — anders dan gastseries, die hun labels op
+// het map-object in KV meekrijgen. Prefix 'eigen-map/' botst niet met de per-foto
+// eigen-sleutels ('eigen/...'). Gepagineerd (KV-list-limiet).
+async function bouwEigenLabels(env) {
+  const out = {};
+  const P = 'foto:labels:eigen-map/';
+  let cursor;
+  do {
+    const res = await env.SUBSCRIBERS.list({ prefix: P, cursor });
+    for (const k of res.keys) {
+      const catMap = k.name.slice(P.length); // "{cat}/{mapNaam}"
+      const raw = await env.SUBSCRIBERS.get(k.name);
+      if (!raw) continue;
+      try { const l = JSON.parse(raw); if (Array.isArray(l) && l.length) out[catMap] = l; } catch {}
+    }
+    cursor = res.list_complete ? undefined : res.cursor;
+  } while (cursor);
+  return out;
+}
+
+// Publiek: labels van de eigen series, gecachet in meta:eigen-labels zodat een
+// galerijlaadbeurt normaal maar 1 KV-read kost. De cache wordt bij elke eigen
+// label-wijziging in handleSetFotoLabels ververst; self-healing als hij ontbreekt.
+async function handleEigenLabels(request, env) {
+  let raw = await env.SUBSCRIBERS.get('meta:eigen-labels');
+  if (raw) return json(JSON.parse(raw));
+  const data = await bouwEigenLabels(env);
+  await env.SUBSCRIBERS.put('meta:eigen-labels', JSON.stringify(data));
+  return json(data);
+}
+
 // Ruimt wees-label-verwijzingen op die naar niet meer bestaande gastfoto's wijzen.
 // Ontstaan doordat verwijderen/hernoemen van mappen vroeger de reverse index
 // (label:fotos:*) en foto:labels:* niet meebijwerkte (zie PROJECT.md v0.22-v0.24).
