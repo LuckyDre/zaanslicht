@@ -1,5 +1,7 @@
 # Zaanslicht.com — Projectdocument
 
+> **Voor snel werken: zie eerst [`CODEMAP.md`](CODEMAP.md)** — compact naslag van waar elke functie/endpoint/CSS zit, het datamodel, de deploy/verify-workflow en de valkuilen. Dit projectdocument (met de volledige changelog) is groot; open het gericht per onderdeel.
+
 _Laatste update: 23 juli 2026 — v0.43_
 
 ---
