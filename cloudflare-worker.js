@@ -842,6 +842,79 @@ async function handleLabelsSync(request, env) {
   return json({ ok: true, toegevoegd });
 }
 
+// Serie-labels bewerken vanuit fotograaf.html "Mijn mappen" (🏷-knop per serie).
+// Zet de labels van een hele serie in één keer — zelfde eindresultaat als labels
+// kiezen bij het uploaden, maar dan achteraf bewerkbaar (toevoegen én verwijderen).
+// Werkt bij: (1) map.labels in fotograaf:mappen → de chips in de galerij;
+// (2) foto:labels per foto → merge, zodat per-foto eigen labels behouden blijven én
+//     verwijderen later netjes opruimt (verwijderFotoLabels leest foto:labels);
+// (3) de reverse index label:fotos:{label} → per gewijzigd label ÉÉN read-modify-
+//     write met alle foto-keys (nooit per foto — zie de KV-contentie-les in v0.35).
+async function handleSerieLabels(request, env) {
+  const fotograaf = await getFotograafByToken(request.headers.get('X-Fotograaf-Token'), env);
+  if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
+
+  const { map, categorie, labels } = await request.json().catch(() => ({}));
+  if (!map || !categorie || !Array.isArray(labels)) {
+    return json({ error: 'map, categorie en labels verplicht' }, 400);
+  }
+  const nieuw = [...new Set(labels.filter(l => typeof l === 'string' && l.trim()).map(l => l.trim()))].slice(0, 10);
+
+  // 1) map.labels bijwerken (bron voor de serie-chips in de galerij)
+  const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + fotograaf.id);
+  const mappen = mappenRaw ? JSON.parse(mappenRaw) : [];
+  const mapObj = mappen.find(m => m.map === map);
+  if (!mapObj) return json({ error: 'Serie niet gevonden' }, 404);
+  const oude = Array.isArray(mapObj.labels) ? mapObj.labels : [];
+  mapObj.labels = nieuw;
+  await env.SUBSCRIBERS.put('fotograaf:mappen:' + fotograaf.id, JSON.stringify(mappen));
+
+  const added   = nieuw.filter(l => !oude.includes(l));
+  const removed = oude.filter(l => !nieuw.includes(l));
+  if (!added.length && !removed.length) return json({ ok: true, labels: nieuw });
+
+  // 2) Alle foto-keys van de serie (R2 = waarheid, gepagineerd)
+  const prefix = `fotografen/${fotograaf.id}/${categorie}/${encodeURIComponent(map)}/`;
+  const keys = (await lijstAlleR2(env, prefix)).map(o => o.key);
+
+  // 3) Per-foto foto:labels bijwerken (merge — behoudt per-foto eigen labels),
+  //    in kleine parallelle batches. Alleen schrijven als er echt iets verandert.
+  for (let i = 0; i < keys.length; i += 15) {
+    const batch = keys.slice(i, i + 15);
+    await Promise.all(batch.map(async key => {
+      const raw = await env.SUBSCRIBERS.get('foto:labels:' + key);
+      const huidig = raw ? JSON.parse(raw) : [];
+      const merged = [...new Set([...huidig.filter(l => !removed.includes(l)), ...added])];
+      const gelijk = merged.length === huidig.length && merged.every(l => huidig.includes(l));
+      if (gelijk) return;
+      if (merged.length) await env.SUBSCRIBERS.put('foto:labels:' + key, JSON.stringify(merged));
+      else await env.SUBSCRIBERS.delete('foto:labels:' + key);
+    }));
+  }
+
+  // 4) Reverse index per gewijzigd label in ÉÉN read-modify-write
+  const keyset = new Set(keys);
+  for (const label of removed) {
+    const raw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+    if (!raw) continue;
+    await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(JSON.parse(raw).filter(f => !keyset.has(f.key))));
+  }
+  for (const label of added) {
+    const raw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+    const idx = raw ? JSON.parse(raw) : [];
+    const aanwezig = new Set(idx.map(f => f.key));
+    for (const key of keys) {
+      if (!aanwezig.has(key)) {
+        idx.push({ key, url: '', fotograafId: fotograaf.id, naam: fotograaf.naam, kleur: fotograaf.kleur, ts: Date.now() });
+        aanwezig.add(key);
+      }
+    }
+    await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(idx));
+  }
+
+  return json({ ok: true, labels: nieuw });
+}
+
 // ── FOTO'S OPHALEN ─────────────────────────────────────────────────────────
 // Lijst ALLE R2-objecten onder een prefix, met paginering. R2's list geeft max
 // 1000 objecten per aanroep; zonder cursor-lus valt alles daarboven stilletjes
