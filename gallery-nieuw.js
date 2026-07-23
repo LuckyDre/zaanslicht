@@ -340,6 +340,11 @@ async function laadGallery() {
     const manifest  = await manRes.json();
     const gastData  = await gastRes.json();
 
+    // Labels van eigen series staan in KV (via beheer.html), niet in manifest.json —
+    // haal ze los op zodat de labelchips ook bij eigen series verschijnen. Faalt veilig.
+    const eigenLabels = await fetch(WORKER_URL + '/eigen-labels')
+      .then(r => r.json()).catch(() => ({}));
+
     const eigenItems = manifest[CATEGORY] || [];
     const fotografen = (gastData.fotografen || []).filter(fg => fg.mappen?.length);
 
