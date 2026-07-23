@@ -2083,6 +2083,7 @@ export default {
     if (url.pathname === '/fotograaf/login'       && request.method === 'POST') return handleFotograafLogin(request, env);
     if (url.pathname === '/fotograaf/upload'      && request.method === 'POST') return handleFotoUpload(request, env);
     if (url.pathname === '/fotograaf/labels-sync' && request.method === 'POST') return handleLabelsSync(request, env);
+    if (url.pathname === '/fotograaf/serie-labels' && request.method === 'POST') return handleSerieLabels(request, env);
     if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
     if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return handleFotograafManifest(request, env);
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
