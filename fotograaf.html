@@ -1836,6 +1836,134 @@ async function slaFotoLabelsOp(key, labels, chipEl) {
   } catch { return false; }
 }
 
+// ── SERIE-LABELS (labels voor een hele serie, vanuit "Mijn mappen") ─────────
+// Popup met alle labels (vooringevuld met de huidige serie-labels) + een veld om
+// een nieuw label aan te maken. Opslaan gaat via /fotograaf/serie-labels, dat
+// map.labels + de reverse index bijwerkt (zie de Worker). Los van de per-foto
+// 🏷-popup; die zit binnen de geopende galerie.
+window.openSerieLabelPopup = async function(mapNaam, categorie, anchor) {
+  if (_actiefeLabelPopup) { _actiefeLabelPopup.remove(); _actiefeLabelPopup = null; }
+  if (!_alleLabels.length) await laadLabels();
+
+  const mapObj = _mappenData.find(m => m.map === mapNaam);
+  let gekozen = new Set(mapObj?.labels || []);
+
+  const popup = document.createElement('div');
+  popup.className = 'foto-label-popup';
+  _actiefeLabelPopup = popup;
+
+  function renderChips() {
+    return _alleLabels.map(l => {
+      const aan = gekozen.has(l);
+      return `<span class="foto-label-popup-chip ${aan ? 'aan' : 'uit'}" data-label="${l.replace(/"/g,'&quot;')}">${l}</span>`;
+    }).join('');
+  }
+
+  popup.innerHTML = `
+    <div class="foto-label-popup-titel">Labels voor deze serie</div>
+    <div class="foto-label-popup-chips">${renderChips()}</div>
+    <div style="display:flex;gap:0.3rem;margin-top:0.6rem">
+      <input type="text" class="serie-label-nieuw" placeholder="Nieuw label…" maxlength="40"
+        style="flex:1;min-width:0;background:#111;border:1px solid #333;border-radius:6px;color:#fff;padding:0.3rem 0.5rem;font-size:0.75rem;font-family:inherit" />
+      <button class="foto-label-popup-btn serie-label-nieuw-btn"
+        style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:#aaa">+ Nieuw</button>
+    </div>
+    <div class="foto-label-popup-acties">
+      <button class="foto-label-popup-btn foto-label-popup-annuleer">✕ Annuleren</button>
+      <button class="foto-label-popup-btn foto-label-popup-opslaan">💾 Opslaan</button>
+    </div>`;
+
+  document.body.appendChild(popup);
+  const rect = anchor.getBoundingClientRect();
+  let top = rect.bottom + 6, left = rect.left - 100;
+  if (left < 8) left = 8;
+  if (left + popup.offsetWidth > window.innerWidth - 8) left = window.innerWidth - popup.offsetWidth - 8;
+  if (top + popup.offsetHeight > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
+  if (top < 8) top = 8;
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
+
+  const titelEl = popup.querySelector('.foto-label-popup-titel');
+  const sluit = () => { popup.remove(); if (_actiefeLabelPopup === popup) _actiefeLabelPopup = null; };
+
+  // Chips aan/uit toggelen
+  popup.querySelector('.foto-label-popup-chips').addEventListener('click', e => {
+    const chip = e.target.closest('.foto-label-popup-chip');
+    if (!chip) return;
+    const l = chip.dataset.label;
+    if (gekozen.has(l)) { gekozen.delete(l); chip.classList.remove('aan'); chip.classList.add('uit'); }
+    else { gekozen.add(l); chip.classList.add('aan'); chip.classList.remove('uit'); }
+  });
+
+  // Nieuw label aanmaken (via bestaand /labels endpoint) en meteen selecteren
+  const nieuwInput = popup.querySelector('.serie-label-nieuw');
+  const maakNieuw = async () => {
+    const label = nieuwInput.value.trim();
+    if (label.length < 2) { nieuwInput.focus(); return; }
+    const btn = popup.querySelector('.serie-label-nieuw-btn');
+    btn.disabled = true; btn.textContent = '…';
+    try {
+      const res = await fetch(WORKER + '/labels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie?.token || '' },
+        body: JSON.stringify({ label }),
+      });
+      const data = await res.json();
+      if (!data.ok) { titelEl.textContent = '❌ ' + (data.error || 'Kon label niet maken'); return; }
+      if (!_alleLabels.includes(data.label)) { _alleLabels.push(data.label); _alleLabels.sort((a, b) => a.localeCompare(b, 'nl')); }
+      gekozen.add(data.label);
+      popup.querySelector('.foto-label-popup-chips').innerHTML = renderChips();
+      nieuwInput.value = '';
+    } catch (e) {
+      titelEl.textContent = '❌ Verbindingsfout';
+    } finally { btn.disabled = false; btn.textContent = '+ Nieuw'; }
+  };
+  popup.querySelector('.serie-label-nieuw-btn').addEventListener('click', maakNieuw);
+  nieuwInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); maakNieuw(); } });
+
+  popup.querySelector('.foto-label-popup-annuleer').addEventListener('click', sluit);
+
+  popup.querySelector('.foto-label-popup-opslaan').addEventListener('click', async () => {
+    const opslaanBtn = popup.querySelector('.foto-label-popup-opslaan');
+    opslaanBtn.disabled = true;
+    titelEl.textContent = 'Opslaan…';
+    const labels = [...gekozen];
+    try {
+      const res = await fetch(WORKER + '/fotograaf/serie-labels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie?.token || '' },
+        body: JSON.stringify({ map: mapNaam, categorie, labels }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        titelEl.textContent = '❌ ' + (data.error || 'Opslaan mislukt — mogelijk de daglimiet bereikt');
+        opslaanBtn.disabled = false;
+        return;
+      }
+      // Lokale staat + knop bijwerken zonder de hele tab te herladen
+      if (mapObj) mapObj.labels = data.labels;
+      const knop = anchor;
+      knop.classList.toggle('heeft-labels', data.labels.length > 0);
+      knop.innerHTML = '🏷 ' + (data.labels.length ? data.labels.length + ' label' + (data.labels.length !== 1 ? 's' : '') : 'Labels');
+      titelEl.textContent = '✓ Opgeslagen';
+      setTimeout(sluit, 800);
+    } catch (e) {
+      titelEl.textContent = '❌ Verbindingsfout';
+      opslaanBtn.disabled = false;
+    }
+  });
+
+  // Klik buiten popup sluit (zonder opslaan)
+  setTimeout(() => {
+    document.addEventListener('click', function buiten(e) {
+      if (!popup.contains(e.target) && e.target !== anchor && !anchor.contains(e.target)) {
+        sluit();
+        document.removeEventListener('click', buiten);
+      }
+    });
+  }, 0);
+};
+
 // ══════════════════════════════════════════════════════
 // PROFIEL
 // ══════════════════════════════════════════════════════
