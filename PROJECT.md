@@ -167,6 +167,16 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.41 — 23 juli 2026 — Labelchips ontbraken bij eigen series (galerij las verkeerde bron)
+Andreas meldde (via een browser-check) dat de labels bij zijn eigen series niet stonden, terwijl ze bij Jan wél verschenen. Een extern rapport concludeerde "je moet de labels nog toevoegen" — **dat was fout**: de labels waren allang gekoppeld, ze werden alleen uit de verkeerde bron gelezen.
+- 🔍 **Root cause: twee ongekoppelde bronnen.** Gastseries krijgen hun labels op het map-object in KV (`fotograaf:mappen:{id}`), dus de Worker stuurt ze mee als `map.labels`. Eigen (admin) series bewaren labels in `foto:labels:eigen-map/{cat}/{mapNaam}` (dat schrijft beheer.html → Labels-tab), maar `gallery-nieuw.js` las eigen labels uit `item.labels` in **manifest.json** — en dat veld bestaat daar niet. Dus `labels.length === 0` → de `.serie-labels`-div werd nooit gebouwd. Bevestigd via de publieke reverse-index (`/fotos-bij-label`): 18 eigen-map-koppelingen bestonden al in KV.
+- ✅ **Fix (KV blijft de bron, geen migratie nodig):**
+  - Nieuw **publiek** Worker-endpoint `GET /eigen-labels` → `{ "{cat}/{mapNaam}": [labels] }`, gebouwd uit `foto:labels:eigen-map/*` (helper `bouwEigenLabels`, gepagineerd). Gecachet in KV-sleutel `meta:eigen-labels` zodat een galerijlaadbeurt normaal 1 read kost; de cache wordt in `handleSetFotoLabels` ververst zodra een `eigen-map/`-label wijzigt (self-healing als de cache ontbreekt). Prefix `eigen-map/` botst niet met de per-foto-sleutels `eigen/…`.
+  - `gallery-nieuw.js` haalt `/eigen-labels` erbij en zet `labels: item.labels || eigenLabels[`${CATEGORY}/${item.map}`] || []` (faalt veilig bij netwerkfout). Cache-buster `?v=20260723a` op voetbal/nosports/othersports.
+- **Cross-check vóór deploy:** alle 20 eigen series matchen exact op `{cat}/{mapNaam}` met een labelsleutel, 0 wezen — dus de fix dekt de hele galerij zonder handwerk.
+- **Live geverifieerd op zaanslicht.com/voetbal.html** (echte Worker-data): 19 labelbalken op 20 series (de enige zonder is een gastserie zonder labels — terecht leeg); onder "ZCFC - ZVV Zaandijk" verschijnen nu de chips **ZCFC** + **ZVV Zaandijk** in het oranje thema. Screenshot bevestigd.
+- **Scope:** `fotograaf-pagina.html` (eigen pagina) toont sowieso geen serie-labels, dus ongemoeid. Worker gedeployed (`npx wrangler deploy`), site via auto-sync gepusht.
+
 ### v0.40 — 18 juli 2026 — Beheer: foto's selecteren vanuit de lightbox
 Gebouwd op de PC (commit `90663d3`); changelog + handleiding op de Mac aangevuld.
 - ☑ **Selecteer-knop in de beheer-lightbox** — naast de ✕ staat nu een ☐/☑-knop; ook de **spatiebalk** togglet de selectie van de foto die groot in beeld staat. Zo kun je op je gemak door een map bladeren (←/→) en meteen aanvinken welke foto's je wilt verwijderen of labelen.
