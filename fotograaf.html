@@ -2144,6 +2144,9 @@ async function laadMappenTab() {
             <button class="map-verberg-btn${isVerborgen ? ' verborgen' : ''}"
               onclick="toggleMapVerborg('${m.map.replace(/'/g,"\\'")}', this)"
               title="${isVerborgen ? 'Serie verborgen — klik om te tonen' : 'Serie verbergen voor bezoekers'}">${isVerborgen ? '👁 Toon' : '🙈 Verberg'}</button>
+            <button class="map-label-btn${(m.labels && m.labels.length) ? ' heeft-labels' : ''}"
+              onclick="openSerieLabelPopup('${escMap}','${m.categorie}',this)"
+              title="Labels aan deze serie toewijzen">🏷 ${(m.labels && m.labels.length) ? m.labels.length + ' label' + (m.labels.length !== 1 ? 's' : '') : 'Labels'}</button>
             <button class="map-expand-btn" title="Foto's bekijken" onclick="toggleMapFotos(this)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
