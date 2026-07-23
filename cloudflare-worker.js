@@ -2032,6 +2032,7 @@ export default {
     if (url.pathname === '/foto-labels'   && request.method === 'GET')    return handleGetFotoLabels(request, env);
     if (url.pathname === '/foto-labels'   && request.method === 'POST')   return handleSetFotoLabels(request, env);
     if (url.pathname === '/fotos-bij-label' && request.method === 'GET')  return handleFotosBijLabel(request, env);
+    if (url.pathname === '/eigen-labels'    && request.method === 'GET')  return handleEigenLabels(request, env);
     if (url.pathname === '/competitie'    && request.method === 'GET')    return handleCompetitie(request, env);
     if (url.pathname === '/labels'       && request.method === 'GET')    return handleGetLabels(request, env);
     if (url.pathname === '/labels'       && request.method === 'POST')   return handleAddLabel(request, env);
