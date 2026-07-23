@@ -1582,6 +1582,13 @@ async function handleSetFotoLabels(request, env) {
   } else {
     await env.SUBSCRIBERS.put('foto:labels:' + key, JSON.stringify(schoneLabels));
   }
+
+  // Eigen-map-labels worden door de galerij uit meta:eigen-labels gelezen — ververs
+  // die cache meteen zodat een wijziging direct zichtbaar is (zie handleEigenLabels).
+  if (key.startsWith('eigen-map/')) {
+    try { await env.SUBSCRIBERS.put('meta:eigen-labels', JSON.stringify(await bouwEigenLabels(env))); } catch {}
+  }
+
   return json({ ok: true, labels: schoneLabels });
 }
 
