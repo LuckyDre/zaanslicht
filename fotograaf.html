@@ -391,6 +391,11 @@
   }
   .map-controls {
     display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+    /* Wrap + volle breedte: de knoppenrij (⚽/🌿/🏅/🏠 + datum + verberg + galerie)
+       is sinds de 4e categorieknop (v0.37) breder dan de .map-item, die overflow:hidden
+       heeft — daardoor werd de láátste knop (galerie-view) weggeknipt en onzichtbaar.
+       Wrappen laat 'm netjes naar een tweede regel zakken i.p.v. afgeknipt te worden. */
+    flex-wrap: wrap; width: 100%;
   }
   .map-thumb {
     width: 52px; height: 36px; border-radius: 4px;
@@ -792,7 +797,7 @@ const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 // (datum + letter). De versiecheck onderaan vergelijkt 'm met de live versie en
 // waarschuwt de fotograaf als zijn tabblad verouderde code draait — dat gebeurt
 // vaak, want het portaal blijft dagenlang open staan (zie checkNieuweVersie).
-const APP_VERSIE = '2026-07-17-c';
+const APP_VERSIE = '2026-07-23-a';
 
 function toggleTheme() {
   const light = document.documentElement.classList.toggle('light-mode');
