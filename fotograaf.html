@@ -527,6 +527,16 @@
   .map-verberg-btn:hover { border-color: #aaa; color: #ccc; }
   .map-verberg-btn.verborgen { border-color: #FF6B00; color: #FF6B00; }
   .map-verberg-btn.verborgen:hover { background: rgba(255,107,0,0.1); }
+  /* Labelknop per serie — zelfde vorm als de verberg-knop; kleurt op in de
+     accentkleur van de fotograaf zodra de serie labels heeft. */
+  .map-label-btn {
+    background: none; border: 1px solid #444; color: #888;
+    border-radius: 6px; padding: 0.3rem 0.7rem; font-size: 0.75rem; cursor: pointer;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .map-label-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .map-label-btn.heeft-labels { border-color: var(--accent); color: var(--accent); }
+  .map-label-btn.heeft-labels:hover { background: rgba(255,107,0,0.1); }
   .verborgen-serie .map-naam { opacity: 0.5; }
   .verborgen-serie .map-meta::after { content: ' · verborgen voor bezoekers'; color: #FF6B00; font-style: italic; }
 
