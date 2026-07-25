@@ -511,7 +511,13 @@ async function laadPagina() {
 
   // Andreas Luckfiel — eigen pagina via manifest.json
   if (FOTOGRAAF_ID === 'andreas') {
+    // Alle drie, net als de gastfotograaf-tak hieronder: zonder initLikes() en
+    // initComments() bleven de like-knoppen en de reactieknop op deze pagina dood.
+    // Veilig vóór het renderen: initLikes werkt via event-delegation op document
+    // en initComments hangt aan statische lightbox-elementen.
     initLightbox();
+    initLikes();
+    initComments();
     await laadAndreasPagina(container);
     return;
   }
