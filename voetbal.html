@@ -470,10 +470,27 @@ Promise.all([
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || 'Fout');
         document.getElementById('rd-tekst').value = '';
-        laadReacties();
+        // Optimistisch tonen i.p.v. herladen: KV is niet direct consistent na een
+        // schrijfactie, een meteen daarop volgende /comments-fetch kan de net
+        // geplaatste reactie nog missen.
+        voegReactieToe(naam, tekst);
       } catch(err) { alert('Fout: ' + err.message); }
       btn.disabled = false;
     });
+
+    function voegReactieToe(naam, tekst) {
+      const lijst = document.getElementById('rd-lijst');
+      if (!lijst) return;
+      const geen = lijst.querySelector('.rd-geen');
+      if (geen) geen.remove();
+      lijst.insertAdjacentHTML('afterbegin', `<div class="rd-reactie">
+          <div class="rd-r-naam">${escapeHtml(naam)}</div>
+          <div class="rd-r-tekst">${escapeHtml(tekst)}</div>
+          <div class="rd-r-ts">${new Date().toLocaleDateString('nl-NL')}</div>
+        </div>`);
+      const n = lijst.querySelectorAll('.rd-reactie').length;
+      document.getElementById('lb2-rc-count').textContent = n > 0 ? n : '';
+    }
 
     function laadReacties() {
       const key   = likeBtn.dataset.key || '';
@@ -487,8 +504,8 @@ Promise.all([
           lijst.innerHTML = items.length === 0
             ? '<p class="rd-geen">Nog geen reacties</p>'
             : items.map(c => `<div class="rd-reactie">
-                <div class="rd-r-naam">${c.naam||'Anoniem'}</div>
-                <div class="rd-r-tekst">${c.tekst}</div>
+                <div class="rd-r-naam">${escapeHtml(c.naam||'Anoniem')}</div>
+                <div class="rd-r-tekst">${escapeHtml(c.tekst)}</div>
                 <div class="rd-r-ts">${new Date(c.ts).toLocaleDateString('nl-NL')}</div>
               </div>`).join('');
           const n = items.length;
