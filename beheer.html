@@ -2852,25 +2852,21 @@ async function laadReacties() {
 
   container.innerHTML = '<p style="color:#555">Laden…</p>';
   try {
-    // Laad uit KV (worker) én Firebase tegelijk
+    // Laad uit KV (worker) én de oude Firebase-reacties tegelijk.
+    // Firebase via fbGet (REST), NIET via de live SDK: db.ref(...).once('value')
+    // hangt op de live site oneindig — geen resolve én geen reject — waardoor
+    // deze Promise.all nooit afrondde en de lijst op "Laden…" bleef staan.
     const [workerRes, fbItems] = await Promise.all([
       fetch(url + '/alle-comments', { headers: { 'X-Worker-Secret': secret } }).then(r => r.json()).catch(() => ({ comments: [] })),
-      new Promise(resolve => {
-        laadFirebase().then(() => {
-          const db = window._fbdb;
-          if (!db) return resolve([]);
-          db.ref('comments').once('value').then(snap => {
-            const items = [];
-            snap.forEach(fotoSnap => {
-              fotoSnap.forEach(c => {
-                const val = c.val();
-                if (val && val.tekst) items.push({ id: c.key, photoKey: fotoSnap.key, bron: 'firebase', ...val });
-              });
-            });
-            resolve(items);
-          }).catch(() => resolve([]));
-        }).catch(() => resolve([]));
-      })
+      fbGet('comments').then(data => {
+        const items = [];
+        for (const [photoKey, reacties] of Object.entries(data || {})) {
+          for (const [id, val] of Object.entries(reacties || {})) {
+            if (val && val.tekst) items.push({ id, photoKey, bron: 'firebase', ...val });
+          }
+        }
+        return items;
+      }).catch(() => [])
     ]);
 
     const kvItems = (workerRes.comments || []).map(c => ({ ...c, bron: 'kv' }));
