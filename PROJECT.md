@@ -2,7 +2,7 @@
 
 > **Voor snel werken: zie eerst [`CODEMAP.md`](CODEMAP.md)** — compact naslag van waar elke functie/endpoint/CSS zit, het datamodel, de deploy/verify-workflow en de valkuilen. Dit projectdocument (met de volledige changelog) is groot; open het gericht per onderdeel.
 
-_Laatste update: 25 juli 2026 — v0.45_
+_Laatste update: 26 juli 2026 — v0.46_
 
 ---
 
