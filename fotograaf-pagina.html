@@ -718,7 +718,15 @@ function _lbToon(idx) {
   _lbIdx = Math.max(0, Math.min(idx, _lbFotos.length - 1));
   const f = _lbFotos[_lbIdx];
 
-  document.getElementById('lightbox-img').src = f.src;
+  // Bekijken op de 2200px-versie (-groot.webp); downloaden blijft het origineel
+  const lbImg = document.getElementById('lightbox-img');
+  lbImg.dataset.viel_terug = '';
+  lbImg.onerror = () => {
+    if (lbImg.dataset.viel_terug) return;
+    lbImg.dataset.viel_terug = '1';
+    lbImg.src = f.src;
+  };
+  lbImg.src = f.groot || f.src;
 
   const teller = document.getElementById('lb-teller');
   if (teller) teller.textContent = `${_lbIdx + 1} / ${_lbFotos.length}`;
