@@ -206,9 +206,18 @@ function toonOverzicht(titel, fotos, scrollNaarIdx = -1) {
       const d = document.createElement('div');
       d.className = 'ov-thumb';
       const img = document.createElement('img');
-      img.src = f.src;
+      // Thumbnail (400px), niet het origineel: een serie originelen is al gauw
+      // tientallen MB's en maakte deze view tergend traag. Lightbox toont wél
+      // het origineel.
+      img.src = f.thumb || f.src;
       img.loading = 'lazy';
       img.alt = '';
+      // Ontbreekt de thumbnail, val één keer terug op het origineel.
+      img.onerror = () => {
+        if (img.dataset.viel_terug) return;
+        img.dataset.viel_terug = '1';
+        img.src = f.src;
+      };
       d.appendChild(img);
       d.addEventListener('click', () => lbOpen(fotos, absIdx));
       grid.appendChild(d);

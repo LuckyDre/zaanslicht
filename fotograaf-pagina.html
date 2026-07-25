@@ -644,9 +644,10 @@ async function laadPagina() {
 
       // Transparante knoppen koppelen aan lightbox
       const fotoUrls = fotos.map(f => ({
-        src:  `${WORKER}/foto/${f.key}`,
-        naam: f.naam,
-        key:  photoKey(`gast/${fg.id}/${f.naam}`),
+        src:   `${WORKER}/foto/${f.key}`,
+        thumb: `${WORKER}/foto/${f.key}?thumb=1`,
+        naam:  f.naam,
+        key:   photoKey(`gast/${fg.id}/${f.naam}`),
       }));
       swiperEl.querySelectorAll('.foto-open-btn').forEach(btn => {
         btn.addEventListener('click', e => {
