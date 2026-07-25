@@ -118,7 +118,8 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 ## Terugkerende valkuilen (kosten anders opnieuw debug-tijd)
 - **`.list()` in Workers altijd pagineren** (cursor-lus) — anders vallen items stil weg ("onzichtbare mappen"). Gebruik `lijstAlleR2`.
 - **KV-schrijflimiet 1000/dag (gratis).** Nooit KV-writes op het request-pad zonder throttle. Reverse index: **per label 1 read-modify-write met alle keys**, nooit per foto (contentie, v0.35).
-- **Firebase: altijd `firebase-rest.js`** (fbGet/fbSet/fbDelete), nooit de live SDK-listener (hangt stil op prod).
+- **Firebase: altijd `firebase-rest.js`** (fbGet/fbSet/fbDelete), nooit de live SDK-listener (hangt stil op prod). Ook `.once('value')` hangt: **geen resolve én geen reject** — een `.catch()` vangt dat dus niet, en in een `Promise.all` blokkeert het alles ernaast (v0.44: beheer-reactielijst bleef eeuwig op "Laden…").
+- **KV is eventual consistent:** na een schrijfactie de lijst meteen opnieuw ophalen mist de zojuist geschreven waarde (~seconden). Toon nieuwe items optimistisch lokaal i.p.v. te herfetchen (v0.44, reacties-drawer).
 - **`getBoundingClientRect()` toont afgeknipte elementen nog als "groot"** — bij zichtbaarheid meten t.o.v. de clippende voorouder of screenshotten (v0.42).
 - **Dynamisch (innerHTML) ingevoegde elementen:** geen top-level `getElementById().addEventListener` — event-delegation of ná aanmaken.
 - **Wrangler-auth is soms stuk**; classifier blokkeert toegang tot fotograaf-productie-auth. Schrijf-acties op andermans data: via review-modus (Andreas klikt) of omkeerbaar.
