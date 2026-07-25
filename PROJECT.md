@@ -169,6 +169,19 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.45 — 25 juli 2026 — Galerij-view en sliders laadden originelen i.p.v. thumbnails (gemeten: 56 MB → 0,7 MB) ✅
+Andreas: "de sliders en galerij-foto's laadden tergend sloom". Oorzaak was niet traagheid maar volume: de galerij-view zette de **volledige originelen** in het thumbnail-raster.
+- **`gallery-nieuw.js` (voetbal/nosports/othersports):** de slider gebruikte al `f.thumb` (r154), maar `renderBatch()` in `toonOverzicht` zette `img.src = f.src` — het origineel — terwijl `f.thumb` in hetzelfde object stond. CSS-klasse heet `.ov-thumb` en de comment erboven zegt "lazy-load: 30 thumbnails; de bedoeling was dus duidelijk, er is simpelweg het verkeerde veld gepakt.
+- **`fotograaf-pagina.html` gebruikte NERGENS thumbnails:** de foto-objecten (`fotoUrls`, beide varianten) hadden geen `thumb`-veld, en zowel de gastslider (`WORKER/foto/{key}`), de eigen slider (volledig pad) als het grid laadden originelen. Toegevoegd: `thumb` in beide `fotoUrls`-mappings, `?thumb=1` in de gastslider, `-thumb.webp` in de eigen slider, `f.thumb || f.src` in het grid.
+- **Lightbox en download blijven bewust het origineel gebruiken** — geverifieerd: lightbox laadt 3226px, grid 400px.
+- **Terugval:** elke gewijzigde plek heeft een `onerror` die één keer terugvalt op het origineel (via een `dataset`-vlag, zodat een ontbrekende thumb nooit een lus of een leeg vak oplevert).
+- **Meting op de serie "ZCFC - ZVV Zaandijk (Zaanstad Cup)" (68 foto's, 138 MB aan originelen):** galerij-view openen deed **30 requests / 56,18 MB** aan originelen; ná de fix **30 thumbnails / 0,70 MB**. Eén origineel is 2,4 MB tegen 16 KB voor de thumbnail — factor ~154.
+- **Cache-buster:** `gallery-nieuw.js?v=20260725b` op de drie galerijpagina's.
+
+**Valkuil bij het verifiëren (kostte een ronde):** ná het bumpen naar `?v=20260725a` bleef mijn browser de oude code draaien, terwijl het bestand op die exacte URL — zowel uit browsercache als vers van de server — de fix wél bevatte. Tegenstrijdige metingen: niet doorredeneren, maar `toonOverzicht.toString()` gebruiken als grondwaarheid ("draait de fix écht?") en daarna naar een **verse, nooit eerder opgevraagde** versie-URL bumpen (`20260725b`). Dat loste het direct op. Zie [[reference_zaanslicht_deploy_cache]].
+
+**Losse observatie (niet aangepakt):** de originelen zijn ~3226px breed en 1–6,6 MB per stuk; `sync.sh` verkleint alleen JPG's die hij zelf converteert (`sips -Z 2200`), dus rechtstreeks geplaatste WebP's blijven op volle resolutie staan. Dat raakt nu alleen nog de lightbox en downloads.
+
 ### v0.44 — 25 juli 2026 — Reacties: twee losstaande bugs (drawer + beheer), beide live geverifieerd ✅
 Andreas meldde "de reacties doen het niet meer". Het bleken **twee onafhankelijke bugs**, geen van beide veroorzaakt door de labels-wijzigingen van v0.41–v0.43 (dat is expliciet nagelopen: geen enkele regel in `handleComment`/`handleComments` was aangeraakt).
 
