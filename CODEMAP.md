@@ -124,7 +124,14 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 - **Dynamisch (innerHTML) ingevoegde elementen:** geen top-level `getElementById().addEventListener` — event-delegation of ná aanmaken.
 - **Wrangler-auth is soms stuk**; classifier blokkeert toegang tot fotograaf-productie-auth. Schrijf-acties op andermans data: via review-modus (Andreas klikt) of omkeerbaar.
 - **manifest.json heeft geen labels** — eigen-serie-labels komen via `/eigen-labels` (v0.41).
-- **Rasters/sliders tonen ALTIJD `f.thumb`, nooit `f.src`** (eigen: `-thumb.webp`, gast: `?thumb=1`). Een origineel is ~150× groter (2,4 MB vs 16 KB); één galerij-view met originelen = 56 MB (v0.45). Alleen lightbox + download krijgen het origineel. Bij een nieuw foto-object: vergeet het `thumb`-veld niet.
+- **Drie fotoformaten — pak altijd de juiste** (v0.45/v0.46). Bij een nieuw foto-object: neem `thumb` én `groot` mee, anders valt alles terug op het origineel.
+  | veld | breedte | waarvoor | maken met |
+  |---|---|---|---|
+  | `thumb` | 400px | rasters + sliders | `maak-thumbs.py` |
+  | `groot` | 2200px | lightbox | `maak-groot.py` |
+  | `src` | origineel | **alleen** downloadknop | — |
+  Een origineel is ~150× groter dan een thumb en ~9× groter dan `-groot`; één galerij-view met originelen kostte 56 MB. Gast-foto's zijn al ≤2200px bij upload en hebben geen `-groot`; de code valt daar terug op `src`.
+- **Scan altijd `*.webp` ÉN `*.WEBP`** — `find -name` en Python `rglob` zijn case-sensitive op deze Mac; 117 bestanden (0,69 GB) bleven daardoor eerst buiten beeld (v0.46).
 - **Cache-buster bumpen na JS-wijziging** — en bij twijfel of de fix écht draait: `functienaam.toString()` in de console is de grondwaarheid, niet wat het bestand op de server bevat. Blijft de oude code draaien, bump dan naar een **nooit eerder gebruikte** versiewaarde (v0.45).
 
 ## Model/kosten
