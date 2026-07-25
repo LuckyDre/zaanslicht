@@ -2887,10 +2887,10 @@ async function verwijderReactie(pushId, photoKey, bron = 'kv') {
   const secret = localStorage.getItem('zl_worker_secret');
   try {
     if (bron === 'firebase') {
-      const db = window._fbdb;
-      if (db) await Promise.all([
-        db.ref('recent_comments/' + pushId).remove(),
-        photoKey ? db.ref('comments/' + photoKey + '/' + pushId).remove() : Promise.resolve()
+      // Via fbDelete (REST) — de live SDK hangt hier stil, zie laadReacties()
+      await Promise.all([
+        fbDelete('recent_comments/' + pushId),
+        photoKey ? fbDelete('comments/' + encodeURIComponent(photoKey) + '/' + pushId) : Promise.resolve()
       ]);
     } else {
       await fetch(url + '/delete-comment', {
