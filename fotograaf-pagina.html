@@ -800,6 +800,9 @@ function initLightbox() {
 }
 
 // ── REACTIES ─────────────────────────────────────────────────────────────────
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
 function initComments() {
   const drawer  = document.getElementById('reacties-drawer');
   const rdClose = document.getElementById('rd-close');
