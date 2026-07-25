@@ -124,6 +124,8 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 - **Dynamisch (innerHTML) ingevoegde elementen:** geen top-level `getElementById().addEventListener` — event-delegation of ná aanmaken.
 - **Wrangler-auth is soms stuk**; classifier blokkeert toegang tot fotograaf-productie-auth. Schrijf-acties op andermans data: via review-modus (Andreas klikt) of omkeerbaar.
 - **manifest.json heeft geen labels** — eigen-serie-labels komen via `/eigen-labels` (v0.41).
+- **Rasters/sliders tonen ALTIJD `f.thumb`, nooit `f.src`** (eigen: `-thumb.webp`, gast: `?thumb=1`). Een origineel is ~150× groter (2,4 MB vs 16 KB); één galerij-view met originelen = 56 MB (v0.45). Alleen lightbox + download krijgen het origineel. Bij een nieuw foto-object: vergeet het `thumb`-veld niet.
+- **Cache-buster bumpen na JS-wijziging** — en bij twijfel of de fix écht draait: `functienaam.toString()` in de console is de grondwaarheid, niet wat het bestand op de server bevat. Blijft de oude code draaien, bump dan naar een **nooit eerder gebruikte** versiewaarde (v0.45).
 
 ## Model/kosten
 Voor dit werk is **Sonnet** ruim voldoende en veel lichter op de gebruikslimiet dan Opus. `/model claude-sonnet-5` als de limiet knelt.
