@@ -2788,26 +2788,9 @@ function startPresenceWatcher() {
   setInterval(tick, 10000);
 }
 
-// ── FIREBASE LAZY LOADER ──────────────────────────────────────────────────
-let firebaseLoaded = false;
-
-async function laadFirebase() {
-  if (firebaseLoaded) return;
-  const scripts = [
-    'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
-    'https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js',
-    'firebase-config.js'
-  ];
-  for (const src of scripts) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = src; s.onload = resolve; s.onerror = reject;
-      document.head.appendChild(s);
-    });
-  }
-  window._fbdb = (typeof db !== 'undefined') ? db : null;
-  firebaseLoaded = true;
-}
+// De Firebase SDK wordt hier bewust NIET meer geladen: alle Firebase-toegang op
+// deze pagina loopt via firebase-rest.js (fbGet/fbDelete). De SDK's long-polling
+// verbinding hangt op de live site stil, zonder fout — zie firebase-rest.js.
 
 // ── REACTIES BEHEER ────────────────────────────────────────────────────────
 function escB(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
