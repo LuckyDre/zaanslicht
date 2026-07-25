@@ -600,11 +600,13 @@ async function laadPagina() {
 
       const slides = fotos.map((f, idx) => {
         const src   = `${WORKER}/foto/${f.key}`;
+        // Slider toont de thumbnail; src blijft het origineel (download + lightbox)
+        const thumb = `${WORKER}/foto/${f.key}?thumb=1`;
         const key   = photoKey(`gast/${fg.id}/${f.naam}`);
         const liked = isLikedLocally(key);
         const count = likeCounts[key] || 0;
         return `<div class="swiper-slide">
-          <img src="${src}" alt="${f.naam}" loading="lazy" />
+          <img src="${thumb}" alt="${f.naam}" loading="lazy" onerror="if(!this.dataset.vielTerug){this.dataset.vielTerug='1';this.src='${src}';}" />
           <button class="foto-open-btn" data-idx="${idx}" aria-label="Foto openen"></button>
           <div class="slide-actions">
             <button class="btn-like ${liked ? 'liked' : ''}" data-key="${key}" data-path="gast/${fg.id}/${f.naam}">
