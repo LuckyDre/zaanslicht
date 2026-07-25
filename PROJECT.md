@@ -169,6 +169,15 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.47 — 26 juli 2026 — Likes en reacties waren dood op Andreas' eigen fotograafpagina (pre-existing, sinds 9 juni) ✅
+Gevonden tijdens een schadecontrole die Andreas vroeg na v0.45/v0.46 ("meestal gaat daar iets stuk"). De controle zelf was schoon — sliders, galerij-view, lightbox, downloads en doorbladeren werkten op zowel de eigen als de gastpagina — maar bracht een **al bestaande** bug aan het licht.
+
+- **Oorzaak:** in `laadPagina()` gaat de tak `if (FOTOGRAAF_ID === 'andreas')` er met een `return` tussenuit en riep alléén `initLightbox()` aan. De gastfotograaf-tak roept `initLightbox()` + `initLikes()` + `initComments()` aan. Op de eigen pagina waren daardoor de klik-handlers voor **alle 1288 like-knoppen** en voor de **reactieknop** nooit gekoppeld (`window._setCommentPhoto` bleef `undefined`).
+- **Niet van v0.45/v0.46:** `git log -L 512,517` wijst die regels toe aan een commit van **9 juni 2026**. Likes en reacties op die pagina waren dus ruim zes weken dood. De lightbox-download werkte wél, want die hangt aan `initLightbox()`.
+- **Fix:** `initLikes()` en `initComments()` toegevoegd aan de andreas-tak. Veilig vóór het renderen: `initLikes` werkt via event-delegation op `document` en `initComments` hangt aan **statische** lightbox-elementen (r430-436). Geen risico op dubbele handlers — ze werden daar nul keer aangeroepen.
+- **Geverifieerd op de live site:** like-knop kleurt nu en telt naar Firebase (**meteen weer teruggedraaid, stand terug op 0**), reactielade klapt open en laadt. Gastpagina (Jan) ongewijzigd werkend.
+- **Les:** twee takken die dezelfde UI opbouwen maar hun initialisatie apart aanroepen, lopen stil uit elkaar. Bij het toevoegen van een `initX()` in zo'n opzet: **alle** takken nalopen. Zo'n bug geeft geen console-fout — de knoppen staan er gewoon en doen niets.
+
 ### v0.46 — 26 juli 2026 — Derde formaat `-groot.webp` (2200px) voor de lightbox; downloads blijven volle kwaliteit ✅
 Vervolg op v0.45: het raster was opgelost, maar een foto **openen** trok nog het camera-origineel binnen (tot 6960px / 7,2 MB).
 
