@@ -396,6 +396,7 @@ Promise.all([
 <script>
 (function() {
   const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
   function isLiked(key) { try { return !!JSON.parse(localStorage.getItem('zl_liked')||'{}')[key]; } catch { return false; } }
   function setLiked(key, val) { try { const s = JSON.parse(localStorage.getItem('zl_liked')||'{}'); if (val) s[key]=true; else delete s[key]; localStorage.setItem('zl_liked', JSON.stringify(s)); } catch {} }
   function init() {
