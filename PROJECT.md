@@ -2,7 +2,7 @@
 
 > **Voor snel werken: zie eerst [`CODEMAP.md`](CODEMAP.md)** — compact naslag van waar elke functie/endpoint/CSS zit, het datamodel, de deploy/verify-workflow en de valkuilen. Dit projectdocument (met de volledige changelog) is groot; open het gericht per onderdeel.
 
-_Laatste update: 23 juli 2026 — v0.43_
+_Laatste update: 25 juli 2026 — v0.44_
 
 ---
 
@@ -168,6 +168,23 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 ---
 
 ## Changelog
+
+### v0.44 — 25 juli 2026 — Reacties: twee losstaande bugs (drawer + beheer), beide live geverifieerd ✅
+Andreas meldde "de reacties doen het niet meer". Het bleken **twee onafhankelijke bugs**, geen van beide veroorzaakt door de labels-wijzigingen van v0.41–v0.43 (dat is expliciet nagelopen: geen enkele regel in `handleComment`/`handleComments` was aangeraakt).
+
+**Bug 1 — nieuwe reactie verscheen niet in de drawer (bezoekerskant).**
+- **Oorzaak:** KV is *eventual consistent*. Na een succesvolle `POST /comment` riep de drawer meteen `laadReacties()` aan, die de hele lijst opnieuw uit KV haalt — en racete zo tegen de replicatievertraging. Reproductie in de browser: direct na de POST gaf `GET /comments` de zojuist geplaatste reactie **niet** terug; ~3 seconden later wél. De reactie werd dus altijd correct opgeslagen, alleen niet getoond.
+- **Fix:** de zojuist geplaatste reactie wordt nu optimistisch lokaal bovenaan de lijst gezet (`voegReactieToe`), zonder herfetch. Teller loopt direct mee.
+- **Waar:** `voetbal.html`, `nosports.html`, `othersports.html` én `fotograaf-pagina.html` — vier eigen kopieën van dezelfde code, ze delen niets. Bij wijzigingen aan reactie-gedrag dus altijd alle vier nalopen.
+- **Meegenomen:** naam en tekst werden rauw in `innerHTML` gezet (HTML-injectie via een reactie was mogelijk) → `escapeHtml()` toegevoegd in alle vier bestanden, zowel bij het renderen als bij de optimistische toevoeging.
+
+**Bug 2 — Reacties-tabblad in beheer.html bleef eeuwig op "Laden…".**
+- **Oorzaak:** `laadReacties()` haalde met `Promise.all` twee bronnen op: KV via de Worker, én de oude Firebase-reacties via de **live SDK** (`db.ref('comments').once('value')`). Die SDK-call hangt op prod: in een geïsoleerde test op zaanslicht.com na **12 seconden nog steeds geen resolve én geen reject**. De `.catch(() => resolve([]))` eromheen ving daardoor niets op (er wérd niets afgewezen), en `Promise.all` wacht op de traagste → de hele lijst kwam nooit binnen, ook de KV-helft niet.
+- **Dit is exact de al bekende valkuil** waarvoor `firebase-rest.js` bestaat (likes v0.x, presence-indicator v0.28) — 40 regels hoger in hetzelfde bestand stond zelfs een comment die er precies voor waarschuwt. De reactiecode was gewoon nooit meegemigreerd.
+- **Fix:** ophalen via `fbGet('comments')` (REST) met dezelfde mapping naar `{id, photoKey, bron:'firebase'}`. Gemeten: **24 ms** i.p.v. oneindig, alle 5 oude reacties correct terug. `verwijderReactie()` deed hetzelfde via de SDK (`db.ref(...).remove()`, faalde dus stil) → nu `fbDelete`, met `encodeURIComponent` op de photoKey (die bevat spaties en haakjes). De ongebruikte `laadFirebase()`-SDK-loader is verwijderd zodat die route niet opnieuw gebruikt wordt.
+- **Les (toegevoegd aan CODEMAP):** een hangende promise is gevaarlijker dan een falende — `.catch()` en `try/catch` geven een vals gevoel van dekking. In een `Promise.all` sleept één hanger alles mee. Verifieer "hangt of faalt het?" met een expliciete `Promise.race`-timeout, niet met een catch.
+
+**Sync-noot:** bij het pushen bleek een commit van 24-07 20:52 vanaf de PC (foto-volgorde in `manifest.json`) lokaal te ontbreken — netjes gerebased, niets verloren. Bevestigt het nut van `sync-pull.sh` bij sessiestart.
 
 ### v0.43 — 23 juli 2026 — Serie-labels bewerken vanuit "Mijn mappen" (fotograaf.html)
 Op verzoek van Andreas: een 🏷 Labels-knop per serie naast 🙈 Verberg, zodat een fotograaf achteraf labels (clubs/teams) aan een hele serie kan toewijzen — voorheen kon dat alleen tijdens uploaden.
