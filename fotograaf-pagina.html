@@ -1117,9 +1117,10 @@ async function laadAndreasPagina(container) {
 
         // Lightbox koppelen
         const fotoUrls = item.fotos.map((f, i) => ({
-          src: `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
-          naam: f,
-          key: `${cat.key}/${item.map}/${f}`.replace(/\//g,'__').replace(/\./g,'--'),
+          src:   `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+          thumb: `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`,
+          naam:  f,
+          key:   `${cat.key}/${item.map}/${f}`.replace(/\//g,'__').replace(/\./g,'--'),
         }));
         swiperEl.querySelectorAll('.foto-open-btn').forEach(btn => {
           btn.addEventListener('click', e => {
