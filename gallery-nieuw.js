@@ -410,6 +410,7 @@ async function laadGallery() {
         .map(f => ({
           src:   `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
           thumb: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`,
+          groot: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-groot.webp'))}`,
           key:   photoKey(`${CATEGORY}/${item.map}/${f}`),
         }))
         .sort((a, b) => (likeCounts[b.key] || 0) - (likeCounts[a.key] || 0));
