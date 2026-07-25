@@ -131,6 +131,7 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
   | `groot` | 2200px | lightbox | `maak-groot.py` |
   | `src` | origineel | **alleen** downloadknop | — |
   Een origineel is ~150× groter dan een thumb en ~9× groter dan `-groot`; één galerij-view met originelen kostte 56 MB. Gast-foto's zijn al ≤2200px bij upload en hebben geen `-groot`; de code valt daar terug op `src`.
+- **`fotograaf-pagina.html` heeft TWEE takken** in `laadPagina()`: `id=andreas` (eigen, via manifest.json, `laadAndreasPagina`) en gastfotografen (via Worker). Beide moeten `initLightbox()` + `initLikes()` + `initComments()` aanroepen — de andreas-tak deed dat niet en had daardoor 6 weken dode like- en reactieknoppen (v0.47). **Bij elke wijziging aan deze pagina: beide takken nalopen.** Zo'n bug geeft geen console-fout.
 - **Scan altijd `*.webp` ÉN `*.WEBP`** — `find -name` en Python `rglob` zijn case-sensitive op deze Mac; 117 bestanden (0,69 GB) bleven daardoor eerst buiten beeld (v0.46).
 - **Cache-buster bumpen na JS-wijziging** — en bij twijfel of de fix écht draait: `functienaam.toString()` in de console is de grondwaarheid, niet wat het bestand op de server bevat. Blijft de oude code draaien, bump dan naar een **nooit eerder gebruikte** versiewaarde (v0.45).
 
