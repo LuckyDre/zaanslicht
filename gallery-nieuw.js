@@ -21,7 +21,16 @@ function lbOpen(fotos, startIdx) {
 function lbToon(idx) {
   _lb_idx = Math.max(0, Math.min(idx, _lb_fotos.length - 1));
   const f = _lb_fotos[_lb_idx];
-  document.getElementById('lb2-img').src = f.src;
+  // Bekijken gebeurt op de 2200px-versie (-groot.webp); alleen foto's die
+  // breder waren hebben die. Downloaden blijft het volledige origineel.
+  const lbImg = document.getElementById('lb2-img');
+  lbImg.dataset.viel_terug = '';
+  lbImg.onerror = () => {
+    if (lbImg.dataset.viel_terug) return;
+    lbImg.dataset.viel_terug = '1';
+    lbImg.src = f.src;
+  };
+  lbImg.src = f.groot || f.src;
   document.getElementById('lb2-teller').textContent = `${_lb_idx + 1} / ${_lb_fotos.length}`;
   document.getElementById('lb2-prev').style.opacity = _lb_idx === 0 ? '0.2' : '1';
   document.getElementById('lb2-next').style.opacity = _lb_idx === _lb_fotos.length - 1 ? '0.2' : '1';
