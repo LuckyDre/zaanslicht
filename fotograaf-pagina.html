@@ -871,7 +871,13 @@ function initComments() {
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || 'Fout bij opslaan');
-      rdTekst.value = ''; loadComments(curKey);
+      rdTekst.value = '';
+      // Optimistisch tonen: KV is niet direct consistent, meteen herladen kan de net geplaatste reactie missen
+      const geen = rdLijst.querySelector('.rd-geen'); if (geen) geen.remove();
+      rdLijst.insertAdjacentHTML('afterbegin', `<div class="rd-reactie"><div class="rd-r-naam">${escapeHtml(naam)}</div><div class="rd-r-tekst">${escapeHtml(tekst)}</div><div class="rd-r-ts">${new Date().toLocaleDateString('nl-NL')}</div></div>`);
+      const n = rdLijst.querySelectorAll('.rd-reactie').length;
+      rcCount.textContent = n > 0 ? n : '';
+      if (rdCount) rdCount.textContent = n > 0 ? '('+n+')' : '';
     } catch (err) {
       alert('Fout: ' + err.message);
     }
