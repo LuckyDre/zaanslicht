@@ -169,6 +169,26 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.46 — 26 juli 2026 — Derde formaat `-groot.webp` (2200px) voor de lightbox; downloads blijven volle kwaliteit ✅
+Vervolg op v0.45: het raster was opgelost, maar een foto **openen** trok nog het camera-origineel binnen (tot 6960px / 7,2 MB).
+
+**Beslissing van Andreas (expliciet gevraagd):** hij heeft de masters elders staan, maar **downloads moeten volledige resolutie blijven**. Originelen verkleinen viel daarmee af — de downloadknop serveert immers hetzelfde bestand. Daarom een derde formaat ertussen i.p.v. de originelen aan te tasten.
+
+| formaat | breedte | gebruikt door |
+|---|---|---|
+| `-thumb.webp` | 400px | rasters + sliders (v0.45) |
+| `-groot.webp` | 2200px | **lightbox** (nieuw) |
+| origineel | tot 6960px | **alleen de downloadknop** |
+
+- **Nieuw script `maak-groot.py`** (zelfde opzet als `maak-thumbs.py`, mét `--dry-run`): maakt `-groot.webp` op 2200px q85, maar **alleen voor foto's die breder zijn dan 2200px**. Slaat bestaande over, scant zowel `*.webp` als `*.WEBP`. Resultaat: **323 aangemaakt, 641 al ≤2200px, 0 mislukt** (+155 MB in de repo).
+- **`gallery-nieuw.js`** (`lbToon` + `eigenNaarFotos`) en **`fotograaf-pagina.html`** (`_lbToon` + eigen `fotoUrls`): lightbox gebruikt `f.groot || f.src` met eenmalige `onerror`-terugval; de download-dataset blijft onaangeroerd op `f.src`. Cache-buster `?v=20260725c`.
+- **Gastfoto's hebben geen `-groot` nodig** — die worden bij upload al naar max 2200px geconverteerd; `f.groot` is daar leeg en de code valt terug op `f.src`.
+- **Gemeten op de zwaarste serie** (ZCFC Eindejaarstoernooi 2026): origineel 3,6 MB → lightbox laadt nu 408 KB (thumb 85 KB). Live geverifieerd op beide pagina's: lightbox 2200px, downloadknop wijst nog naar `.WEBP`-origineel.
+
+**Vondst onderweg — 117 bestanden met hoofdletter-extensie `.WEBP`** (0,69 GB, gemiddeld 5,9 MB) werden gemist door een case-sensitive `find -name '*.webp'`. Dit is dezelfde valkuil die al in `maak-thumbs.py` gedocumenteerd staat. **Scan op deze Mac altijd beide varianten.**
+
+**Openstaand (niet aangepakt, wel gemeld):** de repo is inmiddels 2,8 GB (`.git`) met 1,4 GB site-inhoud, ruim boven de GitHub Pages-richtlijn van 1 GB. De originelen (~1 GB) zijn na deze wijziging alléén nog nodig voor downloads — ze naar R2 verplaatsen zou de repo drastisch verkleinen. Bewust niet gedaan zonder overleg.
+
 ### v0.45 — 25 juli 2026 — Galerij-view en sliders laadden originelen i.p.v. thumbnails (gemeten: 56 MB → 0,7 MB) ✅
 Andreas: "de sliders en galerij-foto's laadden tergend sloom". Oorzaak was niet traagheid maar volume: de galerij-view zette de **volledige originelen** in het thumbnail-raster.
 - **`gallery-nieuw.js` (voetbal/nosports/othersports):** de slider gebruikte al `f.thumb` (r154), maar `renderBatch()` in `toonOverzicht` zette `img.src = f.src` — het origineel — terwijl `f.thumb` in hetzelfde object stond. CSS-klasse heet `.ov-thumb` en de comment erboven zegt "lazy-load: 30 thumbnails; de bedoeling was dus duidelijk, er is simpelweg het verkeerde veld gepakt.
