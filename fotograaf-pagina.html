@@ -1085,11 +1085,13 @@ async function laadAndreasPagina(container) {
 
         const slides = item.fotos.map((f, idx) => {
           const src  = `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`;
+          // Slider toont de thumbnail; src blijft het origineel (lightbox)
+          const thumb = `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`;
           const key  = `${cat.key}/${item.map}/${f}`.replace(/\//g,'__').replace(/\./g,'--');
           const liked = isLikedLocally(key);
           const count = likeCounts[key] || 0;
           return `<div class="swiper-slide">
-            <img src="${src}" alt="${f}" loading="lazy" />
+            <img src="${thumb}" alt="${f}" loading="lazy" onerror="if(!this.dataset.vielTerug){this.dataset.vielTerug='1';this.src='${src}';}" />
             <button class="foto-open-btn" data-idx="${idx}" aria-label="Foto openen"></button>
             <div class="slide-actions">
               <button class="btn-like ${liked?'liked':''}" data-key="${key}" data-path="${cat.key}/${item.map}/${f}">
