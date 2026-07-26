@@ -169,6 +169,48 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.48 — 26 juli 2026 — Camera-masters naar R2: gepubliceerde site van 1,5 GB naar ~0,5 GB ⏳
+Vervolg op het openstaande punt uit v0.46 (repo boven de GitHub Pages-richtlijn van 1 GB). Andreas koos expliciet: alleen de masters, `_originelen` mee naar R2, géén git-historie-herschrijving.
+
+**Meting vooraf** (niet geschat — geteld):
+
+| | aantal | omvang |
+|---|---|---|
+| `.git` | — | 3,0 GB |
+| `images/` in de checkout | — | 1,5 GB |
+| ├ masters (>2200px, hebben een `-groot`) | 323 | **1,02 GB** |
+| ├ kleine originelen (≤2200px) | 645 | 0,23 GB |
+| ├ `-groot.webp` | 323 | 0,15 GB |
+| ├ `-thumb.webp` | 961 | 0,02 GB |
+| └ `images/_originelen/` (nergens aangeroepen) | 60 | 0,09 GB |
+
+- **Alleen de 323 masters verhuizen** = 82% van alle originele bytes. De 645 kleine originelen blijven op Pages: voor die foto's *is* het origineel de lightbox-versie én de thumb-bron.
+- **`images/_originelen/`** (60 oude JPG's) bleek in geen enkele HTML/JS/JSON/PY aangeroepen te worden — mee naar R2 als archief, daarna uit de checkout.
+- **R2-sleutel:** `eigen/{cat}/{map}/{naam}`. De Worker (`handleFotoServe`) accepteert nu naast `fotografen/` ook `eigen/`; **let op: de router had een tweede, aparte guard op `/foto/fotografen/`** die ook om moest.
+- **Passthrough i.p.v. redirect:** een eigen key die niet in R2 staat wordt vanaf Pages opgehaald en doorgegeven mét `Access-Control-Allow-Origin`. Bewust geen 302: `downloadFoto()` zet WebP via een `<canvas>` om naar JPG, en zonder ACAO op het eindantwoord taint dat de canvas → downloadknop stopt stil met werken.
+- **Nieuw script `verhuis-masters-naar-r2.py`** — `--dry-run`, `--limit N`, `--include-originelen`, `--verify-only`; logboek buiten de repo (`~/.zl-r2-verhuis.log`) maakt een afgebroken run hervatbaar. Resultaat: **382 objecten geüpload, 0 mislukt** (R2 nu ~1,2 GB van de gratis 10 GB).
+
+**Drie valkuilen die stil fout hadden gegaan — en de reden dat de `X-Bron`-header er is:**
+1. **`X-Bron: r2 | r2-decoded | pages`** toegevoegd aan de Worker. Zonder die header is een gemist R2-object niet te onderscheiden van een geslaagde hit: de passthrough levert immers hetzelfde bestand met dezelfde bytegrootte. De eerste 10 uploads meldden 10× succes en de bytes klopten, terwijl R2 helemaal niet geraakt werd.
+2. **Python `quote` ≠ JS `encodeURIComponent`**: Python encodeert `(` en `)` als `%28/%29`, JS niet. De frontend zou een key opvragen die niet bestaat. Opgelost met `safe="!~*'()"`.
+3. **De wrangler-CLI normaliseert percent-escapes**: `Serie%20X` wordt als `Serie X` opgeslagen. De Worker leest `url.pathname` ongewijzigd en greep er dus langs. Daarom probeert hij voor eigen-keys nu óók de gedecodeerde vorm — vandaar dat de normale uitkomst `r2-decoded` is. Gastfoto's houden de encoded vorm (die zet de Worker zelf).
+
+**Frontend — drie formaten consequent doorgevoerd** (niet alleen de downloadknop; het waren 11 plekken in 6 bestanden):
+- `gallery-nieuw.js` + `fotograaf-pagina.html`: nieuw veld `master` (Worker-URL) voor de downloadknop; lightbox krijgt een **geketende terugval** `-groot` → origineel op Pages → master. Zo blijven de 645 kleine foto's op hun snelle directe Pages-pad en is er nergens een 404 die blijft hangen.
+- `main.js`: hero laadde **het camera-origineel** (tot 15 MB per foto) — nu de 2200px-versie via `zetGroteAchtergrond` (probeert `-groot`, valt terug op het origineel, want een CSS-achtergrond kent geen `onerror`). Tegels en tegelachtergronden nu op de 400px-thumb. `showSlide` (een `<img>`) krijgt dezelfde geketende terugval.
+- `zoek.js` en `m/index.html`: zoekresultaat- en landingsthumbnails trokken het origineel binnen — nu `-thumb.webp`.
+- `beheer.html`: helper `bhMasterUrl(cat, map, naam)`; gebruikt in de eigen lightbox (bewust volledige kwaliteit), de Facebook-modal en als terugval bij thumbnails. De FB-download gebruikt `fetch(...).blob()` cross-origin — werkt op de `ACAO: *` van de Worker; CSP `img-src`/`connect-src` stonden de Worker al toe.
+- Cache-buster `?v=20260726a` op gallery-nieuw.js, main.js en zoek.js.
+
+**Bijvangst onderweg:**
+- **`maak-thumbs.py` maakte thumbnails van de `-groot.webp`-bestanden** (`…-groot-thumb.webp`): 323 nutteloze bestanden, 12,4 MB. Verwijderd en de oorzaak weggenomen (`-groot` nu ook uitgesloten). De 3 foto's die écht een thumb misten zijn aangemaakt — **elke eigen foto in voetbal/nosports heeft nu een thumb**, wat de tegelachtergronden veilig maakt.
+- **De tegel "Favoriet" sorteerde nooit op likes.** De foto-objecten kregen daar geen `path` mee, terwijl `getTopLiked` daarop sorteert; `photoKeyMain(undefined)` gooide een fout die de `try/catch` opving → stille terugval op willekeurig. Opgelost door `path` mee te geven.
+- **Verificatie niet direct na een Worker-deploy doen:** 3 van 10 checks meldden `pages` omdat die requests nog op een colo met de oude workerversie landden. Enkele minuten later alle 10 goed.
+
+**Stand van zaken:** Worker gedeployd, alle 382 objecten in R2, frontend aangepast en gepusht. **Nog niet afgerond:** de lokale masters zijn nog NIET verwijderd — dat wacht op (a) de volledige bytecontrole van alle 382, (b) bevestiging van Andreas' externe master-backup, en (c) de nieuwe JS die daadwerkelijk live staat op Pages (die liep op moment van schrijven nog achter). Verwijderen vóór (c) breekt de site, want de oude JS vraagt dan om weggehaalde originelen.
+
+**Niet gedaan (bewuste keuze Andreas):** de git-historie herschrijven. `.git` blijft daardoor 3,0 GB — alleen `git filter-repo` + force-push lost dat op, en dat vereist opnieuw clonen op de PC. Zie [project-github-sync].
+
 ### v0.47 — 26 juli 2026 — Likes en reacties waren dood op Andreas' eigen fotograafpagina (pre-existing, sinds 9 juni) ✅
 Gevonden tijdens een schadecontrole die Andreas vroeg na v0.45/v0.46 ("meestal gaat daar iets stuk"). De controle zelf was schoon — sliders, galerij-view, lightbox, downloads en doorbladeren werkten op zowel de eigen als de gastpagina — maar bracht een **al bestaande** bug aan het licht.
 
