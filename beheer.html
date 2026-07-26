@@ -3359,7 +3359,7 @@ async function bhRenderMapLabelLijst() {
     const key      = 'eigen-map/' + _bhActieveCat + '/' + item.map;
     const huidig   = _bhMapLabelsCache[key] || [];
     const volledig = item.fotos?.[0]
-      ? `${SITE}/images/${_bhActieveCat}/${encodeURIComponent(item.map)}/${encodeURIComponent(item.fotos[0])}`
+      ? bhMasterUrl(_bhActieveCat, item.map, item.fotos[0])
       : '';
     const thumbSrc = item.fotos?.[0]
       ? `${SITE}/images/${_bhActieveCat}/${encodeURIComponent(item.map)}/${encodeURIComponent(item.fotos[0].replace(/\.webp$/i, '-thumb.webp'))}`
