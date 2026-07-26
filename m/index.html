@@ -297,8 +297,11 @@
         let thumbs = [];
         if (top.eigenItem) {
           const catDir = top.cat === 'nosports' ? 'nosports' : 'voetbal';
+          // 400px-thumbs i.p.v. originelen: het zijn kleine tegels, en sinds v0.48
+          // staat het origineel van grote foto's niet meer op Pages maar in R2.
           thumbs = (top.eigenItem.fotos || []).slice(0, 6).map(f =>
-            '/images/' + catDir + '/' + encodeURIComponent(top.eigenItem.map) + '/' + encodeURIComponent(f));
+            '/images/' + catDir + '/' + encodeURIComponent(top.eigenItem.map) + '/'
+            + encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp')));
         } else {
           try {
             const r = await fetch(WORKER + '/fotograaf/fotos?id=' + top.fgId);
