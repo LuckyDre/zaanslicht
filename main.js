@@ -403,7 +403,7 @@ async function laadGastTegels() {
 
         [t1, t2, t3].forEach((t, i) => {
           const bg = t.querySelector('.tegel-bg');
-          if (bg && shuffled[i]) bg.style.backgroundImage = `url('${shuffled[i]}')`;
+          if (bg && shuffled[i]) bg.style.backgroundImage = `url('${shuffled[i].thumb || shuffled[i].src}')`;
         });
 
         const rij = document.createElement('div');
