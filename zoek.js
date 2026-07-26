@@ -219,8 +219,11 @@
             labels: item.labels || [],
             cat,
             href: '/' + cat + '.html#serie=' + encodeURIComponent(item.naam || item.map),
+            // 400px-thumb i.p.v. het origineel: dit is een klein zoekresultaat, en
+            // sinds v0.48 staat het origineel van grote foto's niet meer op Pages.
             thumb: item.fotos?.length
-              ? '/images/' + cat + '/' + encodeURIComponent(item.map) + '/' + encodeURIComponent(item.fotos[0])
+              ? '/images/' + cat + '/' + encodeURIComponent(item.map) + '/'
+                + encodeURIComponent(item.fotos[0].replace(/\.webp$/i, '-thumb.webp'))
               : null,
           });
         }
