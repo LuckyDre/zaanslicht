@@ -724,21 +724,26 @@ function _lbToon(idx) {
   _lbIdx = Math.max(0, Math.min(idx, _lbFotos.length - 1));
   const f = _lbFotos[_lbIdx];
 
-  // Bekijken op de 2200px-versie (-groot.webp); downloaden blijft het origineel
+  // Bekijken op de 2200px-versie (-groot.webp); downloaden blijft het origineel.
+  // Geketende terugval: -groot → origineel op Pages → master via de Worker. Foto's
+  // zonder -groot (waren al ≤2200px) landen op stap 2, rechtstreeks bij Pages en
+  // dus even snel als voorheen; stap 3 vangt de masters die sinds v0.48 in R2 staan.
   const lbImg = document.getElementById('lightbox-img');
-  lbImg.dataset.viel_terug = '';
+  const terugval = [f.groot, f.src, f.master].filter(Boolean);
+  let stap = 0;
   lbImg.onerror = () => {
-    if (lbImg.dataset.viel_terug) return;
-    lbImg.dataset.viel_terug = '1';
-    lbImg.src = f.src;
+    stap += 1;
+    if (stap < terugval.length) lbImg.src = terugval[stap];
   };
-  lbImg.src = f.groot || f.src;
+  lbImg.src = terugval[0];
 
   const teller = document.getElementById('lb-teller');
   if (teller) teller.textContent = `${_lbIdx + 1} / ${_lbFotos.length}`;
 
+  // Downloaden via de master-URL: werkt of het bestand in R2 staat of nog op Pages,
+  // en stuurt de CORS-header mee die de canvas-omzetting naar JPG nodig heeft.
   const lbDownload = document.getElementById('lb-download');
-  if (lbDownload) { lbDownload.dataset.src = f.src; lbDownload.dataset.naam = f.naam; }
+  if (lbDownload) { lbDownload.dataset.src = f.master || f.src; lbDownload.dataset.naam = f.naam; }
 
   // Like knop bijwerken
   const lbLike = document.getElementById('lb-like');
