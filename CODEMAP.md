@@ -124,13 +124,19 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 - **Dynamisch (innerHTML) ingevoegde elementen:** geen top-level `getElementById().addEventListener` — event-delegation of ná aanmaken.
 - **Wrangler-auth is soms stuk**; classifier blokkeert toegang tot fotograaf-productie-auth. Schrijf-acties op andermans data: via review-modus (Andreas klikt) of omkeerbaar.
 - **manifest.json heeft geen labels** — eigen-serie-labels komen via `/eigen-labels` (v0.41).
-- **Drie fotoformaten — pak altijd de juiste** (v0.45/v0.46). Bij een nieuw foto-object: neem `thumb` én `groot` mee, anders valt alles terug op het origineel.
-  | veld | breedte | waarvoor | maken met |
-  |---|---|---|---|
-  | `thumb` | 400px | rasters + sliders | `maak-thumbs.py` |
-  | `groot` | 2200px | lightbox | `maak-groot.py` |
-  | `src` | origineel | **alleen** downloadknop | — |
-  Een origineel is ~150× groter dan een thumb en ~9× groter dan `-groot`; één galerij-view met originelen kostte 56 MB. Gast-foto's zijn al ≤2200px bij upload en hebben geen `-groot`; de code valt daar terug op `src`.
+- **Vier fotoformaten — pak altijd de juiste** (v0.45/v0.46/v0.48). Bij een nieuw foto-object: neem `thumb`, `groot` én `master` mee, anders valt alles terug op het origineel.
+  | veld | breedte | waarvoor | waar | maken met |
+  |---|---|---|---|---|
+  | `thumb` | 400px | rasters, sliders, tegels, zoekresultaten | Pages | `maak-thumbs.py` |
+  | `groot` | 2200px | lightbox, hero, slideshow | Pages | `maak-groot.py` |
+  | `master` | origineel | **alleen** downloadknop / volledige kwaliteit | **R2** via Worker | `verhuis-masters-naar-r2.py` |
+  | `src` | origineel | terugval voor foto's ≤2200px (die hebben geen `-groot`) | Pages | — |
+  Een origineel is ~150× groter dan een thumb en ~9× groter dan `-groot`; één galerij-view met originelen kostte 56 MB. Gast-foto's zijn al ≤2200px bij upload en hebben geen `-groot`/`master`; de code valt daar terug op `src`.
+- **Eigen masters (>2200px) staan sinds v0.48 in R2, niet op Pages** — key `eigen/{cat}/{map}/{naam}`, geserveerd door `handleFotoServe`. Foto's ≤2200px zijn nooit verhuisd en worden door de Worker vanaf Pages **doorgegeven** (geen redirect: de canvas-omzetting in `downloadFoto` heeft `ACAO` op het eindantwoord nodig). Verifieer met de **`X-Bron`-header**: `r2` / `r2-decoded` = uit R2, `pages` = niet in R2. **Zonder die header lijkt een mislukte verhuizing geslaagd**, want de passthrough geeft hetzelfde bestand met dezelfde bytegrootte terug.
+- **Bouw een eigen-key nooit met Python `quote(safe='')`** — dat encodeert `(` en `)`, `encodeURIComponent` niet. Gebruik `safe="!~*'()"`. En: **de wrangler-CLI normaliseert percent-escapes bij `r2 object put`** (`Serie%20X` → `Serie X`), daarom probeert de Worker voor eigen-keys óók de gedecodeerde vorm (`r2-decoded` is de normale uitkomst).
+- **`/foto/`-routes hebben TWEE guards**: één in de router (~r2213) én één bovenaan `handleFotoServe`. Bij een nieuw key-prefix moeten ze beide om.
+- **Niet verifiëren direct na een `wrangler deploy`** — requests kunnen nog op een colo met de oude workerversie landen en een misleidend resultaat geven. Enkele minuten wachten.
+- **`maak-thumbs.py` sloot `-groot` niet uit** (gefixt v0.48): het maakte thumbnails van de 2200px-versies (`…-groot-thumb.webp`, 323 nutteloze bestanden). Bij een nieuw afgeleid formaat: sluit het uit in álle generatiescripts.
 - **`fotograaf-pagina.html` heeft TWEE takken** in `laadPagina()`: `id=andreas` (eigen, via manifest.json, `laadAndreasPagina`) en gastfotografen (via Worker). Beide moeten `initLightbox()` + `initLikes()` + `initComments()` aanroepen — de andreas-tak deed dat niet en had daardoor 6 weken dode like- en reactieknoppen (v0.47). **Bij elke wijziging aan deze pagina: beide takken nalopen.** Zo'n bug geeft geen console-fout.
 - **Scan altijd `*.webp` ÉN `*.WEBP`** — `find -name` en Python `rglob` zijn case-sensitive op deze Mac; 117 bestanden (0,69 GB) bleven daardoor eerst buiten beeld (v0.46).
 - **Cache-buster bumpen na JS-wijziging** — en bij twijfel of de fix écht draait: `functienaam.toString()` in de console is de grondwaarheid, niet wat het bestand op de server bevat. Blijft de oude code draaien, bump dan naar een **nooit eerder gebruikte** versiewaarde (v0.45).
