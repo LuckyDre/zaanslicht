@@ -838,6 +838,14 @@
 const SITE       = 'https://zaanslicht.com';
 const WORKER_URL = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 
+// Volledige-kwaliteit-URL van een eigen foto. De camera-masters (>2200px) staan
+// sinds v0.48 in R2 i.p.v. op GitHub Pages — de Worker serveert ze, en geeft foto's
+// die nooit verhuisden (≤2200px) door vanaf Pages. Gebruik dit overal waar bewust
+// het origineel nodig is: lightbox op volledige kwaliteit, Facebook-modal, download.
+function bhMasterUrl(cat, mapNaam, naam) {
+  return `${WORKER_URL}/foto/eigen/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam)}`;
+}
+
 let manifest = null;
 let dirty    = false;
 let saveTimer = null;
