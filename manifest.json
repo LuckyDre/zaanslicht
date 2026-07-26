@@ -1185,5 +1185,16 @@
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
     }
+  ],
+  "othersports": [
+    {
+      "id": "oude-motoren-race-zwaagdijk",
+      "naam": "Oude motoren race Zwaagdijk",
+      "map": "Oude motoren race Zwaagdijk",
+      "fotos": [],
+      "volgorde": 0,
+      "fotograaf": "Andreas Luckfiel",
+      "beschrijving": ""
+    }
   ]
 }
