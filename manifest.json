@@ -1191,7 +1191,9 @@
       "id": "oude-motoren-race-zwaagdijk",
       "naam": "Oude motoren race Zwaagdijk",
       "map": "Oude motoren race Zwaagdijk",
-      "fotos": [],
+      "fotos": [
+        "Zwaagdijk-Oost_01.webp"
+      ],
       "volgorde": 0,
       "fotograaf": "Andreas Luckfiel",
       "beschrijving": ""
