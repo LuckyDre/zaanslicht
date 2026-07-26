@@ -140,7 +140,8 @@ function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
 
 // ── Afbeeldingen stil preloaden ────────────────────────────────────────────
 function preloadFotos(fotos) {
-  fotos.slice(0, 5).forEach(f => { const img = new Image(); img.src = f.src; });
+  // Preload het formaat dat de hero straks ook echt toont (2200px), niet het origineel.
+  fotos.slice(0, 5).forEach(f => { const img = new Image(); img.src = f.groot || f.src; });
 }
 
 // Foto-arrays beschikbaar buiten loadTegels voor nav-hover
