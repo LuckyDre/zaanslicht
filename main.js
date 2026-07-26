@@ -76,10 +76,17 @@ function vulHeroEnStart(fotos, thema) {
   wrapper.innerHTML = selectie.map((f, i) => {
     const t = teksten[i % teksten.length];
     // Elke hero-foto is nu willekeurig → standaard gecentreerde crop (CSS: background-position center)
-    return `<div class="swiper-slide" style="background-image: url('${f.src}');">
+    // Achtergrond wordt hieronder gezet door zetGroteAchtergrond (groot → src).
+    return `<div class="swiper-slide">
       <div class="slide-overlay"><h1>${t.h1}</h1><p>${t.p}</p></div>
     </div>`;
   }).join('');
+
+  // De hero laadde tot v0.48 het camera-origineel (tot 15 MB per foto); nu de
+  // 2200px-versie, met terugval naar het origineel voor foto's zonder -groot.
+  wrapper.querySelectorAll('.swiper-slide').forEach((slide, i) => {
+    zetGroteAchtergrond(slide, selectie[i]);
+  });
 
   if (heroSwiper) { heroSwiper.destroy(true, true); heroSwiper = null; }
   heroSwiper = new Swiper('.hero-swiper', {
