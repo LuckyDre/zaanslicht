@@ -1976,6 +1976,21 @@ async function handleFotoServe(request, env) {
   }
   if (!object) object = await env.FOTOS.get(key);
 
+  // Gastfoto's zet de Worker zélf in R2 met encodeURIComponent, dus daar klopt de
+  // ruwe pathname-key altijd. De eigen masters zijn met de wrangler-CLI geüpload
+  // en die normaliseert percent-escapes: 'Serie%20X' wordt als 'Serie X' opgeslagen.
+  // Daarom voor eigen-keys ook de gedecodeerde vorm proberen.
+  let bron = 'r2';
+  if (!object && isEigen) {
+    try {
+      const gedecodeerd = key.split('/').map(decodeURIComponent).join('/');
+      if (gedecodeerd !== key) {
+        object = await env.FOTOS.get(gedecodeerd);
+        if (object) bron = 'r2-decoded';
+      }
+    } catch { /* ongeldige escape-reeks — laat object null */ }
+  }
+
   // Bepaal Content-Type op basis van bestandsextensie
   const ext = key.split('.').pop().toLowerCase();
   const contentTypes = {
@@ -2008,7 +2023,7 @@ async function handleFotoServe(request, env) {
   // X-Bron maakt verifieerbaar waar het bestand vandaan kwam. Zonder deze header
   // is een ontbrekend R2-object niet te onderscheiden van een geslaagde R2-hit:
   // de passthrough geeft immers hetzelfde bestand met dezelfde bytegrootte terug.
-  headers['X-Bron'] = 'r2';
+  headers['X-Bron'] = bron;
   return new Response(object.body, { headers });
 }
 
