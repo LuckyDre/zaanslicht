@@ -9,6 +9,23 @@ from pathlib import Path
 
 SITE = Path(__file__).parent
 
+# Camera-masters (>2200px) staan sinds v0.48 in R2 en NIET meer op schijf. Zonder
+# deze lijst zou dit script ze als "verdwenen foto" beschouwen en uit manifest.json
+# schrappen — dan vallen ze van de site af terwijl de bestanden gewoon in R2 staan.
+# De lijst wordt bijgehouden door verhuis-masters-naar-r2.py.
+def laad_masters_in_r2():
+    bestand = SITE / 'masters-in-r2.json'
+    if not bestand.exists():
+        return {}
+    per_map = {}
+    for pad in json.loads(bestand.read_text(encoding='utf-8')):
+        cat, map_naam, naam = pad.split('/', 2)
+        per_map.setdefault((cat, map_naam), set()).add(naam)
+    return per_map
+
+MASTERS_IN_R2 = laad_masters_in_r2()
+
+
 def scan(category):
     cat_dir = SITE / 'images' / category
     if not cat_dir.exists():
