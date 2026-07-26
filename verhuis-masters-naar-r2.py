@@ -45,10 +45,17 @@ CONTENT_TYPES = {
 }
 
 
+# encodeURIComponent laat !~*'() ONgemoeid, Python's quote encodeert die wel.
+# De frontend bouwt de URL met encodeURIComponent, dus de R2-key moet exact die
+# vorm hebben — anders mist de opzoeksleutel en valt de Worker stil terug op de
+# Pages-passthrough. Dat ziet er goed uit tot de lokale bestanden weg zijn.
+JS_SAFE = "!~*'()"
+
+
 def r2_key(pad: Path) -> str:
-    """images/voetbal/Serie X/foto.webp -> eigen/voetbal/Serie%20X/foto.webp"""
+    """images/voetbal/Serie X (25-26)/foto.webp -> eigen/voetbal/Serie%20X%20(25-26)/foto.webp"""
     rel = pad.relative_to(BASIS)
-    return 'eigen/' + '/'.join(quote(deel, safe='') for deel in rel.parts)
+    return 'eigen/' + '/'.join(quote(deel, safe=JS_SAFE) for deel in rel.parts)
 
 
 def is_hulpbestand(naam: str) -> bool:
