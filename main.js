@@ -148,13 +148,28 @@ function getAllFotos(manifest, category) {
   const fotos = [];
   (manifest[category] || []).forEach(item => {
     item.fotos.forEach(f => {
+      const basis = `images/${category}/${encodeURIComponent(item.map)}/`;
       fotos.push({
-        src:  `images/${category}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
+        src:   basis + encodeURIComponent(f),
+        thumb: basis + encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp')),
+        groot: basis + encodeURIComponent(f.replace(/\.webp$/i, '-groot.webp')),
         path: `${category}/${item.map}/${f}`
       });
     });
   });
   return fotos;
+}
+
+// Grote weergave (hero, slideshow) van een eigen foto. -groot (2200px) bestaat
+// alleen voor foto's die breder waren; de rest houdt zijn origineel op Pages.
+// Samen dekken die twee alles: sinds v0.48 staan de masters in R2 en is het
+// origineel van juist die foto's niet meer via Pages op te halen.
+function zetGroteAchtergrond(el, foto) {
+  if (!el || !foto) return;
+  const test = new Image();
+  test.onload  = () => { el.style.backgroundImage = `url('${foto.groot}')`; };
+  test.onerror = () => { el.style.backgroundImage = `url('${foto.src}')`; };
+  test.src = foto.groot;
 }
 
 function shuffle(arr) {
