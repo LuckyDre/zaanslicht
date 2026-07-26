@@ -574,7 +574,16 @@ function startSlideshow(fotos) {
 
 function showSlide(idx) {
   ssIdx = idx;
-  ssImg.src = ssPhotos[idx].src;
+  const f = ssPhotos[idx];
+  // 2200px-versie tonen, met terugval naar het origineel op Pages voor foto's
+  // die nooit breder waren (en dus geen -groot hebben).
+  const terugval = [f.groot, f.src].filter(Boolean);
+  let stap = 0;
+  ssImg.onerror = () => {
+    stap += 1;
+    if (stap < terugval.length) ssImg.src = terugval[stap];
+  };
+  ssImg.src = terugval[0];
   ssCurrent.textContent = idx + 1;
   ssBar.style.transition = 'none';
   ssBar.style.width = '0%';
