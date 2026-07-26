@@ -348,12 +348,18 @@ async function laadGastTegels() {
         src: `images/${item.map ? ('voetbal/' + encodeURIComponent(item.map) + '/' + encodeURIComponent(f)) : f}`,
       })));
 
-      // Bouw achtergrond-urls uit manifest
+      // Bouw achtergrond-urls uit manifest. Objecten met src + groot, zodat de
+      // slideshow de 2200px-versie kan tonen en op het origineel kan terugvallen.
       const bgUrls = [];
       for (const cat of ['voetbal', 'nosports']) {
         for (const item of (manifest[cat] || [])) {
           for (const f of (item.fotos || [])) {
-            bgUrls.push(`images/${cat}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`);
+            const basis = `images/${cat}/${encodeURIComponent(item.map)}/`;
+            bgUrls.push({
+              src:   basis + encodeURIComponent(f),
+              groot: basis + encodeURIComponent(f.replace(/\.webp$/i, '-groot.webp')),
+              path:  `${cat}/${item.map}/${f}`,
+            });
           }
         }
       }
