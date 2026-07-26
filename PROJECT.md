@@ -207,7 +207,14 @@ Vervolg op het openstaande punt uit v0.46 (repo boven de GitHub Pages-richtlijn 
 - **De tegel "Favoriet" sorteerde nooit op likes.** De foto-objecten kregen daar geen `path` mee, terwijl `getTopLiked` daarop sorteert; `photoKeyMain(undefined)` gooide een fout die de `try/catch` opving → stille terugval op willekeurig. Opgelost door `path` mee te geven.
 - **Verificatie niet direct na een Worker-deploy doen:** 3 van 10 checks meldden `pages` omdat die requests nog op een colo met de oude workerversie landden. Enkele minuten later alle 10 goed.
 
-**Stand van zaken:** Worker gedeployd, alle 382 objecten in R2, frontend aangepast en gepusht. **Nog niet afgerond:** de lokale masters zijn nog NIET verwijderd — dat wacht op (a) de volledige bytecontrole van alle 382, (b) bevestiging van Andreas' externe master-backup, en (c) de nieuwe JS die daadwerkelijk live staat op Pages (die liep op moment van schrijven nog achter). Verwijderen vóór (c) breekt de site, want de oude JS vraagt dan om weggehaalde originelen.
+**Stand van zaken:**
+- ✅ Worker gedeployd; alle **382 objecten in R2 geverifieerd** met kloppende bytegrootte (volledige GET per bestand, `X-Bron` gecontroleerd, cache-buster om een gecachet passthrough-antwoord te omzeilen).
+- ✅ Frontend aangepast, gepusht en **live op Pages** (`gallery-nieuw.js`, `main.js`, `zoek.js` met `?v=20260726a` bevestigd via curl).
+- ✅ End-to-end gecontroleerd op drie soorten foto's: master met hoofdletter-extensie (`.WEBP`), master in een map met haakjes, en een kleine foto die nooit verhuisde. Alle drie: thumb 200, master 200, en `X-Bron` respectievelijk `r2-decoded` / `r2-decoded` / `pages` — precies zoals bedoeld.
+- ⏳ **De lokale masters zijn nog NIET verwijderd.** Dat wacht op bevestiging van Andreas' externe master-backup (hij zei bij v0.46 dat hij ze elders heeft). Zolang ze er staan is er geen enkel risico: de site werkt op beide bronnen.
+- ⏳ **Visuele browsercontrole nog niet gedaan** — de Chrome-verbinding was deze sessie niet beschikbaar (3× geprobeerd). Alle verificatie hierboven is op HTTP-niveau. Wat nog met eigen ogen bekeken moet worden: lightbox openen, doorbladeren, downloadknop (de canvas-omzetting naar JPG), en de Facebook-modal in beheer.html.
+
+Verwijderen mag pas als de nieuwe JS live staat (dat is nu zo) — deed je het eerder, dan vroeg de oude JS nog om weggehaalde originelen.
 
 **Niet gedaan (bewuste keuze Andreas):** de git-historie herschrijven. `.git` blijft daardoor 3,0 GB — alleen `git filter-repo` + force-push lost dat op, en dat vereist opnieuw clonen op de PC. Zie [project-github-sync].
 
