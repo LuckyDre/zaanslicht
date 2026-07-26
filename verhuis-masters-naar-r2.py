@@ -161,7 +161,10 @@ def main():
         for i, (pad, key) in enumerate(teControleren, 1):
             verwacht = pad.stat().st_size
             bron, bytes_ = controleer(key, verwacht)
-            ok = (bron == 'r2' and bytes_ == verwacht)
+            # 'r2-decoded' is de normale uitkomst: de wrangler-CLI normaliseert
+            # percent-escapes, dus de Worker vindt het object op de gedecodeerde
+            # key. 'pages' betekent dat R2 het NIET heeft — dan niets verwijderen.
+            ok = (bron in ('r2', 'r2-decoded') and bytes_ == verwacht)
             if not ok:
                 fout.append((key, bron, bytes_, verwacht))
             vlag = '✓' if ok else '✗'
