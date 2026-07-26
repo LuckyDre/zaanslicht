@@ -357,7 +357,10 @@ async function laadGastTegels() {
             const basis = `images/${cat}/${encodeURIComponent(item.map)}/`;
             bgUrls.push({
               src:   basis + encodeURIComponent(f),
+              thumb: basis + encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp')),
               groot: basis + encodeURIComponent(f.replace(/\.webp$/i, '-groot.webp')),
+              // path is nodig voor getTopLiked (sorteert op likes via photoKeyMain).
+              // Ontbrak hier, waardoor de tegel 'Favoriet' stil terugviel op willekeurig.
               path:  `${cat}/${item.map}/${f}`,
             });
           }
@@ -385,8 +388,7 @@ async function laadGastTegels() {
           <h2>Verrassing</h2>
           <p>10 willekeurige foto's van Andreas</p>`);
         t2.addEventListener('click', () => {
-          const fotos = shuffled.slice(0, 10).map(src => ({ src }));
-          startSlideshow(fotos);
+          startSlideshow(shuffled.slice(0, 10));
         });
 
         const t3 = maakGastTegel('andreas-likes', kleur, `
