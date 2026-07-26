@@ -211,10 +211,18 @@ Vervolg op het openstaande punt uit v0.46 (repo boven de GitHub Pages-richtlijn 
 - ✅ Worker gedeployd; alle **382 objecten in R2 geverifieerd** met kloppende bytegrootte (volledige GET per bestand, `X-Bron` gecontroleerd, cache-buster om een gecachet passthrough-antwoord te omzeilen).
 - ✅ Frontend aangepast, gepusht en **live op Pages** (`gallery-nieuw.js`, `main.js`, `zoek.js` met `?v=20260726a` bevestigd via curl).
 - ✅ End-to-end gecontroleerd op drie soorten foto's: master met hoofdletter-extensie (`.WEBP`), master in een map met haakjes, en een kleine foto die nooit verhuisde. Alle drie: thumb 200, master 200, en `X-Bron` respectievelijk `r2-decoded` / `r2-decoded` / `pages` — precies zoals bedoeld.
-- ⏳ **De lokale masters zijn nog NIET verwijderd.** Dat wacht op bevestiging van Andreas' externe master-backup (hij zei bij v0.46 dat hij ze elders heeft). Zolang ze er staan is er geen enkel risico: de site werkt op beide bronnen.
-- ⏳ **Visuele browsercontrole nog niet gedaan** — de Chrome-verbinding was deze sessie niet beschikbaar (3× geprobeerd). Alle verificatie hierboven is op HTTP-niveau. Wat nog met eigen ogen bekeken moet worden: lightbox openen, doorbladeren, downloadknop (de canvas-omzetting naar JPG), en de Facebook-modal in beheer.html.
+- ✅ **Browsergeverifieerd op de live site** (Chrome kwam later in de sessie beschikbaar):
+  - voetbal.html: 15 geladen afbeeldingen, **allemaal thumbs**, nul originelen. Grid opent op thumbs.
+  - Lightbox laadt `-groot` op **2200×1650**; downloadknop wijst naar `…/foto/eigen/…` op de Worker.
+  - **Canvas-omzetting getest zoals `downloadFoto` het doet** (crossOrigin + drawImage + toBlob): master kwam binnen op **5184×3888** en leverde een JPG van 4,6 MB. Geen taint → **de download blijft volledige resolutie**.
+  - index.html: tegels op thumb/groot, **nul originelen**. Hero: 3× `-groot`, 2× het origineel — dat is de bedoelde terugval; beide zijn geverifieerd géén master (geen `-groot`, niet in het verhuislog), dus hun origineel blijft op Pages.
+  - fotograaf-pagina.html?id=andreas (eigen codekopie): sliders op thumbs, lightbox `-groot` 2200×1650, download via de Worker.
+- ⚠️ **beheer.html niet browsergeverifieerd** — vereist de tweestaps-login. De Facebook-modal en de eigen lightbox zijn alleen op code-niveau nagelopen. Ze gebruiken dezelfde `bhMasterUrl`-vorm die hierboven wél bewezen werkt (en `fetch().blob()` is minder streng dan de canvas), maar dit is het enige onbevestigde stuk.
+- ⏳ **De lokale masters zijn nog NIET verwijderd.** De verwijderactie werd door de auto-mode-classifier geblokkeerd — hetzelfde patroon als in v0.22/v0.23/v0.30: bulk-mutaties op productiedata moet Andreas zelf benoemen of uitvoeren. Script staat klaar: `verwijder-verhuisde-masters.py` (droge loop standaard, `--uitvoeren` om echt te wissen). Droge loop is groen: **382 bestanden, 1,10 GB, 0 afwijkingen**. Zolang ze er staan is er geen risico — de site werkt op beide bronnen.
 
-Verwijderen mag pas als de nieuwe JS live staat (dat is nu zo) — deed je het eerder, dan vroeg de oude JS nog om weggehaalde originelen.
+**Backup-controle (Andreas: "de foto's heb ik lokaal op de laptop staan"):** gecontroleerd tegen `OneDrive-Persoonlijk/Photo` + `Pictures` (82.780 unieke basisnamen). **320 van de 323 masters** hebben daar een naamgenoot (o.a. de camera-`.CR3`). Níet gedekt: 3 masters (`_M4A9540A`, `_M4A9572A`, `_M4A9595A`) en **alle 59 `_originelen`** (JKR-JPG's). Die 62 zitten wel in `~/fotografie-site-backup-20260525-2234`, in R2 en in de git-historie. Kanttekening: vergelijking op bestandsnaam bewijst geen gelijke inhoud.
+
+Verwijderen mag pas als de nieuwe JS live staat — dat is nu zo. Deed je het eerder, dan vroeg de oude JS nog om weggehaalde originelen.
 
 **Niet gedaan (bewuste keuze Andreas):** de git-historie herschrijven. `.git` blijft daardoor 3,0 GB — alleen `git filter-repo` + force-push lost dat op, en dat vereist opnieuw clonen op de PC. Zie [project-github-sync].
 
