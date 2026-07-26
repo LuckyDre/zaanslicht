@@ -39,7 +39,11 @@ def main():
         fotos = []
         for ext in ['webp', 'WEBP']:
             for f in cat_pad.rglob(f'*.{ext}'):
-                if '-thumb' not in f.stem and str(f) not in gevonden:
+                # -groot moet hier óók buiten blijven: dat zijn de 2200px-versies
+                # uit maak-groot.py. Zonder deze check maakt het script er thumbs
+                # van (…-groot-thumb.webp) — 323 nutteloze bestanden.
+                if '-thumb' not in f.stem and '-groot' not in f.stem \
+                   and str(f) not in gevonden:
                     gevonden.add(str(f))
                     fotos.append(f)
         print(f'\n{cat}: {len(fotos)} foto\'s te verwerken')
