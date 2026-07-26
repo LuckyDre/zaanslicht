@@ -396,8 +396,7 @@ async function laadGastTegels() {
           <h2>Favoriet</h2>
           <p>Meest gelikete foto's van Andreas</p>`);
         t3.addEventListener('click', async () => {
-          const fotos = bgUrls.map(src => ({ src }));
-          const top = fotos.length ? await getTopLiked(fotos, fotos.length) : [];
+          const top = bgUrls.length ? await getTopLiked(bgUrls, bgUrls.length) : [];
           if (top.length) startSlideshow(top);
           else window.location.href = 'fotograaf-pagina.html?id=andreas';
         });
