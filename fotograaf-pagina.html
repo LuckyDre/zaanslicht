@@ -1144,6 +1144,9 @@ async function laadAndreasPagina(container) {
           src:   `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
           thumb: `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`,
           groot: `images/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-groot.webp'))}`,
+          // Camera-masters (>2200px) staan sinds v0.48 in R2, niet meer op Pages.
+          // Alleen de downloadknop gebruikt dit; thumb en groot blijven op Pages.
+          master: `${WORKER}/foto/eigen/${cat.key}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
           naam:  f,
           key:   `${cat.key}/${item.map}/${f}`.replace(/\//g,'__').replace(/\./g,'--'),
         }));
