@@ -2210,7 +2210,8 @@ export default {
       const id = url.pathname.replace('/fotograaf/view-dashboard/', '');
       return handleViewDashboard(request, env, id);
     }
-    if (url.pathname.startsWith('/foto/fotografen/'))                              return handleFotoServe(request, env);
+    if (url.pathname.startsWith('/foto/fotografen/')
+        || url.pathname.startsWith('/foto/eigen/'))                                return handleFotoServe(request, env);
 
     return new Response('Zaans Licht Worker', { status: 200, headers: CORS_HEADERS });
   },
