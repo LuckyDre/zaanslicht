@@ -1320,7 +1320,7 @@ function toggleOpen(hdr) {
     if (item) {
       const grid = li.querySelector('.foto-grid');
       grid.innerHTML = item.fotos.map((f, i) => {
-        const volledig = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`;
+        const volledig = bhMasterUrl(cat, mapNaam, f);
         const thumb    = `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`;
         return `
         <div class="foto-thumb" data-foto="${f}">
