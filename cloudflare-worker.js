@@ -2005,6 +2005,10 @@ async function handleFotoServe(request, env) {
     return new Response('Niet gevonden', { status: 404 });
   }
 
+  // X-Bron maakt verifieerbaar waar het bestand vandaan kwam. Zonder deze header
+  // is een ontbrekend R2-object niet te onderscheiden van een geslaagde R2-hit:
+  // de passthrough geeft immers hetzelfde bestand met dezelfde bytegrootte terug.
+  headers['X-Bron'] = 'r2';
   return new Response(object.body, { headers });
 }
 
@@ -2021,6 +2025,7 @@ async function serveerEigenViaPages(key, headers) {
   const door = new Headers(headers);
   const pagesType = res.headers.get('Content-Type');
   if (pagesType) door.set('Content-Type', pagesType);
+  door.set('X-Bron', 'pages');
   return new Response(res.body, { headers: door });
 }
 
