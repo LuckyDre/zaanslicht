@@ -37,8 +37,17 @@ def scan(category):
         if not d.is_dir():
             continue
 
-        # Alle webp bestanden in deze map (thumbnails uitsluiten)
-        all_fotos = set(f.name for f in d.iterdir() if f.suffix.lower() == '.webp' and not f.stem.endswith('-thumb'))
+        # Alle webp bestanden in deze map. Afgeleide formaten moeten hier buiten
+        # blijven: -thumb (400px, maak-thumbs.py) én -groot (2200px, maak-groot.py).
+        # Ontbrak voor -groot, waardoor sync.sh op 25-07-2026 alle 323 nieuwe
+        # -groot.webp's als losse foto's aan het manifest toevoegde → elke grote
+        # foto stond dubbel in de galerij en het raster laadde de 2200px-versie.
+        all_fotos = set(
+            f.name for f in d.iterdir()
+            if f.suffix.lower() == '.webp'
+            and not f.stem.endswith('-thumb')
+            and not f.stem.endswith('-groot')
+        )
         if not all_fotos:
             continue
 
