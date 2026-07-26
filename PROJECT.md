@@ -169,7 +169,23 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
-### v0.48 — 26 juli 2026 — Camera-masters naar R2: gepubliceerde site van 1,5 GB naar ~0,5 GB ⏳
+### v0.48 — 26 juli 2026 — Camera-masters naar R2: gepubliceerde site van 1,5 GB naar 425 MB ✅
+
+**AFGEROND EN LIVE GEVERIFIEERD.** Andreas draaide `verwijder-verhuisde-masters.py --uitvoeren` (de bulk-delete werd bij mij door de classifier geblokkeerd). Resultaat: `images/` **1,5 GB → 425 MB**; `-thumb` (964) en `-groot` (323) en de 645 kleine originelen ongemoeid; masters weg uit HEAD, `-groot` nog in HEAD.
+
+**Verificatie ná het verwijderen, op de live site:**
+- voetbal.html doet **31 afbeeldingsverzoeken: 30 thumbs + 1 `-groot`. Nul verzoeken naar een verwijderd bestand, nul fouten** (gemeten via `performance.getEntriesByType('resource')`).
+- Lightbox 2200×1650; **downloadknop levert 5184×3888 en een JPG van 4,4 MB** uit R2 (canvas-omzetting werkt cross-origin).
+- Steekproef van 8 masters over verschillende series via de Worker: allemaal 200, allemaal `X-Bron: r2-decoded`.
+- **Waarom er niets kón breken:** de frontend is eerst omgezet (raster → `-thumb`, lightbox → `-groot`, download → Worker) en pas daarna zijn de bestanden verwijderd. De verwijderde bestanden zaten achter URL's die de code niet meer bouwt. Dat GitHub Pages de oude kopie nog even bleef serveren was daarom irrelevant.
+- **Vangnet:** identieke bytegrootte bewezen in git-historie én R2 (steekproef `_6190164.webp`: 2.517.786 bytes op beide plekken). Volledig herstel: `git checkout 5454534 -- images/`.
+- **Alleen beheer.html blijft onbevestigd** (tweestaps-login) — Facebook-modal en eigen lightbox zijn code-review, geen browsertest.
+
+**Meetles onderweg:** een CSS `background-image` uitlezen met `url\("?([^")]+)"?\)` kapt de URL af bij de eerste `)` — en de mapnamen hier bevatten haakjes (`(Zaanstad Cup)`). De hero leek daardoor originelen te laden terwijl het `-groot` was. Gebruik `slice(indexOf('url(')+4, lastIndexOf(')'))`. Ook: JS kan `X-Bron` niet lezen zonder `Access-Control-Expose-Headers` — die controle moet via curl.
+
+---
+
+#### Oorspronkelijke opzet en uitvoering
 Vervolg op het openstaande punt uit v0.46 (repo boven de GitHub Pages-richtlijn van 1 GB). Andreas koos expliciet: alleen de masters, `_originelen` mee naar R2, géén git-historie-herschrijving.
 
 **Meting vooraf** (niet geschat — geteld):
