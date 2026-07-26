@@ -24,17 +24,23 @@ function lbToon(idx) {
   // Bekijken gebeurt op de 2200px-versie (-groot.webp); alleen foto's die
   // breder waren hebben die. Downloaden blijft het volledige origineel.
   const lbImg = document.getElementById('lb2-img');
-  lbImg.dataset.viel_terug = '';
+  // Geketende terugval: -groot (2200px) → origineel op Pages → master via de Worker.
+  // Foto's die nooit breder dan 2200px waren hebben geen -groot en landen dus op
+  // stap 2, rechtstreeks bij Pages — die blijven daarmee even snel als voorheen.
+  // Stap 3 vangt de masters op die sinds v0.48 alleen nog in R2 staan.
+  const terugval = [f.groot, f.src, f.master].filter(Boolean);
+  let stap = 0;
   lbImg.onerror = () => {
-    if (lbImg.dataset.viel_terug) return;
-    lbImg.dataset.viel_terug = '1';
-    lbImg.src = f.src;
+    stap += 1;
+    if (stap < terugval.length) lbImg.src = terugval[stap];
   };
-  lbImg.src = f.groot || f.src;
+  lbImg.src = terugval[0];
   document.getElementById('lb2-teller').textContent = `${_lb_idx + 1} / ${_lb_fotos.length}`;
   document.getElementById('lb2-prev').style.opacity = _lb_idx === 0 ? '0.2' : '1';
   document.getElementById('lb2-next').style.opacity = _lb_idx === _lb_fotos.length - 1 ? '0.2' : '1';
-  document.getElementById('lb2-download').dataset.src  = f.src;
+  // Downloaden gaat altijd via de master-URL: die werkt of het bestand in R2 staat
+  // of nog op Pages, en stuurt CORS-headers mee die de canvas-omzetting nodig heeft.
+  document.getElementById('lb2-download').dataset.src  = f.master || f.src;
   document.getElementById('lb2-download').dataset.naam = f.src.split('/').pop().split('?')[0];
   // Stel key in voor like/reacties script
   const likeEl = document.getElementById('lb2-like');
