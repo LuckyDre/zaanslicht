@@ -411,6 +411,11 @@ async function laadGallery() {
           src:   `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
           thumb: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-thumb.webp'))}`,
           groot: `images/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f.replace(/\.webp$/i, '-groot.webp'))}`,
+          // Camera-masters (>2200px) staan sinds v0.48 in R2 i.p.v. op Pages, om de
+          // gepubliceerde site onder de 1 GB-richtlijn te houden. De Worker serveert
+          // ze, en geeft foto's die nooit verhuisden (≤2200px) door vanaf Pages.
+          // Alleen de downloadknop heeft dit nodig — thumb en groot staan op Pages.
+          master: `${WORKER_URL}/foto/eigen/${CATEGORY}/${encodeURIComponent(item.map)}/${encodeURIComponent(f)}`,
           key:   photoKey(`${CATEGORY}/${item.map}/${f}`),
         }))
         .sort((a, b) => (likeCounts[b.key] || 0) - (likeCounts[a.key] || 0));
