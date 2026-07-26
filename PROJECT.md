@@ -181,6 +181,15 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 - **Vangnet:** identieke bytegrootte bewezen in git-historie én R2 (steekproef `_6190164.webp`: 2.517.786 bytes op beide plekken). Volledig herstel: `git checkout 5454534 -- images/`.
 - **Alleen beheer.html blijft onbevestigd** (tweestaps-login) — Facebook-modal en eigen lightbox zijn code-review, geen browsertest.
 
+**Naslepend incident — 323 foto's vielen tijdelijk van de site (zelf veroorzaakt, opgelost):**
+1. `maak-groot.py` maakte op 25-07 om 23:57 de 323 `-groot.webp`-bestanden. `sync.sh` zag "nieuwe WebP's" en draaide `generate-manifest.py`, dat **`-thumb` uitsloot maar `-groot` niet** → alle 323 kwamen als lósse foto's in `manifest.json`. Sinds die nacht stond elke grote foto **dubbel** in de galerij, waren de tellers 323 te hoog, en 404'de de thumb van de dubbelganger waardoor het raster de 0,5 MB `-groot` laadde i.p.v. een thumb van 25 KB (ondermijnde v0.45 voor die foto's).
+2. Ná het verwijderen van de masters draaide `sync.sh` het script opnieuw. Omdat het "bestaat deze foto" afleidt uit **het bestand op schijf**, schrapte het de 323 masters uit het manifest (18:24 → 18:26: 964 echte foto's → 641). Ze bleven zichtbaar via hun `-groot`-dubbelganger, dus alles zag er gezond uit — ook in mijn browsertest.
+3. Toen ik de dubbelgangers opruimde, verdwenen die 323 foto's dus écht van de site. **Dat was mijn fout: ik ruimde symptoom 1 op zonder te zien dat symptoom 2 er al onder zat.**
+
+**Opgelost:** manifest teruggehaald uit commit `5454534` (waar de masters nog op hun juiste plek in de volgorde stonden) en alleen de dubbelgangers eruit → **964 foto's, waarvan 641 op Pages en 323 in R2, nul onvindbaar**. Nieuw bestand **`masters-in-r2.json`** (323 paden) dat `generate-manifest.py` meeneemt als bestaand, bijgehouden door `verhuis-masters-naar-r2.py`. Beide scripts sluiten nu `-groot` uit. **Idempotentie bewezen:** `generate-manifest.py` opnieuw draaien geeft een byte-identiek manifest (op een afsluitende newline na).
+
+**Les:** een generator die zijn waarheid uit de bestanden op schijf haalt, wordt gevaarlijk zodra je bestanden elders opslaat. Zoek bij zo'n verhuizing áltijd op wat er nog van het schijf-bestaan uitgaat — `grep -l "iterdir\|glob\|listdir"`. En: een dubbelganger kan een echte fout maskeren; toen ik de duplicaten weghaalde kwam de onderliggende schade pas boven.
+
 **Meetles onderweg:** een CSS `background-image` uitlezen met `url\("?([^")]+)"?\)` kapt de URL af bij de eerste `)` — en de mapnamen hier bevatten haakjes (`(Zaanstad Cup)`). De hero leek daardoor originelen te laden terwijl het `-groot` was. Gebruik `slice(indexOf('url(')+4, lastIndexOf(')'))`. Ook: JS kan `X-Bron` niet lezen zonder `Access-Control-Expose-Headers` — die controle moet via curl.
 
 ---
