@@ -3208,11 +3208,11 @@ function bhLbBouwLijst(grid) {
   return [...grid.querySelectorAll('.foto-thumb')].map(t => {
     const naam     = t.dataset.foto || '';
     const thumbSrc = t.querySelector('img')?.src || '';
-    // Groot tonen = altijd het origineel laden, niet de 400px-thumbnail.
-    // Fallback op de thumb-src voor vers geüploade foto's die nog niet op
-    // GitHub Pages staan.
+    // Groot tonen = altijd het origineel laden, niet de 400px-thumbnail. Dat gaat
+    // sinds v0.48 via de Worker: de masters staan in R2, de rest wordt vanaf Pages
+    // doorgegeven. Fallback op de thumb-src voor vers geüploade foto's.
     const src = naam
-      ? `${SITE}/images/${li.dataset.cat}/${encodeURIComponent(li.dataset.map)}/${encodeURIComponent(naam)}`
+      ? bhMasterUrl(li.dataset.cat, li.dataset.map, naam)
       : thumbSrc;
     return { src, naam, fallback: thumbSrc };
   });
