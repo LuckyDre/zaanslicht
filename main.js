@@ -409,7 +409,7 @@ async function laadGastTegels() {
         const rij = document.createElement('div');
         rij.style.cssText = 'display:contents';
         rij.appendChild(t1); rij.appendChild(t2); rij.appendChild(t3);
-        const heroFotos = shuffled.slice(0, 5).map(src => ({ src }));
+        const heroFotos = shuffled.slice(0, 5);
         [t1, t2, t3].forEach(t => {
           t.addEventListener('mouseenter', () => {
             if (window.setFotograafKleur) window.setFotograafKleur(kleur, heroFotos, 'Andreas Luckfiel');
