@@ -180,7 +180,10 @@ function setTilebg(elId, fotos) {
   if (!fotos.length) return;
   const pick = fotos[Math.floor(Math.random() * fotos.length)];
   const el   = document.getElementById(elId);
-  if (el) el.style.backgroundImage = `url('${pick.src}')`;
+  // Tegelachtergrond op de 400px-thumb: die bestaat voor élke eigen foto en is
+  // ruim genoeg voor een tegel. Een CSS-achtergrond kent geen onerror-terugval,
+  // dus hier is een gegarandeerd bestaand formaat nodig.
+  if (el) el.style.backgroundImage = `url('${pick.thumb || pick.src}')`;
 }
 
 // Haal top-gelikte foto's op uit Firebase (max N stuks)
