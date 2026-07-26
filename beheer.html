@@ -3436,8 +3436,8 @@ function deelOpFacebook(event, btn) {
   let fotoUrls = [];
   const item = (manifest[cat] || []).find(x => x.map === mapNaam);
   if (item && item.fotos) {
-    fotoUrls = item.fotos.map(f =>
-      `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(f)}`);
+    // Via de Worker: de masters staan sinds v0.48 in R2, niet meer op Pages.
+    fotoUrls = item.fotos.map(f => bhMasterUrl(cat, mapNaam, f));
   }
 
   if (fotoUrls.length > 0) {
