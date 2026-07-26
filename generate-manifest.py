@@ -65,6 +65,11 @@ def scan(category):
             and not f.stem.endswith('-thumb')
             and not f.stem.endswith('-groot')
         )
+        # Masters die naar R2 verhuisd zijn staan niet op schijf, maar horen er wél
+        # bij. Hun exacte bestandsnaam komt uit masters-in-r2.json — die kan niet uit
+        # het -groot-bestand herleid worden, want 117 foto's hebben een hoofdletter-
+        # extensie (.WEBP) terwijl hun -groot altijd .webp is.
+        all_fotos |= MASTERS_IN_R2.get((category, d.name), set())
         if not all_fotos:
             continue
 
