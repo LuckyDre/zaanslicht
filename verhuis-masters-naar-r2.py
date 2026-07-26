@@ -100,6 +100,24 @@ def log_toevoegen(key: str, grootte: int):
         f.write(f'{key}\t{grootte}\n')
 
 
+def schrijf_masters_index():
+    """Werkt masters-in-r2.json bij — de lijst die generate-manifest.py nodig heeft.
+
+    Zonder die lijst ziet generate-manifest.py een verhuisde master als een
+    verdwenen foto en schrapt hem uit manifest.json; de foto valt dan van de site
+    terwijl het bestand netjes in R2 staat. Dat gebeurde op 26-07-2026 echt.
+    _originelen hoort er niet in: die staan in geen enkele slider.
+    """
+    import json
+    paden = sorted(
+        unquote(k)[len('eigen/'):] for k in gelogd()
+        if not unquote(k).startswith('eigen/_originelen/')
+    )
+    doel = Path(__file__).resolve().parent / 'masters-in-r2.json'
+    doel.write_text(json.dumps(paden, indent=2, ensure_ascii=False) + '\n')
+    print(f'masters-in-r2.json bijgewerkt: {len(paden)} paden')
+
+
 def upload(pad: Path, key: str) -> bool:
     ct = CONTENT_TYPES.get(pad.suffix.lower(), 'application/octet-stream')
     # objectPath is ÉÉN argument: {bucket}/{key}
@@ -199,6 +217,8 @@ def main():
             log_toevoegen(key, pad.stat().st_size)
         else:
             mislukt += 1
+
+    schrijf_masters_index()
 
     print(f'\nKlaar. Geüpload: {len(todo) - mislukt}, mislukt: {mislukt}')
     if mislukt:
