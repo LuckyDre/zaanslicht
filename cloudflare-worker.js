@@ -1943,21 +1943,38 @@ async function handleViewDashboard(request, env, id) {
 }
 
 // ── FOTO SERVEREN VIA WORKER (publiek toegankelijk) ───────────────────────
+// Twee soorten keys:
+//   fotografen/…  gastfoto's — origineel én thumbs/ staan in R2
+//   eigen/…       Andreas' eigen camera-masters (>2200px), sinds v0.48 in R2 om
+//                 de GitHub Pages-site onder de 1 GB-grens te houden. De thumb
+//                 (400px) en -groot (2200px) blijven wél op Pages staan; alleen
+//                 het master-bestand voor de downloadknop is verhuisd.
+//
+// Eigen keys die NIET in R2 staan (foto was al ≤2200px, dus nooit verhuisd)
+// worden van Pages gehaald en doorgegeven — bewust een passthrough en géén
+// 302-redirect: downloadFoto() zet WebP via een <canvas> om naar JPG, en zonder
+// Access-Control-Allow-Origin op het eindantwoord taint dat de canvas waardoor
+// de downloadknop stilletjes stopt met werken.
+const EIGEN_PAGES_BASIS = 'https://zaanslicht.com/images/';
+
 async function handleFotoServe(request, env) {
   const url = new URL(request.url);
   const key = url.pathname.replace('/foto/', '');
-  if (!key.startsWith('fotografen/')) return new Response('Niet gevonden', { status: 404 });
+  const isEigen = key.startsWith('eigen/');
+  if (!key.startsWith('fotografen/') && !isEigen) {
+    return new Response('Niet gevonden', { status: 404 });
+  }
 
   // Thumbnail ophalen als ?thumb=1 meegegeven; valt terug op origineel
   // Thumb-extensie volgt de extensie van het origineel (.webp of .jpg — zie handleFotoUpload)
+  // Geldt alleen voor gastfoto's: eigen thumbs staan op Pages, niet in R2.
   let object = null;
-  if (url.searchParams.get('thumb') === '1') {
+  if (!isEigen && url.searchParams.get('thumb') === '1') {
     const keyExt   = key.match(/\.[^.]+$/)?.[0] || '.webp';
     const thumbKey = 'thumbs/' + key.replace(/\.[^.]+$/, '-thumb' + keyExt);
     object = await env.FOTOS.get(thumbKey);
   }
   if (!object) object = await env.FOTOS.get(key);
-  if (!object) return new Response('Niet gevonden', { status: 404 });
 
   // Bepaal Content-Type op basis van bestandsextensie
   const ext = key.split('.').pop().toLowerCase();
@@ -1966,7 +1983,7 @@ async function handleFotoServe(request, env) {
     'webp': 'image/webp', 'png': 'image/png',
     'gif': 'image/gif', 'heic': 'image/heic',
   };
-  const contentType = object.httpMetadata?.contentType
+  const contentType = object?.httpMetadata?.contentType
     || contentTypes[ext]
     || 'image/jpeg';
 
@@ -1983,7 +2000,28 @@ async function handleFotoServe(request, env) {
     headers['Cache-Control'] = 'no-cache';
   }
 
+  if (!object) {
+    if (isEigen) return await serveerEigenViaPages(key, headers);
+    return new Response('Niet gevonden', { status: 404 });
+  }
+
   return new Response(object.body, { headers });
+}
+
+// Eigen foto niet in R2 → van GitHub Pages halen en doorgeven met onze headers
+// (met name Access-Control-Allow-Origin, dat Pages zelf niet meestuurt).
+async function serveerEigenViaPages(key, headers) {
+  const pagesUrl = EIGEN_PAGES_BASIS + key.slice('eigen/'.length);
+  const res = await fetch(pagesUrl, {
+    headers: { 'User-Agent': 'ZaansLicht-Worker/1.0' },
+    cf: { cacheEverything: true },
+  });
+  if (!res.ok) return new Response('Niet gevonden', { status: 404 });
+
+  const door = new Headers(headers);
+  const pagesType = res.headers.get('Content-Type');
+  if (pagesType) door.set('Content-Type', pagesType);
+  return new Response(res.body, { headers: door });
 }
 
 // ── MAIN HANDLER ───────────────────────────────────────────────────────────
