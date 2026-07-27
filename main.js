@@ -245,10 +245,12 @@ async function loadTegels() {
     // Nosports foto's stil preloaden zodat ze direct klaarstaan bij hover
     preloadFotos(topNosports);
 
-    setTilebg('bg-random',         shuffle(allVoetbal));
-    setTilebg('bg-random-nosports', shuffle(allNosports));
-    setTilebg('bg-liked-voetbal',  topVoetbal);
-    setTilebg('bg-liked-nosports', topNosports);
+    setTilebg('bg-random',             shuffle(allVoetbal));
+    setTilebg('bg-random-nosports',    shuffle(allNosports));
+    setTilebg('bg-random-othersports', shuffle(allOthersports));
+    setTilebg('bg-liked-voetbal',      topVoetbal);
+    setTilebg('bg-liked-nosports',     topNosports);
+    setTilebg('bg-liked-othersports',  topOthersports);
 
     // ── Klikgedrag ─────────────────────────────────────────────────────────
     bindTegel('tegel-random',          () => { wisselThema('voetbal',  topVoetbal, topNosports, true); startSlideshow(shuffle(allVoetbal).slice(0, 10)); });
