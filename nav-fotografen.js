@@ -138,6 +138,9 @@
   const nav = document.querySelector('header nav');
   let dropdown_wrapper = null;
   if (nav) {
+    // Vangnet: verlaat de muis het menu in één beweging, dan klapt alles dicht.
+    nav.addEventListener('mouseleave', () => klapAlleenDezeUit(null));
+
     const groepeernamen = ['Tools', 'Clubs', 'Over ons', 'Contact'];
     const teGroeperen = Array.from(nav.querySelectorAll('a')).filter(a =>
       groepeernamen.includes(a.textContent.trim())
