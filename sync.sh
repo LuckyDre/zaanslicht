@@ -44,10 +44,8 @@ fswatch -o "$SITE" \
         python3 "$SITE/generate-manifest.py"
       fi
 
-      echo "→ Laatste versie ophalen van GitHub..."
-      git pull --rebase origin main 2>/dev/null || true
-
       # Stap 2: kijk of er nieuwe WebP's zijn → manifest bijwerken
+      # (moet vóór de commit: kijkt naar nog niet-vastgelegde wijzigingen)
       NIEUWE_WEBPS=$(git status --porcelain | grep -iE "images/(voetbal|nosports)/.*\.webp" | wc -l | tr -d ' ')
       if [ "$NIEUWE_WEBPS" -gt "0" ]; then
         echo "→ $NIEUWE_WEBPS nieuwe WebP foto('s) — manifest bijwerken..."
@@ -57,7 +55,26 @@ fswatch -o "$SITE" \
 
       git add -A
       git commit -m "Auto-sync: $(date '+%d-%m-%Y %H:%M')"
-      git push
-      echo "✓ Site bijgewerkt op https://zaanslicht.com"
+
+      # Stap 3: PAS NA de commit ophalen van GitHub. Vóór de commit is de werkmap
+      # altijd vuil (dat is juist waarom dit script draait) en weigert een rebase;
+      # die fout werd voorheen weggeslikt, waarna de push stil faalde en er lokaal
+      # commits bleven liggen. De beheer-tool commit óók rechtstreeks naar GitHub,
+      # dus divergentie is normaal en dit moet hier goed gaan.
+      echo "→ Laatste versie ophalen van GitHub..."
+      if ! git pull --rebase origin main; then
+        git rebase --abort 2>/dev/null
+        echo "‼️  CONFLICT bij het samenvoegen met GitHub — NIET gepusht."
+        echo "‼️  Je werk staat veilig in een lokale commit. Los het handmatig op:"
+        echo "‼️     cd $SITE && git pull --rebase origin main"
+        continue
+      fi
+
+      if git push; then
+        echo "✓ Site bijgewerkt op https://zaanslicht.com"
+      else
+        echo "‼️  PUSH MISLUKT — je wijziging staat NIET online."
+        echo "‼️  Je werk staat veilig in een lokale commit. Probeer: cd $SITE && git push"
+      fi
     fi
 done
