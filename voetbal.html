@@ -38,7 +38,7 @@
   .logo-img { display:inline-block; width:94px; height:94px; flex-shrink:0; background-color:var(--or,#FF6B00); -webkit-mask:url('images/logo-oranje.png') center/contain no-repeat; mask:url('images/logo-oranje.png') center/contain no-repeat; transition:background-color .4s ease; vertical-align:middle; }
   .logo span { color: var(--or); }
   /* Flex + nowrap: de links zijn inline en braken voorheen naar een tweede regel */
-  nav { display:flex; align-items:center; flex-wrap:nowrap; }
+  nav { display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; row-gap:.3rem; }
   nav a { color:#aaa; font-size:.78rem; letter-spacing:.5px; text-transform:uppercase; margin-left:1.4rem; white-space:nowrap; transition:color .2s; }
   nav a:hover, nav a.active { color: var(--or); }
   .menu-toggle { display:none; }
