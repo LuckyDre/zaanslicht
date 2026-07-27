@@ -119,8 +119,9 @@ function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
     // Ruim inline fotograaf-kleur op (CSS mask pikt --oranje automatisch op)
     document.body.style.removeProperty('--oranje');
 
-    // Body-klasse wisselen — CSS doet de rest via body.thema-nosports variabelen
-    document.body.classList.toggle('thema-nosports', thema === 'nosports');
+    // Body-klasse wisselen — CSS doet de rest via de thema-variabelen
+    document.body.classList.toggle('thema-nosports',    thema === 'nosports');
+    document.body.classList.toggle('thema-othersports', thema === 'othersports');
 
     // Hero fade-out → swap → fade-in
     const heroEl = document.getElementById('hero');
