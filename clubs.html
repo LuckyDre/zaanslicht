@@ -727,7 +727,9 @@
       'ZVV Zaandijk': 'west-1/zo/4b'
     };
     document.querySelectorAll('.club-card').forEach(function(card) {
-      var naam = card.dataset.club || (card.querySelector('.club-naam') || {}).textContent;
+      // data-comp-club gaat vóór: data-club is hierboven overschreven met de
+      // zichtbare naam, en die wijkt soms af van de competitienaam.
+      var naam = card.dataset.compClub || card.dataset.club || (card.querySelector('.club-naam') || {}).textContent;
       naam = naam ? naam.trim() : '';
       if (!naam || !POULES[naam]) return;              // clubs zonder bekende poule: geen knop
       card.dataset.poule = POULES[naam];
