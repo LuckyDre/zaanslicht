@@ -112,13 +112,16 @@ h1 span, h2 span,
               border-color 0.4s ease, filter 0.4s ease !important;
 }
 
+/* Flex + nowrap: de links zijn inline en braken voorheen naar een tweede regel */
+header nav { display: flex; align-items: center; flex-wrap: nowrap; }
 nav a {
   color: var(--tekst-dim);
   text-decoration: none;
-  margin-left: 2rem;
-  font-size: 0.9rem;
-  letter-spacing: 1px;
+  margin-left: 1.4rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: color 0.2s;
 }
 nav a:hover { color: var(--oranje); }
