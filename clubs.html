@@ -102,11 +102,14 @@
       gap: 4px;
     }
     .shirt {
-      font-size: 3.5rem;
+      font-size: 2.3rem;
       line-height: 1;
       filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
       animation: sway 4s ease-in-out infinite;
     }
+    /* De SVG's krijgen in JS width/height 68x76 mee; hier terugschalen zodat ze
+       in het lagere veld passen. !important omdat het attributen zijn. */
+    .shirt svg { width: 46px !important; height: 51px !important; display: block; }
     @keyframes sway {
       0%, 100% { transform: rotate(-2deg); }
       50%       { transform: rotate(2deg); }
