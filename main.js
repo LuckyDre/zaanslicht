@@ -106,8 +106,8 @@ function vulHeroEnStart(fotos, thema) {
 // ── Thema wisselen (kleur + hero) ──────────────────────────────────────────
 function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
   clearTimeout(themaTimer);
-  // Bij klik: direct. Hover naar nosports: snel (150ms). Terug naar voetbal: traag (1500ms).
-  const vertraging = direct ? 0 : thema === 'nosports' ? 150 : 1500;
+  // Bij klik: direct. Hover naar een deelthema: snel (150ms). Terug naar voetbal: traag (1500ms).
+  const vertraging = direct ? 0 : thema === 'voetbal' ? 1500 : 150;
   themaTimer = setTimeout(() => {
     if (huidigThema === thema || wisselBusy) return;
     huidigThema = thema;
