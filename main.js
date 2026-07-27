@@ -150,7 +150,7 @@ function preloadFotos(fotos) {
 }
 
 // Foto-arrays beschikbaar buiten loadTegels voor nav-hover
-let _topVoetbal = [], _topNosports = [];
+let _topVoetbal = [], _topNosports = [], _topOthersports = [];
 
 // ===== HELPERS =====
 function photoKeyMain(path) {
