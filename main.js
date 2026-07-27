@@ -131,7 +131,11 @@ function wisselThema(thema, fotosVoetbal, fotosNosports, direct = false) {
     setTimeout(() => {
       // Annuleer als fotograaf-modus tussendoor geactiveerd is
       if (window._fotograafActief) { heroEl.style.opacity = '1'; wisselBusy = false; return; }
-      const fotos = thema === 'nosports' ? fotosNosports : fotosVoetbal;
+      // Othersports heeft geen eigen parameter (zou de aanroepen overal breken);
+      // die leest uit de module-array die loadTegels vult.
+      const fotos = thema === 'nosports'    ? fotosNosports
+                  : thema === 'othersports' ? _topOthersports
+                  : fotosVoetbal;
       vulHeroEnStart(fotos, thema);
       heroEl.style.opacity = '1';
       setTimeout(() => { wisselBusy = false; }, 400);
