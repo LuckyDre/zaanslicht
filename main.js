@@ -293,7 +293,9 @@ async function loadTegels() {
     // ── Nav-links ook koppelen aan thema ──────────────────────────────────
     document.querySelectorAll('nav a').forEach(a => {
       const href = a.getAttribute('href') || '';
-      if (href.includes('nosports')) {
+      if (href.includes('othersports')) {          // vóór 'nosports': die zit erin als substring
+        a.addEventListener('mouseenter', () => wisselThema('othersports', topVoetbal, topNosports));
+      } else if (href.includes('nosports')) {
         a.addEventListener('mouseenter', () => wisselThema('nosports', topVoetbal, topNosports));
       } else if (href.includes('voetbal') || href === '#hero' || href === 'index.html') {
         a.addEventListener('mouseenter', () => wisselThema('voetbal', topVoetbal, topNosports));
