@@ -742,7 +742,7 @@
       var contact = card.querySelector('.club-contact');
       if (contact) contact.insertAdjacentHTML('beforeend',
         '<button class="club-comp-btn" onclick="toggleClubComp(this)">📊 Programma &amp; Standen</button>');
-      card.insertAdjacentHTML('beforeend', '<div class="club-comp-paneel"></div>');
+      // Geen inline paneel meer: de standen openen in de popup (.comp-modal).
     });
   })();
 
