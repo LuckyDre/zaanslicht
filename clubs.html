@@ -30,7 +30,10 @@
     /* ── GRID ───────────────────────────────────────────────────────────── */
     .clubs-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      /* Vast 4 kolommen op desktop. Met auto-fill hing het aantal af van de
+         vensterbreedte, waardoor je op een gemiddeld laptopscherm 3 kaarten
+         kreeg in plaats van 4. */
+      grid-template-columns: repeat(4, 1fr);
       gap: 1.5rem;
       max-width: 1300px;
       margin: 0 auto;
@@ -54,7 +57,7 @@
 
     /* Veld achtergrond */
     .club-veld {
-      height: 140px;
+      height: 94px;              /* een derde kleiner dan de oude 140px */
       position: relative;
       background:
         repeating-linear-gradient(
