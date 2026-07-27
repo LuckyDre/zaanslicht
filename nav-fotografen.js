@@ -90,6 +90,15 @@
   `;
   document.head.appendChild(style);
 
+  // Er mag er maar één tegelijk uitgeklapt zijn. Ga je van Andreas naar Jan,
+  // dan klapt Andreas dus gegarandeerd weer dicht.
+  function klapAlleenDezeUit(actieveLink) {
+    document.querySelectorAll('.nav-fg-link.uitgeklapt').forEach(el => {
+      if (el !== actieveLink) el.classList.remove('uitgeklapt');
+    });
+    if (actieveLink) actieveLink.classList.add('uitgeklapt');
+  }
+
   function maakNavLink(voornaam, achternaam, href, kleur, isActief) {
     const a = document.createElement('a');
     a.href = href;
