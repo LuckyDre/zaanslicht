@@ -113,7 +113,7 @@ h1 span, h2 span,
 }
 
 /* Flex + nowrap: de links zijn inline en braken voorheen naar een tweede regel */
-header nav { display: flex; align-items: center; flex-wrap: nowrap; }
+header nav { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; row-gap: 0.3rem; }
 nav a {
   color: var(--tekst-dim);
   text-decoration: none;
