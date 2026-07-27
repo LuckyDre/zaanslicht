@@ -9,11 +9,11 @@
     .nav-meer {
       position: relative;
       display: inline-flex; align-items: center;
-      margin-left: 1.5rem;
+      margin-left: 1.4rem;
     }
     .nav-meer-trigger {
       color: #aaaaaa;
-      font-size: 0.9rem;
+      font-size: 0.78rem;
       cursor: default;
       padding: 0 0.2rem;
       transition: color 0.2s;
