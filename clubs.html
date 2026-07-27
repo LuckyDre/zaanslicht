@@ -189,6 +189,14 @@
       margin: 0 auto;
     }
 
+    /* Stapsgewijs terug van 4 kolommen; anders worden de kaarten op een smal
+       scherm te nauw voor de clubnaam. */
+    @media (max-width: 1080px) {
+      .clubs-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 820px) {
+      .clubs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 600px) {
       .clubs-grid { grid-template-columns: 1fr; padding: 1.5rem; }
     }
