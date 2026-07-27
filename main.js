@@ -257,6 +257,8 @@ async function loadTegels() {
     bindTegel('tegel-liked-voetbal',   () => { wisselThema('voetbal',  topVoetbal, topNosports, true); startSlideshow(topVoetbal); });
     bindTegel('tegel-random-nosports', () => { wisselThema('nosports', topVoetbal, topNosports, true); startSlideshow(shuffle(allNosports).slice(0, 10)); });
     bindTegel('tegel-liked-nosports',  () => { wisselThema('nosports', topVoetbal, topNosports, true); startSlideshow(topNosports); });
+    bindTegel('tegel-random-othersports', () => { wisselThema('othersports', topVoetbal, topNosports, true); startSlideshow(shuffle(allOthersports).slice(0, 10)); });
+    bindTegel('tegel-liked-othersports',  () => { wisselThema('othersports', topVoetbal, topNosports, true); startSlideshow(topOthersports); });
 
     // ── Thema-hover: nosports tegels → geel, voetbal tegels → oranje ───────
     const nosportsTegels = ['tegel-nosports', 'tegel-random-nosports', 'tegel-liked-nosports'];
