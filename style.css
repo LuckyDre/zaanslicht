@@ -28,6 +28,17 @@ body.thema-nosports {
   --oranje-dark: #c9a000;
 }
 
+/* ── Other Sports (paars) thema — zelfde accentkleur als othersports.html ── */
+body.thema-othersports {
+  --oranje: #8B5CF6;
+  --oranje-08: rgba(139, 92, 246, 0.08);
+  --oranje-15: rgba(139, 92, 246, 0.15);
+  --oranje-20: rgba(139, 92, 246, 0.20);
+  --oranje-50: rgba(139, 92, 246, 0.50);
+  --oranje-60: rgba(139, 92, 246, 0.60);
+  --oranje-dark: #6D3FD4;
+}
+
 html { scroll-behavior: smooth; scroll-padding-top: 120px; }
 
 body {
