@@ -152,12 +152,28 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
 
   div.appendChild(h3);
 
-  // Verhaal/beschrijving boven de slider
+  // Verhaal/beschrijving boven de slider — standaard 2 regels, uitklapbaar
   if (beschrijving?.trim()) {
     const p = document.createElement('p');
     p.className = 'serie-beschrijving';
     p.textContent = beschrijving.trim();
     div.appendChild(p);
+
+    // Pas na render is scrollHeight bekend; alleen dan een toggle tonen als
+    // de tekst daadwerkelijk over de 2 regels heen gaat.
+    requestAnimationFrame(() => {
+      if (p.scrollHeight > p.clientHeight + 1) {
+        const toggle = document.createElement('button');
+        toggle.className = 'serie-beschrijving-toggle';
+        toggle.type = 'button';
+        toggle.textContent = 'Lees meer';
+        toggle.addEventListener('click', () => {
+          const open = p.classList.toggle('open');
+          toggle.textContent = open ? 'Lees minder' : 'Lees meer';
+        });
+        p.insertAdjacentElement('afterend', toggle);
+      }
+    });
   }
 
   // Foto-grid
