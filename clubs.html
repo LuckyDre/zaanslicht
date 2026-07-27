@@ -788,6 +788,28 @@
       'WSV 1930':            function(){ return stripesV('wsv', '#1a1a1a', '#1A7A3A', 10); },  // zwart/groen verticale strepen
       'ZVV Zaandijk':        function(){ return solid('zaan', '#1C2B5E', '#FFFFFF'); },        // donker marineblauw
       'ZCFC':                function(){ return solid('zcfc', '#FF6B00', '#111111'); },
+
+      /* Poulegenoten van ZCFC (za 5e klasse A). Patroon en kleuren overgenomen
+         van de tenue-iconen op HollandseVelden (clubpagina → /i/t/t_*.png). */
+      'Atletico Club Amsterdam': function(){ return solid('atle', '#E01B24', '#141414'); },   // effen rood, donkere kraag
+      'DRC':                 function(){                                                      // rood/wit gevierendeeld
+        var b = '<rect x="0" y="0" width="80" height="90" fill="#FFFFFF" ' + clip('drc') + '/>'
+              + '<rect x="0" y="0" width="40" height="45" fill="#E01B24" ' + clip('drc') + '/>'
+              + '<rect x="40" y="45" width="40" height="45" fill="#E01B24" ' + clip('drc') + '/>';
+        return mkSvg('drc', b);
+      },
+      'SV Kadoelen':         function(){ return stripesH('kado', '#FFFFFF', '#2FA84F', 11); },     // witte basis, groene banen
+      'SV Nieuw-West United':function(){ return stripesV('nwu', '#FFFFFF', '#1B3A94', 7); },       // wit/donkerblauw verticaal
+      'OSV':                 function(){ return stripesV('osv', '#1B57C8', '#141414', 8); },      // blauw/zwart verticaal
+      'ASC SDW':             function(){ return solid('sdw', '#2FA84F', '#E01B24'); },            // effen groen, rode kraag
+      'VVA/Spartaan':        function(){                                                      // wit met zwarte middenbaan + rode bies
+        var b = '<rect x="0" y="0" width="80" height="90" fill="#FFFFFF" ' + clip('vvas') + '/>'
+              + '<rect x="33" y="0" width="10" height="90" fill="#141414" ' + clip('vvas') + '/>'
+              + '<rect x="43" y="0" width="4"  height="90" fill="#E01B24" ' + clip('vvas') + '/>';
+        return mkSvg('vvas', b);
+      },
+      'VV Westzaan':         function(){ return stripesV('wzn', '#FFFFFF', '#E01B24', 7); },      // wit/rood verticaal
+      'Wieringermeer':       function(){ return solid('wier', '#FFFFFF', '#1E44C8'); },           // wit, blauwe kraag
     };
 
     document.querySelectorAll('.club-card').forEach(function(card) {
