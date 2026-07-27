@@ -793,67 +793,71 @@
   };
 
   // ── Programma & Standen (via de gecachete worker) ──────────────────
-  // De standen klappen per RIJ open: opende er maar één, dan rekte die ene
-  // kaart uit terwijl de rest van de rij kort bleef — dat oogde rommelig.
+  // Opent in een popup i.p.v. binnen de kaart: inline uitklappen liet één
+  // kaart uitrekken terwijl de buren kort bleven, en per rij openklappen kon
+  // niet netjes omdat lang niet elke club een bekende poule (en dus een knop)
+  // heeft — je hield altijd gaten in de rij.
 
-  // Kaarten op dezelfde grid-rij hebben dezelfde offsetTop. Dit moet gemeten
-  // worden vóórdat er iets opent of sluit, want daarna verschuift de lay-out
-  // en klopt de rij-indeling niet meer. Kaarten zonder poule hebben geen knop
-  // en doen niet mee. Op mobiel (één kolom) levert dit vanzelf één kaart op.
-  function kaartenInZelfdeRij(card) {
-    var metKnop = Array.prototype.slice.call(document.querySelectorAll('.club-card'))
-      .filter(function(c) { return c.querySelector('.club-comp-btn'); });
-    var top = card.offsetTop;
-    return metKnop.filter(function(c) { return Math.abs(c.offsetTop - top) < 4; });
+  var compCache = {};        // per poule, zodat heen-en-weer klikken niet opnieuw ophaalt
+  var compKaart = null;      // kaart waarvan de popup nu open staat (voor Ververs)
+
+  function compModal() {
+    var m = document.getElementById('comp-modal');
+    if (m) return m;
+    m = document.createElement('div');
+    m.id = 'comp-modal';
+    m.className = 'comp-modal';
+    m.innerHTML = '<div class="comp-modal-inner">' +
+      '<button class="comp-modal-sluit" aria-label="Sluiten">&times;</button>' +
+      '<div class="comp-modal-body"></div></div>';
+    document.body.appendChild(m);
+    m.addEventListener('click', function(e) { if (e.target === m) sluitCompModal(); });
+    m.querySelector('.comp-modal-sluit').addEventListener('click', sluitCompModal);
+    return m;
   }
 
-  async function laadComp(card, force) {
-    var paneel = card.querySelector('.club-comp-paneel');
-    var btn    = card.querySelector('.club-comp-btn');
-    if (!paneel || !btn) return;
-    var poule  = card.dataset.poule;
-    var club   = card.dataset.club;
+  function sluitCompModal() {
+    var m = document.getElementById('comp-modal');
+    if (!m) return;
+    m.classList.remove('open');
+    document.body.style.overflow = '';
+    compKaart = null;
+  }
 
-    paneel.classList.add('open');
-    btn.innerHTML = '▲ Sluiten';
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    var m = document.getElementById('comp-modal');
+    if (m && m.classList.contains('open')) sluitCompModal();
+  });
 
-    if (paneel.dataset.geladen && !force) return;   // al geladen (cache in de pagina)
-    paneel.dataset.geladen = '1';
-    paneel.innerHTML = '<p class="club-comp-leeg">Laden…</p>';
+  window.verversComp = function() {
+    if (compKaart) window.toggleClubComp(compKaart.querySelector('.club-comp-btn'), true);
+  };
 
+  window.toggleClubComp = async function(btn, force) {
+    var card  = btn.closest('.club-card');
+    var poule = card.dataset.poule;
+    var club  = card.dataset.club;
+
+    compKaart = card;
+    var m    = compModal();
+    var body = m.querySelector('.comp-modal-body');
+    m.classList.add('open');
+    document.body.style.overflow = 'hidden';   // achtergrond niet meescrollen
+
+    if (compCache[poule] && !force) { body.innerHTML = renderComp(compCache[poule], club); return; }
+
+    body.innerHTML = '<p class="club-comp-leeg">Laden…</p>';
     try {
       var url = WORKER + '/competitie?poule=' + encodeURIComponent(poule) + (force ? '&force=1' : '');
       var res = await fetch(url);
       var d   = await res.json();
-      if (d.error) { paneel.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">' + d.error + '</p>'; return; }
-      paneel.innerHTML = renderComp(d, club);
+      if (d.error) { body.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">' + d.error + '</p>'; return; }
+      compCache[poule] = d;
+      body.innerHTML = renderComp(d, club);
     } catch (e) {
-      paneel.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">Fout: ' + e.message + '</p>';
+      body.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">Fout: ' + e.message + '</p>';
     }
-  }
-
-  function sluitComp(card) {
-    var paneel = card.querySelector('.club-comp-paneel');
-    var btn    = card.querySelector('.club-comp-btn');
-    if (paneel) paneel.classList.remove('open');
-    if (btn) btn.innerHTML = '📊 Programma &amp; Standen';
-  }
-
-  // Ververs-knop geldt bewust alleen voor de eigen kaart, niet voor de rij.
-  window.verversComp = function(el) {
-    laadComp(el.closest('.club-card'), true);
-  };
-
-  window.toggleClubComp = function(btn, force) {
-    var card   = btn.closest('.club-card');
-    var paneel = card.querySelector('.club-comp-paneel');
-    var rij    = kaartenInZelfdeRij(card);          // meten vóór het openen/sluiten
-
-    if (!force && paneel.classList.contains('open')) {
-      rij.forEach(sluitComp);
-      return;
-    }
-    rij.forEach(function(c) { laadComp(c, force); });
   };
 
   function compEsc(s) {
