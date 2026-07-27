@@ -62,20 +62,21 @@ header {
 header nav { margin-left: auto; }
 
 .logo {
-  font-size: 3.2rem;
+  font-size: 2.1rem;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--oranje);
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  white-space: nowrap;
 }
 .logo span, .accent-kleur { color: var(--oranje); }
 .logo-img {
   display: inline-block;
-  width: 80px;
-  height: 80px;
+  width: 94px;
+  height: 94px;
   background-color: var(--oranje, #FF6B00);
   -webkit-mask: url('images/logo-oranje.png') center / contain no-repeat;
   mask: url('images/logo-oranje.png') center / contain no-repeat;
