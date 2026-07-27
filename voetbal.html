@@ -112,14 +112,32 @@
   }
   .foto-cel:hover img { transform: scale(1.04); filter: brightness(1) saturate(1.2); }
 
-  /* VERHAAL/BESCHRIJVING boven slider */
+  /* VERHAAL/BESCHRIJVING boven slider — standaard 2 regels, uitklapbaar */
   .serie-beschrijving {
-    margin: 0.6rem 0 1rem;
+    margin: 0.6rem 0 0.3rem;
     font-size: 0.95rem;
     line-height: 1.65;
     color: rgba(255,255,255,0.75);
     max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
+  .serie-beschrijving.open {
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+  .serie-beschrijving-toggle {
+    background: none; border: none; padding: 0;
+    margin: 0 0 1rem;
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #FF6B00;
+    cursor: pointer;
+  }
+  .serie-beschrijving-toggle:hover { text-decoration: underline; }
 
   /* LABELS */
   .serie-labels { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.8rem; }
