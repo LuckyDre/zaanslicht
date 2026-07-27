@@ -754,22 +754,27 @@
   };
 
   // ── Programma & Standen (via de gecachete worker) ──────────────────
-  window.verversComp = function(el) {
-    var card = el.closest('.club-card');
-    window.toggleClubComp(card.querySelector('.club-comp-btn'), true);
-  };
+  // De standen klappen per RIJ open: opende er maar één, dan rekte die ene
+  // kaart uit terwijl de rest van de rij kort bleef — dat oogde rommelig.
 
-  window.toggleClubComp = async function(btn, force) {
-    var card   = btn.closest('.club-card');
+  // Kaarten op dezelfde grid-rij hebben dezelfde offsetTop. Dit moet gemeten
+  // worden vóórdat er iets opent of sluit, want daarna verschuift de lay-out
+  // en klopt de rij-indeling niet meer. Kaarten zonder poule hebben geen knop
+  // en doen niet mee. Op mobiel (één kolom) levert dit vanzelf één kaart op.
+  function kaartenInZelfdeRij(card) {
+    var metKnop = Array.prototype.slice.call(document.querySelectorAll('.club-card'))
+      .filter(function(c) { return c.querySelector('.club-comp-btn'); });
+    var top = card.offsetTop;
+    return metKnop.filter(function(c) { return Math.abs(c.offsetTop - top) < 4; });
+  }
+
+  async function laadComp(card, force) {
     var paneel = card.querySelector('.club-comp-paneel');
+    var btn    = card.querySelector('.club-comp-btn');
+    if (!paneel || !btn) return;
     var poule  = card.dataset.poule;
     var club   = card.dataset.club;
 
-    if (!force && paneel.classList.contains('open')) {
-      paneel.classList.remove('open');
-      btn.innerHTML = '📊 Programma &amp; Standen';
-      return;
-    }
     paneel.classList.add('open');
     btn.innerHTML = '▲ Sluiten';
 
@@ -786,6 +791,30 @@
     } catch (e) {
       paneel.innerHTML = '<p class="club-comp-leeg" style="color:#ef4444">Fout: ' + e.message + '</p>';
     }
+  }
+
+  function sluitComp(card) {
+    var paneel = card.querySelector('.club-comp-paneel');
+    var btn    = card.querySelector('.club-comp-btn');
+    if (paneel) paneel.classList.remove('open');
+    if (btn) btn.innerHTML = '📊 Programma &amp; Standen';
+  }
+
+  // Ververs-knop geldt bewust alleen voor de eigen kaart, niet voor de rij.
+  window.verversComp = function(el) {
+    laadComp(el.closest('.club-card'), true);
+  };
+
+  window.toggleClubComp = function(btn, force) {
+    var card   = btn.closest('.club-card');
+    var paneel = card.querySelector('.club-comp-paneel');
+    var rij    = kaartenInZelfdeRij(card);          // meten vóór het openen/sluiten
+
+    if (!force && paneel.classList.contains('open')) {
+      rij.forEach(sluitComp);
+      return;
+    }
+    rij.forEach(function(c) { laadComp(c, force); });
   };
 
   function compEsc(s) {
