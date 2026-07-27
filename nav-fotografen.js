@@ -79,7 +79,10 @@
       opacity: 0;
       transition: max-width 0.35s ease, opacity 0.25s ease;
     }
-    .nav-fg-link:hover .fg-achternaam,
+    /* Uitklappen via een class i.p.v. :hover. Tijdens het uitklappen verschuift
+       de nav, en dan herbeoordeelt de browser :hover niet betrouwbaar — de
+       vorige naam bleef daardoor openstaan als je doorging naar de volgende. */
+    .nav-fg-link.uitgeklapt .fg-achternaam,
     .nav-fg-link.active .fg-achternaam {
       max-width: 120px;
       opacity: 1;
