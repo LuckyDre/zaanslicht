@@ -831,7 +831,7 @@
   window.toggleClubComp = async function(btn, force) {
     var card  = btn.closest('.club-card');
     var poule = card.dataset.poule;
-    var club  = card.dataset.club;
+    var club  = card.dataset.compClub || card.dataset.club;   // naam waarop de eigen rij oplicht
 
     compKaart = card;
     var m    = compModal();
