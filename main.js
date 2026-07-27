@@ -220,20 +220,24 @@ async function loadTegels() {
     const res      = await fetch('manifest.json?v=' + Date.now());
     const manifest = await res.json();
 
-    const allVoetbal  = getAllFotos(manifest, 'voetbal');
-    const allNosports = getAllFotos(manifest, 'nosports');
+    const allVoetbal     = getAllFotos(manifest, 'voetbal');
+    const allNosports    = getAllFotos(manifest, 'nosports');
+    const allOthersports = getAllFotos(manifest, 'othersports');
 
     // ── Achtergronden ──────────────────────────────────────────────────────
-    setTilebg('bg-voetbal',  allVoetbal);
-    setTilebg('bg-nosports', allNosports);
+    setTilebg('bg-voetbal',     allVoetbal);
+    setTilebg('bg-nosports',    allNosports);
+    setTilebg('bg-othersports', allOthersports);   // stond voorheen leeg
 
-    // Top-liked ophalen voor beide categorieën
-    const [topVoetbal, topNosports] = await Promise.all([
-      getTopLiked(allVoetbal,  20),
-      getTopLiked(allNosports, 20),
+    // Top-liked ophalen voor alle categorieën
+    const [topVoetbal, topNosports, topOthersports] = await Promise.all([
+      getTopLiked(allVoetbal,     20),
+      getTopLiked(allNosports,    20),
+      getTopLiked(allOthersports, 20),
     ]);
-    _topVoetbal  = topVoetbal;
-    _topNosports = topNosports;
+    _topVoetbal     = topVoetbal;
+    _topNosports    = topNosports;
+    _topOthersports = topOthersports;
 
     // ── Hero vullen met top-5 meest gelikte voetbalfoto's ──────────────────
     vulHeroEnStart(topVoetbal, 'voetbal');
