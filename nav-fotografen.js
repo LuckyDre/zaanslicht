@@ -97,8 +97,14 @@
     a.innerHTML = `${voornaam}<span class="fg-achternaam">&nbsp;${achternaam}</span>`;
     a.style.color = isActief ? kleur : '#aaaaaa';
     if (isActief) a.classList.add('active');
-    a.addEventListener('mouseover', () => { a.style.color = kleur; });
-    a.addEventListener('mouseout',  () => {
+    // mouseenter/mouseleave i.p.v. mouseover/mouseout: die laatste bubbelen en
+    // vuren ook bij het betreden van de <span> met de achternaam.
+    a.addEventListener('mouseenter', () => {
+      klapAlleenDezeUit(a);
+      a.style.color = kleur;
+    });
+    a.addEventListener('mouseleave', () => {
+      a.classList.remove('uitgeklapt');
       a.style.color = a.classList.contains('active') ? kleur : '#aaaaaa';
     });
     return a;
