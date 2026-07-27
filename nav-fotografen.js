@@ -60,13 +60,17 @@
     }
     .nav-meer-dropdown a:hover { color: var(--oranje, #FF6B00) !important; }
 
+    /* Bewust GEEN eigen font-size / letter-spacing / margin-left hier: dit is
+       een <a> binnen de nav, dus de 'nav a'-regel van de pagina bepaalt het
+       uiterlijk. Zo zien Andreas en de gastfotografen er op élke pagina
+       hetzelfde uit als Home/Voetbal/No Sports. Zette dit blok wél eigen maten,
+       dan wonnen die (class > element-selector) en werden de fotograaf-links
+       zichtbaar groter dan de rest. */
     .nav-fg-link {
       display: inline-flex; align-items: center;
-      color: #aaaaaa; text-decoration: none;
-      font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase;
+      text-decoration: none;
       transition: color 0.2s;
-      white-space: nowrap; overflow: hidden;
-      margin-left: 1.5rem;
+      overflow: hidden;
     }
     .nav-fg-link .fg-achternaam {
       display: inline-block;
