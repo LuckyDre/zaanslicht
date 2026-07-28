@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Genereert -thumb.webp voor alle bestaande WebP-foto's in images/voetbal/ en images/nosports/
+Genereert -thumb.webp voor alle bestaande WebP-foto's in images/voetbal/,
+images/nosports/ en images/othersports/
 Gebruik: python3 maak-thumbs.py
 """
 from pathlib import Path
