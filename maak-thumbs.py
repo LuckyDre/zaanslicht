@@ -12,7 +12,9 @@ MAGICK = '/opt/homebrew/bin/magick'
 
 THUMB_W   = 400
 THUMB_Q   = 72
-CATEGORIEEN = ['voetbal', 'nosports']
+# othersports ontbrak hier (maak-groot.py had 'm wél), waardoor die serie nooit
+# thumbnails kreeg en overal het origineel werd geladen.
+CATEGORIEEN = ['voetbal', 'nosports', 'othersports']
 
 def maak_thumb(src: Path) -> bool:
     thumb = src.with_name(src.stem + '-thumb.webp')
