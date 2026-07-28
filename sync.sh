@@ -46,7 +46,7 @@ fswatch -o "$SITE" \
 
       # Stap 2: kijk of er nieuwe WebP's zijn → manifest bijwerken
       # (moet vóór de commit: kijkt naar nog niet-vastgelegde wijzigingen)
-      NIEUWE_WEBPS=$(git status --porcelain | grep -iE "images/(voetbal|nosports)/.*\.webp" | wc -l | tr -d ' ')
+      NIEUWE_WEBPS=$(git status --porcelain | grep -iE "images/(voetbal|nosports|othersports)/.*\.webp" | wc -l | tr -d ' ')
       if [ "$NIEUWE_WEBPS" -gt "0" ]; then
         echo "→ $NIEUWE_WEBPS nieuwe WebP foto('s) — manifest bijwerken..."
         python3 "$SITE/generate-manifest.py"
