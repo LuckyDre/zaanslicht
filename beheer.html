@@ -3067,6 +3067,7 @@ async function verwerkUploads(files, cat, mapNaam, li, progres) {
     onEnd() { hernum(grid); planSave(); }
   });
   hernum(grid);
+  bhUpdateFotoBulkBalk(li);
   setLog(`✓ Upload klaar — wijzigingen worden automatisch opgeslagen`, 'success');
 }
 
