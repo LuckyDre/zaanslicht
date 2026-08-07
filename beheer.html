@@ -3358,6 +3358,7 @@ async function bhRenderMapLabelLijst() {
     return;
   }
   await bhLaadAlleLabels();
+  await bhLaadLabelModi();
 
   const secret = localStorage.getItem('zl_worker_secret');
   const items  = (manifest[_bhActieveCat] || []).sort((a, b) => (a.volgorde || 0) - (b.volgorde || 0));
