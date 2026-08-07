@@ -3104,6 +3104,9 @@ async function nieuweEigenMap(cat) {
       <button class="expand-btn" title="Foto's tonen/verbergen" style="color:var(--oranje);background:rgba(255,107,0,0.12)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
       </button>
+      <button onclick="bhSerieLabelsKnop(event,this)" title="Labels aan deze serie toewijzen"
+        style="background:transparent;border:none;color:#555;font-size:0.85rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
+        onmouseover="this.style.color='#FF6B00'" onmouseout="this.style.color='#555'">🏷</button>
       <button onclick="deelOpFacebook(event,this)" title="Delen op Facebook"
         style="background:transparent;border:none;color:#555;font-size:0.9rem;cursor:pointer;padding:0.1rem 0.4rem;margin-left:4px;flex-shrink:0"
         onmouseover="this.style.color='#1877f2'" onmouseout="this.style.color='#555'">🇫</button>
