@@ -915,6 +915,111 @@ async function handleSerieLabels(request, env) {
   return json({ ok: true, labels: nieuw });
 }
 
+// Eigen-mappen-tegenhanger van handleSerieLabels (admin-secret). Nodig omdat
+// R2 hier GEEN waarheid is: sinds v0.48 staan alleen de masters (>2200px) in R2
+// en de rest op Pages — de fotolijst komt dus uit manifest.json, meegestuurd
+// door beheer.html.
+//
+// TWEE MODI (keuze van Andreas, per serie in te stellen):
+//  - 'serie' : één entry (type='map') in de reverse index → clubs.html toont
+//              één tegel voor de hele serie. Dit was het enige oude gedrag.
+//  - 'fotos' : elke foto los in de index → clubs.html toont álle foto's.
+// De serie-chips in de galerij komen uit foto:labels:eigen-map/{cat}/{map} en
+// worden in BEIDE modi geschreven; alléén de reverse-index-vorm verschilt.
+//
+// KV-CONTENTIE (les v0.35): de reverse index wordt per label in ÉÉN
+// read-modify-write bijgewerkt met alle keys tegelijk — nooit per foto. Elk
+// betrokken label wordt volledig gereconcilieerd (eerst alle entries van deze
+// map eruit, dan de juiste vorm erin), zodat een moduswissel vanzelf goed gaat
+// en de operatie idempotent is.
+async function handleAdminSerieLabels(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+
+  const { cat, map, labels, fotos, modus } = await request.json().catch(() => ({}));
+  if (!cat || !map || !Array.isArray(labels)) {
+    return json({ error: 'cat, map en labels verplicht' }, 400);
+  }
+  const perFoto = modus === 'fotos';
+  if (perFoto && !Array.isArray(fotos)) {
+    return json({ error: 'fotos verplicht bij modus=fotos' }, 400);
+  }
+
+  const nieuw = [...new Set(labels.filter(l => typeof l === 'string' && l.trim()).map(l => l.trim()))].slice(0, 10);
+
+  const mapKey = `eigen-map/${cat}/${map}`;
+  const oudRaw = await env.SUBSCRIBERS.get('foto:labels:' + mapKey);
+  const oude   = oudRaw ? JSON.parse(oudRaw) : [];
+
+  let writes = 0;
+
+  // 1) Serie-chips in de galerij — in beide modi
+  if (nieuw.length) await env.SUBSCRIBERS.put('foto:labels:' + mapKey, JSON.stringify(nieuw));
+  else              await env.SUBSCRIBERS.delete('foto:labels:' + mapKey);
+  writes++;
+
+  // 2) Foto-keys — zelfde vorm als bhFotoLabelKey() in beheer.html
+  const fotoPrefix = `eigen-foto/${cat}/${map}/`;
+  const fotoLijst  = (fotos || []).filter(f => f && f.naam).map(f => ({
+    key: fotoPrefix + f.naam,
+    url: f.url || '',
+  }));
+
+  const added   = nieuw.filter(l => !oude.includes(l));
+  const removed = oude.filter(l => !nieuw.includes(l));
+
+  // 3) Per-foto foto:labels — alleen in modus 'fotos'. Merge, zodat handmatig
+  //    per foto gezette labels behouden blijven. Batches van 15 (zie v0.36:
+  //    één grote Promise.all over honderden ops strandt halverwege).
+  if (perFoto && (added.length || removed.length)) {
+    for (let i = 0; i < fotoLijst.length; i += 15) {
+      const batch = fotoLijst.slice(i, i + 15);
+      await Promise.all(batch.map(async ({ key }) => {
+        const raw    = await env.SUBSCRIBERS.get('foto:labels:' + key);
+        const huidig = raw ? JSON.parse(raw) : [];
+        const merged = [...new Set([...huidig.filter(l => !removed.includes(l)), ...added])];
+        const gelijk = merged.length === huidig.length && merged.every(l => huidig.includes(l));
+        if (gelijk) return;
+        if (merged.length) await env.SUBSCRIBERS.put('foto:labels:' + key, JSON.stringify(merged));
+        else               await env.SUBSCRIBERS.delete('foto:labels:' + key);
+        writes++;
+      }));
+    }
+  }
+
+  // 4) Reverse index — volledige reconciliatie per betrokken label, 1 write elk.
+  //    Het eruit filteren gaat op prefix (niet op de meegestuurde lijst), zodat
+  //    ook entries van intussen verwijderde foto's meegaan.
+  const betrokken = [...new Set([...nieuw, ...oude])];
+  const basisEntry = { fotograafId: 'andreas', naam: 'Andreas Luckfiel', kleur: '#FF6B00', mapNaam: map, cat };
+
+  for (const label of betrokken) {
+    const raw = await env.SUBSCRIBERS.get('label:fotos:' + label);
+    const idx = raw ? JSON.parse(raw) : [];
+    const schoon = idx.filter(f =>
+      f && typeof f.key === 'string' && f.key !== mapKey && !f.key.startsWith(fotoPrefix)
+    );
+
+    if (nieuw.includes(label)) {
+      if (perFoto) {
+        for (const f of fotoLijst) {
+          schoon.push({ ...basisEntry, key: f.key, url: f.url, type: 'foto', ts: Date.now() });
+        }
+      } else {
+        schoon.push({ ...basisEntry, key: mapKey, url: fotoLijst[0]?.url || '', type: 'map', ts: Date.now() });
+      }
+    }
+
+    if (schoon.length) await env.SUBSCRIBERS.put('label:fotos:' + label, JSON.stringify(schoon));
+    else               await env.SUBSCRIBERS.delete('label:fotos:' + label);
+    writes++;
+  }
+
+  // 5) Galerij-cache verversen (zelfde reden als in handleSetFotoLabels)
+  try { await env.SUBSCRIBERS.put('meta:eigen-labels', JSON.stringify(await bouwEigenLabels(env))); writes++; } catch {}
+
+  return json({ ok: true, labels: nieuw, modus: perFoto ? 'fotos' : 'serie', fotos: fotoLijst.length, writes });
+}
+
 // ── FOTO'S OPHALEN ─────────────────────────────────────────────────────────
 // Lijst ALLE R2-objecten onder een prefix, met paginering. R2's list geeft max
 // 1000 objecten per aanroep; zonder cursor-lus valt alles daarboven stilletjes
