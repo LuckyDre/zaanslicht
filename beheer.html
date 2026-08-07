@@ -1450,11 +1450,38 @@ window.bhToggleFotoSelectie = function(cb) {
 function bhUpdateFotoBulkBalk(li) {
   const balk = li.querySelector('.bh-foto-bulk-balk');
   if (!balk) return;
+  const totaal = li.querySelectorAll('.foto-thumb').length;
   const n = _bhSelFotos.get(li)?.size || 0;
-  balk.style.display = n > 0 ? 'flex' : 'none';
+
+  // De balk staat er zodra het grid foto's heeft — anders is "Selecteer alles"
+  // onbereikbaar en moet je alsnog elke foto los aanklikken (de klacht die dit
+  // hele blok veroorzaakte). Labels/Deselecteer verschijnen pas bij een selectie.
+  balk.style.display = totaal > 0 ? 'flex' : 'none';
+  balk.querySelectorAll('.bh-foto-bulk-btn:not(.bh-foto-selecteer-alles)').forEach(b => {
+    b.style.display = n > 0 ? '' : 'none';
+  });
+
   const tel = balk.querySelector('.bh-foto-bulk-tel');
-  if (tel) tel.textContent = `${n} foto${n !== 1 ? "'s" : ''} geselecteerd`;
+  if (tel) tel.textContent = n > 0
+    ? `${n} van ${totaal} foto${totaal !== 1 ? "'s" : ''} geselecteerd`
+    : `${totaal} foto${totaal !== 1 ? "'s" : ''}`;
+
+  const alles = balk.querySelector('.bh-foto-selecteer-alles');
+  if (alles) alles.textContent = (n === totaal && totaal > 0 ? '☑' : '☐') + ' Selecteer alles';
 }
+
+window.bhSelecteerAlleFotos = function(btn) {
+  const li     = btn.closest('.slider-item');
+  const checks = [...li.querySelectorAll('.foto-thumb-check')];
+  if (!checks.length) return;
+  const alleAan = checks.every(cb => cb.checked);
+  checks.forEach(cb => {
+    if (cb.checked === !alleAan) return;
+    cb.checked = !alleAan;
+    bhToggleFotoSelectie(cb);
+  });
+  bhUpdateFotoBulkBalk(li);
+};
 
 window.bhDeselecteerFotos = function(btn) {
   const li = btn.closest('.slider-item');
