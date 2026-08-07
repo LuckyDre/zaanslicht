@@ -3307,6 +3307,33 @@ window.bhLaadManifestEnRender = async function() {
 let _bhMapLabelsCache = {};   // key → labels[]
 let _bhAlleLabels     = [];
 let _bhActieveCat     = 'voetbal';
+let _bhLabelModi      = null;  // "{cat}/{map}" → 'fotos'  (ontbreekt = 'serie')
+
+// Labelmodus per serie. 'serie' = één tegel op clubs.html (standaard),
+// 'fotos' = elke foto los. Eén KV-read voor alle series tegelijk.
+async function bhLaadLabelModi(force) {
+  if (_bhLabelModi && !force) return;
+  try {
+    const res  = await fetch(WORKER_URL + '/admin/serie-labelmodus', { headers: { 'X-Worker-Secret': getWorkerSecret() } });
+    const data = await res.json();
+    _bhLabelModi = data.modi || {};
+  } catch { _bhLabelModi = _bhLabelModi || {}; }
+}
+
+function bhLabelModus(cat, map) {
+  return (_bhLabelModi || {})[`${cat}/${map}`] === 'fotos' ? 'fotos' : 'serie';
+}
+
+// Fotolijst van een eigen serie als [{naam, url}] — url is de thumbnail op Pages,
+// die de reverse index (clubs.html) toont. R2 is voor eigen series géén waarheid
+// (alleen de masters staan daar, zie v0.48), dus manifest.json is de bron.
+function bhSerieFotos(cat, mapNaam) {
+  const item = (manifest?.[cat] || []).find(x => x.map === mapNaam);
+  return (item?.fotos || []).map(naam => ({
+    naam,
+    url: `${SITE}/images/${cat}/${encodeURIComponent(mapNaam)}/${encodeURIComponent(naam.replace(/\.webp$/i, '-thumb.webp'))}`,
+  }));
+}
 
 async function bhLaadAlleLabels() {
   if (_bhAlleLabels.length) return;
