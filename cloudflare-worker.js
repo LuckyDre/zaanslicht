@@ -1014,10 +1014,34 @@ async function handleAdminSerieLabels(request, env) {
     writes++;
   }
 
-  // 5) Galerij-cache verversen (zelfde reden als in handleSetFotoLabels)
+  // 5) Gekozen modus onthouden. Bewust ÉÉN gedeelde sleutel (map → modus) i.p.v.
+  //    een sleutel per serie: de Labels-tab rendert tientallen mappen tegelijk en
+  //    zou anders evenzoveel KV-reads doen.
+  try {
+    const mRaw = await env.SUBSCRIBERS.get('meta:eigen-labelmodus');
+    const mAll = mRaw ? JSON.parse(mRaw) : {};
+    const vorige = mAll[`${cat}/${map}`];
+    const huidige = perFoto ? 'fotos' : 'serie';
+    if (vorige !== huidige) {
+      if (huidige === 'fotos') mAll[`${cat}/${map}`] = 'fotos';
+      else delete mAll[`${cat}/${map}`]; // 'serie' is de standaard — niet opslaan
+      await env.SUBSCRIBERS.put('meta:eigen-labelmodus', JSON.stringify(mAll));
+      writes++;
+    }
+  } catch {}
+
+  // 6) Galerij-cache verversen (zelfde reden als in handleSetFotoLabels)
   try { await env.SUBSCRIBERS.put('meta:eigen-labels', JSON.stringify(await bouwEigenLabels(env))); writes++; } catch {}
 
   return json({ ok: true, labels: nieuw, modus: perFoto ? 'fotos' : 'serie', fotos: fotoLijst.length, writes });
+}
+
+// GET /admin/serie-labelmodus → { "{cat}/{map}": "fotos" } (alleen afwijkingen
+// van de standaard 'serie'). Eén KV-read voor de hele Labels-tab.
+async function handleAdminSerieLabelModus(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const raw = await env.SUBSCRIBERS.get('meta:eigen-labelmodus');
+  return json({ modi: raw ? JSON.parse(raw) : {} });
 }
 
 // ── FOTO'S OPHALEN ─────────────────────────────────────────────────────────
