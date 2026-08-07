@@ -2333,6 +2333,8 @@ export default {
     if (url.pathname === '/admin/github-file'         && request.method === 'POST') return handleAdminGithubFilePut(request, env);
     if (url.pathname === '/admin/labels-opschonen'    && request.method === 'POST') return handleLabelsOpschonen(request, env);
     if (url.pathname === '/admin/map-registreren'     && request.method === 'POST') return handleMapRegistreren(request, env);
+    if (url.pathname === '/admin/serie-labels'        && request.method === 'POST') return handleAdminSerieLabels(request, env);
+    if (url.pathname === '/admin/serie-labelmodus'    && request.method === 'GET')  return handleAdminSerieLabelModus(request, env);
     if (url.pathname === '/admin/review-wachtwoord'   && request.method === 'POST') return handleReviewWachtwoord(request, env);
     if (url.pathname === '/admin/review-sessie'       && request.method === 'POST') return handleReviewSessie(request, env);
     if (url.pathname === '/gallery/volgorde'          && request.method === 'POST') return handleGalleryVolgorde(request, env);
