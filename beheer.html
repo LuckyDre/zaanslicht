@@ -3494,6 +3494,136 @@ async function bhSlaMapLabelsOp(cat, mapNaam, labels, modus, cardEl) {
   }
 }
 
+// ── SERIE-LABELS VANUIT DE SLIDERLIJST ───────────────────────────────────────
+// 🏷 op één serie, of op alle aangevinkte series tegelijk. Zelfde driestand
+// (aan / uit / gestreept-gemixt) als de foto-labelpopup, en expliciet opslaan —
+// nooit direct bij aanklikken, want je moet eerst kunnen zien wat er al staat.
+
+window.bhSerieLabelsKnop = function(event, btn) {
+  event.stopPropagation();
+  const li = btn.closest('.slider-item');
+  bhOpenSerieLabelPopup([{ cat: li.dataset.cat, map: li.dataset.map }], btn);
+};
+
+// Bulk-balk: alle aangevinkte series in één keer.
+window.bhBulkSerieLabels = function(btn) {
+  const series = [..._bhSel].map(s => {
+    const i = s.indexOf('::');
+    return { cat: s.slice(0, i), map: s.slice(i + 2) };
+  });
+  if (!series.length) return;
+  bhOpenSerieLabelPopup(series, btn);
+};
+
+async function bhOpenSerieLabelPopup(series, anchor) {
+  if (_bhActiefeLabelPopup) { _bhActiefeLabelPopup.remove(); _bhActiefeLabelPopup = null; }
+
+  const secret = getWorkerSecret();
+  if (!secret) { setLog('Niet ingelogd.', 'error'); return; }
+
+  await bhLaadAlleLabels();
+  await bhLaadLabelModi();
+
+  // Huidige labels per serie ophalen (parallel, gecachet)
+  const keyVan = s => 'eigen-map/' + s.cat + '/' + s.map;
+  const ontbrekend = series.filter(s => _bhMapLabelsCache[keyVan(s)] === undefined);
+  if (ontbrekend.length) {
+    await Promise.all(ontbrekend.map(async s => {
+      const k = keyVan(s);
+      try {
+        const res  = await fetch(WORKER_URL + '/foto-labels?key=' + encodeURIComponent(k), { headers: { 'X-Worker-Secret': secret } });
+        const data = await res.json();
+        _bhMapLabelsCache[k] = data.labels || [];
+      } catch { _bhMapLabelsCache[k] = []; }
+    }));
+  }
+
+  const multi = series.length > 1;
+  const statusVan = l => {
+    const n = series.filter(s => (_bhMapLabelsCache[keyVan(s)] || []).includes(l)).length;
+    return n === 0 ? 'uit' : n === series.length ? 'aan' : 'gemixt';
+  };
+
+  const totaalFotos = series.reduce((n, s) => n + (bhLabelModus(s.cat, s.map) === 'fotos' ? bhSerieFotos(s.cat, s.map).length : 1), 0);
+
+  const popup = document.createElement('div');
+  popup.className = 'foto-label-popup';
+  popup.innerHTML = `
+    <div class="foto-label-popup-titel">${multi ? `Labels voor ${series.length} series` : 'Labels voor deze serie'}</div>
+    <div class="foto-label-popup-chips">
+      ${_bhAlleLabels.map(l => {
+        const status = statusVan(l);
+        const n = series.filter(s => (_bhMapLabelsCache[keyVan(s)] || []).includes(l)).length;
+        const suffix = status === 'gemixt' ? ` <span class="foto-label-popup-count">${n}/${series.length}</span>` : '';
+        return `<span class="bh-label-chip ${status === 'aan' ? 'actief' : ''} ${status === 'gemixt' ? 'gemixt' : ''}"
+          data-label="${l.replace(/"/g,'&quot;')}" data-start="${status}" data-state="${status}">${escB(l)}${suffix}</span>`;
+      }).join('')}
+    </div>
+    <div class="foto-label-popup-uitleg">
+      ${multi ? 'Gestreept = op een deel van de selectie. Klik om overal aan of uit te zetten.<br>' : ''}
+      Schrijft ~${totaalFotos} index-item${totaalFotos !== 1 ? 's' : ''}. De verdeling hele-serie / losse-foto's stel je per serie in bij Labels.
+    </div>
+    <div class="foto-label-popup-acties">
+      <button class="foto-label-popup-btn foto-label-popup-annuleer">✕ Annuleren</button>
+      <button class="foto-label-popup-btn foto-label-popup-opslaan">💾 Opslaan</button>
+    </div>`;
+
+  document.body.appendChild(popup);
+  _bhActiefeLabelPopup = popup;
+  const rect = anchor.getBoundingClientRect();
+  let top  = rect.bottom + 6;
+  let left = rect.left - 100;
+  if (left < 8) left = 8;
+  if (left + popup.offsetWidth > window.innerWidth - 8) left = window.innerWidth - popup.offsetWidth - 8;
+  if (top + popup.offsetHeight > window.innerHeight) top = rect.top - popup.offsetHeight - 6;
+  if (top < 8) top = 8;
+  popup.style.top  = top  + 'px';
+  popup.style.left = left + 'px';
+
+  let bezig = false;
+  popup.querySelectorAll('.bh-label-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (bezig) return;
+      const nieuw = chip.dataset.state === 'aan' ? 'uit' : 'aan';
+      chip.dataset.state = nieuw;
+      chip.classList.toggle('actief', nieuw === 'aan');
+      chip.classList.remove('gemixt');
+      chip.querySelector('.foto-label-popup-count')?.remove();
+    });
+  });
+
+  const sluit = () => { popup.remove(); if (_bhActiefeLabelPopup === popup) _bhActiefeLabelPopup = null; };
+  popup.querySelector('.foto-label-popup-annuleer').addEventListener('click', sluit);
+
+  popup.querySelector('.foto-label-popup-opslaan').addEventListener('click', async () => {
+    if (bezig) return;
+    const chips = [...popup.querySelectorAll('.bh-label-chip')];
+    const toevoegen = chips.filter(c => c.dataset.state === 'aan' && c.dataset.state !== c.dataset.start).map(c => c.dataset.label);
+    const weghalen  = chips.filter(c => c.dataset.state === 'uit' && c.dataset.state !== c.dataset.start).map(c => c.dataset.label);
+    if (!toevoegen.length && !weghalen.length) { sluit(); return; }
+
+    bezig = true;
+    const titelEl = popup.querySelector('.foto-label-popup-titel');
+    const opslaanBtn = popup.querySelector('.foto-label-popup-opslaan');
+    opslaanBtn.disabled = true;
+
+    let mislukt = 0, n = 0;
+    for (const s of series) {
+      n++;
+      if (multi) titelEl.textContent = `Opslaan… (${n}/${series.length})`;
+      const huidig = _bhMapLabelsCache[keyVan(s)] || [];
+      const nieuw  = [...new Set([...huidig.filter(l => !weghalen.includes(l)), ...toevoegen])];
+      const ok = await bhSlaMapLabelsOp(s.cat, s.map, nieuw, bhLabelModus(s.cat, s.map), null);
+      if (!ok) mislukt++;
+    }
+
+    if (mislukt) setLog(`${mislukt} van ${series.length} series mislukt.`, 'error');
+    else setLog(`Labels opgeslagen voor ${series.length} serie${series.length !== 1 ? 's' : ''}.`, 'ok');
+    sluit();
+    if (document.getElementById('tab-labels')?.classList.contains('actief')) bhRenderMapLabelLijst();
+  });
+}
+
 // ── FACEBOOK DELEN ────────────────────────────────────────────────────────
 function deelOpFacebook(event, btn) {
   event.stopPropagation();
