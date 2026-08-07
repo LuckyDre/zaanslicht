@@ -3618,9 +3618,9 @@ async function bhOpenSerieLabelPopup(series, anchor) {
     }
 
     if (mislukt) setLog(`${mislukt} van ${series.length} series mislukt.`, 'error');
-    else setLog(`Labels opgeslagen voor ${series.length} serie${series.length !== 1 ? 's' : ''}.`, 'ok');
+    else setLog(`✓ Labels opgeslagen voor ${series.length} serie${series.length !== 1 ? 's' : ''}.`, 'success');
     sluit();
-    if (document.getElementById('tab-labels')?.classList.contains('actief')) bhRenderMapLabelLijst();
+    if (document.getElementById('tab-labels')?.classList.contains('active')) bhRenderMapLabelLijst();
   });
 }
 
