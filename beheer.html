@@ -1354,6 +1354,9 @@ function toggleOpen(hdr) {
       });
       voegUploadZoneToe(li, cat, mapNaam);
       li.dataset.fotosLoaded = 'true';
+      // Direct aanroepen (niet via setTimeout): het grid staat nu in de DOM,
+      // dus de balk met "Selecteer alles" kan meteen berekend worden.
+      bhUpdateFotoBulkBalk(li);
     }
   }
 }
