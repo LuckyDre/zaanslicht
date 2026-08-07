@@ -3396,6 +3396,10 @@ async function bhRenderMapLabelLijst() {
     const thumbUrl  = thumbSrc || volledig;
     const fotoUrl   = thumbSrc || volledig; // voor de reverse index: thumbnail van de map
 
+    const cat      = _bhActieveCat;
+    const modus    = bhLabelModus(cat, item.map);
+    const aantal   = item.fotos?.length || 0;
+
     const card = document.createElement('div');
     card.className = 'bh-map-card';
     card.dataset.key = key;
@@ -3408,14 +3412,44 @@ async function bhRenderMapLabelLijst() {
         <div class="bh-map-chips">
           ${_bhAlleLabels.map(l => `<span class="bh-label-chip${huidig.includes(l) ? ' actief' : ''}" data-label="${l.replace(/"/g,'&quot;')}">${escB(l)}</span>`).join('')}
         </div>
+        <div class="bh-modus-rij">
+          <span class="bh-modus-label">Op de clubpagina:</span>
+          <button class="bh-modus-btn${modus === 'serie' ? ' actief' : ''}" data-modus="serie">📦 Hele serie</button>
+          <button class="bh-modus-btn${modus === 'fotos' ? ' actief' : ''}" data-modus="fotos">🖼 Alle ${aantal} foto's</button>
+          <span class="bh-modus-uitleg">${modus === 'fotos' ? `elke foto krijgt een eigen tegel (${aantal} KV-writes per wijziging)` : 'één tegel die naar de serie linkt'}</span>
+        </div>
         <span class="bh-opslaan-feedback" id="bh-fb-${CSS.escape(key)}">✓ Opgeslagen</span>
       </div>`;
+
+    const huidigeLabels = () => [...card.querySelectorAll('.bh-label-chip.actief')].map(c => c.dataset.label);
 
     card.querySelectorAll('.bh-label-chip').forEach(chip => {
       chip.addEventListener('click', async () => {
         chip.classList.toggle('actief');
-        const actief = [...card.querySelectorAll('.bh-label-chip.actief')].map(c => c.dataset.label);
-        await bhSlaMapLabelsOp(key, actief, fotoUrl, item.map, secret, card);
+        await bhSlaMapLabelsOp(cat, item.map, huidigeLabels(), bhLabelModus(cat, item.map), card);
+      });
+    });
+
+    card.querySelectorAll('.bh-modus-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const nieuweModus = btn.dataset.modus;
+        if (nieuweModus === bhLabelModus(cat, item.map)) return;
+        if (nieuweModus === 'fotos' && aantal > 150 &&
+            !confirm(`Deze serie heeft ${aantal} foto's. Elke labelwijziging kost dan ~${aantal} KV-schrijfacties (daglimiet is 1000). Doorgaan?`)) return;
+
+        card.querySelectorAll('.bh-modus-btn').forEach(b => b.classList.toggle('actief', b === btn));
+        _bhLabelModi = _bhLabelModi || {};
+        if (nieuweModus === 'fotos') _bhLabelModi[`${cat}/${item.map}`] = 'fotos';
+        else delete _bhLabelModi[`${cat}/${item.map}`];
+
+        const uitleg = card.querySelector('.bh-modus-uitleg');
+        if (uitleg) uitleg.textContent = nieuweModus === 'fotos'
+          ? `elke foto krijgt een eigen tegel (${aantal} KV-writes per wijziging)`
+          : 'één tegel die naar de serie linkt';
+
+        // Meteen herschrijven met de huidige labels, zodat de index de nieuwe
+        // vorm krijgt. Zonder labels valt er niets te herindexeren.
+        if (huidigeLabels().length) await bhSlaMapLabelsOp(cat, item.map, huidigeLabels(), nieuweModus, card);
       });
     });
 
@@ -3423,21 +3457,27 @@ async function bhRenderMapLabelLijst() {
   }
 }
 
-async function bhSlaMapLabelsOp(key, labels, url, mapNaam, secret, cardEl) {
+// Schrijft de labels van één eigen serie weg via /admin/serie-labels. Dat endpoint
+// werkt de reverse index per label in ÉÉN read-modify-write bij — nooit per foto
+// (KV-contentie, zie v0.35) — en kent beide modi ('serie' / 'fotos').
+async function bhSlaMapLabelsOp(cat, mapNaam, labels, modus, cardEl) {
+  const key = 'eigen-map/' + cat + '/' + mapNaam;
   try {
-    const res  = await fetch(WORKER_URL + '/foto-labels', {
+    const res = await fetch(WORKER_URL + '/admin/serie-labels', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': secret },
-      body: JSON.stringify({ key, labels, url, mapNaam, type: 'map', cat: _bhActieveCat }),
+      headers: { 'Content-Type': 'application/json', 'X-Worker-Secret': getWorkerSecret() },
+      body: JSON.stringify({ cat, map: mapNaam, labels, modus, fotos: bhSerieFotos(cat, mapNaam) }),
     });
     const data = await res.json();
-    if (data.ok) {
-      _bhMapLabelsCache[key] = data.labels;
-      // Feedback tonen
-      const fb = document.getElementById('bh-fb-' + CSS.escape(key));
-      if (fb) { fb.classList.add('zichtbaar'); setTimeout(() => fb.classList.remove('zichtbaar'), 1800); }
-    }
-  } catch {}
+    if (!data.ok) { setLog('Labels opslaan mislukt: ' + (data.error || 'onbekende fout'), 'error'); return false; }
+    _bhMapLabelsCache[key] = data.labels;
+    const fb = cardEl?.querySelector('.bh-opslaan-feedback') || document.getElementById('bh-fb-' + CSS.escape(key));
+    if (fb) { fb.classList.add('zichtbaar'); setTimeout(() => fb.classList.remove('zichtbaar'), 1800); }
+    return true;
+  } catch (e) {
+    setLog('Labels opslaan mislukt: ' + e.message, 'error');
+    return false;
+  }
 }
 
 // ── FACEBOOK DELEN ────────────────────────────────────────────────────────
