@@ -414,6 +414,7 @@ async function handleFotograafUitnodiging(request, env) {
   await env.SUBSCRIBERS.put('fotograaf:invite:' + token, JSON.stringify({ naam, email, expires }), { expirationTtl: 7 * 24 * 3600 });
 
   const link = `https://zaanslicht.com/fotograaf.html?invite=${token}`;
+  const fotografen = fotografenRegel(await haalFotografenNamen(env));
 
   // Stuur uitnodigingsmail via Resend
   try {
@@ -510,6 +511,7 @@ async function handleFotograafRegister(request, env) {
 
   const id           = randomToken(8);
   const passwordHash = await hashPassword(password);
+  const fotografen   = fotografenRegel(await haalFotografenNamen(env));
   const now          = Date.now();
   const account      = { id, naam: invite.naam, email: invite.email, kleur: kleur || '#3b82f6', passwordHash, ts: now, last_login: now };
 
