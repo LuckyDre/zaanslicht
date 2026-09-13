@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Scant images/voetbal/ en images/nosports/ voor submappen (wedstrijden/albums)
+Scant images/voetbal/, images/nosports/ en images/othersports/ voor submappen (wedstrijden/albums)
 en genereert manifest.json. Nieuwe mappen verschijnen bovenaan.
 Bestaande volgorde van sliders én foto's blijft bewaard.
 """
@@ -107,9 +107,12 @@ def scan(category):
 
     return all_items
 
+# othersports ontbrak hier, terwijl othersports.html wel `manifest.othersports`
+# leest: elke keer dat dit script draaide verdween die serie van de site.
 manifest = {
-    'voetbal':  scan('voetbal'),
-    'nosports': scan('nosports'),
+    'voetbal':     scan('voetbal'),
+    'nosports':    scan('nosports'),
+    'othersports': scan('othersports'),
 }
 
 with open(SITE / 'manifest.json', 'w', encoding='utf-8') as f:
