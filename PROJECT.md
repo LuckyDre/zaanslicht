@@ -169,6 +169,17 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.50 — 13 september 2026 — Mailheader noemt alle fotografen ✅
+
+De regel "Fotografie door Andreas Luckfiel" in de zwarte balk van de mails is dynamisch geworden: `haalFotografenNamen(env)` leest de gastfotografen uit KV en `fotografenRegel()` maakt er "Andreas Luckfiel &amp; Jan Kaper" van (bij 3+: komma's en een &amp; voor de laatste). Andreas altijd vooraan, rest alfabetisch.
+
+- Geldt voor alle drie de sjablonen: nieuwsbrief (`buildEmail`), fotograaf-uitnodiging en welkomstmail. `buildEmail` heeft `'Andreas Luckfiel'` als standaardwaarde, dus een aanroep zonder het derde argument blijft werken.
+- **Alleen fotografen met minstens één serie** tellen mee — een uitgenodigd account zonder foto's hoort niet in de aanhef.
+- Namen worden **één keer per verzending** opgehaald, niet per ontvanger: per ontvanger zou bij een paar honderd abonnees de gratis KV-leeslimiet in gevaar komen.
+- Namen komen uit KV en worden door de fotograaf zelf gekozen, dus ze worden ge-escaped. Getest met `Tom & Jerry <script>`.
+- Getest in Node met een nagebootste KV (5 situaties: geen gastfotograaf, één, uitgenodigd-zonder-foto's, drie, en de escape-test). Daarna gedeployd (versie `f6b71cd0`, 100%) en de Worker nagemeten: `/fotograaf/manifest` en het serveren van een R2-foto allebei HTTP 200.
+- **Niet geverifieerd:** een echt verzonden mail. Dat kan alleen door een nieuwsbrief te versturen; de sjabloon-uitvoer is wel bewezen in Node.
+
 ### v0.49 — 13 september 2026 — Onvolledige serie + rommelige fotovolgorde opgelost ✅
 
 **Klacht:** serie `ZCFC - ZVC 1-1 (Beker)` telde 92 van de 111 foto's, en de volgorde in de galerij leek willekeurig.
