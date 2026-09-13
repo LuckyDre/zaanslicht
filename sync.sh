@@ -84,18 +84,22 @@ fswatch -o "$SITE" \
 
       # Stap 1: converteer alle JPG's naar WebP vóór de commit
       converteer_jpgs
-      if [ $? -eq 1 ]; then
-        echo "→ Manifest bijwerken na conversie..."
-        python3 "$SITE/generate-manifest.py"
-      fi
+      GECONVERTEERD=$?
 
-      # Stap 2: kijk of er nieuwe WebP's zijn → manifest bijwerken
-      # (moet vóór de commit: kijkt naar nog niet-vastgelegde wijzigingen)
+      # Stap 2: zijn er nieuwe WebP's? Dan thumbnails maken én het manifest
+      # bijwerken. (Moet vóór de commit: kijkt naar nog niet-vastgelegde
+      # wijzigingen.) De thumbnail-stap stond tot 13-09-2026 los — je moest
+      # zelf `python3 maak-thumbs.py` draaien en dat werd vergeten. Zonder
+      # -thumb.webp laadt elk raster de 2200px-versie: ~25x te veel data.
+      # maak-thumbs.py slaat foto's met een bestaande thumb over, dus dit is
+      # goedkoop als er niets nieuws is.
       NIEUWE_WEBPS=$(git status --porcelain | grep -iE "images/(voetbal|nosports|othersports)/.*\.webp" | wc -l | tr -d ' ')
-      if [ "$NIEUWE_WEBPS" -gt "0" ]; then
-        echo "→ $NIEUWE_WEBPS nieuwe WebP foto('s) — manifest bijwerken..."
+      if [ "$GECONVERTEERD" -eq 1 ] || [ "$NIEUWE_WEBPS" -gt "0" ]; then
+        echo "→ Thumbnails maken..."
+        python3 "$SITE/maak-thumbs.py"
+        echo "→ Manifest bijwerken..."
         python3 "$SITE/generate-manifest.py"
-        echo "✓ Manifest bijgewerkt"
+        echo "✓ Thumbnails en manifest bijgewerkt"
       fi
 
       git add -A
