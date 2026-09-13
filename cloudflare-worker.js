@@ -136,6 +136,9 @@ async function handleSend(request, env) {
   const paused = await env.SUBSCRIBERS.get('settings:paused');
   if (paused === '1') return json({ sent: 0, message: 'Verzenden is gepauzeerd' });
 
+  // Eén keer ophalen, niet per ontvanger.
+  const fotografen = fotografenRegel(await haalFotografenNamen(env));
+
   let sent = 0, errors = 0, skipped = 0;
 
   for (const sub of emails) {
@@ -144,7 +147,7 @@ async function handleSend(request, env) {
     if (banned === '1') { skipped++; continue; }
 
     const unsubUrl = `https://zaanslicht.com/afmelden.html?token=${sub.token}`;
-    const html = buildEmail(message, unsubUrl);
+    const html = buildEmail(message, unsubUrl, fotografen);
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -171,7 +174,41 @@ async function handleSend(request, env) {
 }
 
 // ── E-MAIL TEMPLATE ────────────────────────────────────────────────────────
-function buildEmail(message, unsubscribeUrl) {
+
+// Namen voor de regel "Fotografie door ..." in de mailheader. Alleen fotografen
+// die ook echt een serie online hebben staan: een uitgenodigd account zonder
+// foto's hoort niet in de aanhef van een nieuwsbrief. Eén KV-ronde per verzending,
+// niet per ontvanger — bij honderden abonnees zou dat de limiet opvreten.
+async function haalFotografenNamen(env) {
+  const namen = [];
+  let cursor;
+  do {
+    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
+    for (const key of r.keys) {
+      try {
+        const a         = JSON.parse(await env.SUBSCRIBERS.get(key.name));
+        const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
+        const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
+        if (a.naam && mappen.length) namen.push(a.naam);
+      } catch (e) {
+        // Eén kapot account mag de hele verzending niet blokkeren.
+      }
+    }
+    cursor = r.list_complete ? undefined : r.cursor;
+  } while (cursor);
+  return namen.sort((a, b) => a.localeCompare(b, 'nl'));
+}
+
+// "Andreas Luckfiel" / "Andreas Luckfiel & Jan Kaper" / "Andreas Luckfiel, X & Y"
+// Namen komen uit KV en worden door de fotograaf zelf gekozen: altijd escapen.
+function fotografenRegel(namen = []) {
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const alle = ['Andreas Luckfiel', ...namen].map(esc);
+  if (alle.length === 1) return alle[0];
+  return alle.slice(0, -1).join(', ') + ' &amp; ' + alle[alle.length - 1];
+}
+
+function buildEmail(message, unsubscribeUrl, fotografen = 'Andreas Luckfiel') {
   const htmlMessage = message
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/\n/g, '<br>');
@@ -188,7 +225,7 @@ function buildEmail(message, unsubscribeUrl) {
         <p style="margin:0;font-size:22px;font-weight:800;color:#ffffff;letter-spacing:2px;">
           Zaans<span style="color:#FF6B00;"> Licht</span>
         </p>
-        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel</p>
+        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door ${fotografen}</p>
       </td></tr>
       <tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
       <tr><td style="padding:36px 36px 28px;">
@@ -393,7 +430,7 @@ async function handleFotograafUitnodiging(request, env) {
 <tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:10px;overflow:hidden;">
 <tr><td style="background:#0d0d0d;padding:28px 36px;text-align:center;">
   <p style="margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:2px;">Zaans<span style="color:#FF6B00;"> Licht</span></p>
-  <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel</p>
+  <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door ${fotografen}</p>
 </td></tr>
 <tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
 <tr><td style="padding:36px;">
@@ -499,7 +536,7 @@ async function handleFotograafRegister(request, env) {
     <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
       <tr><td style="background:#0d0d0d;padding:28px 36px;text-align:center;">
         <p style="margin:0;font-size:22px;font-weight:800;color:#fff;letter-spacing:2px;">Zaans<span style="color:#FF6B00;"> Licht</span></p>
-        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door Andreas Luckfiel</p>
+        <p style="margin:6px 0 0;font-size:11px;color:#555;letter-spacing:3px;text-transform:uppercase;">Fotografie door ${fotografen}</p>
       </td></tr>
       <tr><td style="height:4px;background:linear-gradient(90deg,#FF6B00,#ff9a00);"></td></tr>
       <tr><td style="padding:36px 36px 28px;">
