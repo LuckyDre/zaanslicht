@@ -10,23 +10,68 @@ eval "$(/opt/homebrew/bin/brew shellenv zsh)"
 
 echo "✓ Zaans Licht auto-sync gestart — JPG's worden automatisch omgezet en online gezet"
 
-converteer_jpgs() {
-  local gevonden=0
-  for ext in jpg JPG jpeg JPEG; do
-    while IFS= read -r -d '' f; do
-      # Sla _originelen over
-      [[ "$f" == *"_originelen"* ]] && continue
-      webp="${f%.*}.webp"
-      echo "  → Converteren: $(basename "$f")"
-      "$SIPS" -Z 2200 "$f" --out "$TMP" >/dev/null 2>&1 && \
-      "$CWEBP" -q 82 "$TMP" -o "$webp" >/dev/null 2>&1 && \
-      rm "$f" && \
-      echo "    ✓ $(basename "$webp")" || \
+# othersports ontbrak in deze lijst, waardoor een JPG in die categorie nooit
+# werd omgezet en dus nooit op de site kwam.
+FOTO_MAPPEN=("$SITE/images/voetbal" "$SITE/images/nosports" "$SITE/images/othersports")
+
+# Zet om wat er OP DIT MOMENT ligt. Vult OMGEZET en MISLUKT.
+converteer_ronde() {
+  OMGEZET=0
+  MISLUKT=0
+  while IFS= read -r -d '' f; do
+    # Sla _originelen over
+    [[ "$f" == *"_originelen"* ]] && continue
+    webp="${f%.*}.webp"
+    echo "  → Converteren: $(basename "$f")"
+    if "$SIPS" -Z 2200 "$f" --out "$TMP" >/dev/null 2>&1 && \
+       "$CWEBP" -q 82 "$TMP" -o "$webp" >/dev/null 2>&1 && \
+       rm "$f"; then
+      echo "    ✓ $(basename "$webp")"
+      OMGEZET=$((OMGEZET + 1))
+    else
       echo "    ✗ Conversie mislukt: $(basename "$f")"
-      gevonden=1
-    done < <(find "$SITE/images/voetbal" "$SITE/images/nosports" -name "*.$ext" -print0 2>/dev/null)
+      MISLUKT=$((MISLUKT + 1))
+    fi
+  done < <(find "${FOTO_MAPPEN[@]}" \( -iname "*.jpg" -o -iname "*.jpeg" \) -print0 2>/dev/null)
+}
+
+# Eén ronde is niet genoeg. Een grote serie omzetten duurt minuten, en foto's die
+# in die tijd binnenkomen ziet de `find` van die ronde niet meer. Kwam er daarna
+# geen bestandswijziging meer, dan draaide dit script niet opnieuw en bleven ze
+# als JPG liggen — onzichtbaar op de site, zonder foutmelding (13-09-2026: 19 van
+# de 111 foto's van ZCFC - ZVC). Dus: doorgaan tot er niets meer om te zetten is.
+# Een foto die nog aan het kopiëren was mislukt; die krijgt twee herkansingen.
+converteer_jpgs() {
+  local totaal=0 herkansingen=0
+
+  while true; do
+    converteer_ronde
+    totaal=$((totaal + OMGEZET))
+
+    if [ "$OMGEZET" -gt 0 ]; then
+      herkansingen=0          # er kwam werk bij: gewoon nog een ronde
+      sleep 3                 # even wachten, kopieën kunnen nog bezig zijn
+      continue
+    fi
+
+    # Niets omgezet. Liggen er nog JPG's (mislukt of half gekopieerd)?
+    if [ "$MISLUKT" -gt 0 ] && [ "$herkansingen" -lt 2 ]; then
+      herkansingen=$((herkansingen + 1))
+      echo "  … $MISLUKT foto('s) mislukt — herkansing $herkansingen van 2 over 10s"
+      sleep 10
+      continue
+    fi
+
+    break
   done
-  return $gevonden
+
+  if [ "$MISLUKT" -gt 0 ]; then
+    echo "‼️  $MISLUKT foto('s) konden niet worden omgezet en staan NIET op de site."
+    echo "‼️  Ze liggen nog als JPG in de map — controleer of het bestand heel is."
+  fi
+
+  [ "$totaal" -gt 0 ] && return 1
+  return 0
 }
 
 fswatch -o "$SITE" \
