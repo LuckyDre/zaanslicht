@@ -116,6 +116,12 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 | bhLb* (eigen lightbox) | ~3234 |
 
 ## Terugkerende valkuilen (kosten anders opnieuw debug-tijd)
+- **Twee sorteringen die je niet door elkaar mag halen** (13-09-2026, Andreas expliciet):
+  | Wat | Volgorde | Waar geregeld |
+  |--|--|--|
+  | **Sliders** (series onder elkaar op de pagina) | **nieuwste datum bovenaan** | `volgorde` per serie in `manifest.json`, gezet via beheer.html |
+  | **Foto's binnen één serie** | **oudste eerst** — een wedstrijd begint bij de aftrap, niet bij het eindsignaal | `fotos[]`-array, `generate-manifest.py` sorteert nieuwe foto's alfabetisch = chronologisch |
+  `generate-manifest.py` zet een nieuwe serie op `volgorde: -1` (→ bovenaan) en dat klopt meestal, want de nieuwste serie is ook de recentste wedstrijd. **Maar bij een merge-conflict in `manifest.json` niet blind de andere kant overnemen**: op 13-09 stond de nieuwste serie in een "Beheer sync" op plek 18 en die waarde is toen klakkeloos behouden — de serie verdween onderaan de pagina. Controleer na elke ingreep of `volgorde` nog aflopend op `datum` loopt.
 - **`.list()` in Workers altijd pagineren** (cursor-lus) — anders vallen items stil weg ("onzichtbare mappen"). Gebruik `lijstAlleR2`.
 - **KV-schrijflimiet 1000/dag (gratis).** Nooit KV-writes op het request-pad zonder throttle. Reverse index: **per label 1 read-modify-write met alle keys**, nooit per foto (contentie, v0.35).
 - **Firebase: altijd `firebase-rest.js`** (fbGet/fbSet/fbDelete), nooit de live SDK-listener (hangt stil op prod). Ook `.once('value')` hangt: **geen resolve én geen reject** — een `.catch()` vangt dat dus niet, en in een `Promise.all` blokkeert het alles ernaast (v0.44: beheer-reactielijst bleef eeuwig op "Laden…").
