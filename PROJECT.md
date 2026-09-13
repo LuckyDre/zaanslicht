@@ -169,6 +169,25 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.49 — 13 september 2026 — Onvolledige serie + rommelige fotovolgorde opgelost ✅
+
+**Klacht:** serie `ZCFC - ZVC 1-1 (Beker)` telde 92 van de 111 foto's, en de volgorde in de galerij leek willekeurig.
+
+**Oorzaak 1 — 19 foto's bleven als JPG liggen.** `converteer_jpgs()` in `sync.sh` deed één ronde: de `find` aan het begin zag 92 bestanden, de conversie duurde minuten, en de laatste 19 foto's kwamen ná die `find` binnen. Omdat er daarna geen bestandswijziging meer volgde, kreeg `fswatch` geen event en draaide het script niet opnieuw. Geen foutmelding — de log eindigde gewoon met "✓ Site bijgewerkt". Alleen WebP's komen in `manifest.json`, dus die 19 stonden niet op de site.
+
+**Oorzaak 2 — volgorde per conversiebatch.** `generate-manifest.py` bewaart de bestaande fotovolgorde en zet nieuwe foto's eráchter (bewust, anders verspringt handmatig sorteren). Omdat de serie in brokken werd omgezet, kwam de `_M4A14xx`-groep als eerste in het manifest en bleef daar staan, met `_M4A08xx` achteraan. Bij een serie die in één ronde wordt omgezet valt dit niet op: dan is alles "nieuw" en sorteert het script alfabetisch = chronologisch.
+
+**Hersteld:**
+- 19 JPG's alsnog omgezet (2200px/q82) → serie compleet op 111, 111 thumbnails aangemaakt.
+- Fotolijst van die ene serie leeggemaakt en `generate-manifest.py` opnieuw gedraaid → oplopend op bestandsnaam, oudste eerst. Andere 20 series byte-voor-byte ongewijzigd gecontroleerd.
+- Bij het pushen botste dit met een "Beheer sync" van 20:55 waarin Andreas dezelfde serie op datum 2026-09-12 en plek 18 had gezet. Handmatig samengevoegd: beheer-instellingen behouden, alleen de fotolijst vervangen.
+- Live geverifieerd: manifest 111 in juiste volgorde, en steekproef van 4 bestanden HTTP 200 als `image/webp` (thumb 16 KB, master 424 KB).
+
+**Structureel gefixt in `sync.sh`:** de conversie herhaalt nu tot er niets meer om te zetten valt, mislukte bestanden krijgen twee herkansingen (dekt een foto die nog aan het kopiëren is) en daarna een expliciete waarschuwing met bestandsnaam. `othersports` toegevoegd aan de zoekmappen — JPG's daarin werden nooit omgezet. Getest in een losse testmap: een bestand dat tijdens het converteren binnenkomt wordt alsnog opgepakt, een kapot bestand blijft liggen mét waarschuwing, alle uitvoer 2200px.
+
+**Nog niet automatisch:** `maak-thumbs.py` draait niet mee in `sync.sh`. Zonder thumbnails laadt elk raster de 2200px-versie.
+
+
 ### v0.48 — 26 juli 2026 — Camera-masters naar R2: gepubliceerde site van 1,5 GB naar 425 MB ✅
 
 **AFGEROND EN LIVE GEVERIFIEERD.** Andreas draaide `verwijder-verhuisde-masters.py --uitvoeren` (de bulk-delete werd bij mij door de classifier geblokkeerd). Resultaat: `images/` **1,5 GB → 425 MB**; `-thumb` (964) en `-groot` (323) en de 645 kleine originelen ongemoeid; masters weg uit HEAD, `-groot` nog in HEAD.
