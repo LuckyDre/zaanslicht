@@ -3035,6 +3035,18 @@ async function verwerkUploads(files, cat, mapNaam, li, progres) {
 
       await uploadFotoNaarGitHub(cat, mapNaam, naamWebP, base64);
 
+      // Ook de thumbnail, met dezelfde maten als maak-thumbs.py (400px / q72).
+      // Zonder -thumb.webp laadt het raster de 2200px-versie: ~30x te veel data.
+      // Tot 13-09-2026 uploadde dit scherm alleen de grote foto — fotograaf.html
+      // deed het wél goed. Een online toegevoegde foto komt via GitHub binnen en
+      // niet via de map op de Mac, dus sync.sh maakt de thumb daar nooit alsnog.
+      // De thumb gaat NIET in item.fotos: generate-manifest.py sluit -thumb uit
+      // en anders staat elke foto dubbel in de galerij.
+      rij.querySelector('.uz-status').textContent = '⬆️ thumbnail…';
+      const thumbNaam = naamWebP.replace(/\.webp$/, '-thumb.webp');
+      const thumb64   = await fotoNaarWebP(file, 400, 0.72);
+      await uploadFotoNaarGitHub(cat, mapNaam, thumbNaam, thumb64);
+
       // Thumbnail direct tonen
       const idx = grid.querySelectorAll('.foto-thumb').length + 1;
       const thumb = document.createElement('div');
