@@ -185,7 +185,11 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 **Structureel gefixt in `sync.sh`:** de conversie herhaalt nu tot er niets meer om te zetten valt, mislukte bestanden krijgen twee herkansingen (dekt een foto die nog aan het kopiëren is) en daarna een expliciete waarschuwing met bestandsnaam. `othersports` toegevoegd aan de zoekmappen — JPG's daarin werden nooit omgezet. Getest in een losse testmap: een bestand dat tijdens het converteren binnenkomt wordt alsnog opgepakt, een kapot bestand blijft liggen mét waarschuwing, alle uitvoer 2200px.
 
-**Nog niet automatisch:** `maak-thumbs.py` draait niet mee in `sync.sh`. Zonder thumbnails laadt elk raster de 2200px-versie.
+**Daarna alsnog volledig geautomatiseerd (zelfde dag, op verzoek "alles moet vanzelf gaan"):**
+- `sync.sh` draait nu zelf `maak-thumbs.py` zodra er nieuwe WebP's zijn, vlak voor het manifest en dus binnen dezelfde commit. Het script slaat foto's met een bestaande thumb over, dus het kost niets als er niets nieuws is.
+- **`beheer.html` uploadde alleen de 2200px-foto, geen thumbnail** — `fotograaf.html` deed dat al wél (r1403, foto + thumb in één keer). Een online toegevoegde foto liet daardoor het raster de volle versie laden. `sync.sh` kan dat niet repareren: zo'n foto komt via GitHub binnen en staat nooit als los bestand in `images/` op de Mac. Opgelost door in `verwerkUploads` ook `fotoNaarWebP(file, 400, 0.72)` te uploaden als `-thumb.webp`; bewust **niet** in `item.fotos` (anders staat elke foto dubbel, zie het v0.48-incident). Getest in Chrome met de echte functie: 3000×2000 JPEG → 2200×1467 + 400×267, naam `R71B4343-thumb.webp` = precies de URL uit `gallery-nieuw.js:434`.
+- Controle over de hele bibliotheek: **0 foto's in het manifest zonder thumbnail**.
+- Uploaden via beheer.html gedocumenteerd in `beheer-handleiding.html` (stap 2).
 
 
 ### v0.48 — 26 juli 2026 — Camera-masters naar R2: gepubliceerde site van 1,5 GB naar 425 MB ✅
