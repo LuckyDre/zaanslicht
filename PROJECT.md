@@ -169,6 +169,21 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.53 — 14 september 2026 — Deelknop per serie ✅
+
+**Aanleiding:** de deeplink met de hand maken ging fout. Een link met échte spaties (`#serie=ZCFC - ZVC 1-1 (Beker)`) wordt door WhatsApp afgekapt bij de eerste spatie; de kijker landt dan op `voetbal.html` zonder hash, dus bovenaan de pagina bij de verkeerde wedstrijd. Dat verklaart Andreas' melding dat kijkers "niet bij de juiste foto's" uitkwamen. Spaties moeten `%20` zijn.
+
+**Gebouwd:** deelknop naast de overzichtsknop in elke seriekop (`.pc-deel`, hergebruikt de bestaande `.pc-overzicht`-stijl zodat er geen CSS in drie paginabestanden bij hoefde). Bouwt de link met `encodeURIComponent(naam)` — dus altijd correct ge-encodeerd.
+
+- **Telefoon/tablet:** `navigator.share` → het echte deelmenu (WhatsApp, Mail). Gated op `matchMedia('(pointer: coarse)')`, want op de desktop bestaat `navigator.share` óók en opent daar een modaal systeemvenster dat de pagina blokkeert — dat gebeurde in de test.
+- **Desktop:** kopiëren naar het klembord, met `document.execCommand`-terugvalweg voor contexten zonder `navigator.clipboard`, en als laatste redmiddel een `prompt()` met de link erin, zodat de gebruiker nooit met lege handen staat.
+- Bevestiging: knop wordt kort groen met een vinkje (2,5s).
+- `ensureNieuwStyles()` wordt nu altijd aangeroepen i.p.v. alleen bij een datum/NIEUW-badge; anders miste een serie zonder datum de stijl voor die bevestiging.
+
+**Geverifieerd op de live site:** 23 deelknoppen op 23 series; de gebouwde link is `https://zaanslicht.com/voetbal.html#serie=ZCFC%20-%20ZVC%201-1%20(Beker)` — geen spaties, en `location.pathname` houdt test-queries eruit. Ook het lastigste geval getest (Jans `ZCFC 1 - ZVC'22 1` met apostrof).
+
+**Niet geverifieerd:** het daadwerkelijke kopiëren. Chrome vraagt in een geautomatiseerde context om klembordtoestemming en bevriest dan de pagina — drie keer gebeurd tijdens de test. Bij een echte muisklik van een gebruiker speelt dat niet. Andreas test het zelf.
+
 ### v0.52 — 14 september 2026 — Datum bij elke serie + deeplink die op tijd springt ✅
 
 **Datum in de seriekop.** `manifest.json` en het gastmanifest hadden de datum al (voor de NIEUW-badge), maar toonden 'm niet. `datumNL()` maakt er "12 september 2026" van; staat er geen datum, dan blijft de kop exact zoals hij was (`Lizzy` is het levende voorbeeld). Stijl zit in de injectie van `gallery-nieuw.js`, dus in één keer goed voor voetbal/nosports/othersports — de `.pc-*`-CSS staat per pagina en had anders in drie bestanden gemoeten.
