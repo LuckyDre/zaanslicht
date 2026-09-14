@@ -169,6 +169,22 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.52 — 14 september 2026 — Datum bij elke serie + deeplink die op tijd springt ✅
+
+**Datum in de seriekop.** `manifest.json` en het gastmanifest hadden de datum al (voor de NIEUW-badge), maar toonden 'm niet. `datumNL()` maakt er "12 september 2026" van; staat er geen datum, dan blijft de kop exact zoals hij was (`Lizzy` is het levende voorbeeld). Stijl zit in de injectie van `gallery-nieuw.js`, dus in één keer goed voor voetbal/nosports/othersports — de `.pc-*`-CSS staat per pagina en had anders in drie bestanden gemoeten.
+
+- **Mobiele regressie die ik zelf veroorzaakte en meteen heb gefixt:** `.pc-rechts` heeft `flex-shrink:0`, dus de extra datum duwde `.pc-titel` op 320–420px zo'n 80px buiten zijn kader. Opgelost met `flex-wrap:wrap` + `flex-shrink:1` op `.pc-rechts`. Nagemeten op 320/360/420/620/1000px: nergens overflow, datum overal binnen het kader.
+
+**Deeplink `#serie=<naam>` sprong te laat.** `scrollNaarSerieUitHash()` stond ná de renderlus, en elke gastserie doet daarin een eigen fetch — op een verse pagina duurde dat ~9s. Een kijker die een gedeelde link opende was allang zelf aan het scrollen; de markering stond maar 2,5s. Nu:
+- De functie wordt ná elke gerenderde serie aangeroepen en springt zodra de gezochte serie bestaat.
+- Markering 2,5s → 6s.
+- Aan het eind nog één positiecorrectie (afbeeldingen veranderen de hoogte), maar alleen als de bezoeker nog niet zelf heeft gescrold (`wheel`/`touchstart`/`keydown`).
+- Geverifieerd op de live site: `_dlGemarkeerd === true` en `_dlEl` = de gezochte serie, terwijl de markering al verlopen was op t=9,3s — dus gezet vóór t=3,3s, ruim voordat alle 23 series klaar waren.
+
+**Niet te verifiëren met de browsertools:** of het springen zelf werkt. Programmatisch scrollen is in de testbrowser geblokkeerd, óók op een lege pagina — die meting zegt dus niets over echte bezoekers. Dat de juiste serie op tijd gevonden en gemarkeerd wordt, is wél bewezen. Andreas test het op zijn telefoon.
+
+**Cache-les:** `gallery-nieuw.js` wordt geladen met `?v=`. Wie de JS wijzigt en die query laat staan, levert bezoekers de oude versie. Opgehoogd naar `v=20260914c`. Mijn eigen testbrowser trapte er nog in ook — die laadde `v=20260914a` uit cache tot ik een wegwerp-query aan de pagina-URL hing.
+
 ### v0.51 — 14 september 2026 — Gastfotograaf viel van de site: KV list()-quotum op ⚠️→✅
 
 **Klacht:** "Jan Kaper is ineens weg van de site."
