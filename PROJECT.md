@@ -169,6 +169,22 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.51 — 14 september 2026 — Gastfotograaf viel van de site: KV list()-quotum op ⚠️→✅
+
+**Klacht:** "Jan Kaper is ineens weg van de site."
+
+**Oorzaak:** `KV list() limit exceeded for the day.` — gratis KV staat **1000 list()-operaties per dag** toe. Elk bezoek aan de homepage (`/fotograaf/profielen`) én aan elke galerijpagina (`/fotograaf/manifest`) deed er één. Bij een paar honderd bezoekers is dat quotum halverwege de dag op; vanaf 12:14 gaf de Worker 500 en vielen alle gastseries weg. De foto's zelf (328 objecten in R2) zijn nooit geraakt. Niet veroorzaakt door de mailwijziging van v0.50: de exception kwam uit `handleFotograafManifest`, en de nieuwe mailcode draait alleen bij verzenden.
+
+**Opgelost:**
+- **`fotograaf:index`** — één KV-sleutel met alle account-id's. `haalAccountIds()`/`haalAccounts()` lezen die; losse gets mogen 100.000x per dag. Vijf functies die `list({prefix:'fotograaf:account:'})` deden gebruiken 'm nu: manifest, profielen, admin-lijst, **login** (anders kan niemand meer inloggen als het quotum op is) en de mailnamen uit v0.50.
+- **Zelfherstellend:** ontbreekt of is de index stuk, dan valt de code eenmalig terug op `list()` en schrijft 'm weg. Bijgewerkt bij registratie en verwijdering, en de cron (6:00/18:00) bouwt 'm 2x per dag opnieuw op — kost 2 van de 1000 list()-operaties en garandeert dat er nooit een fotograaf ontbreekt. Handmatig kan ook: `POST /admin/index-herbouwen` (secret).
+- **60s cache** via de Cache API op `/fotograaf/manifest` en `/fotograaf/profielen`. Honderd bezoekers = één KV-ronde; een nieuwe upload is binnen een minuut zichtbaar. Geverifieerd: `cf-cache-status: HIT`.
+- Een id in de index zonder bijbehorend account wordt stil overgeslagen — één rotte verwijzing legt de site niet plat.
+
+**De index is met de hand gevuld** (`["5aaa4a798ac6fc01"]`) omdat het quotum al op was en zelfs `wrangler kv key list --remote` faalde met code 10048. Dat er precies één account is, blijkt uit de manifest-meting van 13-09. De cron-herbouw bevestigt dat vanzelf.
+
+**Getest** in Node met een nagebootste KV (13 controles, waaronder: quotum op + index aanwezig → site blijft werken; kapotte index → herbouwd; spook-id → overgeslagen; toevoegen/verwijderen). **Live geverifieerd in de browser:** voetbal.html toont Jan Kaper met al zijn 5 series, gemengd op datum tussen de eigen series.
+
 ### v0.50 — 13 september 2026 — Mailheader noemt alle fotografen ✅
 
 De regel "Fotografie door Andreas Luckfiel" in de zwarte balk van de mails is dynamisch geworden: `haalFotografenNamen(env)` leest de gastfotografen uit KV en `fotografenRegel()` maakt er "Andreas Luckfiel &amp; Jan Kaper" van (bij 3+: komma's en een &amp; voor de laatste). Andreas altijd vooraan, rest alfabetisch.
