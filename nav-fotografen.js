@@ -94,7 +94,12 @@
   // dan klapt Andreas dus gegarandeerd weer dicht.
   function klapAlleenDezeUit(actieveLink) {
     document.querySelectorAll('.nav-fg-link.uitgeklapt').forEach(el => {
-      if (el !== actieveLink) el.classList.remove('uitgeklapt');
+      if (el !== actieveLink) {
+        el.classList.remove('uitgeklapt');
+        // Kleur hier terugzetten: mouseleave doet dat niet meer zolang je
+        // binnen de balk blijft, anders zou de vorige naam gekleurd blijven.
+        if (!el.classList.contains('active')) el.style.color = '#aaaaaa';
+      }
     });
     if (actieveLink) actieveLink.classList.add('uitgeklapt');
   }
@@ -112,7 +117,17 @@
       klapAlleenDezeUit(a);
       a.style.color = kleur;
     });
-    a.addEventListener('mouseleave', () => {
+    a.addEventListener('mouseleave', (e) => {
+      // Niet inklappen zolang de muis binnen de navigatiebalk blijft. Het
+      // uitklappen verschuift de links onder de cursor vandaan; klapte deze
+      // link dan meteen weer in, dan schoof hij terug ónder de cursor →
+      // mouseenter → uitklappen → mouseleave → ... Een zichtbaar bibberend
+      // scherm (gemeld in Edge op 14-09-2026; Chrome hield het toevallig vol).
+      // Gaat de muis naar een andere naam, dan klapt mouseenter dáár deze al
+      // dicht via klapAlleenDezeUit.
+      const naar = e.relatedTarget;
+      const balk = a.closest('nav') || a.parentElement;
+      if (naar && balk && balk.contains(naar)) return;
       a.classList.remove('uitgeklapt');
       a.style.color = a.classList.contains('active') ? kleur : '#aaaaaa';
     });
