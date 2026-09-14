@@ -165,6 +165,11 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   const div = document.createElement('div');
   div.className = 'pc';
 
+  // Altijd injecteren: de stijl bevat naast de NIEUW-badge ook de datum en de
+  // bevestiging van de deelknop. Stond die aanroep alleen achter isNieuw()/datum,
+  // dan miste een serie zonder datum de groene terugkoppeling bij het kopiëren.
+  ensureNieuwStyles();
+
   // Header
   const h3 = document.createElement('h3');
   h3.className = 'pc-titel';
