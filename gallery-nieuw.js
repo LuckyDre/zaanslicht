@@ -223,8 +223,11 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
     e.stopPropagation();
     const link = `${location.origin}${location.pathname}#serie=${encodeURIComponent(naam)}`;
 
-    // Op de telefoon het echte deelmenu (WhatsApp, Mail...), op de desktop kopiëren.
-    if (navigator.share) {
+    // Alleen op een aanraakapparaat het echte deelmenu (WhatsApp, Mail...). Op de
+    // desktop bestaat navigator.share ook, maar daar opent het een modaal
+    // systeemvenster dat de pagina blokkeert — onverwacht voor een kopieerknop.
+    const isAanraak = matchMedia('(pointer: coarse)').matches;
+    if (navigator.share && isAanraak) {
       try { await navigator.share({ title: naam, url: link }); return; }
       catch (err) { if (err && err.name === 'AbortError') return; }  // zelf geannuleerd
     }
