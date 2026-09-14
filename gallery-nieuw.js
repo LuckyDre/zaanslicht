@@ -98,6 +98,18 @@ function isNieuw(datum) {
   return dagenOud >= 0 && dagenOud < NIEUW_DAGEN; // vandaag t/m 13 dagen oud
 }
 
+// "2026-09-12" → "12 september 2026". Lege of onherkenbare datum → lege string,
+// zodat een serie zonder ingestelde datum niets extra's toont.
+const MAANDEN_NL = ['januari','februari','maart','april','mei','juni',
+                    'juli','augustus','september','oktober','november','december'];
+
+function datumNL(datum) {
+  if (!datum || !/^\d{4}-\d{2}-\d{2}$/.test(datum)) return '';
+  const [jaar, maand, dag] = datum.split('-').map(Number);
+  if (!MAANDEN_NL[maand - 1]) return '';
+  return `${dag} ${MAANDEN_NL[maand - 1]} ${jaar}`;
+}
+
 // Voeg de badge-stijl éénmalig toe (werkt op elke pagina die deze gallery laadt)
 function ensureNieuwStyles() {
   if (document.getElementById('pc-nieuw-styles')) return;
@@ -113,7 +125,9 @@ function ensureNieuwStyles() {
     @keyframes pc-nieuw-pulse{
       0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}
       70%{box-shadow:0 0 0 6px rgba(255,255,255,0)}
-      100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}`;
+      100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+    .pc-datum{font-size:.72rem;letter-spacing:.5px;color:var(--dim,#888);white-space:nowrap;}
+    @media(max-width:600px){.pc-datum{font-size:.66rem;}}`;
   document.head.appendChild(st);
 }
 
@@ -130,6 +144,18 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   h3.innerHTML = `${naam}${fotograaf ? `<span class="pc-sub">${fotograaf}</span>` : ''}
     <span class="pc-rechts"><span class="pc-count">${fotos.length} foto's</span></span>`;
   if (kleur) { const sub = h3.querySelector('.pc-sub'); if (sub) sub.style.color = kleur; }
+
+  // Datum van de serie, links in de rechterbalk. Staat er geen datum ingesteld,
+  // dan blijft de kop precies zoals hij was.
+  const datumTekst = datumNL(datum);
+  if (datumTekst) {
+    ensureNieuwStyles();
+    const d = document.createElement('span');
+    d.className = 'pc-datum';
+    d.textContent = datumTekst;
+    const rechts = h3.querySelector('.pc-rechts');
+    rechts.insertBefore(d, rechts.firstChild);
+  }
 
   // "NIEUW"-badge vóór de fototeller als de serie < 2 weken oud is
   if (isNieuw(datum)) {
