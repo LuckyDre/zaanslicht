@@ -181,21 +181,15 @@ async function handleSend(request, env) {
 // niet per ontvanger — bij honderden abonnees zou dat de limiet opvreten.
 async function haalFotografenNamen(env) {
   const namen = [];
-  let cursor;
-  do {
-    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
-    for (const key of r.keys) {
-      try {
-        const a         = JSON.parse(await env.SUBSCRIBERS.get(key.name));
-        const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
-        const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
-        if (a.naam && mappen.length) namen.push(a.naam);
-      } catch (e) {
-        // Eén kapot account mag de hele verzending niet blokkeren.
-      }
+  for (const a of await haalAccounts(env)) {
+    try {
+      const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
+      const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
+      if (a.naam && mappen.length) namen.push(a.naam);
+    } catch (e) {
+      // Eén kapot account mag de hele verzending niet blokkeren.
     }
-    cursor = r.list_complete ? undefined : r.cursor;
-  } while (cursor);
+  }
   return namen.sort((a, b) => a.localeCompare(b, 'nl'));
 }
 
@@ -578,15 +572,9 @@ async function handleFotograafLogin(request, env) {
 
   // Zoek account op email
   let found = null;
-  let cursor;
-  do {
-    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
-    for (const key of r.keys) {
-      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
-      if (a.email.toLowerCase() === email.toLowerCase()) { found = a; break; }
-    }
-    cursor = r.list_complete ? undefined : r.cursor;
-  } while (cursor && !found);
+  for (const a of await haalAccounts(env)) {
+    if (a.email && a.email.toLowerCase() === email.toLowerCase()) { found = a; break; }
+  }
 
   if (!found) return json({ error: 'Onbekend e-mailadres' }, 401);
 
@@ -1169,35 +1157,96 @@ async function handleFotoVolgorde(request, env) {
 async function handleFotograafManifest(request, env) {
   // Geeft een manifest-achtige structuur terug van alle gastfotografen
   const accounts = [];
+  for (const a of await haalAccounts(env)) {
+    const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
+    const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
+    accounts.push({ id: a.id, naam: a.naam, kleur: a.kleur, mappen });
+  }
+
+  return json({ fotografen: accounts });
+}
+
+// ── ACCOUNT-INDEX ──────────────────────────────────────────────────────────
+// Gratis KV mag maar 1000 list()-operaties per dag. Elk bezoek aan de homepage
+// (/fotograaf/profielen) en aan een galerijpagina (/fotograaf/manifest) deed er
+// één, dus bij een paar honderd bezoekers was het quotum halverwege de dag op:
+// op 14-09-2026 vielen vanaf 12:14 alle gastseries van de site met
+// "KV list() limit exceeded for the day". Losse sleutels lezen mag 100.000x per
+// dag, dus houden we de id's in één sleutel bij en lezen we die.
+const ACCOUNT_INDEX = 'fotograaf:index';
+
+async function haalAccountIds(env) {
+  const raw = await env.SUBSCRIBERS.get(ACCOUNT_INDEX);
+  if (raw) {
+    try {
+      const ids = JSON.parse(raw);
+      if (Array.isArray(ids)) return ids;
+    } catch (e) { /* kapotte index: hieronder opnieuw opbouwen */ }
+  }
+  return await herbouwAccountIndex(env);
+}
+
+// Valt terug op list() — alleen als de index ontbreekt of stuk is.
+async function herbouwAccountIndex(env) {
+  const ids = [];
   let cursor;
   do {
     const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
-    for (const key of r.keys) {
-      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
-      const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
-      const mappen    = mappenRaw ? JSON.parse(mappenRaw) : [];
-      accounts.push({ id: a.id, naam: a.naam, kleur: a.kleur, mappen });
-    }
+    for (const key of r.keys) ids.push(key.name.replace('fotograaf:account:', ''));
     cursor = r.list_complete ? undefined : r.cursor;
   } while (cursor);
+  await env.SUBSCRIBERS.put(ACCOUNT_INDEX, JSON.stringify(ids));
+  return ids;
+}
 
-  return json({ fotografen: accounts });
+async function indexToevoegen(env, id) {
+  const ids = await haalAccountIds(env);
+  if (!ids.includes(id)) await env.SUBSCRIBERS.put(ACCOUNT_INDEX, JSON.stringify([...ids, id]));
+}
+
+async function indexVerwijderen(env, id) {
+  const ids = await haalAccountIds(env);
+  await env.SUBSCRIBERS.put(ACCOUNT_INDEX, JSON.stringify(ids.filter(x => x !== id)));
+}
+
+// Haalt de accounts op via de index. Een id zonder account (handmatig verwijderd)
+// wordt stil overgeslagen, zodat één rotte verwijzing de site niet plat legt.
+async function haalAccounts(env) {
+  const ids = await haalAccountIds(env);
+  const accounts = [];
+  for (const id of ids) {
+    try {
+      const raw = await env.SUBSCRIBERS.get('fotograaf:account:' + id);
+      if (!raw) continue;
+      accounts.push(JSON.parse(raw));
+    } catch (e) { /* overslaan */ }
+  }
+  return accounts;
+}
+
+// ── ANTWOORD KORT CACHEN ───────────────────────────────────────────────────
+// 60 seconden: honderd bezoekers veroorzaken samen nog één KV-ronde, en een
+// nieuwe upload is binnen een minuut zichtbaar.
+async function metCache(request, ctx, seconden, maker) {
+  const cache = caches.default;
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  const res = await maker();
+  if (!res.ok) return res;
+  const kopie = new Response(res.body, res);
+  kopie.headers.set('Cache-Control', `public, max-age=${seconden}`);
+  if (ctx && ctx.waitUntil) ctx.waitUntil(cache.put(request, kopie.clone()));
+  return kopie;
 }
 
 // ── LIJST FOTOGRAFEN (admin) ───────────────────────────────────────────────
 async function handleFotograafLijst(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
   const lijst = [];
-  let cursor;
-  do {
-    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
-    for (const key of r.keys) {
-      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
-      const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
-      lijst.push({ id: a.id, naam: a.naam, email: a.email, kleur: a.kleur, ts: a.ts, last_login: a.last_login || null, aantalMappen: mappenRaw ? JSON.parse(mappenRaw).length : 0 });
-    }
-    cursor = r.list_complete ? undefined : r.cursor;
-  } while (cursor);
+  for (const a of await haalAccounts(env)) {
+    const mappenRaw = await env.SUBSCRIBERS.get('fotograaf:mappen:' + a.id);
+    lijst.push({ id: a.id, naam: a.naam, email: a.email, kleur: a.kleur, ts: a.ts, last_login: a.last_login || null, aantalMappen: mappenRaw ? JSON.parse(mappenRaw).length : 0 });
+  }
   return json({ fotografen: lijst });
 }
 
