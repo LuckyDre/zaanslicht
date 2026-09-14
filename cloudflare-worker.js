@@ -2465,6 +2465,13 @@ export default {
 
   // Cron (2×/dag, zie wrangler.toml): ververst alle poules in KV.
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(Promise.allSettled(COMP_POULES.map((p) => refreshPoule(p, env))));
+    // De account-index wordt bij registratie en verwijdering bijgewerkt, maar is
+    // op 14-09-2026 met de hand gevuld toen het list()-quotum al op was. Twee
+    // keer per dag opnieuw opbouwen kost 2 van de 1000 list()-operaties en
+    // garandeert dat er nooit een fotograaf in ontbreekt.
+    ctx.waitUntil(Promise.allSettled([
+      ...COMP_POULES.map((p) => refreshPoule(p, env)),
+      herbouwAccountIndex(env),
+    ]));
   },
 };
