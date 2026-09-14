@@ -1251,6 +1251,17 @@ async function handleFotograafLijst(request, env) {
   return json({ fotografen: lijst });
 }
 
+// ── ACCOUNT-INDEX HERBOUWEN (admin) ────────────────────────────────────────
+// De index wordt bijgehouden bij registratie en verwijdering, maar is op
+// 14-09-2026 met de hand gevuld toen het list()-quotum al op was. Met dit
+// endpoint kun je 'm opnieuw uit de echte sleutels opbouwen — gebruikt één
+// list() en bevestigt dus meteen dat er geen fotograaf ontbreekt.
+async function handleIndexHerbouwen(request, env) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  const ids = await herbouwAccountIndex(env);
+  return json({ ids, aantal: ids.length });
+}
+
 // ── FOTOGRAAF VERWIJDEREN (admin) ──────────────────────────────────────────
 async function handleFotograafVerwijderen(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
@@ -2358,6 +2369,7 @@ export default {
     if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
     if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return metCache(request, ctx, 60, () => handleFotograafManifest(request, env));
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
+    if (url.pathname === '/admin/index-herbouwen' && request.method === 'POST') return handleIndexHerbouwen(request, env);
     if (url.pathname === '/fotograaf/loginlog'    && request.method === 'GET')  return handleLoginLog(request, env);
     if (url.pathname === '/admin/map-verwijderen'  && request.method === 'POST') return handleAdminMapVerwijderen(request, env);
     if (url.pathname === '/admin/foto-verwijderen' && request.method === 'POST') return handleAdminFotoVerwijderen(request, env);
