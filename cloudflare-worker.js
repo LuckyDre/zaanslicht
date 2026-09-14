@@ -512,6 +512,7 @@ async function handleFotograafRegister(request, env) {
   await env.SUBSCRIBERS.put('fotograaf:account:' + id, JSON.stringify(account));
   await env.SUBSCRIBERS.put('fotograaf:loginlog:' + id, JSON.stringify([now]));
   await env.SUBSCRIBERS.delete('fotograaf:invite:' + inviteToken);
+  await indexToevoegen(env, id);
 
   const sessieToken = randomToken();
   await env.SUBSCRIBERS.put('fotograaf:token:' + sessieToken, id, { expirationTtl: 30 * 24 * 3600 });
@@ -1259,6 +1260,7 @@ async function handleFotograafVerwijderen(request, env) {
   // Verwijder account + mappen-index
   await env.SUBSCRIBERS.delete('fotograaf:account:' + id);
   await env.SUBSCRIBERS.delete('fotograaf:mappen:' + id);
+  await indexVerwijderen(env, id);
 
   // Verwijder alle R2 foto's van deze fotograaf (+ bijbehorende labels/reverse index)
   const objecten = await lijstAlleR2(env, `fotografen/${id}/`);
@@ -2090,21 +2092,15 @@ async function handleComments(request, env) {
 // ── PROFIELEN OPHALEN (publiek) ───────────────────────────────────────────
 async function handleProfielen(request, env) {
   const profielen = [];
-  let cursor;
-  do {
-    const r = await env.SUBSCRIBERS.list({ prefix: 'fotograaf:account:', cursor, limit: 100 });
-    for (const key of r.keys) {
-      const a = JSON.parse(await env.SUBSCRIBERS.get(key.name));
-      const bioRaw     = await env.SUBSCRIBERS.get('fotograaf:bio:' + a.id);
-      const fotoKey    = await env.SUBSCRIBERS.get('fotograaf:profielfoto:' + a.id);
-      const bio        = bioRaw ? JSON.parse(bioRaw).bio : '';
-      const fotoUrl    = fotoKey ? `/foto/${fotoKey}` : null;
-      if (bio || fotoUrl) {
-        profielen.push({ id: a.id, naam: a.naam, kleur: a.kleur, bio, fotoUrl });
-      }
+  for (const a of await haalAccounts(env)) {
+    const bioRaw  = await env.SUBSCRIBERS.get('fotograaf:bio:' + a.id);
+    const fotoKey = await env.SUBSCRIBERS.get('fotograaf:profielfoto:' + a.id);
+    const bio     = bioRaw ? JSON.parse(bioRaw).bio : '';
+    const fotoUrl = fotoKey ? `/foto/${fotoKey}` : null;
+    if (bio || fotoUrl) {
+      profielen.push({ id: a.id, naam: a.naam, kleur: a.kleur, bio, fotoUrl });
     }
-    cursor = r.list_complete ? undefined : r.cursor;
-  } while (cursor);
+  }
   return json({ profielen });
 }
 
@@ -2360,7 +2356,7 @@ export default {
     if (url.pathname === '/fotograaf/labels-sync' && request.method === 'POST') return handleLabelsSync(request, env);
     if (url.pathname === '/fotograaf/serie-labels' && request.method === 'POST') return handleSerieLabels(request, env);
     if (url.pathname === '/fotograaf/fotos'       && request.method === 'GET')  return handleFotosLijst(request, env);
-    if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return handleFotograafManifest(request, env);
+    if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return metCache(request, ctx, 60, () => handleFotograafManifest(request, env));
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
     if (url.pathname === '/fotograaf/loginlog'    && request.method === 'GET')  return handleLoginLog(request, env);
     if (url.pathname === '/admin/map-verwijderen'  && request.method === 'POST') return handleAdminMapVerwijderen(request, env);
@@ -2444,7 +2440,7 @@ export default {
     }
     if (url.pathname === '/fotograaf/bio-opslaan'    && request.method === 'POST') return handleBioOpslaan(request, env);
     if (url.pathname === '/fotograaf/profielfoto'    && request.method === 'POST') return handleProfielfotoUpload(request, env);
-    if (url.pathname === '/fotograaf/profielen'      && request.method === 'GET')  return handleProfielen(request, env);
+    if (url.pathname === '/fotograaf/profielen'      && request.method === 'GET')  return metCache(request, ctx, 60, () => handleProfielen(request, env));
     if (url.pathname.startsWith('/fotograaf/view-dashboard/') && request.method === 'GET') {
       const id = url.pathname.replace('/fotograaf/view-dashboard/', '');
       return handleViewDashboard(request, env, id);
