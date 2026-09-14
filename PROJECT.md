@@ -169,6 +169,18 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.54 — 14 september 2026 — Bibberend scherm bij hover over een fotografennaam (Edge) ✅
+
+**Klacht:** in Edge trilt het hele scherm bij hover over "Andreas Luckfiel" of "Jan Kaper" in de navigatiebalk; in Chrome niet.
+
+**Oorzaak (nav-fotografen.js).** De achternaam klapt uit via `max-width: 0 → 120px` met een animatie van 0,35s. Daardoor verschuiven de links tijdens het uitklappen. `mouseleave` klapte de link meteen weer in, waarna hij terugschoof ónder de cursor → `mouseenter` → uitklappen → `mouseleave` → ... Een lus die zich als bibberen laat zien. De code waarschuwde hier al voor ("tijdens het uitklappen verschuift de nav, en dan herbeoordeelt de browser `:hover` niet betrouwbaar"), maar dekte alleen het blijven-openstaan af. In Edge gemeten: de pagina is daar breder dan het venster (doc.scrollWidth 1426 vs clientWidth 1008), wat het verschuiven verergert; Chrome hield het toevallig vol.
+
+**Opgelost:** `mouseleave` klapt niet meer in zolang `relatedTarget` binnen dezelfde navigatiebalk ligt. Ga je naar een andere naam, dan sluit `klapAlleenDezeUit()` de vorige al. Die functie zet nu ook de kleur van de vorige link terug, want dat deed `mouseleave` voorheen. Versie in alle 8 pagina's opgehoogd naar `v=20260914a`.
+
+**Tweede bug, uit v0.52 en meteen gevonden bij dit onderzoek:** `scrollNaarSerieUitHash()` wordt sinds v0.52 ná élke gerenderde serie aangeroepen, maar startte élke keer opnieuw een `scrollIntoView({behavior:'smooth'})` — tot twintig scroll-animaties over elkaar heen bij een `#serie=`-link. Dat schokt net zo goed. Nu een `_dlGesprongen`-vlag: één sprong zodra de serie verschijnt, daarna hooguit de stille eindcorrectie. `gallery-nieuw.js` naar `v=20260914f`.
+
+**Niet zelf kunnen naverifiëren:** de hover in Edge. Via de browserkoppeling kon ik de pagina in Edge wel uitmeten (userAgent `Edg/152`, viewport 1008×632), maar zodra ik met de echte muis hoverde weigerde de scripttool ("Cannot access a chrome-extension:// URL of different extension"). De diagnose komt dus uit de code plus de Edge-metingen, niet uit een gereproduceerde bibber. Andreas test het na.
+
 ### v0.53 — 14 september 2026 — Deelknop per serie ✅
 
 **Aanleiding:** de deeplink met de hand maken ging fout. Een link met échte spaties (`#serie=ZCFC - ZVC 1-1 (Beker)`) wordt door WhatsApp afgekapt bij de eerste spatie; de kijker landt dan op `voetbal.html` zonder hash, dus bovenaan de pagina bij de verkeerde wedstrijd. Dat verklaart Andreas' melding dat kijkers "niet bij de juiste foto's" uitkwamen. Spaties moeten `%20` zijn.
