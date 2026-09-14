@@ -131,8 +131,31 @@ function ensureNieuwStyles() {
        gemeten op 320-420px liep .pc-titel ~80px buiten zijn kader. De rechterbalk
        mag nu afbreken naar een tweede regel in plaats van uit te dijen. */
     .pc-titel .pc-rechts{flex-wrap:wrap;justify-content:flex-end;row-gap:.3rem;flex-shrink:1;}
+    .pc-deel-ok{border-color:#3ddc7f !important;color:#3ddc7f !important;background:rgba(61,220,127,.1) !important;}
     @media(max-width:600px){.pc-datum{font-size:.66rem;}}`;
   document.head.appendChild(st);
+}
+
+// Kopieert tekst naar het klembord. navigator.clipboard is niet overal
+// beschikbaar (oudere browsers, of een pagina zonder https), vandaar de
+// terugvalweg via een verborgen tekstveld.
+async function kopieerNaarKlembord(tekst) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(tekst);
+      return true;
+    }
+  } catch (e) { /* hieronder de terugvalweg */ }
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = tekst;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) { return false; }
 }
 
 // ── RENDER SERIE ──────────────────────────────────────────────────────────
@@ -179,6 +202,39 @@ function renderSerie(container, { naam, fotograaf, fotos, kleur, labels, beschri
   ovBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>';
   ovBtn.addEventListener('click', e => { e.stopPropagation(); toonOverzicht(naam, fotos); });
   h3.querySelector('.pc-rechts').appendChild(ovBtn);
+
+  // Deelknop: geeft een directe link naar déze serie. Zo'n link met de hand
+  // maken ging mis (14-09-2026): spaties moeten %20 worden, anders knipt
+  // WhatsApp de link af bij de eerste spatie en landt de kijker bovenaan de
+  // pagina in plaats van bij de wedstrijd. encodeURIComponent doet dat nu.
+  const deelBtn = document.createElement('button');
+  deelBtn.className = 'pc-overzicht pc-deel';
+  deelBtn.title = 'Link naar deze serie kopiëren';
+  const DEEL_ICOON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg>';
+  const VINK_ICOON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  deelBtn.innerHTML = DEEL_ICOON;
+
+  deelBtn.addEventListener('click', async e => {
+    e.stopPropagation();
+    const link = `${location.origin}${location.pathname}#serie=${encodeURIComponent(naam)}`;
+
+    // Op de telefoon het echte deelmenu (WhatsApp, Mail...), op de desktop kopiëren.
+    if (navigator.share) {
+      try { await navigator.share({ title: naam, url: link }); return; }
+      catch (err) { if (err && err.name === 'AbortError') return; }  // zelf geannuleerd
+    }
+    const gelukt = await kopieerNaarKlembord(link);
+    deelBtn.innerHTML = gelukt ? VINK_ICOON : DEEL_ICOON;
+    deelBtn.title = gelukt ? 'Link gekopieerd!' : link;
+    deelBtn.classList.toggle('pc-deel-ok', gelukt);
+    if (!gelukt) window.prompt('Kopieer de link naar deze serie:', link);
+    setTimeout(() => {
+      deelBtn.innerHTML = DEEL_ICOON;
+      deelBtn.title = 'Link naar deze serie kopiëren';
+      deelBtn.classList.remove('pc-deel-ok');
+    }, 2500);
+  });
+  h3.querySelector('.pc-rechts').appendChild(deelBtn);
 
   div.appendChild(h3);
 
