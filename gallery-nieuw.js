@@ -632,6 +632,7 @@ async function laadGallery() {
 // afloop alleen als de bezoeker nog niet zelf heeft gescrold.
 let _dlEl = null;          // gevonden serie-element
 let _dlGemarkeerd = false;
+let _dlGesprongen = false; // al één keer gesprongen?
 let _dlEigenScroll = false;
 
 for (const ev of ['wheel', 'touchstart', 'keydown']) {
@@ -659,7 +660,14 @@ function scrollNaarSerieUitHash(container, definitief = false) {
   if (!_dlEl) return;
 
   // Na afloop niet nóg eens springen als de bezoeker zelf de pagina al bedient.
-  if (definitief && _dlEigenScroll) return;
+  if (_dlEigenScroll) return;
+
+  // Deze functie draait ná élke gerenderde serie. Zonder deze rem startte hij
+  // tot twintig keer een 'smooth' scroll over elkaar heen — een schokkend,
+  // bibberend scherm (gemeld 14-09-2026). Eén sprong als de serie verschijnt,
+  // en daarna hooguit de stille eindcorrectie.
+  if (_dlGesprongen && !definitief) return;
+  _dlGesprongen = true;
 
   _dlEl.scrollIntoView({ behavior: definitief ? 'auto' : 'smooth', block: 'start' });
 
