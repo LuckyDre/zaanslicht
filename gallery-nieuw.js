@@ -527,6 +527,9 @@ async function laadGallery() {
 
     for (const serie of alleSeries) {
       await serie.render();
+      // Direct na het renderen proberen: staat de gezochte serie er, dan springt
+      // de pagina meteen in plaats van pas na de laatste gastserie.
+      scrollNaarSerieUitHash(container);
     }
 
     if (!container.children.length) {
@@ -541,8 +544,10 @@ async function laadGallery() {
     if (fotoEl)   fotoEl.textContent   = totaalFotos.toLocaleString('nl-NL');
     if (mappenEl) mappenEl.textContent = totaalSeries;
 
-    // Deeplink vanuit zoekfunctie: #serie=<naam> → scroll naar die serie
-    scrollNaarSerieUitHash(container);
+    // Deeplink vanuit zoekfunctie: #serie=<naam> → scroll naar die serie.
+    // Laatste correctie: afbeeldingen die intussen zijn ingeladen kunnen de
+    // hoogte hebben veranderd. Slaat zichzelf over als de bezoeker al scrolt.
+    scrollNaarSerieUitHash(container, true);
 
   } catch (err) {
     console.error('Gallery laden mislukt:', err);
@@ -550,23 +555,51 @@ async function laadGallery() {
   }
 }
 
-function scrollNaarSerieUitHash(container) {
+// ── DEEPLINK #serie=<naam> ────────────────────────────────────────────────
+// Werd tot 14-09-2026 pas aangeroepen nádat álle series gerenderd waren. Elke
+// gastserie doet daarvoor een eigen fetch, dus dat duurt op een verse pagina
+// seconden — een bezoeker die een gedeelde link opende was allang zelf aan het
+// scrollen voordat de sprong kwam, en de markering stond maar 2,5s. Nu springt
+// hij zodra de gezochte serie in de DOM staat, en corrigeert hij de positie na
+// afloop alleen als de bezoeker nog niet zelf heeft gescrold.
+let _dlEl = null;          // gevonden serie-element
+let _dlGemarkeerd = false;
+let _dlEigenScroll = false;
+
+for (const ev of ['wheel', 'touchstart', 'keydown']) {
+  window.addEventListener(ev, () => { _dlEigenScroll = true; }, { passive: true, once: true });
+}
+
+function deeplinkDoel() {
   const m = location.hash.match(/^#serie=(.+)$/);
-  if (!m) return;
-  let doel;
-  try { doel = decodeURIComponent(m[1]).trim(); } catch { return; }
-  const pcs = container.querySelectorAll('.pc');
-  for (const pc of pcs) {
-    const titel = pc.querySelector('.pc-titel');
-    // childNodes[0] is de naam-tekst, vóór de sub/teller-spans
-    const naam = titel?.childNodes[0]?.nodeValue?.trim() || '';
-    if (naam === doel) {
-      pc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      pc.style.transition = 'box-shadow 0.4s';
-      pc.style.boxShadow = '0 0 0 2px var(--oranje, #FF6B00)';
-      setTimeout(() => { pc.style.boxShadow = ''; }, 2500);
-      return;
+  if (!m) return null;
+  try { return decodeURIComponent(m[1]).trim(); } catch { return null; }
+}
+
+function scrollNaarSerieUitHash(container, definitief = false) {
+  const doel = deeplinkDoel();
+  if (!doel) return;
+
+  if (!_dlEl) {
+    for (const pc of container.querySelectorAll('.pc')) {
+      const titel = pc.querySelector('.pc-titel');
+      // childNodes[0] is de naam-tekst, vóór de sub/teller-spans
+      const naam = titel?.childNodes[0]?.nodeValue?.trim() || '';
+      if (naam === doel) { _dlEl = pc; break; }
     }
+  }
+  if (!_dlEl) return;
+
+  // Na afloop niet nóg eens springen als de bezoeker zelf de pagina al bedient.
+  if (definitief && _dlEigenScroll) return;
+
+  _dlEl.scrollIntoView({ behavior: definitief ? 'auto' : 'smooth', block: 'start' });
+
+  if (!_dlGemarkeerd) {
+    _dlGemarkeerd = true;
+    _dlEl.style.transition = 'box-shadow 0.4s';
+    _dlEl.style.boxShadow = '0 0 0 2px var(--oranje, #FF6B00)';
+    setTimeout(() => { if (_dlEl) _dlEl.style.boxShadow = ''; }, 6000);
   }
 }
 
