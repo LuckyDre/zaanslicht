@@ -127,6 +127,10 @@ function ensureNieuwStyles() {
       70%{box-shadow:0 0 0 6px rgba(255,255,255,0)}
       100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
     .pc-datum{font-size:.72rem;letter-spacing:.5px;color:var(--dim,#888);white-space:nowrap;}
+    /* Zonder deze twee regels duwt de datum de kop te breed op een telefoon:
+       gemeten op 320-420px liep .pc-titel ~80px buiten zijn kader. De rechterbalk
+       mag nu afbreken naar een tweede regel in plaats van uit te dijen. */
+    .pc-titel .pc-rechts{flex-wrap:wrap;justify-content:flex-end;row-gap:.3rem;flex-shrink:1;}
     @media(max-width:600px){.pc-datum{font-size:.66rem;}}`;
   document.head.appendChild(st);
 }
