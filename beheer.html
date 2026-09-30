@@ -379,6 +379,14 @@
     }
     html.light-mode .views-tile { background: #fff; border-color: #ddd; }
     html.light-mode .views-tile.totaal { background: linear-gradient(135deg, #fff, rgba(255,107,0,0.07)); }
+    /* CLOUDFLARE-STATISTIEKEN (tab Fotografen) */
+    .cf-dash { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 0.9rem; }
+    .cf-rij-kop { font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #666; margin: 0 0 0.45rem; }
+    @media (max-width: 560px) {
+      .cf-dash { gap: 0.5rem; }
+      .cf-dash .views-tile { padding: 0.7rem 0.8rem; }
+      .cf-dash .views-getal { font-size: 1.35rem; }
+    }
     .fg-btn-accent { border-color: var(--oranje); color: var(--oranje); font-weight: 600; }
     .fg-btn-accent:hover { background: rgba(255,107,0,0.1); }
     .fg-btn-danger { color: #ef4444; border-color: #3a1a1a; background: #3a1a1a; }
@@ -736,6 +744,16 @@
     <!-- ═══ FOTOGRAFEN TAB ═══ -->
     <div id="tab-fotografen" class="tab-panel">
       <div style="padding:1.5rem 2rem;max-width:900px">
+
+        <!-- Cloudflare-statistieken -->
+        <div style="margin-bottom:2rem">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
+            <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888" title="Cijfers van Cloudflare over al het verkeer naar zaanslicht.com, ook zoekmachines en andere robots. Daardoor hoger dan de Weergaven hieronder, die alleen echte bezoekers tellen. Ververst elke 10 minuten.">☁️ Cloudflare</h3>
+            <button onclick="bhLaadCfStats(true)" style="background:none;border:1px solid #333;color:#666;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.75rem;cursor:pointer">↺ Vernieuwen</button>
+          </div>
+          <div id="cf-stats"><p style="color:#555;font-size:0.82rem">Laden…</p></div>
+          <p id="cf-stats-noot" style="color:#555;font-size:0.72rem;margin-top:0.2rem"></p>
+        </div>
 
         <!-- Weergave-tellers -->
         <div style="margin-bottom:2rem">
@@ -1675,7 +1693,7 @@ function switchTab(tab) {
     window._reactiesInterval = null;
   }
   if (tab === 'abonnees')   { abLaadConfig(); if (typeof QRCode !== 'undefined') qrVulDoelen(); }
-  if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); bhLaadViews(); }
+  if (tab === 'fotografen') { fgLaadUitnodigingen(); fgLaadLijst(); bhLaadCfStats(); bhLaadViews(); }
   if (tab === 'labels')       { laadLabelsBeheer(); bhRenderMapLabelLijst(); }
   if (tab === 'mijn-profiel') { laadAndreasKleur(); }
 }
@@ -1834,6 +1852,52 @@ async function bhLaadViews() {
       <div class="views-label" title="${t.label.replace(/"/g, '&quot;')}">${t.label}</div>
     </div>`).join('');
   [...dash.querySelectorAll('.views-getal')].forEach((el, i) => bhTelOmhoog(el, tegels[i].waarde));
+}
+
+// ── CLOUDFLARE-STATISTIEKEN (tab Fotografen) ────────────────────────────────
+// Komt van de worker (/admin/cf-statistieken), die het bij Cloudflare ophaalt
+// met een eigen alleen-lezen sleutel. Cloudflare telt al het verkeer, ook
+// zoekmachines en robots; de Weergaven hieronder (views-teller.js) tellen alleen
+// echte bezoekers. Allebei blijven staan, want ze meten iets anders.
+async function bhLaadCfStats(vers = false) {
+  const doos = document.getElementById('cf-stats');
+  const noot = document.getElementById('cf-stats-noot');
+  if (!doos) return;
+  const melding = tekst => `<p style="color:#555;font-size:0.82rem">${tekst}</p>`;
+  doos.innerHTML = melding('Laden…');
+  noot.textContent = '';
+
+  let res, data;
+  try {
+    res  = await fetch(WORKER_URL + '/admin/cf-statistieken' + (vers ? '?vers=1' : ''),
+                       { headers: { 'X-Worker-Secret': getWorkerSecret() } });
+    data = await res.json().catch(() => ({}));
+  } catch {
+    doos.innerHTML = melding('Geen verbinding met de worker. Probeer het zo nog eens.');
+    return;
+  }
+  if (res.status === 503 && data.error === 'sleutel-ontbreekt') {
+    doos.innerHTML = melding('Nog niet gekoppeld: de Cloudflare-sleutel <code>CF_ANALYTICS_TOKEN</code> ontbreekt in de worker.');
+    return;
+  }
+  if (!res.ok || !data.ok) {
+    const reden = data.melding ? ' (' + String(data.melding).replace(/[<>&]/g, '') + ')' : '';
+    doos.innerHTML = melding('De Cloudflare-cijfers konden niet worden geladen' + reden + '.');
+    return;
+  }
+
+  // Unieke bezoekers over de hele periode als Cloudflare die levert, anders de
+  // som per dag (dan telt wie op meer dagen kwam meer keer mee).
+  const bezoekers = p => p.bezoekersUniek ?? p.bezoekersSom;
+  const periodes  = [['dag', '24 uur'], ['week', '7 dagen'], ['maand', '30 dagen']];
+  const rij = (kop, waarde) => `<div class="cf-rij-kop">${kop}</div><div class="views-dash cf-dash">` +
+    periodes.map(([k, label]) => `
+      <div class="views-tile"><div class="views-getal" data-doel="${Number(waarde(data[k] || {})) || 0}">0</div>
+      <div class="views-label">${label}</div></div>`).join('') + '</div>';
+  doos.innerHTML = rij('Bezoekers', bezoekers) + rij('Paginaweergaven', p => p.weergaven);
+  doos.querySelectorAll('.views-getal').forEach(el => bhTelOmhoog(el, Number(el.dataset.doel)));
+  const tijd = new Date(data.bijgewerkt).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+  noot.textContent = `Bron: Cloudflare, al het verkeer (ook zoekmachines en robots). Bijgewerkt om ${tijd}.`;
 }
 
 // Vult de fotoweergaven-badge op elke fotograaf-kaart
