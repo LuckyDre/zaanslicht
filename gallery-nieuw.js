@@ -466,6 +466,10 @@ async function laadGallery() {
 
   try {
     // Laad manifest + gast manifest parallel
+    // Versleepte volgorde (beheer/fotograaf) — faalt veilig: dan gewoon op datum.
+    const volgordePromise = fetch(`${WORKER_URL}/gallery/volgorde?cat=${CATEGORY}`)
+      .then(r => r.ok ? r.json() : null).then(d => d && d.volgorde).catch(() => null);
+
     const [manRes, gastRes] = await Promise.all([
       fetch('manifest.json?v=' + Date.now()),
       fetch(WORKER_URL + '/fotograaf/manifest'),
@@ -554,6 +558,7 @@ async function laadGallery() {
     for (const item of eigenItems) {
       if (item.verborgen) continue;
       alleSeries.push({
+        type: 'eigen', map: item.map,
         datum: item.datum || '',
         render: () => renderSerie(container, {
           naam: item.naam, fotograaf: item.fotograaf,
@@ -573,6 +578,7 @@ async function laadGallery() {
       });
       for (const map of mappen) {
         alleSeries.push({
+          type: 'gast', map: map.map, fgId: fg.id,
           datum: map.datum || '',
           render: async () => {
             const fotos = await gastNaarFotos(fg.id, map.map);
@@ -585,15 +591,14 @@ async function laadGallery() {
       }
     }
 
-    // Sorteer op datum (nieuwste eerst), series zonder datum achteraan
-    alleSeries.sort((a, b) => {
-      if (!a.datum && !b.datum) return 0;
-      if (!a.datum) return 1;
-      if (!b.datum) return -1;
-      return b.datum.localeCompare(a.datum);
-    });
+    // Op datum (nieuwste eerst), tenzij iemand een serie heeft versleept —
+    // de rekenregel staat in volgorde.js, gedeeld met beheer en fotograaf.html.
+    const bewaard = await volgordePromise;
+    const opVolgorde = window.zlVolgorde
+      ? window.zlVolgorde.bereken(alleSeries, bewaard)
+      : alleSeries.sort((a, b) => (!a.datum) - (!b.datum) || (b.datum || '').localeCompare(a.datum || ''));
 
-    for (const serie of alleSeries) {
+    for (const serie of opVolgorde) {
       await serie.render();
       // Direct na het renderen proberen: staat de gezochte serie er, dan springt
       // de pagina meteen in plaats van pas na de laatste gastserie.

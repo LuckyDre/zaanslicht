@@ -164,23 +164,33 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 - [x] Google Postmaster Tools verificatie + DMARC-record (13-06-2026)
 - [x] ZCFC-website: link naar zaanslicht.com (13-06-2026)
-- [ ] **Volgorde van de series: datum automatisch, overrulen door slepen** (gevraagd 01-10-2026; voorstel gedaan, bouwen in een nieuw gesprek). Afspraak met Andreas: "Datum is automatisch en gebruiker kan overrulen", ook fotografen.
-  1. Standaard op datum, nieuwste bovenaan.
-  2. Admin (beheer.html) sleept elke serie (eigen én gast) naar elke plek; die plek blijft staan.
-  3. Fotograaf (fotograaf.html, tab 📍 Positie op pagina) sleept alleen de eigen series; per fotograaf aan/uit met de bestaande schakelaar (`fotograaf:positiebeheer:{id}`, beheer → Fotografen).
-  4. Een nieuwe serie komt vanzelf op de plek van zijn datum.
-  5. Datum aangepast → de serie schuift naar de plek van de nieuwe datum.
-  6. Knop "↺ Op datum" in beheer zet alles terug op automatisch.
-  Voor voetbal, nosports én othersports. Eerst testen op een kopie, live pas na "zet live".
-  **Stand 01-10 (gemeten):** gallery-nieuw.js (~r551–594) sorteert alleen op `datum`; stabiel, dus bij gelijke datum eerst de eigen series (manifest-volgorde), dan de gastseries. beheer.html toont een gemengde lijst (`sorteerLijstOpDatum`) en laat ook gastseries slepen, maar `updateManifestFromDOM` bewaart alleen eigen series → gastseries slepen doet niets. Klacht Andreas 01-10: vrouwen (Jan, 26-09) bovenaan en de opening (26-09) op plek 3 zetten had geen effect; de Beheer syncs van 23:31–23:56 veranderden `manifest.json` niet.
-  **Bestaat al in de worker, door geen enkele frontend gebruikt:** KV `gallery:volgorde:{cat}` (lijst `{type:'eigen'|'gast', map, fgId}`), `POST /gallery/volgorde` (secret; alleen voetbal/nosports), `GET /gallery/volgorde` (publiek, niet gecachet), `POST /fotograaf/gallery-volgorde` (token + positiebeheer; controleert dat andermans items niet verschuiven). De bewaarde lijsten zijn oud (van vóór de datum-sortering): niet blind hergebruiken.
-  **Voorgestelde aanpak:** per item ook de datum op het moment van plaatsen bewaren. Effectieve volgorde = bewaarde lijst (zonder verdwenen items en zonder items met een gewijzigde datum) + nieuwe of gewijzigde series op datum ingevoegd. Eén rekenfunctie voor gallery-nieuw.js, beheer.html en de Positie-tab. othersports toevoegen aan de admin-POST, GET 60 s cachen, `?v=` op voetbal/nosports/othersports.html ophogen, beide handleidingen bijwerken.
+- [ ] **Volgorde van de series: datum automatisch, overrulen door slepen** — **gebouwd en getest op een kopie (v0.58, 01-10-2026); wacht op "zet live"** van Andreas. Afspraak: "Datum is automatisch en gebruiker kan overrulen", ook fotografen. Live zetten = branch `volgorde-series` naar `main` + `npx wrangler deploy cloudflare-worker.js`, dáárna pas de pagina's (anders vraagt de site een route die de oude worker nog niet kent — die faalt veilig naar datum, maar beheer kan dan niet opslaan). Vóór de worker-deploy eerst vergelijken of de draaiende worker gelijk is aan de repo (zie CODEMAP, `wrangler deploy --dry-run`). Na live: nameten op zaanslicht.com en de Todoist-taak afstrepen. Oude KV-lijsten hoeven niet opgeruimd: ze tellen niet mee.
 - [ ] **Cloudflare-sleutel `zaanslicht-statistieken` vernieuwen (Roll).** De oude waarde stond in de chat van 30-09; niet bevestigd dat het vernieuwen gebeurd is. Na een Roll de nieuwe waarde opnieuw als Secret `CF_ANALYTICS_TOKEN` in de worker zetten.
 - [ ] **Gezien, nog niet afgesproken:** (a) de online upload in beheer.html kan foto's missen en dubbel zetten (v0.55, "Gevonden in dezelfde sessie"); (b) sync.sh commit JPG's buiten `images/` ongewijzigd (30-09, geen code); (c) `generate-manifest.py` bouwt elk item opnieuw op met vaste velden en laat o.a. `verborgen` vallen — een verborgen eigen serie komt na een upload via de map weer tevoorschijn.
 
 ---
 
 ## Changelog
+
+### v0.58 — 1 oktober 2026 — Volgorde van de series: op datum, overrulen door slepen (gebouwd, nog niet live)
+
+**Vraag (Andreas):** vrouwen (Jan, 26-09) bovenaan en de opening (26-09) op plek 3 zetten had geen effect. Oorzaak (gemeten 01-10): de site sorteerde alléén op `datum`; beheer bewaarde het slepen in `manifest.json` (`volgorde`), dat de site niet leest, en gastseries sloeg `updateManifestFromDOM` helemaal niet op.
+
+**Afspraak:** standaard op datum, nieuwste bovenaan; admin sleept elke serie (eigen én gast), fotograaf alleen de eigen (met de bestaande 📍 Positie-schakelaar); die plek blijft staan; nieuwe serie → plek van zijn datum; datum aangepast → schuift naar de plek van de nieuwe datum; "↺ Op datum" zet alles terug. Voor voetbal, nosports én othersports.
+
+**Gebouwd:**
+- **`volgorde.js`** (nieuw) — één rekenregel voor site, beheer en Positie-tab: `zlVolgorde.bereken(series, bewaard)`. Bewaarde items blijven op hun plek zolang hun datum gelijk is aan de datum bij het plaatsen; de rest (nieuw of datum gewijzigd) wordt op datum ingevoegd, vóór de eerste serie die ouder is. Sleutel: `eigen|{map}` of `gast|{fgId}|{map}`.
+- **KV `gallery:volgorde:{cat}`** = `{ versie: 2, items: [{type, map, fgId?, datum}] }`. Oude lijsten (kale array, van vóór de datum-sortering) keurt de worker af → gelden als "geen volgorde".
+- **Worker:** `POST /gallery/volgorde` `{categorie, volgorde}` of `{categorie, reset:true}` (secret; nu ook othersports; valideert vorm en datum); `GET /gallery/volgorde?cat=` (publiek, KV `cacheTtl` 60 s + `max-age=60`; `?vers=1` = ongecachet voor beheer/Positie-tab); `POST /fotograaf/gallery-volgorde` (token + positiebeheer) controleert dat andermans séries die al een bewaarde plek hadden dezelfde onderlinge volgorde én datum houden.
+- **gallery-nieuw.js** haalt de volgorde parallel op en faalt veilig naar datum. `?v=20261001a` op voetbal/nosports/othersports.html.
+- **beheer.html:** slepen → `slaVolgordeOp(cat)` (niet meer via `planSave`/manifest-commit); knop "📅 Sorteer op datum" → **"↺ Op datum"**; datum wijzigen → serie schuift direct; gastseries staan nu ook in de lijst van elke pagina waar de site ze toont (op-vlaggen), half doorzichtig als ze in die categorie horen maar daar niet getoond worden. Bij gelijke datum dezelfde voorrang als de site (eigen in manifest-volgorde, dan gast) — de DOM-volgorde kon dat niet, want die is al versleept.
+- **fotograaf.html** (APP_VERSIE 2026-10-01-a): tab 📍 Positie op pagina is niet meer alleen-lezen; eigen series zijn te verslepen, andere grijs en vast.
+- Beide handleidingen bijgewerkt.
+
+**Getest (01-10, lokale kopie + lokale worker via `wrangler dev --local`, live alleen gelezen):** rekenregel in 9 scenario's; worker: zonder secret 401, oude vorm 400, fotograaf die andermans serie verschuift of andermans datum wijzigt 403, eigen verschuiven ok, reset ok, cache-header; headless Chrome met échte muis-sleep: beheer = site bij start, vrouwen bovenaan + opening op 3 → bewaard → site toont het → blijft na verversen; datum wijzigen schuift; "↺ Op datum" = exact de startvolgorde; Positie-tab als Jan: andermans serie beweegt niet, eigen serie naar boven → bewaard met de plekken van beheer intact → site toont het.
+
+**Bekende beperking:** series die nog géén bewaarde plek hebben kan een fotograaf in theorie mee verschuiven (de worker kent de volledige serielijst niet). Kleine, vertrouwde groep en alleen met de 📍-schakelaar; bewust zo gelaten.
+
 
 ### v0.57 — 1 oktober 2026 — Cloudflare-blok gelijk aan het Overview-scherm ✅
 

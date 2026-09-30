@@ -8,6 +8,7 @@
   <title>Zaans Licht — Online Beheer</title>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="volgorde.js?v=20261001a"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { overflow-x: clip; }
@@ -590,7 +591,7 @@
     <div id="tab-voetbal"  class="tab-panel active">
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem">
         <button class="nieuwe-map-btn" style="margin-bottom:0;width:auto;flex:1" onclick="nieuweEigenMap('voetbal')">＋ Nieuwe map (voetbal)</button>
-        <button class="btn btn-dim" onclick="sorteerOpDatum('voetbal')" title="Sorteer alle mappen van nieuw naar oud op basis van de datumvelden">📅 Sorteer op datum</button>
+        <button class="btn btn-dim" onclick="opDatumTerug('voetbal')" title="Vergeet alle versleepte plekken: de volgorde wordt weer helemaal automatisch op datum (nieuwste bovenaan)">↺ Op datum</button>
         <button class="btn btn-dim" onclick="bhSelecteerAlle('voetbal')" id="sel-alle-voetbal">☐ Selecteer alles</button>
       </div>
       <ul class="slider-lijst" id="lijst-voetbal"></ul>
@@ -598,7 +599,7 @@
     <div id="tab-nosports" class="tab-panel">
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem">
         <button class="nieuwe-map-btn" style="margin-bottom:0;width:auto;flex:1" onclick="nieuweEigenMap('nosports')">＋ Nieuwe map (no sports)</button>
-        <button class="btn btn-dim" onclick="sorteerOpDatum('nosports')" title="Sorteer alle mappen van nieuw naar oud op basis van de datumvelden">📅 Sorteer op datum</button>
+        <button class="btn btn-dim" onclick="opDatumTerug('nosports')" title="Vergeet alle versleepte plekken: de volgorde wordt weer helemaal automatisch op datum (nieuwste bovenaan)">↺ Op datum</button>
         <button class="btn btn-dim" onclick="bhSelecteerAlle('nosports')" id="sel-alle-nosports">☐ Selecteer alles</button>
       </div>
       <ul class="slider-lijst" id="lijst-nosports"></ul>
@@ -606,7 +607,7 @@
     <div id="tab-othersports" class="tab-panel">
       <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.75rem">
         <button class="nieuwe-map-btn" style="margin-bottom:0;width:auto;flex:1" onclick="nieuweEigenMap('othersports')">＋ Nieuwe map (other sports)</button>
-        <button class="btn btn-dim" onclick="sorteerOpDatum('othersports')" title="Sorteer alle mappen van nieuw naar oud op basis van de datumvelden">📅 Sorteer op datum</button>
+        <button class="btn btn-dim" onclick="opDatumTerug('othersports')" title="Vergeet alle versleepte plekken: de volgorde wordt weer helemaal automatisch op datum (nieuwste bovenaan)">↺ Op datum</button>
         <button class="btn btn-dim" onclick="bhSelecteerAlle('othersports')" id="sel-alle-othersports">☐ Selecteer alles</button>
       </div>
       <ul class="slider-lijst" id="lijst-othersports"></ul>
@@ -881,24 +882,99 @@ let manifest = null;
 let dirty    = false;
 let saveTimer = null;
 
-// Sorteert een lijst op het datumveld, nieuwste eerst, zonder datum achteraan.
-// Dit is exact de volgorde waarin de site (gallery-nieuw.js) de series toont.
-function sorteerLijstOpDatum(lijst) {
-  const items = Array.from(lijst.querySelectorAll('.slider-item'));
-  items.sort((a, b) => {
-    const da = a.dataset.datum || a.querySelector('input[type="date"]')?.value || '';
-    const db = b.dataset.datum || b.querySelector('input[type="date"]')?.value || '';
-    return db.localeCompare(da); // nieuwste eerst
-  });
-  items.forEach(el => lijst.appendChild(el));
+// ── VOLGORDE VAN DE SERIES ────────────────────────────────────────────────
+// Afspraak 01-10-2026: standaard op datum (nieuwste bovenaan), en elke serie
+// (eigen én gast) is naar elke plek te slepen; die plek blijft staan. De
+// rekenregel staat in volgorde.js, gedeeld met de site en fotograaf.html.
+// Opgeslagen in KV via /gallery/volgorde — níet meer in manifest.json.
+function liDatum(li) {
+  return li.querySelector('input.datum-input')?.value || li.dataset.datum || '';
 }
 
-function sorteerOpDatum(cat) {
+function liNaarSerie(li) {
+  return li.dataset.type === 'gast'
+    ? { type: 'gast', map: li.dataset.map, fgId: li.dataset.fgId, datum: liDatum(li), li }
+    : { type: 'eigen', map: li.dataset.map, datum: liDatum(li), li };
+}
+
+// Voorlopige sortering op datum (vóór de bewaarde volgorde geladen is).
+function sorteerLijstOpDatum(lijst) {
+  const cat = lijst.id.replace('lijst-', '');
+  seriesInBasisVolgorde(lijst, cat).sort(zlVolgorde.opDatum).forEach(s => lijst.appendChild(s.li));
+}
+
+const bewaardeVolgorde = {}; // per categorie, zoals de Worker 'm teruggeeft
+
+// De series in dezelfde beginvolgorde als de site ze aanlevert (eigen in
+// manifest-volgorde, dan gast in laadvolgorde) — bepaalt wie voorgaat bij
+// gelijke datum. De DOM-volgorde kan dat niet: die is al versleept.
+function seriesInBasisVolgorde(lijst, cat) {
+  const plek = li => li.dataset.type === 'gast'
+    ? 100000 + Number(li.dataset.basis || 0)
+    : (manifest[cat] || []).findIndex(x => x.map === li.dataset.map);
+  return Array.from(lijst.querySelectorAll(':scope > .slider-item'))
+    .sort((a, b) => plek(a) - plek(b)).map(liNaarSerie);
+}
+
+// Zet de lijst in de volgorde waarin de site de series toont.
+function herschikLijst(cat) {
   const lijst = document.getElementById('lijst-' + cat);
   if (!lijst) return;
-  sorteerLijstOpDatum(lijst);
-  planSave();
-  setLog('✓ Volgorde gesorteerd op datum (nieuwste eerst)', 'success');
+  zlVolgorde.bereken(seriesInBasisVolgorde(lijst, cat), bewaardeVolgorde[cat]).forEach(s => lijst.appendChild(s.li));
+}
+
+// Eenmalig bij het openen: de bewaarde volgordes ophalen (vers, niet gecachet).
+async function laadVolgorde() {
+  try {
+    const r = await fetch(WORKER_URL + '/gallery/volgorde?vers=1&t=' + Date.now());
+    if (!r.ok) throw new Error('Worker ' + r.status);
+    const d = await r.json();
+    for (const cat of ['voetbal', 'nosports', 'othersports']) {
+      bewaardeVolgorde[cat] = d[cat] || null;
+      herschikLijst(cat);
+    }
+  } catch (e) {
+    setLog('⚠️ Bewaarde volgorde niet geladen — lijst staat op datum. Niet slepen tot na verversen.', 'error');
+  }
+}
+
+// Na slepen: de hele lijst met de huidige datums bewaren.
+async function slaVolgordeOp(cat) {
+  const lijst = document.getElementById('lijst-' + cat);
+  const series = Array.from(lijst.querySelectorAll(':scope > .slider-item')).map(liNaarSerie);
+  const volgorde = zlVolgorde.naarBewaard(series);
+  document.getElementById('badge-status').textContent = '⟳ Opslaan...';
+  try {
+    await workerPost('/gallery/volgorde', { categorie: cat, volgorde });
+    bewaardeVolgorde[cat] = volgorde;
+    document.getElementById('badge-status').textContent = '✓ Opgeslagen';
+    setLog('✓ Volgorde bewaard — zo staat het ook op de site', 'success');
+  } catch (e) {
+    document.getElementById('badge-status').textContent = '❌ Opslaan mislukt';
+    setLog('❌ Volgorde opslaan mislukt: ' + e.message, 'error');
+  }
+}
+
+// "↺ Op datum": alle versleepte plekken vergeten, weer helemaal automatisch.
+async function opDatumTerug(cat) {
+  if (!confirm('Alle versleepte plekken op deze pagina vergeten?\n\nDe series staan daarna weer automatisch op datum, de nieuwste bovenaan.')) return;
+  try {
+    await workerPost('/gallery/volgorde', { categorie: cat, reset: true });
+    bewaardeVolgorde[cat] = null;
+    herschikLijst(cat);
+    setLog('✓ Volgorde staat weer op datum (nieuwste bovenaan)', 'success');
+  } catch (e) {
+    setLog('❌ Terugzetten mislukt: ' + e.message, 'error');
+  }
+}
+
+// Serie met een nieuwe datum schuift naar de plek van die datum.
+function datumGewijzigd(input) {
+  const li = input.closest('.slider-item');
+  li.dataset.datum = input.value;
+  const cat = li.closest('ul.slider-lijst')?.id.replace('lijst-', '');
+  if (cat) herschikLijst(cat);
+  li.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function planSave() {
@@ -1088,7 +1164,7 @@ function renderAll() {
   renderCategorie('nosports');
   renderCategorie('othersports');
   switchTab(activeTab);
-  laadGastSeries();
+  laadGastSeries().finally(laadVolgorde);
 }
 
 // ── GAST-FOTOGRAAF SERIES ─────────────────────────────────────────────────
@@ -1115,18 +1191,35 @@ async function laadGastSeries() {
       } catch {}
     }));
 
-    // Voeg alle gast-mappen toe aan hun categorie-lijst
+    // Voeg elke gast-map toe aan de lijst van zijn categorie én aan elke pagina
+    // waar de site 'm toont (zelfde regel als gallery-nieuw.js) — anders is een
+    // gastserie op bv. nosports.html hier niet te verslepen.
+    const opPagina = (m, cat) =>
+        cat === 'voetbal'  ? (m.opVoetbal  !== undefined ? m.opVoetbal  : m.categorie === 'voetbal')
+      : cat === 'nosports' ? (m.opNosports !== undefined ? m.opNosports : m.categorie === 'nosports')
+      : m.opOthersports === true;
+    let gastTeller = 0;
     for (const fg of fotografen) {
       for (const m of (fg.mappen || [])) {
-        const cat   = m.categorie === 'eigen' ? 'voetbal' : m.categorie;
-        const lijst = document.getElementById('lijst-' + cat);
-        if (!lijst) continue;
-        const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
-        lijst.appendChild(maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving, m.naam));
+        const eigenCat = m.categorie === 'eigen' ? 'voetbal' : m.categorie;
+        for (const cat of ['voetbal', 'nosports', 'othersports']) {
+          const zichtbaar = opPagina(m, cat);
+          if (cat !== eigenCat && !zichtbaar) continue;
+          const lijst = document.getElementById('lijst-' + cat);
+          if (!lijst) continue;
+          const aantalFotos = fotoTellingen[fg.id]?.[m.map] || 0;
+          const li = maakGastLijstItem(fg, m.map, m.categorie, aantalFotos, m.ts, m.datum, m.beschrijving, m.naam);
+          li.dataset.basis = gastTeller++;
+          if (!zichtbaar) {
+            li.style.opacity = '0.55';
+            li.title = 'Staat niet op deze pagina van de site (de fotograaf heeft deze pagina uitgezet)';
+          }
+          lijst.appendChild(li);
+        }
       }
     }
 
-    // Toon elke lijst in dezelfde volgorde als de site: op datumveld, nieuwste eerst
+    // Voorlopig op datum; laadVolgorde() zet daarna de bewaarde plekken terug
     for (const cat of ['voetbal', 'nosports', 'othersports']) {
       const lijst = document.getElementById('lijst-' + cat);
       if (lijst) sorteerLijstOpDatum(lijst);
@@ -1146,6 +1239,7 @@ function maakGastLijstItem(fg, mapNaam, cat, aantalFotos, ts, datum, beschrijvin
   li.dataset.fgId  = fg.id;
   li.dataset.fgCat = cat;
   li.dataset.map   = mapNaam;
+  li.dataset.datum = datum || '';
   li.style.borderLeft = `3px solid ${fg.kleur || '#3b82f6'}`;
   const fgIdS  = fg.id.replace(/'/g,"\\'");
   const fgNaamS = fg.naam.replace(/'/g,"\\'").replace(/"/g,'&quot;');
@@ -1195,6 +1289,7 @@ async function gastMapDatumOpslaan(fgId, mapNaam, input) {
     if (!data.ok) throw new Error(data.error || 'Fout');
     input.style.borderColor = '#22c55e';
     setTimeout(() => { input.style.borderColor = '#333'; }, 1500);
+    datumGewijzigd(input);
   } catch (e) {
     input.style.borderColor = '#ef4444';
     alert('Datum opslaan mislukt: ' + e.message);
@@ -1309,7 +1404,7 @@ function renderCategorie(cat) {
         <input type="date" class="datum-input" value="${item.datum || ''}"
           style="background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;color-scheme:dark;font-family:inherit"
           onclick="event.stopPropagation()"
-          onchange="this.closest('.slider-item').dataset.datum=this.value;planSave();"
+          onchange="datumGewijzigd(this);planSave();"
           onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
       </div>
       <div style="padding:0.3rem 1rem 0.6rem;display:flex;align-items:flex-start;gap:0.5rem;border-bottom:1px solid #1a1a1a;">
@@ -1336,8 +1431,8 @@ function renderCategorie(cat) {
   new Sortable(lijst, {
     animation: 200, handle: '.drag-handle',
     ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
-    onEnd() {
-      planSave();
+    onEnd(evt) {
+      if (evt.oldIndex !== evt.newIndex) slaVolgordeOp(cat);
     }
   });
 }
@@ -3204,7 +3299,7 @@ async function nieuweEigenMap(cat) {
       <input type="date" class="datum-input" value=""
         style="background:#111;border:1px solid #333;border-radius:4px;color:#ccc;padding:0.25rem 0.5rem;font-size:0.78rem;outline:none;color-scheme:dark;font-family:inherit"
         onclick="event.stopPropagation()"
-        onchange="this.closest('.slider-item').dataset.datum=this.value;planSave();"
+        onchange="datumGewijzigd(this);planSave();"
         onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='#333'" />
     </div>
     <div style="padding:0.3rem 1rem 0.6rem;display:flex;align-items:flex-start;gap:0.5rem;border-bottom:1px solid #1a1a1a;">

@@ -24,6 +24,7 @@ Regelnummers zijn **benaderend** (bestanden schuiven) — gebruik ze als startpu
 | `fotograaf.html` | ~3000 | Gastfotograaf-portaal (login, upload, mappen, labels, positie, profiel) |
 | `beheer.html` | ~3600 | Admin: sliders, fotografen, labels, abonnees, review-modus, lightbox |
 | `gallery-nieuw.js` | ~500 | Galerij op voetbal/nosports/othersports.html (sliders + lightbox + grid) |
+| `volgorde.js` | ~80 | **Volgorde van de series** — één rekenregel (`zlVolgorde.bereken`) voor site, beheer.html en fotograaf.html Positie-tab |
 | `clubs.html` | ~870 | Foto's per club (leest reverse index) + competitie-standen |
 | `manifest.json` | — | Eigen (Andreas') series per categorie; **géén labels-veld** (die staan in KV) |
 
@@ -48,8 +49,8 @@ Auth: **Secret** = admin (`X-Worker-Secret`), **Token** = fotograaf (`X-Fotograa
 | `/admin/map-registreren` | handleMapRegistreren | 1781 | Secret |
 | `/admin/labels-opschonen` | handleLabelsOpschonen (wees-opruiming) | 1715 | Secret |
 | `/admin/review-sessie` | handleReviewSessie | 693 | Secret |
-| `/gallery/volgorde` GET/POST | handleGetGalleryVolgorde / handleGalleryVolgorde — KV `gallery:volgorde:{cat}`; **door geen frontend gebruikt** (zie PROJECT.md, Openstaande punten) | ~1583 | GET publiek; POST Secret |
-| `/fotograaf/gallery-volgorde` | handleFotograafGalleryVolgorde — eigen series verschuiven, andermans items blijven staan | ~1551 | Token + positiebeheer |
+| `/gallery/volgorde` GET/POST | handleGetGalleryVolgorde / handleGalleryVolgorde — KV `gallery:volgorde:{cat}` = `{versie:2, items}`; rekenregel in `volgorde.js` (v0.58) | ~1583 | GET publiek (`?cat=`, 60 s cache; `?vers=1` vers); POST Secret |
+| `/fotograaf/gallery-volgorde` | handleFotograafGalleryVolgorde — eigen series verschuiven; andermans bewaarde plekken + datums moeten gelijk blijven | ~1551 | Token + positiebeheer |
 | `/admin/cf-statistieken` | handleCfStatistieken (Cloudflare GraphQL, zelfde vensters als het Overview-scherm; 10 min cache; secret `CF_ANALYTICS_TOKEN`) | 1270 | Secret |
 | `/admin/login` | handleAdminLogin (2-staps) | 594 | wachtwoord+pin |
 | `/subscribe` `/aantal` | handleSubscribe / handlePublicCount | 40/95 | Publiek |
@@ -125,7 +126,7 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 - **Twee sorteringen die je niet door elkaar mag halen** (13-09-2026, Andreas expliciet):
   | Wat | Volgorde | Waar geregeld |
   |--|--|--|
-  | **Sliders** (series onder elkaar op de pagina) | **nieuwste datum bovenaan** | `volgorde` per serie in `manifest.json`, gezet via beheer.html |
+  | **Sliders** (series onder elkaar op de pagina) | **nieuwste datum bovenaan, overrulen door slepen** (v0.58) | `volgorde.js` + KV `gallery:volgorde:{cat}`; het `volgorde`-veld in `manifest.json` doet sinds v0.58 niets meer voor de site |
   | **Foto's binnen één serie** | **oudste eerst** — een wedstrijd begint bij de aftrap, niet bij het eindsignaal | `fotos[]`-array, `generate-manifest.py` sorteert nieuwe foto's alfabetisch = chronologisch |
   `generate-manifest.py` zet een nieuwe serie op `volgorde: -1` (→ bovenaan) en dat klopt meestal, want de nieuwste serie is ook de recentste wedstrijd. **Maar bij een merge-conflict in `manifest.json` niet blind de andere kant overnemen**: op 13-09 stond de nieuwste serie in een "Beheer sync" op plek 18 en die waarde is toen klakkeloos behouden — de serie verdween onderaan de pagina. Controleer na elke ingreep of `volgorde` nog aflopend op `datum` loopt.
 - **Gratis KV: 1000 `list()` per dág — nooit een `list()` op het request-pad.** Op 14-09-2026 viel de gastfotograaf halverwege de dag van de site omdat elke paginaweergave een `list()` deed (`KV list() limit exceeded for the day`). Losse sleutels lezen mag 100.000x/dag. Oplossing: `fotograaf:index` (één sleutel met alle account-id's) + `haalAccounts()`; de cron herbouwt 'm 2x per dag. Wil je iets opsommen voor bezoekers, houd dan een index-sleutel bij — niet listen.

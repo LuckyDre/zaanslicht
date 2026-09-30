@@ -1548,8 +1548,36 @@ async function handlePositieBeheer(request, env) {
   return json({ ok: true, mag: !!mag });
 }
 
+// ── VOLGORDE VAN DE SERIES (sliders) ────────────────────────────────────────
+// KV `gallery:volgorde:{cat}` = { versie: 2, items: [{ type, map, fgId?, datum }] }.
+// De rekenregel (bewaarde plek zolang de datum gelijk is, de rest op datum
+// ingevoegd) staat in volgorde.js — de Worker bewaart en controleert alleen.
+// Lijsten zonder versie 2 zijn van vóór de datum-sortering en tellen niet mee.
+const VOLGORDE_CATS = ['voetbal', 'nosports', 'othersports'];
+
+function geldigeVolgorde(v) {
+  if (!v || v.versie !== 2 || !Array.isArray(v.items) || v.items.length > 2000) return null;
+  const items = [];
+  for (const e of v.items) {
+    if (!e || typeof e.map !== 'string' || !e.map || e.map.length > 300) return null;
+    const datum = typeof e.datum === 'string' ? e.datum : '';
+    if (datum && !/^\d{4}-\d{2}-\d{2}$/.test(datum)) return null;
+    if (e.type === 'eigen') items.push({ type: 'eigen', map: e.map, datum });
+    else if (e.type === 'gast' && typeof e.fgId === 'string' && e.fgId && e.fgId.length <= 100)
+      items.push({ type: 'gast', map: e.map, fgId: e.fgId, datum });
+    else return null;
+  }
+  return { versie: 2, items };
+}
+
+async function leesVolgorde(env, cat, opts) {
+  const raw = await env.SUBSCRIBERS.get('gallery:volgorde:' + cat, opts);
+  if (!raw) return null;
+  try { return geldigeVolgorde(JSON.parse(raw)); } catch { return null; }
+}
+
 async function handleFotograafGalleryVolgorde(request, env) {
-  // Fotograaf mag alleen zijn eigen mappen verplaatsen in de gecombineerde volgorde
+  // Fotograaf mag alleen zijn eigen series verplaatsen; de rest blijft in dezelfde volgorde
   const authToken = request.headers.get('X-Fotograaf-Token');
   const fotograaf = await getFotograafByToken(authToken, env);
   if (!fotograaf) return json({ error: 'Niet ingelogd' }, 401);
@@ -1558,46 +1586,70 @@ async function handleFotograafGalleryVolgorde(request, env) {
   const mag = await env.SUBSCRIBERS.get('fotograaf:positiebeheer:' + fotograaf.id);
   if (!mag) return json({ error: 'Geen toestemming om positie te bepalen' }, 403);
 
-  const { categorie, volgorde } = await request.json().catch(() => ({}));
-  if (!categorie || !volgorde) return json({ error: 'categorie en volgorde verplicht' }, 400);
+  const body = await request.json().catch(() => ({}));
+  if (!VOLGORDE_CATS.includes(body.categorie)) return json({ error: 'Onbekende categorie' }, 400);
+  const nieuw = geldigeVolgorde(body.volgorde);
+  if (!nieuw) return json({ error: 'Ongeldige volgorde' }, 400);
 
-  // Laad huidige volgorde
-  const huidigRaw = await env.SUBSCRIBERS.get('gallery:volgorde:' + categorie);
-  const huidig = huidigRaw ? JSON.parse(huidigRaw) : null;
-
-  // Als er nog geen volgorde bestaat, mag de fotograaf alles instellen
-  if (huidig !== null) {
-    // Verifieer dat andermans items niet zijn gewijzigd of verwijderd
-    const andermansInNieuw  = volgorde.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
-    const andermansInHuidig = huidig.filter(e => !(e.type === 'gast' && e.fgId === fotograaf.id));
-    if (JSON.stringify(andermansInNieuw.map(e => e.type + e.map + (e.fgId||'')))
-      !== JSON.stringify(andermansInHuidig.map(e => e.type + e.map + (e.fgId||'')))) {
-      return json({ error: 'Andere mappen mogen niet worden gewijzigd' }, 403);
+  // Andermans series die al een bewaarde plek hadden: zelfde onderlinge volgorde
+  // én zelfde datum. (Series zonder bewaarde plek plaatst de pagina op datum.)
+  const huidig = await leesVolgorde(env, body.categorie);
+  if (huidig) {
+    const vanMij = e => e.type === 'gast' && e.fgId === fotograaf.id;
+    const sl = e => e.type + '|' + (e.fgId || '') + '|' + e.map;
+    const nieuwAnder = new Map(nieuw.items.filter(e => !vanMij(e)).map((e, i) => [sl(e), { i, datum: e.datum }]));
+    let vorige = -1;
+    for (const e of huidig.items) {
+      if (vanMij(e)) continue;
+      const n = nieuwAnder.get(sl(e));
+      if (!n) continue; // intussen verdwenen
+      if (n.i < vorige || n.datum !== e.datum) {
+        return json({ error: 'Andere series mogen niet worden verplaatst' }, 403);
+      }
+      vorige = n.i;
     }
   }
 
-  await env.SUBSCRIBERS.put('gallery:volgorde:' + categorie, JSON.stringify(volgorde));
+  await env.SUBSCRIBERS.put('gallery:volgorde:' + body.categorie, JSON.stringify(nieuw));
   return json({ ok: true });
 }
 
 async function handleGalleryVolgorde(request, env) {
-  const secret = request.headers.get('X-Worker-Secret');
-  if (!secret || secret !== env.WORKER_SECRET) return json({ error: 'Niet toegestaan' }, 401);
+  if (!requireSecret(request, env)) return json({ error: 'Niet toegestaan' }, 401);
 
   const body = await request.json().catch(() => ({}));
-  if (!body.voetbal && !body.nosports) return json({ error: 'voetbal of nosports verplicht' }, 400);
+  if (!VOLGORDE_CATS.includes(body.categorie)) return json({ error: 'Onbekende categorie' }, 400);
 
-  if (body.voetbal)  await env.SUBSCRIBERS.put('gallery:volgorde:voetbal',  JSON.stringify(body.voetbal));
-  if (body.nosports) await env.SUBSCRIBERS.put('gallery:volgorde:nosports', JSON.stringify(body.nosports));
+  // "↺ Op datum" in beheer: alles weer automatisch
+  if (body.reset === true) {
+    await env.SUBSCRIBERS.delete('gallery:volgorde:' + body.categorie);
+    return json({ ok: true, reset: true });
+  }
+  const nieuw = geldigeVolgorde(body.volgorde);
+  if (!nieuw) return json({ error: 'Ongeldige volgorde' }, 400);
+  await env.SUBSCRIBERS.put('gallery:volgorde:' + body.categorie, JSON.stringify(nieuw));
   return json({ ok: true });
 }
 
+// Publiek. `?cat=` voor één categorie (wat de site doet). Standaard een minuut
+// gecachet; beheer en de Positie-tab vragen `?vers=1` om direct na opslaan
+// hun eigen wijziging terug te zien.
 async function handleGetGalleryVolgorde(request, env) {
-  const voetbal  = await env.SUBSCRIBERS.get('gallery:volgorde:voetbal');
-  const nosports = await env.SUBSCRIBERS.get('gallery:volgorde:nosports');
-  return json({
-    voetbal:  voetbal  ? JSON.parse(voetbal)  : null,
-    nosports: nosports ? JSON.parse(nosports) : null,
+  const url  = new URL(request.url);
+  const vers = url.searchParams.get('vers') === '1';
+  const cat  = url.searchParams.get('cat');
+  const opts = vers ? undefined : { cacheTtl: 60 };
+  let data;
+  if (cat) {
+    if (!VOLGORDE_CATS.includes(cat)) return json({ error: 'Onbekende categorie' }, 400);
+    data = { categorie: cat, volgorde: await leesVolgorde(env, cat, opts) };
+  } else {
+    data = {};
+    for (const c of VOLGORDE_CATS) data[c] = await leesVolgorde(env, c, opts);
+  }
+  return new Response(JSON.stringify(data), {
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json',
+      'Cache-Control': vers ? 'no-store' : 'public, max-age=60' },
   });
 }
 
