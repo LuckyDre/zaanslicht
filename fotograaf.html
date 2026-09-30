@@ -690,8 +690,10 @@
     .tabs::-webkit-scrollbar { display: none; }
     .tab-btn { white-space: nowrap; flex-shrink: 0; padding: 0.6rem 0.7rem; font-size: 0.72rem; }
 
-    /* Map-rij: stapelen */
-    .map-rij-flex { flex-direction: column !important; }
+    /* Map-rij: stapelen, beide velden over de volle breedte. Zonder stretch
+       duwde de inline align-items:flex-end ze naar rechts en maakte een lange
+       mapnaam in de keuzelijst de pagina breder dan het scherm. */
+    .map-rij-flex { flex-direction: column !important; align-items: stretch !important; }
 
     /* Dash header */
     .dash-header { margin-bottom: 1rem; }
@@ -807,7 +809,7 @@ const WORKER = 'https://zaanslicht-updates.ntxzjzzg8m.workers.dev';
 // (datum + letter). De versiecheck onderaan vergelijkt 'm met de live versie en
 // waarschuwt de fotograaf als zijn tabblad verouderde code draait — dat gebeurt
 // vaak, want het portaal blijft dagenlang open staan (zie checkNieuweVersie).
-const APP_VERSIE = '2026-07-23-b';
+const APP_VERSIE = '2026-09-28-a';
 
 function toggleTheme() {
   const light = document.documentElement.classList.toggle('light-mode');
@@ -1167,6 +1169,18 @@ async function toonDashboard(nieuwAangemeld = false) {
             </div>
           </div>
         </div>
+        <div class="form-group">
+          <div class="label-row">
+            <label for="up-datum">Datum van de serie</label>
+            <div class="help-wrap">
+              <span class="help-btn">?</span>
+              <div class="help-tip">
+                De dag van de wedstrijd, of de dag dat je de foto's maakte. Op de site staan de series op datum, de nieuwste bovenaan: met de datum hier staat je serie meteen op de goede plek. Kies je hierboven een bestaande map, dan staat de datum van die map al ingevuld.
+              </div>
+            </div>
+          </div>
+          <input type="date" id="up-datum" style="background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:0.75rem 1rem;font-family:var(--font);font-size:0.95rem;outline:none;width:100%;max-width:240px;color-scheme:dark" />
+        </div>
         <div class="form-group" id="labels-groep">
           <div class="label-row">
             <label>Labels</label>
@@ -1328,6 +1342,10 @@ async function toonDashboard(nieuwAangemeld = false) {
 
   // DOM is nu klaar — laad labels direct
   laadLabels();
+  // En vul meteen de lijst "Kies een bestaande map" (28-09-2026). Die werd tot nu
+  // toe pas gevuld na een tabwissel, dus bij binnenkomst stond er alleen
+  // "— Nieuwe map —". De datum van een bestaande map komt ook uit deze lijst.
+  vulMappenSelect();
 
   // Stijl accentkleur dynamisch
   document.documentElement.style.setProperty('--accent', sessie.kleur || '#FF6B00');
@@ -1467,6 +1485,18 @@ window.startUpload = async () => {
       fb.className = 'feedback err'; return;
     }
 
+    // Datum van de serie: verplicht, tenzij de gekozen bestaande map er al een
+    // heeft. Een serie zonder datum komt onderaan de site te staan.
+    const datumVeld = document.getElementById('up-datum');
+    const datum     = datumVeld?.value || '';
+    const bestaand  = _mappenData.find(m => m.map === map);
+    if (!datum && !bestaand?.datum) {
+      fb.textContent = 'Vul bovenaan de datum van de serie in (de dag van de wedstrijd). Dan staat je serie meteen op de goede plek op de site.';
+      fb.className = 'feedback err';
+      if (datumVeld) { datumVeld.style.outline = '2px solid #ef4444'; datumVeld.focus(); }
+      return;
+    }
+
     btn.disabled = true; btn.textContent = 'Bezig met uploaden…';
 
     let ok = 0, fout = 0;
@@ -1505,6 +1535,34 @@ window.startUpload = async () => {
       }
     }
 
+    // Datum pas ná de lus zetten, via hetzelfde endpoint als Mijn mappen: de
+    // Worker maakt een nieuwe map pas aan bij de eerste geslaagde foto, en tot
+    // dan geeft /fotograaf/map-datum 404. KV is eventual consistent, dus bij een
+    // 404 of verbindingsfout nog twee keer proberen. Alleen als de datum anders is.
+    let datumFout = false;
+    if (ok > 0 && datum && datum !== bestaand?.datum) {
+      datumFout = true;
+      for (const wacht of [0, 1500, 4000]) {
+        if (wacht) await new Promise(r => setTimeout(r, wacht));
+        try {
+          const dRes  = await fetch(WORKER + '/fotograaf/map-datum', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Fotograaf-Token': sessie.token },
+            body: JSON.stringify({ map, datum }),
+          });
+          const dData = await dRes.json().catch(() => ({}));
+          if (dData.ok) {
+            datumFout = false;
+            if (bestaand) bestaand.datum = datum;
+            break;
+          }
+          if (dRes.status !== 404) break;
+        } catch {}
+      }
+    }
+    const datumRegel = (ok > 0 && datum && !datumFout)
+      ? '<br/><span>📅 Datum van de serie: ' + fmtSerieDatum(datum) + '</span>' : '';
+
     // Reverse-index voor clubs.html in één keer bijwerken voor de gekozen labels.
     // Bewust ná de lus en met R2 als waarheid (de Worker leest de map opnieuw uit),
     // zodat ook een gedeeltelijk geslaagde upload een kloppende index krijgt. Dit
@@ -1536,9 +1594,14 @@ window.startUpload = async () => {
     } else if (fout > 0) {
       fb.textContent = `⚠ ${ok} foto${ok > 1 ? "'s" : ''} geüpload, maar ${fout} mislukt. De mislukte foto's staan nog klaar — klik opnieuw op "Uploaden starten" om alleen die te proberen.`;
       fb.className = 'feedback waarschuwing';
+      if (datumRegel) fb.insertAdjacentHTML('beforeend', datumRegel);
     } else {
-      fb.innerHTML = `<span>✓ ${ok} foto${ok > 1 ? "'s" : ''} geüpload</span><br/><a href="index.html" style="display:inline-block;margin-top:0.8rem;color:var(--accent);text-decoration:underline;font-weight:700">← Terug naar de site</a>`;
+      fb.innerHTML = `<span>✓ ${ok} foto${ok > 1 ? "'s" : ''} geüpload</span>${datumRegel}<br/><a href="index.html" style="display:inline-block;margin-top:0.8rem;color:var(--accent);text-decoration:underline;font-weight:700">← Terug naar de site</a>`;
       fb.className = 'feedback ok';
+    }
+
+    if (datumFout) {
+      fb.insertAdjacentHTML('beforeend', '<br/><span style="color:#fbbf24">⚠ De datum kon niet worden opgeslagen. De foto\'s staan wél op de site; zet de datum via 📁 Mijn mappen.</span>');
     }
 
     if (labelsSyncFout) {
@@ -2144,6 +2207,7 @@ document.addEventListener('change', function(e) {
   const select = e.target;
   const mapInput = document.getElementById('up-map');
   if (mapInput) mapInput.value = select.value;
+  stelUploadDatumIn(select.value);
 
   // Laad bestaande labels van deze map
   if (select.value && _mappenData.length) {
@@ -2151,6 +2215,32 @@ document.addEventListener('change', function(e) {
     _geselecteerdeLabels = map?.labels?.length ? [...map.labels] : [];
     renderLabelChips();
     werkLabelStatusBij();
+  }
+});
+
+// Datum van de serie in het uploadscherm (28-09-2026). Zonder datum zet de site
+// een serie onderaan, en de fotograaf kon de datum pas ná de upload zetten via
+// Mijn mappen. Kiest hij een bestaande map, dan nemen we de datum van die map
+// over. Die automatisch ingevulde datum wissen we weer zodra hij een andere,
+// nieuwe naam typt: een nieuwe serie mag nooit stil de datum van een andere
+// serie meekrijgen. Een zelf gekozen datum blijft wel staan.
+function stelUploadDatumIn(mapNaam) {
+  const veld = document.getElementById('up-datum');
+  if (!veld) return;
+  const bestaand = _mappenData.find(m => m.map === mapNaam);
+  if (bestaand) {
+    veld.value = bestaand.datum || '';
+    veld.dataset.auto = '1';
+  } else if (veld.dataset.auto === '1') {
+    veld.value = '';
+    veld.dataset.auto = '';
+  }
+}
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'up-map') stelUploadDatumIn(e.target.value.trim());
+  if (e.target.id === 'up-datum') {
+    e.target.dataset.auto = '';
+    e.target.style.outline = 'none';
   }
 });
 
