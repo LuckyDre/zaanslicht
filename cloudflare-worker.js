@@ -1240,6 +1240,104 @@ async function metCache(request, ctx, seconden, maker) {
   return kopie;
 }
 
+// ── CLOUDFLARE-STATISTIEKEN (beheer.html, tab Fotografen) ──────────────────
+// Bezoekers en paginaweergaven van zaanslicht.com over 24 uur, 7 en 30 dagen,
+// uit de GraphQL Analytics API. Vraagt een eigen, alleen-lezen sleutel als
+// secret CF_ANALYTICS_TOKEN (Zone → Analytics → Read, alleen zaanslicht.com);
+// de deploy-sleutel mag dit bewust niet.
+// Cloudflare telt al het verkeer, ook zoekmachines en andere robots. Daarom
+// liggen deze cijfers hoger dan die van views-teller.js (alleen browsers, één
+// keer per sessie, zonder beheerder en fotografen).
+const CF_ZONE_ID = 'baee262214ea4c9aeb0f2504856ffee0'; // zaanslicht.com — geen geheim
+const CF_GRAPHQL = 'https://api.cloudflare.com/client/v4/graphql';
+
+async function cfGraphql(env, query, variables) {
+  try {
+    const res = await fetch(CF_GRAPHQL, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + env.CF_ANALYTICS_TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables }),
+    });
+    const data = await res.json().catch(() => null);
+    const zone = data?.data?.viewer?.zones?.[0] || null;
+    const fout = !res.ok ? `HTTP ${res.status}` : (data?.errors?.length ? data.errors[0].message : null);
+    return { zone, fout };
+  } catch (e) {
+    return { zone: null, fout: e.message };
+  }
+}
+
+async function handleCfStatistieken(request, env, ctx) {
+  if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
+  if (!env.CF_ANALYTICS_TOKEN) return json({ error: 'sleutel-ontbreekt' }, 503);
+
+  // Cache pas ná de sleutelcontrole, en onder een eigen sleutel: metCache()
+  // bewaart per binnenkomende URL, en dan kreeg een verzoek zónder
+  // X-Worker-Secret het bewaarde antwoord. 10 minuten; ?vers=1 slaat 'm over.
+  const cache = caches.default;
+  const cacheSleutel = new Request(new URL('/__cache/cf-statistieken', request.url).toString());
+  if (!new URL(request.url).searchParams.has('vers')) {
+    const hit = await cache.match(cacheSleutel).catch(() => null);
+    if (hit) return json(await hit.json());
+  }
+
+  const nu = Date.now();
+  const datum = dagenTerug => new Date(nu - dagenTerug * 86400000).toISOString().slice(0, 10);
+  const vars = {
+    zone:    CF_ZONE_ID,
+    van24:   new Date(nu - 24 * 3600000).toISOString(),
+    tot:     new Date(nu).toISOString(),
+    van7:    datum(6),
+    van30:   datum(29),
+    vandaag: datum(0),
+  };
+
+  // Per uur (laatste 24 uur) en per dag (laatste 30 dagen): het vaste patroon
+  // uit de documentatie. Lukt dit niet, dan is er niets te tonen.
+  const perGroep = await cfGraphql(env, `query ($zone: string!, $van24: Time!, $tot: Time!, $van30: Date!, $vandaag: Date!) {
+    viewer { zones(filter: { zoneTag: $zone }) {
+      uren:  httpRequests1hGroups(limit: 48, filter: { datetime_geq: $van24, datetime_leq: $tot }, orderBy: [datetime_ASC]) {
+        dimensions { datetime } sum { requests pageViews } uniq { uniques } }
+      dagen: httpRequests1dGroups(limit: 31, filter: { date_geq: $van30, date_leq: $vandaag }, orderBy: [date_ASC]) {
+        dimensions { date } sum { requests pageViews } uniq { uniques } }
+    } } }`, vars);
+  if (!perGroep.zone) return json({ error: 'cloudflare', melding: perGroep.fout || 'geen gegevens' }, 502);
+
+  // Unieke bezoekers over de hele periode in één keer (zonder groepering). Wie op
+  // drie dagen komt telt hier één keer; bij optellen per dag drie keer. Levert
+  // Cloudflare dit niet, dan blijft het null en toont beheer de som per dag.
+  const uniek = await cfGraphql(env, `query ($zone: string!, $van24: Time!, $tot: Time!, $van7: Date!, $van30: Date!, $vandaag: Date!) {
+    viewer { zones(filter: { zoneTag: $zone }) {
+      dag:   httpRequests1hGroups(limit: 1, filter: { datetime_geq: $van24, datetime_leq: $tot }) { uniq { uniques } }
+      week:  httpRequests1dGroups(limit: 1, filter: { date_geq: $van7,  date_leq: $vandaag }) { uniq { uniques } }
+      maand: httpRequests1dGroups(limit: 1, filter: { date_geq: $van30, date_leq: $vandaag }) { uniq { uniques } }
+    } } }`, vars);
+
+  const uren  = perGroep.zone.uren  || [];
+  const dagen = perGroep.zone.dagen || [];
+  const periode = (rijen, groep) => ({
+    weergaven:      rijen.reduce((a, r) => a + (r.sum?.pageViews || 0), 0),
+    verzoeken:      rijen.reduce((a, r) => a + (r.sum?.requests  || 0), 0),
+    bezoekersSom:   rijen.reduce((a, r) => a + (r.uniq?.uniques  || 0), 0),
+    bezoekersUniek: uniek.zone?.[groep]?.[0]?.uniq?.uniques ?? null,
+  });
+  const resultaat = {
+    ok: true,
+    bijgewerkt: new Date(nu).toISOString(),
+    dag:   periode(uren, 'dag'),
+    week:  periode(dagen.filter(d => (d.dimensions?.date || '') >= vars.van7), 'week'),
+    maand: periode(dagen, 'maand'),
+    uniekFout: uniek.fout || null,
+  };
+
+  const bewaar = new Response(JSON.stringify(resultaat), {
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=600' },
+  });
+  const opslaan = cache.put(cacheSleutel, bewaar).catch(() => {});
+  if (ctx && ctx.waitUntil) ctx.waitUntil(opslaan); else await opslaan;
+  return json(resultaat);
+}
+
 // ── LIJST FOTOGRAFEN (admin) ───────────────────────────────────────────────
 async function handleFotograafLijst(request, env) {
   if (!requireSecret(request, env)) return json({ error: 'Geen toegang' }, 401);
@@ -2370,6 +2468,7 @@ export default {
     if (url.pathname === '/fotograaf/manifest'    && request.method === 'GET')  return metCache(request, ctx, 60, () => handleFotograafManifest(request, env));
     if (url.pathname === '/fotograaf/lijst'       && request.method === 'GET')  return handleFotograafLijst(request, env);
     if (url.pathname === '/admin/index-herbouwen' && request.method === 'POST') return handleIndexHerbouwen(request, env);
+    if (url.pathname === '/admin/cf-statistieken' && request.method === 'GET')  return handleCfStatistieken(request, env, ctx);
     if (url.pathname === '/fotograaf/loginlog'    && request.method === 'GET')  return handleLoginLog(request, env);
     if (url.pathname === '/admin/map-verwijderen'  && request.method === 'POST') return handleAdminMapVerwijderen(request, env);
     if (url.pathname === '/admin/foto-verwijderen' && request.method === 'POST') return handleAdminFotoVerwijderen(request, env);
