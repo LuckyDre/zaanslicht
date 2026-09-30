@@ -748,7 +748,7 @@
         <!-- Cloudflare-statistieken -->
         <div style="margin-bottom:2rem">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
-            <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888" title="Cijfers van Cloudflare over al het verkeer naar zaanslicht.com, ook zoekmachines en andere robots. Daardoor hoger dan de Weergaven hieronder, die alleen echte bezoekers tellen. Ververst elke 10 minuten.">☁️ Cloudflare</h3>
+            <h3 style="font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#888" title="Dezelfde cijfers als het Overview-scherm van zaanslicht.com in Cloudflare (Unique Visitors en Total Requests), met ook zoekmachines en andere robots. Een verzoek is elk opgevraagd bestand, dus ook elke foto. Ververst elke 10 minuten.">☁️ Cloudflare</h3>
             <button onclick="bhLaadCfStats(true)" style="background:none;border:1px solid #333;color:#666;padding:0.3rem 0.8rem;border-radius:6px;font-size:0.75rem;cursor:pointer">↺ Vernieuwen</button>
           </div>
           <div id="cf-stats"><p style="color:#555;font-size:0.82rem">Laden…</p></div>
@@ -1886,18 +1886,20 @@ async function bhLaadCfStats(vers = false) {
     return;
   }
 
-  // Unieke bezoekers over de hele periode als Cloudflare die levert, anders de
-  // som per dag (dan telt wie op meer dagen kwam meer keer mee).
+  // Zelfde twee cijfers als het Overview-scherm van Cloudflare: Unique Visitors
+  // (ontdubbeld over de hele periode; anders de som per dag als terugval) en
+  // Total Requests (elk opgevraagd bestand, ook elke foto). De paginaweergaven
+  // (p.weergaven) staan niet in dat scherm en tonen we daarom niet.
   const bezoekers = p => p.bezoekersUniek ?? p.bezoekersSom;
   const periodes  = [['dag', '24 uur'], ['week', '7 dagen'], ['maand', '30 dagen']];
   const rij = (kop, waarde) => `<div class="cf-rij-kop">${kop}</div><div class="views-dash cf-dash">` +
     periodes.map(([k, label]) => `
       <div class="views-tile"><div class="views-getal" data-doel="${Number(waarde(data[k] || {})) || 0}">0</div>
       <div class="views-label">${label}</div></div>`).join('') + '</div>';
-  doos.innerHTML = rij('Bezoekers', bezoekers) + rij('Paginaweergaven', p => p.weergaven);
+  doos.innerHTML = rij('Unieke bezoekers', bezoekers) + rij('Verzoeken', p => p.verzoeken);
   doos.querySelectorAll('.views-getal').forEach(el => bhTelOmhoog(el, Number(el.dataset.doel)));
   const tijd = new Date(data.bijgewerkt).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
-  noot.textContent = `Bron: Cloudflare, al het verkeer (ook zoekmachines en robots). Bijgewerkt om ${tijd}.`;
+  noot.textContent = `Bron: Cloudflare, zelfde cijfers als het Overview-scherm (ook zoekmachines en robots). Een verzoek is elk opgevraagd bestand, ook elke foto. Bijgewerkt om ${tijd}.`;
 }
 
 // Vult de fotoweergaven-badge op elke fotograaf-kaart
