@@ -48,7 +48,7 @@ Auth: **Secret** = admin (`X-Worker-Secret`), **Token** = fotograaf (`X-Fotograa
 | `/admin/map-registreren` | handleMapRegistreren | 1781 | Secret |
 | `/admin/labels-opschonen` | handleLabelsOpschonen (wees-opruiming) | 1715 | Secret |
 | `/admin/review-sessie` | handleReviewSessie | 693 | Secret |
-| `/admin/cf-statistieken` | handleCfStatistieken (Cloudflare GraphQL, 10 min cache; secret `CF_ANALYTICS_TOKEN`) | 1270 | Secret |
+| `/admin/cf-statistieken` | handleCfStatistieken (Cloudflare GraphQL, zelfde vensters als het Overview-scherm; 10 min cache; secret `CF_ANALYTICS_TOKEN`) | 1270 | Secret |
 | `/admin/login` | handleAdminLogin (2-staps) | 594 | wachtwoord+pin |
 | `/subscribe` `/aantal` | handleSubscribe / handlePublicCount | 40/95 | Publiek |
 | `/foto/{key}` (`?thumb=1`) | handleFotoServe | 1946 | Publiek |

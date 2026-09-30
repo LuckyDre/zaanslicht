@@ -169,6 +169,26 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.57 — 1 oktober 2026 — Cloudflare-blok gelijk aan het Overview-scherm ✅
+
+**Klacht (Andreas):** "Ik zie toch echt andere getallen." Hij kijkt naar het **Overview**-scherm van zaanslicht.com in Cloudflare: *Unique Visitors* en *Total Requests* voor 24 Hours / 7 Days / 30 Days. De tweede rij van v0.56 toonde `pageViews`, en dat getal staat nergens in dat scherm. Daarnaast rekende de worker met andere tijdvakken.
+
+**Gemeten in de eigen GraphQL-query van het dashboard** (fetch en XHR in een eigen tabblad afgevangen; vraag `GetZoneAnalytics`):
+- 24 Hours: `httpRequests1hGroups`, `datetime_geq: $since, datetime_lt: $until`, met `until` = het begin van het lopende uur en `since` = 24 uur eerder. Dus de laatste 24 **hele** uren.
+- 7 en 30 Days: `httpRequests1dGroups`, `date_geq: vandaag−7 (−30), date_lt: vandaag`. Dus hele UTC-dagen **zonder vandaag**. Het label "31 August — 30 September" heeft een exclusieve einddatum.
+- Unique Visitors = alias `totals` zónder groepering (`uniq { uniques }`), zoals de worker al deed. Total Requests = som van `requests` over de groepen.
+
+**Aangepast:** worker, zelfde vensters (`datetime_lt`/`date_lt`, `van7` = vandaag−7, `van30` = vandaag−30, `tot` = heel uur). beheer.html: rijen **Unieke bezoekers** en **Verzoeken** (`verzoeken`); `weergaven` komt nog mee in het antwoord maar wordt niet getoond. De uitleg in de tooltip, de bronregel en de handleiding (stap 5) zegt dat een verzoek elk opgevraagd bestand is, ook elke foto.
+
+**Getest:** worker 18/18 (met de nieuwe vensters); beheer in headless Chrome (4 situaties; telefoon 390 px, ook "281.000" past).
+
+**Live 1-10 00:06** (worker `10312c78`, bindingen intact) **en 00:07** (beheer + handleiding `8f6b9fe`, na ~80 s op de site). **Gemeten:** blok om 22:08 UTC tegen het Overview-scherm om 22:03 UTC (zelfde uur-/dagvensters):
+| | blok | Cloudflare |
+|--|--|--|
+| 24 uur | 119 bezoekers · 2.652 verzoeken | 119 · 2,65k |
+| 7 dagen | 722 · 9.215 | 722 · 9,21k |
+| 30 dagen | 3.112 · 63.713 | 3,11k · 63,71k |
+
 ### v0.56 — 30 september 2026 — Cloudflare-bezoekerscijfers op de beheerpagina ✅
 
 **Vraag (Andreas):** de bezoekers en weergaven uit Cloudflare op de beheerpagina, voor de laatste 1, 7 en 30 dagen. Cloudflare toont meer dan de eigen teller.
