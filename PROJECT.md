@@ -169,6 +169,37 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.55 — 28–30 september 2026 — Datum van de serie direct bij het uploaden (fotograaf.html) ✅
+
+**Klacht (Jan Kaper, 28-09):** bij het uploaden kon hij geen datum zetten. Een nieuwe serie kreeg geen `datum` en kwam daardoor onderaan de site (galerij en Positie-tab sorteren op datum, zonder datum achteraan). Pas daarna kon hij de datum zetten via 📁 Mijn mappen.
+
+**Gebouwd — alleen fotograaf.html; de Worker is niet gewijzigd en hoefde niet opnieuw gedeployd:**
+- Veld `#up-datum` ("Datum van de serie") direct onder de mapnaam, boven de labels.
+- **Verplicht**, tenzij de gekozen bestaande map al een datum heeft (voorgelegd aan Andreas, akkoord 30-09). Bij een lege datum: melding, rode `outline` (géén `border-color`: de light-mode-CSS zet die met `!important`) en focus op het veld.
+- `stelUploadDatumIn(mapNaam)`: bestaande map gekozen in de keuzelijst of exact getypt → datum van die map ingevuld, `data-auto="1"`. Typt de fotograaf daarna een andere, nieuwe naam, dan wordt een automatisch ingevulde datum weer gewist: een nieuwe serie mag nooit stil de datum van een andere serie meekrijgen. Een zelf gekozen datum blijft staan. Luisteraars via event delegation op `document` (het veld bestaat pas na inloggen).
+- Na de uploadlus, alleen als ≥ 1 foto gelukt is én de datum afwijkt van de bekende: `POST /fotograaf/map-datum`. Hetzelfde endpoint als Mijn mappen, dus dezelfde data als voorheen met de hand. De Worker maakt een nieuwe map pas aan bij de eerste geslaagde foto; bij 404 of verbindingsfout nog twee pogingen (na 1,5 s en 4 s). Lukt het niet, dan een gele regel: de foto's staan erop, zet de datum via Mijn mappen.
+- De bevestiging toont "📅 Datum van de serie: 26 sep 2026".
+- **Meegenomen:** de keuzelijst "Kies een bestaande map" werd pas gevuld na een tabwissel (`vulMappenSelect()` stond alleen in `switchTab`). Nu ook direct in `toonDashboard()`; nodig voor het invullen van de datum.
+- **Meegenomen (mobiel):** `.map-rij-flex` stapelt op smalle schermen (`flex-direction: column`), maar de inline `align-items: flex-end` duwde de velden naar rechts en maakte het tekstveld smal. Nu `align-items: stretch !important`. Gemeten op 390 px: beide velden x 29–361, pagina 390 breed.
+- `APP_VERSIE` → `2026-09-28-a` (open tabbladen krijgen de vernieuw-balk).
+- fotograaf-handleiding.html: mockup + nieuwe stap 2 "Datum van de serie invullen"; oude stap 2 en 3 → 3 en 4.
+
+**Race-analyse:** `/fotograaf/map-datum` is een read-modify-write op `fotograaf:mappen:{id}`. Tijdens een upload schrijft alleen `handleFotoUpload` die sleutel (eerste foto van een nieuwe map, of gewijzigde labels); `labels-sync` raakt 'm niet. Leest map-datum een verouderde versie zonder de nieuwe map → 404 → geen write → opnieuw proberen. Restrisico: bestaande map + gewijzigde labels + gewijzigde datum in één upload, en de datum-read mist de labelwijziging nog → serielabels in de mappen-entry terug naar oud (per-foto-labels en de reverse index staan daar los van). Klein en herstelbaar.
+
+**Getest vóór livegang (lokaal, geen live data geraakt):** kopie van de pagina tegen een nep-Worker op 127.0.0.1 (Python), `firebase-rest.js` vervangen door een stub. 11 scenario's in headless Chrome via CDP: nieuwe serie zonder datum (geweigerd, geen verkeer), met datum (2× upload + map-datum 200), bestaande serie ongewijzigd (géén map-datum), gewijzigd (map-datum met de nieuwe datum), bestaande serie zonder datum (eerst geweigerd, daarna goed), eerste poging 404 (tweede poging 200), blijvend 404 (3 pogingen, waarschuwing), 500 (waarschuwing), één foto kapot (deels gelukt, datum wel gezet), niets gelukt (geen map-datum). Geen uncaught fouten. Daarnaast het automatisch invullen in zes varianten.
+
+**Live gezet 30-09-2026 19:55** (Auto-sync `dbe2e24`, alleen deze twee bestanden). Gemeten: `https://zaanslicht.com/fotograaf.html` en de handleiding byte-identiek aan de geteste versie (na ~70 s); in Chrome draait `APP_VERSIE` 2026-09-28-a, het inlogscherm laadt, geen consolefouten.
+
+**Niet zelf te verifiëren:** het uploadscherm achter de inlog met echte data, en een echte upload — dat zou in Jans account schrijven. Eerste echte test: Jans volgende upload (of Andreas via review-modus in beheer.html, alleen kijken).
+
+**Gezien, niet aangepast:** de handleiding noemt max. 20 MB per foto; portaal en Worker hanteren 15 MB. De mockup-tabbladen in de handleiding (Statistieken, Profiel) zijn verouderd.
+
+#### Gevonden in dezelfde sessie (28-09), niet aangepast — wacht op besluit Andreas
+Serie **De Blokkers - ZCFC 1-1** (19-09, online geüpload via beheer.html op 20-09 13:14–13:24): 141 foto's staan in de repo, maar `manifest.json` noemt er 119 uniek (122 regels). **22 foto's staan niet op de site** (o.a. `20260919-ZCFC-0034.webp` en `…-1203.webp`; die 22 hebben ook geen `-thumb`) en **3 staan dubbel** (`…-0618`, `…-0632`, `…-0639`, telkens twee opeenvolgende regels). Niets kwijt: alle 141 bestanden staan in git. Andreas koos nog niet tussen laten zoals het is en alleen die serie aanvullen.
+- Oorzaak ontbrekende (vermoedelijk, niet gereproduceerd): `verwerkUploads` doet per foto foto-PUT → thumb-PUT → `planSave()` (manifest-commit na 1,5 s). Die commits lopen door elkaar op dezelfde branch via de GitHub contents-API. Faalt de thumb-PUT, dan valt de foto in de `catch` en komt hij niet in het manifest, terwijl de foto zelf al gecommit is. Alleen een ❌ in de lange voortgangslijst.
+- Oorzaak dubbele: 0618/0626/0632/0639 zijn twee keer geüpload (twee overlappende batches). De upload plakt voor elke foto een `.foto-thumb` in het raster zonder te kijken of die er al is, en `updateManifestFromDOM` leest de fotolijst uit dat raster.
+- Omvang: ~400 commits in 9 minuten (foto + thumb + manifest per foto). GitHub kent voor zulke schrijfacties een secundaire limiet per minuut en per uur ("secondary rate limits"); een tweede grote serie binnen het uur kan daartegenaan lopen.
+
 ### v0.54 — 14 september 2026 — Bibberend scherm bij hover over een fotografennaam (Edge) ✅
 
 **Klacht:** in Edge trilt het hele scherm bij hover over "Andreas Luckfiel" of "Jan Kaper" in de navigatiebalk; in Chrome niet.

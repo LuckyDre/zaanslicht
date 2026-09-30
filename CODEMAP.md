@@ -82,7 +82,7 @@ Eigen foto's van Andreas: `images/{cat}/{map}/{naam}` op GitHub Pages (niet R2).
 ## fotograaf.html — sleutelplekken
 | Plek | ~regel |
 |--|--|
-| `const APP_VERSIE` (bumpen!) | 810 |
+| `const APP_VERSIE` (bumpen!) | 812 |
 | controleerSessie (faalt alleen bij 401) | 838 |
 | toonDashboard | 1081 |
 | switchTab | 2091 |
@@ -90,6 +90,8 @@ Eigen foto's van Andreas: `images/{cat}/{map}/{naam}` op GitHub Pages (niet R2).
 | toggleMapFotos (galerie openen) | 2421 |
 | toggleMapPagina (op-vlaggen) | 2428 |
 | laadLabels / voegLabelToe | 1599 / 1613 |
+| Upload: datumveld `#up-datum` / `stelUploadDatumIn` / `vulMappenSelect` (v0.55) | 1182 / 2227 / 2165 |
+| startUpload (datum verplicht; `map-datum` ná de lus, 3 pogingen) | 1466 / 1548 |
 | openFotoLabelPopup / openLabelPopupVoor (per-foto) | 1674 / 1702 |
 | openSerieLabelPopup (serie-labels, 🏷-knop) | 1844 |
 | **CSS** `.map-item` (`overflow:hidden`!) / `.map-controls` (+mobiel ~692) / `.map-expand-btn` / `.map-verberg-btn` / `.map-label-btn` / `.foto-label-popup` | 379 / 392 / 418 / 522 / ~530 / 476 |
@@ -150,6 +152,7 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
   - **Regressietest na elke wijziging aan dit script: draai het en controleer dat `manifest.json` byte-identiek blijft** (op een afsluitende newline na). Verandert het aantal foto's, dan schrapt of dupliceert het iets.
 - **`fotograaf-pagina.html` heeft TWEE takken** in `laadPagina()`: `id=andreas` (eigen, via manifest.json, `laadAndreasPagina`) en gastfotografen (via Worker). Beide moeten `initLightbox()` + `initLikes()` + `initComments()` aanroepen — de andreas-tak deed dat niet en had daardoor 6 weken dode like- en reactieknoppen (v0.47). **Bij elke wijziging aan deze pagina: beide takken nalopen.** Zo'n bug geeft geen console-fout.
 - **Scan altijd `*.webp` ÉN `*.WEBP`** — `find -name` en Python `rglob` zijn case-sensitive op deze Mac; 117 bestanden (0,69 GB) bleven daardoor eerst buiten beeld (v0.46).
+- **Lokaal testen van fotograaf.html zonder live data** (v0.55): kopie met de Worker-URL (4 plekken: `WORKER` + hardcoded in `laadLabels`) naar een nep-Worker op 127.0.0.1, `firebase-rest.js` vervangen door een stub (anders schrijft de presence-heartbeat naar de echte Firebase), sessie in `localStorage.zl_fotograaf`. Drijf de test via headless Chrome + CDP, niet via de Chrome-extensie: staat dat venster op de achtergrond (`visibilityState: hidden`), dan pauzeert Chrome timers en `canvas.toBlob`, en loopt elke `Runtime.evaluate` na 45 s vast. Headless Chrome is minimaal 500 px breed: meet telefoonbreedte in een `<iframe>` van 390 px.
 - **Cache-buster bumpen na JS-wijziging** — en bij twijfel of de fix écht draait: `functienaam.toString()` in de console is de grondwaarheid, niet wat het bestand op de server bevat. Blijft de oude code draaien, bump dan naar een **nooit eerder gebruikte** versiewaarde (v0.45).
 
 ## Model/kosten
