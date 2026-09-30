@@ -1281,14 +1281,19 @@ async function handleCfStatistieken(request, env, ctx) {
     if (hit) return json(await hit.json());
   }
 
+  // Dezelfde vensters als het Overview-scherm van Cloudflare (gemeten 30-09-2026
+  // in de eigen query van het dashboard): 24 uur = de laatste 24 héle uren, zonder
+  // het lopende uur; 7 en 30 dagen = hele UTC-dagen tot vandaag, zónder vandaag.
+  // Met vandaag erbij lagen de verzoeken ~3% hoger dan Andreas in Cloudflare zag.
   const nu = Date.now();
+  const heelUur = Math.floor(nu / 3600000) * 3600000;
   const datum = dagenTerug => new Date(nu - dagenTerug * 86400000).toISOString().slice(0, 10);
   const vars = {
     zone:    CF_ZONE_ID,
-    van24:   new Date(nu - 24 * 3600000).toISOString(),
-    tot:     new Date(nu).toISOString(),
-    van7:    datum(6),
-    van30:   datum(29),
+    van24:   new Date(heelUur - 24 * 3600000).toISOString(),
+    tot:     new Date(heelUur).toISOString(),
+    van7:    datum(7),
+    van30:   datum(30),
     vandaag: datum(0),
   };
 
@@ -1296,9 +1301,9 @@ async function handleCfStatistieken(request, env, ctx) {
   // uit de documentatie. Lukt dit niet, dan is er niets te tonen.
   const perGroep = await cfGraphql(env, `query ($zone: string!, $van24: Time!, $tot: Time!, $van30: Date!, $vandaag: Date!) {
     viewer { zones(filter: { zoneTag: $zone }) {
-      uren:  httpRequests1hGroups(limit: 48, filter: { datetime_geq: $van24, datetime_leq: $tot }, orderBy: [datetime_ASC]) {
+      uren:  httpRequests1hGroups(limit: 48, filter: { datetime_geq: $van24, datetime_lt: $tot }, orderBy: [datetime_ASC]) {
         dimensions { datetime } sum { requests pageViews } uniq { uniques } }
-      dagen: httpRequests1dGroups(limit: 31, filter: { date_geq: $van30, date_leq: $vandaag }, orderBy: [date_ASC]) {
+      dagen: httpRequests1dGroups(limit: 31, filter: { date_geq: $van30, date_lt: $vandaag }, orderBy: [date_ASC]) {
         dimensions { date } sum { requests pageViews } uniq { uniques } }
     } } }`, vars);
   if (!perGroep.zone) return json({ error: 'cloudflare', melding: perGroep.fout || 'geen gegevens' }, 502);
@@ -1308,9 +1313,9 @@ async function handleCfStatistieken(request, env, ctx) {
   // Cloudflare dit niet, dan blijft het null en toont beheer de som per dag.
   const uniek = await cfGraphql(env, `query ($zone: string!, $van24: Time!, $tot: Time!, $van7: Date!, $van30: Date!, $vandaag: Date!) {
     viewer { zones(filter: { zoneTag: $zone }) {
-      dag:   httpRequests1hGroups(limit: 1, filter: { datetime_geq: $van24, datetime_leq: $tot }) { uniq { uniques } }
-      week:  httpRequests1dGroups(limit: 1, filter: { date_geq: $van7,  date_leq: $vandaag }) { uniq { uniques } }
-      maand: httpRequests1dGroups(limit: 1, filter: { date_geq: $van30, date_leq: $vandaag }) { uniq { uniques } }
+      dag:   httpRequests1hGroups(limit: 1, filter: { datetime_geq: $van24, datetime_lt: $tot }) { uniq { uniques } }
+      week:  httpRequests1dGroups(limit: 1, filter: { date_geq: $van7,  date_lt: $vandaag }) { uniq { uniques } }
+      maand: httpRequests1dGroups(limit: 1, filter: { date_geq: $van30, date_lt: $vandaag }) { uniq { uniques } }
     } } }`, vars);
 
   const uren  = perGroep.zone.uren  || [];
