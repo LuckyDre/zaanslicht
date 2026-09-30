@@ -164,7 +164,7 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 - [x] Google Postmaster Tools verificatie + DMARC-record (13-06-2026)
 - [x] ZCFC-website: link naar zaanslicht.com (13-06-2026)
-- [ ] **Volgorde van de series: datum automatisch, overrulen door slepen** — **gebouwd en getest op een kopie (v0.58, 01-10-2026); wacht op "zet live"** van Andreas. Afspraak: "Datum is automatisch en gebruiker kan overrulen", ook fotografen. Live zetten = branch `volgorde-series` naar `main` + `npx wrangler deploy cloudflare-worker.js`, dáárna pas de pagina's (anders vraagt de site een route die de oude worker nog niet kent — die faalt veilig naar datum, maar beheer kan dan niet opslaan). Vóór de worker-deploy eerst vergelijken of de draaiende worker gelijk is aan de repo (zie CODEMAP, `wrangler deploy --dry-run`). Na live: nameten op zaanslicht.com en de Todoist-taak afstrepen. Oude KV-lijsten hoeven niet opgeruimd: ze tellen niet mee.
+- [x] **Volgorde van de series: datum automatisch, overrulen door slepen** — live 01-10-2026 (v0.58, worker-versie `cbee91ab`). Zie changelog.
 - [ ] **Cloudflare-sleutel `zaanslicht-statistieken` vernieuwen (Roll).** De oude waarde stond in de chat van 30-09; niet bevestigd dat het vernieuwen gebeurd is. Na een Roll de nieuwe waarde opnieuw als Secret `CF_ANALYTICS_TOKEN` in de worker zetten.
 - [ ] **Gezien, nog niet afgesproken:** (a) de online upload in beheer.html kan foto's missen en dubbel zetten (v0.55, "Gevonden in dezelfde sessie"); (b) sync.sh commit JPG's buiten `images/` ongewijzigd (30-09, geen code); (c) `generate-manifest.py` bouwt elk item opnieuw op met vaste velden en laat o.a. `verborgen` vallen — een verborgen eigen serie komt na een upload via de map weer tevoorschijn.
 
@@ -172,7 +172,7 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
-### v0.58 — 1 oktober 2026 — Volgorde van de series: op datum, overrulen door slepen (gebouwd, nog niet live)
+### v0.58 — 1 oktober 2026 — Volgorde van de series: op datum, overrulen door slepen ✅
 
 **Vraag (Andreas):** vrouwen (Jan, 26-09) bovenaan en de opening (26-09) op plek 3 zetten had geen effect. Oorzaak (gemeten 01-10): de site sorteerde alléén op `datum`; beheer bewaarde het slepen in `manifest.json` (`volgorde`), dat de site niet leest, en gastseries sloeg `updateManifestFromDOM` helemaal niet op.
 
@@ -188,6 +188,8 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 - Beide handleidingen bijgewerkt.
 
 **Getest (01-10, lokale kopie + lokale worker via `wrangler dev --local`, live alleen gelezen):** rekenregel in 9 scenario's; worker: zonder secret 401, oude vorm 400, fotograaf die andermans serie verschuift of andermans datum wijzigt 403, eigen verschuiven ok, reset ok, cache-header; headless Chrome met échte muis-sleep: beheer = site bij start, vrouwen bovenaan + opening op 3 → bewaard → site toont het → blijft na verversen; datum wijzigen schuift; "↺ Op datum" = exact de startvolgorde; Positie-tab als Jan: andermans serie beweegt niet, eigen serie naar boven → bewaard met de plekken van beheer intact → site toont het.
+
+**Live gezet (01-10, na "zet live"):** eerst gecontroleerd dat de draaiende worker gelijk was aan de repo (laatste deploy 00:06:46 = laatste worker-commit 00:06:44); worker gedeployd (versie `cbee91ab-6745-4702-a7af-05e5ef4fde34`, bindingen SUBSCRIBERS + FOTOS + cron intact), daarna `main` gepusht. **Nagemeten live:** `GET /gallery/volgorde?cat=voetbal` → 200, `max-age=60`, `volgorde: null` (oude lijsten tellen niet mee, zoals bedoeld); `POST` zonder secret → 401; voetbal/nosports/othersports.html in headless Chrome: `zlVolgorde` geladen, volgorde-verzoek 200, series op datum (voetbal: opening, ASC, vrouwen — alle 26-09 — dan Blokkers 19-09), geen paginafouten; beheer.html, fotograaf.html (APP_VERSIE 2026-10-01-a) en volgorde.js live.
 
 **Bekende beperking:** series die nog géén bewaarde plek hebben kan een fotograaf in theorie mee verschuiven (de worker kent de volledige serielijst niet). Kleine, vertrouwde groep en alleen met de 📍-schakelaar; bewust zo gelaten.
 
