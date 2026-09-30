@@ -48,6 +48,8 @@ Auth: **Secret** = admin (`X-Worker-Secret`), **Token** = fotograaf (`X-Fotograa
 | `/admin/map-registreren` | handleMapRegistreren | 1781 | Secret |
 | `/admin/labels-opschonen` | handleLabelsOpschonen (wees-opruiming) | 1715 | Secret |
 | `/admin/review-sessie` | handleReviewSessie | 693 | Secret |
+| `/gallery/volgorde` GET/POST | handleGetGalleryVolgorde / handleGalleryVolgorde — KV `gallery:volgorde:{cat}`; **door geen frontend gebruikt** (zie PROJECT.md, Openstaande punten) | ~1583 | GET publiek; POST Secret |
+| `/fotograaf/gallery-volgorde` | handleFotograafGalleryVolgorde — eigen series verschuiven, andermans items blijven staan | ~1551 | Token + positiebeheer |
 | `/admin/cf-statistieken` | handleCfStatistieken (Cloudflare GraphQL, zelfde vensters als het Overview-scherm; 10 min cache; secret `CF_ANALYTICS_TOKEN`) | 1270 | Secret |
 | `/admin/login` | handleAdminLogin (2-staps) | 594 | wachtwoord+pin |
 | `/subscribe` `/aantal` | handleSubscribe / handlePublicCount | 40/95 | Publiek |

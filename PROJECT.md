@@ -164,6 +164,19 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 - [x] Google Postmaster Tools verificatie + DMARC-record (13-06-2026)
 - [x] ZCFC-website: link naar zaanslicht.com (13-06-2026)
+- [ ] **Volgorde van de series: datum automatisch, overrulen door slepen** (gevraagd 01-10-2026; voorstel gedaan, bouwen in een nieuw gesprek). Afspraak met Andreas: "Datum is automatisch en gebruiker kan overrulen", ook fotografen.
+  1. Standaard op datum, nieuwste bovenaan.
+  2. Admin (beheer.html) sleept elke serie (eigen én gast) naar elke plek; die plek blijft staan.
+  3. Fotograaf (fotograaf.html, tab 📍 Positie op pagina) sleept alleen de eigen series; per fotograaf aan/uit met de bestaande schakelaar (`fotograaf:positiebeheer:{id}`, beheer → Fotografen).
+  4. Een nieuwe serie komt vanzelf op de plek van zijn datum.
+  5. Datum aangepast → de serie schuift naar de plek van de nieuwe datum.
+  6. Knop "↺ Op datum" in beheer zet alles terug op automatisch.
+  Voor voetbal, nosports én othersports. Eerst testen op een kopie, live pas na "zet live".
+  **Stand 01-10 (gemeten):** gallery-nieuw.js (~r551–594) sorteert alleen op `datum`; stabiel, dus bij gelijke datum eerst de eigen series (manifest-volgorde), dan de gastseries. beheer.html toont een gemengde lijst (`sorteerLijstOpDatum`) en laat ook gastseries slepen, maar `updateManifestFromDOM` bewaart alleen eigen series → gastseries slepen doet niets. Klacht Andreas 01-10: vrouwen (Jan, 26-09) bovenaan en de opening (26-09) op plek 3 zetten had geen effect; de Beheer syncs van 23:31–23:56 veranderden `manifest.json` niet.
+  **Bestaat al in de worker, door geen enkele frontend gebruikt:** KV `gallery:volgorde:{cat}` (lijst `{type:'eigen'|'gast', map, fgId}`), `POST /gallery/volgorde` (secret; alleen voetbal/nosports), `GET /gallery/volgorde` (publiek, niet gecachet), `POST /fotograaf/gallery-volgorde` (token + positiebeheer; controleert dat andermans items niet verschuiven). De bewaarde lijsten zijn oud (van vóór de datum-sortering): niet blind hergebruiken.
+  **Voorgestelde aanpak:** per item ook de datum op het moment van plaatsen bewaren. Effectieve volgorde = bewaarde lijst (zonder verdwenen items en zonder items met een gewijzigde datum) + nieuwe of gewijzigde series op datum ingevoegd. Eén rekenfunctie voor gallery-nieuw.js, beheer.html en de Positie-tab. othersports toevoegen aan de admin-POST, GET 60 s cachen, `?v=` op voetbal/nosports/othersports.html ophogen, beide handleidingen bijwerken.
+- [ ] **Cloudflare-sleutel `zaanslicht-statistieken` vernieuwen (Roll).** De oude waarde stond in de chat van 30-09; niet bevestigd dat het vernieuwen gebeurd is. Na een Roll de nieuwe waarde opnieuw als Secret `CF_ANALYTICS_TOKEN` in de worker zetten.
+- [ ] **Gezien, nog niet afgesproken:** (a) de online upload in beheer.html kan foto's missen en dubbel zetten (v0.55, "Gevonden in dezelfde sessie"); (b) sync.sh commit JPG's buiten `images/` ongewijzigd (30-09, geen code); (c) `generate-manifest.py` bouwt elk item opnieuw op met vaste velden en laat o.a. `verborgen` vallen — een verborgen eigen serie komt na een upload via de map weer tevoorschijn.
 
 ---
 
