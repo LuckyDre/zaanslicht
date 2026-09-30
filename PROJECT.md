@@ -169,6 +169,24 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 
 ## Changelog
 
+### v0.56 — 30 september 2026 — Cloudflare-bezoekerscijfers op de beheerpagina ✅
+
+**Vraag (Andreas):** de bezoekers en weergaven uit Cloudflare op de beheerpagina, voor de laatste 1, 7 en 30 dagen. Cloudflare toont meer dan de eigen teller.
+
+**Gebouwd:**
+- Worker `GET /admin/cf-statistieken` (Secret). Haalt via de GraphQL Analytics API per uur (`httpRequests1hGroups`, laatste 24 uur) en per dag (`httpRequests1dGroups`, 30 dagen) `requests`, `pageViews` en `uniques` op, en in een tweede vraag de unieke bezoekers over de hele periode zónder groepering. Antwoord per periode: `weergaven`, `verzoeken`, `bezoekersSom`, `bezoekersUniek`. 10 minuten in de Cache API onder een eigen sleutel (`/__cache/cf-statistieken`), pas ná de sleutelcontrole: `metCache()` bewaart per URL en zou het antwoord ook aan verzoeken zonder `X-Worker-Secret` geven. `?vers=1` (knop Vernieuwen) slaat de cache over.
+- Secret `CF_ANALYTICS_TOKEN`: een eigen API-token, alleen Zone → Analytics → Read voor zaanslicht.com, door Andreas zelf aangemaakt en ingevoerd. De deploy-token in `.env.local` mag dit niet (gemeten: "does not have permission zone.analytics.read") en dat is zo gelaten. De eerste poging stond als plain-text Variable met naam en waarde omgedraaid, zodat de sleutel in een schermafdruk leesbaar was; daarna vernieuwd (Roll) en als Secret gezet.
+- beheer.html, tab Fotografen: blok "☁️ Cloudflare" boven de eigen Weergaven, met Bezoekers en Paginaweergaven × 24 uur / 7 dagen / 30 dagen, knop Vernieuwen en een bronregel. Bezoekers = `bezoekersUniek`, met `bezoekersSom` als terugval.
+- beheer-handleiding.html: stap 5 in Fotografen, met uitleg waarom de twee tellers verschillen.
+
+**Getest vóór livegang:** worker in Node met nagebootste GraphQL en Cache API (18 controles, o.a. geen of verkeerde sleutel → 401 zónder Cloudflare-aanroep, geen token → 503, cache lekt niet naar verzoeken zonder sleutel, fouten niet bewaard); beheer.html in headless Chrome via CDP tegen een nep-Worker (met cijfers, zonder unieke telling, zonder sleutel, storing, Vernieuwen; telefoon 390 px zonder overloop).
+
+**Live 30-09 23:33** (worker, wrangler, versie `4eee0a6c`) **en 23:34** (beheer + handleiding, `1c6b286`). Vooraf gemeten: de bundel van de repo-worker was gelijk aan de draaiende worker (101.243 tekens), dus de deploy nam alleen de nieuwe route mee. Na de deploy alle bindingen intact (5 secrets, KV, R2). De Pages-deploy van `1c6b286` faalde bij GitHub met "Server Error (502)"; de volgende Beheer sync (`188b544`) zette het alsnog online. Een handmatige rerun van de mislukte run blijft hangen op "not yet queued" en is niet te annuleren; onschadelijk, want `1c6b286` en de nieuwste versie hebben dezelfde inhoud.
+
+**Gemeten tegen het Cloudflare-dashboard** (HTTP Traffic, Total Unique Visitors): 24 uur 116 tegen 118, 7 dagen 722 tegen 720, 30 dagen 3,11k tegen 3.110. Het dashboard gebruikt dus de ontdubbelde telling over de hele periode (`bezoekersUniek`), niet de som per dag (4.132 voor 30 dagen). Live in beheer.html om 23:54: 119 / 721 / 3.110 bezoekers en 214 / 842 / 3.454 paginaweergaven.
+
+**Let op:** op het gratis plan telt Cloudflare ook zoekmachines en robots mee. Paginaweergaven staan niet in het gratis dashboard; ze komen uit het veld `pageViews`.
+
 ### 30 september 2026 (geen code) — Serie "ZCFC opening Clubhuis en nieuwe hybride hoofdveld" via de map; originelen kort in de repo
 - Andreas exporteerde 20 JPG's (6960×4640, samen 70,9 MB) naar `~/Desktop/Foto Export/…`. Daar kijkt sync.sh niet: die bewaakt alleen `~/fotografie-site`. Juiste plek: `~/fotografie-site/images/voetbal/<serienaam>/` (of `nosports`/`othersports`).
 - Daarna zette hij de map eerst in de **hoofdmap** van de repo. sync.sh zet alleen JPG's in `images/{voetbal,nosports,othersports}` om; alles daarbuiten gaat ongewijzigd mee in `git add -A`. Zo kwamen de 20 originelen in commit `228b7e6` (22:22) op GitHub. In `82fc041` (22:23) weer weg, in `71c940a` (22:24) goed verwerkt vanuit `images/voetbal`: 20 webp (2200 px) + 20 thumbs + manifest.

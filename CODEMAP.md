@@ -48,6 +48,7 @@ Auth: **Secret** = admin (`X-Worker-Secret`), **Token** = fotograaf (`X-Fotograa
 | `/admin/map-registreren` | handleMapRegistreren | 1781 | Secret |
 | `/admin/labels-opschonen` | handleLabelsOpschonen (wees-opruiming) | 1715 | Secret |
 | `/admin/review-sessie` | handleReviewSessie | 693 | Secret |
+| `/admin/cf-statistieken` | handleCfStatistieken (Cloudflare GraphQL, 10 min cache; secret `CF_ANALYTICS_TOKEN`) | 1270 | Secret |
 | `/admin/login` | handleAdminLogin (2-staps) | 594 | wachtwoord+pin |
 | `/subscribe` `/aantal` | handleSubscribe / handlePublicCount | 40/95 | Publiek |
 | `/foto/{key}` (`?thumb=1`) | handleFotoServe | 1946 | Publiek |
@@ -115,6 +116,7 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 | WORKER_URL | 839 |
 | startReview (review-modus) | 1678 |
 | bhRenderMapLabelLijst / bhSlaMapLabelsOp (eigen-map labels) | 3339 / 3410 |
+| bhLaadCfStats (blok ☁️ Cloudflare, tab Fotografen) / bhLaadViews (eigen Weergaven) | 1862 / 1805 |
 | bhLb* (eigen lightbox) | ~3234 |
 
 ## Terugkerende valkuilen (kosten anders opnieuw debug-tijd)
@@ -144,6 +146,9 @@ De knoppenrij per serie (⚽/🌿/🏅/🏠 + datum + 🙈 Verberg + 🏷 Labels
 - **Eigen masters (>2200px) staan sinds v0.48 in R2, niet op Pages** — key `eigen/{cat}/{map}/{naam}`, geserveerd door `handleFotoServe`. Foto's ≤2200px zijn nooit verhuisd en worden door de Worker vanaf Pages **doorgegeven** (geen redirect: de canvas-omzetting in `downloadFoto` heeft `ACAO` op het eindantwoord nodig). Verifieer met de **`X-Bron`-header**: `r2` / `r2-decoded` = uit R2, `pages` = niet in R2. **Zonder die header lijkt een mislukte verhuizing geslaagd**, want de passthrough geeft hetzelfde bestand met dezelfde bytegrootte terug.
 - **Bouw een eigen-key nooit met Python `quote(safe='')`** — dat encodeert `(` en `)`, `encodeURIComponent` niet. Gebruik `safe="!~*'()"`. En: **de wrangler-CLI normaliseert percent-escapes bij `r2 object put`** (`Serie%20X` → `Serie X`), daarom probeert de Worker voor eigen-keys óók de gedecodeerde vorm (`r2-decoded` is de normale uitkomst).
 - **`/foto/`-routes hebben TWEE guards**: één in de router (~r2213) én één bovenaan `handleFotoServe`. Bij een nieuw key-prefix moeten ze beide om.
+- **`wrangler deploy` wist variabelen die alleen in het dashboard staan.** Plain-text-variabelen die niet in `wrangler.toml` staan verdwijnen bij de deploy (geen `keep_vars`); secrets blijven. Sleutels dus altijd als **Secret**. Controleer vóór een deploy met de settings-API welke bindingen er zijn, en of de repo-worker gelijk is aan de draaiende (`wrangler deploy --dry-run --outdir …` vergelijken met `…/scripts/zaanslicht-updates/content/v2`).
+- **GitHub Pages kan een deploy laten mislukken met "Server Error (502)"** terwijl de build slaagt; de site blijft dan op de vorige versie staan. De volgende commit zet alles alsnog online. Controleer altijd de live-bytes, niet alleen de push.
+- **Live HTML vergelijken:** Cloudflare vervangt e-mailadressen door `/cdn-cgi/l/email-protection` (Email Obfuscation), dus pagina's met een e-mailadres (beheer-handleiding.html) wijken live altijd af van de repo.
 - **Niet verifiëren direct na een `wrangler deploy`** — requests kunnen nog op een colo met de oude workerversie landen en een misleidend resultaat geven. Enkele minuten wachten.
 - **`maak-thumbs.py` sloot `-groot` niet uit** (gefixt v0.48): het maakte thumbnails van de 2200px-versies (`…-groot-thumb.webp`, 323 nutteloze bestanden). Bij een nieuw afgeleid formaat: sluit het uit in álle generatiescripts.
 - **`generate-manifest.py` bepaalt "bestaat deze foto" aan de hand van het bestand op schijf** — en dat is sinds v0.48 niet meer waar: de masters staan in R2. Daarom leest het script nu **`masters-in-r2.json`** (bijgehouden door `verhuis-masters-naar-r2.py`) en telt die paden mee als bestaand. **Verwijder dat bestand nooit** en houd het bij als er masters verhuizen — anders schrapt de eerstvolgende `sync.sh`-run alle verhuisde foto's uit `manifest.json` en vallen ze van de site.
