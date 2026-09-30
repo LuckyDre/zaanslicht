@@ -173,7 +173,7 @@ Fotografen en admin koppelen foto-mappen aan clubnamen zodat clubs.html die kan 
 - Andreas exporteerde 20 JPG's (6960×4640, samen 70,9 MB) naar `~/Desktop/Foto Export/…`. Daar kijkt sync.sh niet: die bewaakt alleen `~/fotografie-site`. Juiste plek: `~/fotografie-site/images/voetbal/<serienaam>/` (of `nosports`/`othersports`).
 - Daarna zette hij de map eerst in de **hoofdmap** van de repo. sync.sh zet alleen JPG's in `images/{voetbal,nosports,othersports}` om; alles daarbuiten gaat ongewijzigd mee in `git add -A`. Zo kwamen de 20 originelen in commit `228b7e6` (22:22) op GitHub. In `82fc041` (22:23) weer weg, in `71c940a` (22:24) goed verwerkt vanuit `images/voetbal`: 20 webp (2200 px) + 20 thumbs + manifest.
 - Gemeten: de originelen geven op de site 404, maar staan nog in de git-geschiedenis van de publieke repo. Niet verwijderd (vraagt herschrijven van de geschiedenis + force-push).
-- De serie staat live met 20 foto's, maar **zonder datum**, dus onderaan voetbal.html (plek 27 van 27). EXIF bevat geen opnamedatum; de datum moet van Andreas komen.
+- De serie kwam live met 20 foto's maar **zonder datum**, dus onderaan voetbal.html (plek 27 van 27); de EXIF bevat geen opnamedatum. Andreas zette om 22:27 zelf de datum 26-09 in beheer.html, daarna een beschrijving en plek 0. Gemeten 23:3x: plek 1 op voetbal.html, vóór Jans twee series van dezelfde dag.
 - Verbeterpunt voor sync.sh (niet gedaan): geen JPG's of grote bestanden buiten `images/` committen.
 
 ### v0.55 — 28–30 september 2026 — Datum van de serie direct bij het uploaden (fotograaf.html) ✅
